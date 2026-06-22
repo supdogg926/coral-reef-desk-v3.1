@@ -2,7 +2,7 @@ class_name GameState
 extends RefCounted
 
 var initialized: bool = false
-var milestone: String = "M9 basic save load and offline progression"
+var milestone: String = "M10 livestock shop tank capacity core loop"
 var reef_points: float = 0.0
 var unlocked_tier: int = 1
 var time_system: TimeSystem = null
@@ -193,21 +193,23 @@ func _update_livestock_and_economy(delta_seconds: float) -> void:
 	if livestock_system == null or economy_system == null or water_chemistry_system == null:
 		return
 	var water_state: Dictionary = water_chemistry_system.get_debug_state()
-	var current_reef_value: float = livestock_system.calculate_reef_value(water_state, carrying_capacity_score)
-	var income_rate: float = livestock_system.calculate_income_rate(water_state, carrying_capacity_score)
-	var current_health: float = float(livestock_system.get_debug_state().get("health_modifier", 1.0))
-	var current_water_income: float = float(livestock_system.get_debug_state().get("water_income_modifier", 1.0))
+	var equipment_mult: float = 1.0 + (stability_score - 50.0) * 0.004
+	var income_rate: float = livestock_system.calculate_income_rate(water_state, equipment_mult)
+	var current_reef_value: float = livestock_system.calculate_reef_value(water_state)
+	var ls_debug: Dictionary = livestock_system.get_debug_state()
+	var current_health: float = float(ls_debug.get("health_modifier", 1.0))
+	var current_water_mult: float = float(ls_debug.get("water_quality_multiplier", 1.0))
 	economy_system.reef_value = current_reef_value
 	economy_system.update_income(delta_seconds, income_rate)
 	reef_points = economy_system.get_reef_points()
 	delta_reef_value = current_reef_value - _prev_reef_value
 	delta_income_rate = income_rate - _prev_income_rate
 	delta_health_modifier = current_health - _prev_health_modifier
-	delta_water_income_modifier = current_water_income - _prev_water_income_modifier
+	delta_water_income_modifier = current_water_mult - _prev_water_income_modifier
 	_prev_reef_value = current_reef_value
 	_prev_income_rate = income_rate
 	_prev_health_modifier = current_health
-	_prev_water_income_modifier = current_water_income
+	_prev_water_income_modifier = current_water_mult
 
 
 func _update_unlocks() -> void:
@@ -220,6 +222,41 @@ func get_save_debug_state() -> Dictionary:
 	if save_system == null:
 		return {}
 	return save_system.get_debug_state()
+
+
+func buy_livestock_from_shop(shop_id: String) -> Dictionary:
+	if livestock_system == null or economy_system == null:
+		return {"success": false, "error": "system_unavailable"}
+	var shop_entry: Dictionary = livestock_system.get_shop_entry(shop_id)
+	if shop_entry.is_empty():
+		return {"success": false, "error": "item_not_found", "shop_id": shop_id}
+	var price: float = float(shop_entry.get("price", 0.0))
+	if not economy_system.spend_reef_points(price):
+		return {"success": false, "error": "insufficient_rp", "price": price, "current_rp": economy_system.get_reef_points()}
+	var purchase_entry: Dictionary = {
+		"id": "%s_%d" % [shop_id, Time.get_unix_time_from_system()],
+		"species_name": String(shop_entry.get("species_name", "")),
+		"category": String(shop_entry.get("category", "")),
+		"rarity": String(shop_entry.get("rarity", "普通")),
+		"size_cm": float(shop_entry.get("size_min", 3.0)),
+		"maturity_percent": 0.0,
+		"health_percent": 100.0,
+		"base_income_per_hour": float(shop_entry.get("base_income_per_hour", 0.0)),
+		"tank_slot_cost": float(shop_entry.get("tank_slot_cost", 1.0)),
+		"locked": false,
+		"water_sensitivity": float(shop_entry.get("water_sensitivity", 0.4)),
+	}
+	if not livestock_system.add_livestock(purchase_entry):
+		economy_system.add_reef_points(price)
+		return {"success": false, "error": "capacity_exceeded", "price": price, "capacity_used": livestock_system.get_capacity_used(), "max_capacity": livestock_system.get_max_capacity()}
+	reef_points = economy_system.get_reef_points()
+	return {
+		"success": true,
+		"species_name": purchase_entry["species_name"],
+		"price": price,
+		"new_count": livestock_system.get_livestock_count(),
+		"capacity_used": livestock_system.get_capacity_used(),
+	}
 
 
 func _try_load_game() -> void:
@@ -256,6 +293,9 @@ func _apply_save_state(save_data: Dictionary) -> void:
 	if raw_unlocks is Dictionary and unlock_system != null:
 		unlock_system.import_state(raw_unlocks)
 		unlock_system.recalculate_from_reef_points(economy_system.total_reef_points_earned if economy_system != null else 0.0)
+	var raw_livestock: Variant = save_data.get("livestock", {})
+	if raw_livestock is Dictionary and livestock_system != null:
+		livestock_system.import_state(raw_livestock)
 	reef_points = economy_system.reef_points if economy_system != null else 0.0
 
 
@@ -289,6 +329,7 @@ func _perform_autosave() -> void:
 	var water_state: Dictionary = water_chemistry_system.export_state() if water_chemistry_system != null else {}
 	var time_state: Dictionary = time_system.export_state() if time_system != null else {}
 	var unlock_state: Dictionary = unlock_system.export_state() if unlock_system != null else {}
+	var livestock_state: Dictionary = livestock_system.export_state() if livestock_system != null else {}
 	var equipment_state: Dictionary = {
 		"tier1_installed": true,
 		"tier2_preview": unlock_system.unlocked_states.get("tier2_equipment_preview", false) if unlock_system != null else false,
@@ -299,6 +340,7 @@ func _perform_autosave() -> void:
 		"water_chemistry": water_state,
 		"time": time_state,
 		"unlocks": unlock_state,
+		"livestock": livestock_state,
 		"equipment": equipment_state,
 	}
 	save_system.save_game(save_dict)

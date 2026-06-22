@@ -17,15 +17,18 @@ REPORT_PATH = ROOT / "reports" / "m6_livestock_reef_value_check_summary.json"
 
 REQUIRED_LIVESTOCK_FUNCTIONS = [
     "func initialize()",
-    "func load_starter_livestock(",
     "func get_livestock_count()",
     "func get_capacity_used()",
-    "func get_capacity_limit()",
+    "func get_max_capacity()",
     "func get_capacity_status()",
-    "func calculate_livestock_health_modifier(water_chemistry_state: Dictionary)",
-    "func calculate_reef_value(water_chemistry_state: Dictionary, carrying_capacity_score: float)",
-    "func calculate_income_rate(water_chemistry_state: Dictionary, carrying_capacity_score: float)",
+    "func add_livestock(",
+    "func remove_livestock(",
+    "func calculate_health_from_water(",
+    "func calculate_reef_value(",
+    "func calculate_income_rate(",
     "func get_debug_state()",
+    "func export_state()",
+    "func import_state(",
 ]
 
 REQUIRED_ECONOMY_FUNCTIONS = [
@@ -39,14 +42,14 @@ REQUIRED_ECONOMY_FUNCTIONS = [
 
 REQUIRED_UI_TEXT = [
     "\u751f\u7269\u6570\u91cf",
-    "\u627f\u8f7d\u4f7f\u7528",
-    "\u627f\u8f7d\u72b6\u6001",
-    "\u73ca\u745a\u7f38\u4ef7\u503c",
+    "\u5bb9\u91cf",
+    "\u72b6\u6001\uff1a",
+    "\u7f38\u4ef7\u503c",
     "Reef Points",
-    "\u6536\u76ca\u901f\u5ea6",
-    "\u751f\u7269\u5065\u5eb7\u7cfb\u6570",
-    "\u6c34\u8d28\u6536\u76ca\u7cfb\u6570",
-    "\u5f53\u524d\u9636\u6bb5\uff1aM9 \u5b58\u6863\u4e0e\u79bb\u7ebf\u8fdb\u5ea6",
+    "\u6709\u6548\u6536\u76ca",
+    "\u5065\u5eb7\u7cfb\u6570",
+    "\u6c34\u8d28\u500d\u7387",
+    "\u5f53\u524d\u9636\u6bb5\uff1aM10 \u751f\u7269\u5546\u5e97\u4e0e\u5bb9\u91cf\u5faa\u73af",
 ]
 
 FORBIDDEN_SIMULATION_TERMS = [

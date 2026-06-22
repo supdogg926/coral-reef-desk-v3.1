@@ -1,0 +1,122 @@
+[
+  {
+    "id": "fluorescent_turf",
+    "species_name": "荧光草皮",
+    "category": "软体珊瑚",
+    "rarity": "普通",
+    "price": 15.0,
+    "size_min": 2.0,
+    "size_max": 5.0,
+    "base_income_per_hour": 0.20,
+    "tank_slot_cost": 2.0,
+    "water_sensitivity": 0.30
+  },
+  {
+    "id": "pulsing_xenia",
+    "species_name": "闪千手",
+    "category": "软体珊瑚",
+    "rarity": "精品",
+    "price": 40.0,
+    "size_min": 2.0,
+    "size_max": 8.0,
+    "base_income_per_hour": 0.50,
+    "tank_slot_cost": 3.0,
+    "water_sensitivity": 0.40
+  },
+  {
+    "id": "sea_anemone_shop",
+    "species_name": "海葵",
+    "category": "软体珊瑚",
+    "rarity": "稀有",
+    "price": 120.0,
+    "size_min": 5.0,
+    "size_max": 15.0,
+    "base_income_per_hour": 1.20,
+    "tank_slot_cost": 5.0,
+    "water_sensitivity": 0.60
+  },
+  {
+    "id": "button_polyps",
+    "species_name": "纽扣珊瑚",
+    "category": "软体珊瑚",
+    "rarity": "普通",
+    "price": 25.0,
+    "size_min": 1.0,
+    "size_max": 4.0,
+    "base_income_per_hour": 0.30,
+    "tank_slot_cost": 2.0,
+    "water_sensitivity": 0.35
+  },
+  {
+    "id": "green_torch",
+    "species_name": "绿火柴",
+    "category": "LPS硬骨珊瑚",
+    "rarity": "精品",
+    "price": 60.0,
+    "size_min": 3.0,
+    "size_max": 10.0,
+    "base_income_per_hour": 0.70,
+    "tank_slot_cost": 4.0,
+    "water_sensitivity": 0.50
+  },
+  {
+    "id": "jewel_flower",
+    "species_name": "宝石花",
+    "category": "LPS硬骨珊瑚",
+    "rarity": "稀有",
+    "price": 150.0,
+    "size_min": 4.0,
+    "size_max": 12.0,
+    "base_income_per_hour": 1.50,
+    "tank_slot_cost": 5.0,
+    "water_sensitivity": 0.55
+  },
+  {
+    "id": "hammer_coral",
+    "species_name": "锤头珊瑚",
+    "category": "LPS硬骨珊瑚",
+    "rarity": "精品",
+    "price": 80.0,
+    "size_min": 3.0,
+    "size_max": 10.0,
+    "base_income_per_hour": 0.90,
+    "tank_slot_cost": 4.0,
+    "water_sensitivity": 0.45
+  },
+  {
+    "id": "ocellaris_clown",
+    "species_name": "公子小丑",
+    "category": "海水鱼",
+    "rarity": "普通",
+    "price": 30.0,
+    "size_min": 3.0,
+    "size_max": 8.0,
+    "base_income_per_hour": 0.40,
+    "tank_slot_cost": 3.0,
+    "water_sensitivity": 0.45
+  },
+  {
+    "id": "blue_tang_shop",
+    "species_name": "蓝吊",
+    "category": "海水鱼",
+    "rarity": "精品",
+    "price": 70.0,
+    "size_min": 5.0,
+    "size_max": 12.0,
+    "base_income_per_hour": 0.80,
+    "tank_slot_cost": 4.0,
+    "water_sensitivity": 0.55
+  },
+  {
+    "id": "mandarin_dragonet",
+    "species_name": "五彩青蛙",
+    "category": "海水鱼",
+    "rarity": "稀有",
+    "price": 200.0,
+    "size_min": 3.0,
+    "size_max": 6.0,
+    "base_income_per_hour": 1.80,
+    "tank_slot_cost": 3.0,
+    "water_sensitivity": 0.70
+  }
+]

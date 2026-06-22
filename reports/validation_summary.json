@@ -13,6 +13,7 @@
     "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3\\data\\schemas\\equipment_schema.json",
     "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3\\data\\schemas\\species_schema.json",
     "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3\\data\\schemas\\task_schema.json",
+    "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3\\data\\shop\\initial_shop_seed.json",
     "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3\\data\\species\\corals_seed.json",
     "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3\\data\\species\\fish_seed.json",
     "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3\\data\\species\\legacy_species_extracted.json",
@@ -20,7 +21,7 @@
     "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3\\data\\tasks\\maintenance_tasks_seed.json",
     "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3\\data\\unlocks\\unlock_milestones_seed.json"
   ],
-  "checked_file_count": 17,
+  "checked_file_count": 18,
   "schema_files": [
     "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3\\data\\schemas\\equipment_placement_schema.json",
     "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3\\data\\schemas\\equipment_schema.json",

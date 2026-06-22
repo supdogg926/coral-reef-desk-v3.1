@@ -18,7 +18,7 @@ REQUIRED_UI_TEXT = [
     "\u6536\u53d8B",
     "\u4ed3\u5e93",
     "\u9ad8\u7ea7\uff1a\u672a\u89e3\u9501",
-    "\u5f53\u524d\u9636\u6bb5\uff1aM9",
+    "\u5f53\u524d\u9636\u6bb5\uff1aM10",
 ]
 
 REQUIRED_DELTA_LABELS = [
