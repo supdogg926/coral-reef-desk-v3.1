@@ -2,17 +2,26 @@ class_name ShopPanel
 extends PanelContainer
 
 var game_state: GameState = null
-var item_buttons: Array[Dictionary] = []
 var status_label: Label = null
 
-func setup(gs: GameState) -> void:
-	game_state = gs
+
+func _ready() -> void:
 	var style: StyleBoxFlat = StyleBoxFlat.new()
 	style.bg_color = Color(0.10, 0.12, 0.14, 0.95)
 	style.border_color = Color(0.35, 0.55, 0.50)
 	style.set_border_width_all(2)
 	style.set_corner_radius_all(6)
 	add_theme_stylebox_override("panel", style)
+
+
+func setup(gs: GameState) -> void:
+	game_state = gs
+	_build_ui()
+
+
+func _build_ui() -> void:
+	for child in get_children():
+		child.queue_free()
 
 	var margin: MarginContainer = MarginContainer.new()
 	margin.add_theme_constant_override("margin_left", 10)
@@ -51,8 +60,12 @@ func setup(gs: GameState) -> void:
 	status_label.add_theme_color_override("font_color", Color(0.90, 0.70, 0.40))
 	root.add_child(status_label)
 
-	var shop_items: Array[Dictionary] = game_state.livestock_system.get_shop_items() if game_state != null else []
-	item_buttons.clear()
+	if game_state == null:
+		return
+	var ls: LivestockSystem = game_state.livestock_system
+	if ls == null:
+		return
+	var shop_items: Array[Dictionary] = ls.get_shop_items()
 	for item in shop_items:
 		var row: HBoxContainer = HBoxContainer.new()
 		row.add_theme_constant_override("separation", 4)
@@ -74,14 +87,12 @@ func setup(gs: GameState) -> void:
 		row.add_child(info)
 
 		var buy_btn: Button = Button.new()
-		buy_btn.text = "带回家"
-		buy_btn.custom_minimum_size = Vector2(55, 22)
+		buy_btn.text = "购买"
+		buy_btn.custom_minimum_size = Vector2(48, 22)
 		buy_btn.add_theme_font_size_override("font_size", 9)
 		var item_id: String = String(item.get("id", ""))
-		buy_btn.pressed.connect(_on_buy.bind(item_id))
+		buy_btn.pressed.connect(_make_buy_callback(item_id))
 		row.add_child(buy_btn)
-
-		item_buttons.append({"id": item_id, "button": buy_btn, "row": row})
 
 	var close_btn: Button = Button.new()
 	close_btn.text = "关闭商店"
@@ -89,6 +100,10 @@ func setup(gs: GameState) -> void:
 	close_btn.add_theme_font_size_override("font_size", 10)
 	close_btn.pressed.connect(_on_close)
 	root.add_child(close_btn)
+
+
+func _make_buy_callback(shop_id: String) -> Callable:
+	return func(): _on_buy(shop_id)
 
 
 func _on_buy(shop_id: String) -> void:

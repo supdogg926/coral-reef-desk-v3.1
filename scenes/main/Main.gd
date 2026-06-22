@@ -24,6 +24,8 @@ func _process(delta: float) -> void:
 	_update_status_labels()
 	if livestock_panel != null and livestock_panel.visible:
 		livestock_panel.refresh()
+	if shop_panel != null and shop_panel.visible:
+		shop_panel.setup(game_state)
 
 
 func _setup_panels() -> void:
@@ -58,16 +60,14 @@ func _setup_panels() -> void:
 	btn_bar.add_child(livestock_btn)
 
 	shop_panel = ShopPanel.new()
-	shop_panel.setup(game_state)
 	shop_panel.hide()
-	shop_panel.custom_minimum_size = Vector2(0, 320)
 	add_child(shop_panel)
+	shop_panel.setup(game_state)
 
 	livestock_panel = LivestockPanel.new()
-	livestock_panel.setup(game_state)
 	livestock_panel.hide()
-	livestock_panel.custom_minimum_size = Vector2(0, 260)
 	add_child(livestock_panel)
+	livestock_panel.setup(game_state)
 
 	_panels_setup_done = true
 
@@ -79,10 +79,16 @@ func _toggle_shop() -> void:
 		shop_panel.hide()
 	else:
 		livestock_panel.hide()
+		shop_panel.setup(game_state)
+		shop_panel.anchor_left = 0.03
+		shop_panel.anchor_right = 0.97
+		shop_panel.anchor_top = 0.55
+		shop_panel.anchor_bottom = 0.98
+		shop_panel.offset_left = 0.0
+		shop_panel.offset_right = 0.0
+		shop_panel.offset_top = 0.0
+		shop_panel.offset_bottom = 0.0
 		shop_panel.show()
-		var vp_size: Vector2 = get_viewport().get_visible_rect().size
-		shop_panel.position = Vector2(40, vp_size.y - 360)
-		shop_panel.size = Vector2(vp_size.x - 80, 310)
 
 
 func _toggle_livestock() -> void:
@@ -92,11 +98,16 @@ func _toggle_livestock() -> void:
 		livestock_panel.hide()
 	else:
 		shop_panel.hide()
-		livestock_panel.refresh()
+		livestock_panel.setup(game_state)
+		livestock_panel.anchor_left = 0.03
+		livestock_panel.anchor_right = 0.97
+		livestock_panel.anchor_top = 0.55
+		livestock_panel.anchor_bottom = 0.98
+		livestock_panel.offset_left = 0.0
+		livestock_panel.offset_right = 0.0
+		livestock_panel.offset_top = 0.0
+		livestock_panel.offset_bottom = 0.0
 		livestock_panel.show()
-		var vp_size: Vector2 = get_viewport().get_visible_rect().size
-		livestock_panel.position = Vector2(40, vp_size.y - 310)
-		livestock_panel.size = Vector2(vp_size.x - 80, 260)
 
 
 func _update_status_labels() -> void:
