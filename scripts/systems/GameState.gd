@@ -237,7 +237,9 @@ func get_save_debug_state() -> Dictionary:
 
 
 func buy_livestock_from_shop(shop_id: String) -> Dictionary:
+	print("[BUY] gs.buy start shop_id=", shop_id)
 	if livestock_system == null or economy_system == null:
+		print("[BUY] gs.buy system unavailable")
 		return {"success": false, "error": "system_unavailable"}
 	var shop_entry: Dictionary = livestock_system.get_shop_entry(shop_id)
 	if shop_entry.is_empty():
@@ -264,8 +266,10 @@ func buy_livestock_from_shop(shop_id: String) -> Dictionary:
 	reef_points = economy_system.get_reef_points()
 	_update_livestock_and_economy(0.0)
 	_update_unlocks()
+	print("[BUY] gs.buy setting pending save flag")
 	_pending_save_after_purchase = true
 	_purchase_save_timer = 0.0
+	print("[BUY] gs.buy about to return success")
 	return {
 		"success": true,
 		"species_name": purchase_entry["species_name"],

@@ -6,8 +6,8 @@ var status_label: Label = null
 var item_list: VBoxContainer = null
 var _built: bool = false
 var _purchase_in_progress: bool = false
-var _alive_tick: int = 0
-var _alive_timer: float = 0.0
+var _pending_shop_id: String = ""
+var _buy_timer: Timer = null
 
 
 func _ready() -> void:
@@ -17,15 +17,11 @@ func _ready() -> void:
 	style.set_border_width_all(2)
 	style.set_corner_radius_all(6)
 	add_theme_stylebox_override("panel", style)
-
-
-func _process(delta: float) -> void:
-	_alive_timer += delta
-	if _alive_timer >= 1.0:
-		_alive_timer = 0.0
-		_alive_tick += 1
-		if status_label != null and status_label.text.begins_with("购买成功"):
-			status_label.text = "购买成功 tick=%d" % _alive_tick
+	_buy_timer = Timer.new()
+	_buy_timer.one_shot = true
+	_buy_timer.wait_time = 0.1
+	_buy_timer.timeout.connect(_on_buy_timer_timeout)
+	add_child(_buy_timer)
 
 
 func setup(gs: GameState) -> void:
@@ -79,13 +75,15 @@ func update_display() -> void:
 		buy_btn.text = "带回家"
 		buy_btn.custom_minimum_size = Vector2(48, 22)
 		buy_btn.add_theme_font_size_override("font_size", 9)
-		var item_id: String = String(item.get("id", ""))
-		buy_btn.pressed.connect(_make_buy_callback(item_id))
+		buy_btn.set_meta("shop_id", String(item.get("id", "")))
+		buy_btn.pressed.connect(_on_any_buy_pressed.bind(buy_btn))
 		row.add_child(buy_btn)
 
 
 func _build_ui() -> void:
 	for child in get_children():
+		if child is Timer:
+			continue
 		child.queue_free()
 
 	var margin: MarginContainer = MarginContainer.new()
@@ -146,27 +144,30 @@ func _build_ui() -> void:
 		update_display()
 
 
-func _make_buy_callback(shop_id: String) -> Callable:
-	return func(): _on_buy(shop_id)
-
-
-func _on_buy(shop_id: String) -> void:
+func _on_any_buy_pressed(btn: Button) -> void:
 	if game_state == null:
-		print("[BUY] game_state is null")
+		print("[BUY] game_state null")
 		return
 	if _purchase_in_progress:
-		print("[BUY] purchase already in progress, ignoring")
+		print("[BUY] already in progress")
 		return
 	_purchase_in_progress = true
+	_pending_shop_id = String(btn.get_meta("shop_id", ""))
 	status_label.text = "购买处理中..."
-	print("[BUY] pressed, defer purchase shop_id=", shop_id)
-	call_deferred("_perform_buy_deferred", shop_id)
+	print("[BUY] pressed shop_id=", _pending_shop_id, " starting timer")
+	_buy_timer.start()
 
 
-func _perform_buy_deferred(shop_id: String) -> void:
-	print("[BUY] deferred start")
+func _on_buy_timer_timeout() -> void:
+	print("[BUY] timer fired, executing purchase")
+	var shop_id: String = _pending_shop_id
+	if shop_id.is_empty():
+		_purchase_in_progress = false
+		print("[BUY] empty shop_id, abort")
+		return
+	print("[BUY] calling game_state.buy_livestock_from_shop")
 	var result: Dictionary = game_state.buy_livestock_from_shop(shop_id)
-	print("[BUY] deferred result success=", result.get("success", false))
+	print("[BUY] result success=", result.get("success", false))
 	if result.get("success", false):
 		status_label.text = "购买成功：%s｜RP-%d｜生物数：%d｜容量：%.1f/%.1f" % [
 			result.get("species_name", ""),
@@ -176,6 +177,7 @@ func _perform_buy_deferred(shop_id: String) -> void:
 			float(result.get("max_capacity", 30.0)),
 		]
 		status_label.add_theme_color_override("font_color", Color(0.50, 0.90, 0.55))
+		print("[BUY] status updated, success")
 	else:
 		var err: String = String(result.get("error", "unknown"))
 		if err == "capacity_exceeded":
@@ -185,10 +187,9 @@ func _perform_buy_deferred(shop_id: String) -> void:
 		else:
 			status_label.text = "购买失败：%s" % err
 		status_label.add_theme_color_override("font_color", Color(0.95, 0.50, 0.40))
-	_alive_tick = 0
-	_alive_timer = 0.0
+		print("[BUY] status updated, fail")
 	_purchase_in_progress = false
-	print("[BUY] deferred done, input should remain alive")
+	print("[BUY] flow complete, UI should be alive")
 
 
 func _on_close() -> void:
