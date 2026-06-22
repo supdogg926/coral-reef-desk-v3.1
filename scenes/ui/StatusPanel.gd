@@ -18,7 +18,7 @@ func _ready() -> void:
 func update_counts(species_count: int, equipment_count: int, task_count: int, event_count: int, load_status: String, error_count: int) -> void:
 	_set_line("data", "data", "数据：物种%d｜设备%d｜任务%d｜事件%d" % [species_count, equipment_count, task_count, event_count])
 	_set_line("data", "validation", "校验：load=%s｜errors=%d" % [load_status, error_count])
-	_set_line("data", "milestone", "当前阶段：M8 仓库预览与全量变化显示")
+	_set_line("data", "milestone", "当前阶段：M9 存档与离线进度")
 
 
 func update_equipment_debug(game_state_debug: Dictionary) -> void:
@@ -141,6 +141,33 @@ func update_delta_debug(water_debug: Dictionary, delta_debug: Dictionary) -> voi
 	_set_line("dynamic", "economy_delta_b", economy_delta_b)
 
 
+func update_save_debug(save_debug: Dictionary, save_loaded: bool, offline_summary: Dictionary) -> void:
+	var save_exists: bool = bool(save_debug.get("save_exists", false))
+	var last_save_time: int = int(save_debug.get("last_save_unix_time", 0))
+	var load_status: String = "已加载" if save_loaded else ("新游戏" if not save_exists else "就绪")
+	var auto_status: String = "开启"
+	var last_save_text: String = "--:--:--"
+	if last_save_time > 0:
+		var time_dict: Dictionary = Time.get_datetime_dict_from_unix_time(float(last_save_time))
+		last_save_text = "%02d:%02d:%02d" % [time_dict.get("hour", 0), time_dict.get("minute", 0), time_dict.get("second", 0)]
+	var save_line: String = "存档：%s｜自动存档：%s｜最近：%s" % [load_status, auto_status, last_save_text]
+	_set_line("dynamic", "save_status", save_line)
+
+	var offline_applied: bool = bool(offline_summary.get("applied", false))
+	if offline_applied:
+		var offline_sec: float = float(offline_summary.get("offline_seconds", 0.0))
+		var offline_income: float = float(offline_summary.get("offline_income", 0.0))
+		var offline_text: String = ""
+		if offline_sec >= 3600.0:
+			offline_text = "离线时长：%.1f小时" % (offline_sec / 3600.0)
+		else:
+			offline_text = "离线时长：%d分钟" % int(offline_sec / 60.0)
+		offline_text += "｜离线收益：+%.1f RP" % offline_income
+		_set_line("dynamic", "save_offline", offline_text)
+	else:
+		_set_line("dynamic", "save_offline", "离线：无")
+
+
 func _build_status_layout() -> void:
 	section_labels.clear()
 	for child in get_children():
@@ -177,6 +204,7 @@ func _build_status_layout() -> void:
 		"simulation", "time_tick",
 		"water_delta_a", "water_delta_b",
 		"economy_delta_a", "economy_delta_b",
+		"save_status", "save_offline",
 		"stage", "target", "progress",
 		"warehouse", "advanced",
 	])
@@ -218,7 +246,7 @@ func _make_label(text: String, font_size: int, is_title: bool) -> Label:
 func _set_default_text() -> void:
 	_set_line("data", "data", "数据：物种161｜设备28｜任务10｜事件7")
 	_set_line("data", "validation", "校验：load=OK｜errors=0")
-	_set_line("data", "milestone", "当前阶段：M8 仓库预览与全量变化显示")
+	_set_line("data", "milestone", "当前阶段：M9 存档与离线进度")
 	_set_line("water", "summary", "水质状态：正常｜水质评分 100.0")
 	_set_line("water", "temperature", "温度 25.1℃｜盐度 35.0｜pH 8.20")
 	_set_line("water", "nutrients", "NO3 2.60｜PO4 0.030")
@@ -239,6 +267,8 @@ func _set_default_text() -> void:
 	_set_line("dynamic", "water_delta_b", "水变B：PO4+0.0000 KH+0.00 Ca+0.0 评+0.00")
 	_set_line("dynamic", "economy_delta_a", "收变A：RP+0.00 价值+0.00 收益+0.000")
 	_set_line("dynamic", "economy_delta_b", "收变B：健康+0.000 水质收益+0.000")
+	_set_line("dynamic", "save_status", "存档：新游戏｜自动存档：开启｜最近：--:--:--")
+	_set_line("dynamic", "save_offline", "离线：无")
 	_set_line("dynamic", "stage", "阶段：初级玩家")
 	_set_line("dynamic", "target", "目标：解锁中级设备预览")
 	_set_line("dynamic", "progress", "进度：0%")

@@ -45,3 +45,8 @@ func _update_status_labels() -> void:
 	var water_delta_state: Dictionary = game_state.get_water_chemistry_debug_state()
 	var delta_state: Dictionary = game_state.get_debug_state().get("delta", {})
 	status_panel.update_delta_debug(water_delta_state, delta_state)
+	status_panel.update_save_debug(
+		game_state.get_save_debug_state(),
+		game_state.save_loaded,
+		game_state.offline_summary,
+	)

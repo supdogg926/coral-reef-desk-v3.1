@@ -40,6 +40,20 @@ func get_elapsed_days_debug() -> float:
 	return elapsed_seconds / 86400.0
 
 
+func export_state() -> Dictionary:
+	return {
+		"elapsed_seconds": elapsed_seconds,
+	}
+
+
+func import_state(state: Dictionary) -> void:
+	elapsed_seconds = float(state.get("elapsed_seconds", 0.0))
+
+
+func apply_offline_time(offline_seconds: float) -> void:
+	elapsed_seconds += max(offline_seconds, 0.0)
+
+
 func get_debug_state() -> Dictionary:
 	return {
 		"system": "TimeSystem",

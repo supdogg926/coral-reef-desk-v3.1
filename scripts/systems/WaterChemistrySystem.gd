@@ -224,6 +224,57 @@ func _clamp_debug_ranges() -> void:
 	calcium = clamp(calcium, 300.0, 560.0)
 
 
+func export_state() -> Dictionary:
+	return {
+		"temperature": temperature,
+		"salinity": salinity,
+		"ph": ph,
+		"nitrate": nitrate,
+		"phosphate": phosphate,
+		"alkalinity": alkalinity,
+		"calcium": calcium,
+		"water_quality_score": water_quality_score,
+		"accumulated_simulation_seconds": accumulated_simulation_seconds,
+		"chemistry_tick_count": chemistry_tick_count,
+	}
+
+
+func import_state(state: Dictionary) -> void:
+	temperature = float(state.get("temperature", TARGET_TEMPERATURE))
+	salinity = float(state.get("salinity", TARGET_SALINITY))
+	ph = float(state.get("ph", TARGET_PH))
+	nitrate = float(state.get("nitrate", TARGET_NITRATE))
+	phosphate = float(state.get("phosphate", TARGET_PHOSPHATE))
+	alkalinity = float(state.get("alkalinity", TARGET_ALKALINITY))
+	calcium = float(state.get("calcium", TARGET_CALCIUM))
+	water_quality_score = float(state.get("water_quality_score", 100.0))
+	accumulated_simulation_seconds = float(state.get("accumulated_simulation_seconds", 0.0))
+	chemistry_tick_count = int(state.get("chemistry_tick_count", 0))
+	_clamp_debug_ranges()
+	parameter_status = calculate_parameter_status()
+	water_quality_score = calculate_water_quality_score()
+	water_status = get_water_status()
+
+
+func apply_offline_drift(offline_game_hours: float, equipment_effects_summary: Dictionary) -> void:
+	var days: float = max(offline_game_hours, 0.0) / 24.0
+	nitrate += 0.04 * days
+	phosphate += 0.0008 * days
+	salinity += 0.005 * days
+	ph -= 0.002 * days
+	alkalinity -= 0.005 * days
+	calcium -= 0.08 * days
+	var temperature_control: float = float(equipment_effects_summary.get("temperature_control", 0.0))
+	if temperature_control > 0.0:
+		temperature = _move_toward_float(temperature, TARGET_TEMPERATURE, temperature_control * 0.06 * days)
+	else:
+		temperature += 0.02 * days
+	_clamp_debug_ranges()
+	parameter_status = calculate_parameter_status()
+	water_quality_score = calculate_water_quality_score()
+	water_status = get_water_status()
+
+
 func _format_delta_summary(delta_nitrate: float, delta_phosphate: float, delta_ph: float) -> String:
 	return "NO3 %+0.3f / PO4 %+0.4f / pH %+0.3f" % [
 		delta_nitrate,

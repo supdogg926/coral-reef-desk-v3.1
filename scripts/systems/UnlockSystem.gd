@@ -64,6 +64,40 @@ func get_locked_preview_items() -> Array[String]:
 	return locked_preview_items.duplicate()
 
 
+func export_state() -> Dictionary:
+	return {
+		"current_stage": current_stage,
+		"unlocked_states": unlocked_states.duplicate(),
+	}
+
+
+func import_state(state: Dictionary) -> void:
+	current_stage = String(state.get("current_stage", "初级玩家"))
+	var raw_states: Variant = state.get("unlocked_states", {})
+	if raw_states is Dictionary:
+		unlocked_states = raw_states.duplicate()
+	else:
+		unlocked_states.clear()
+		unlocked_states["tier1_running"] = true
+		unlocked_states["tier2_equipment_preview"] = false
+		unlocked_states["tier2_sump_space_preview"] = false
+		unlocked_states["tier3_advanced_system_preview"] = false
+	_update_preview_lists()
+
+
+func recalculate_from_reef_points(total_earned: float) -> void:
+	unlocked_states["tier1_running"] = true
+	unlocked_states["tier2_equipment_preview"] = total_earned >= 500.0
+	unlocked_states["tier2_sump_space_preview"] = total_earned >= 1500.0
+	unlocked_states["tier3_advanced_system_preview"] = false
+	if bool(unlocked_states.get("tier2_equipment_preview", false)) or bool(unlocked_states.get("tier2_sump_space_preview", false)):
+		current_stage = "中级玩家预备"
+	else:
+		current_stage = "初级玩家"
+	_update_target(total_earned)
+	_update_preview_lists()
+
+
 func get_debug_state() -> Dictionary:
 	return {
 		"system": "UnlockSystem",

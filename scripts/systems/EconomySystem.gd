@@ -43,6 +43,27 @@ func get_reef_points() -> float:
 	return reef_points
 
 
+func export_state() -> Dictionary:
+	return {
+		"reef_points": reef_points,
+		"total_reef_points_earned": total_reef_points_earned,
+		"reef_value": reef_value,
+		"income_rate_per_game_hour": income_rate_per_game_hour,
+	}
+
+
+func import_state(state: Dictionary) -> void:
+	reef_points = float(state.get("reef_points", 0.0))
+	total_reef_points_earned = float(state.get("total_reef_points_earned", 0.0))
+	reef_value = float(state.get("reef_value", 0.0))
+	income_rate_per_game_hour = float(state.get("income_rate_per_game_hour", 0.0))
+	delta_reef_points = 0.0
+
+
+func apply_offline_income(amount: float) -> void:
+	add_reef_points(max(amount, 0.0))
+
+
 func get_debug_state() -> Dictionary:
 	return {
 		"system": "EconomySystem",
