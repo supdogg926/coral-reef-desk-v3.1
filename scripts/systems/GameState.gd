@@ -2,7 +2,7 @@ class_name GameState
 extends RefCounted
 
 var initialized: bool = false
-var milestone: String = "M7 basic unlock progression"
+var milestone: String = "M8 equipment warehouse preview and full delta display"
 var reef_points: float = 0.0
 var unlocked_tier: int = 1
 var time_system: TimeSystem = null
@@ -15,6 +15,14 @@ var unlock_system: UnlockSystem = null
 var stability_score: float = 50.0
 var carrying_capacity_score: float = 10.0
 var maintenance_load: float = 0.0
+var _prev_reef_value: float = 0.0
+var _prev_income_rate: float = 0.0
+var _prev_health_modifier: float = 1.0
+var _prev_water_income_modifier: float = 1.0
+var delta_reef_value: float = 0.0
+var delta_income_rate: float = 0.0
+var delta_health_modifier: float = 0.0
+var delta_water_income_modifier: float = 0.0
 
 
 func initialize() -> void:
@@ -116,6 +124,12 @@ func get_debug_state() -> Dictionary:
 	if unlock_system != null:
 		unlock_debug = unlock_system.get_debug_state()
 
+	var economy_delta_debug: Dictionary = {}
+	if economy_system != null:
+		economy_delta_debug = {
+			"delta_reef_points": economy_system.delta_reef_points,
+		}
+
 	return {
 		"system": "GameState",
 		"initialized": initialized,
@@ -132,6 +146,13 @@ func get_debug_state() -> Dictionary:
 		"water_chemistry": chemistry_debug,
 		"livestock": livestock_debug,
 		"unlock": unlock_debug,
+		"delta": {
+			"reef_points": economy_delta_debug.get("delta_reef_points", 0.0),
+			"reef_value": delta_reef_value,
+			"income_rate": delta_income_rate,
+			"health_modifier": delta_health_modifier,
+			"water_income_modifier": delta_water_income_modifier,
+		},
 	}
 
 
@@ -150,9 +171,19 @@ func _update_livestock_and_economy(delta_seconds: float) -> void:
 	var water_state: Dictionary = water_chemistry_system.get_debug_state()
 	var current_reef_value: float = livestock_system.calculate_reef_value(water_state, carrying_capacity_score)
 	var income_rate: float = livestock_system.calculate_income_rate(water_state, carrying_capacity_score)
+	var current_health: float = float(livestock_system.get_debug_state().get("health_modifier", 1.0))
+	var current_water_income: float = float(livestock_system.get_debug_state().get("water_income_modifier", 1.0))
 	economy_system.reef_value = current_reef_value
 	economy_system.update_income(delta_seconds, income_rate)
 	reef_points = economy_system.get_reef_points()
+	delta_reef_value = current_reef_value - _prev_reef_value
+	delta_income_rate = income_rate - _prev_income_rate
+	delta_health_modifier = current_health - _prev_health_modifier
+	delta_water_income_modifier = current_water_income - _prev_water_income_modifier
+	_prev_reef_value = current_reef_value
+	_prev_income_rate = income_rate
+	_prev_health_modifier = current_health
+	_prev_water_income_modifier = current_water_income
 
 
 func _update_unlocks() -> void:

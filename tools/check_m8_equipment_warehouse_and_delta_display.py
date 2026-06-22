@@ -6,37 +6,43 @@ from typing import Any
 
 
 ROOT = Path(__file__).resolve().parents[1]
-UNLOCK_PATH = ROOT / "scripts" / "systems" / "UnlockSystem.gd"
-GAME_STATE_PATH = ROOT / "scripts" / "systems" / "GameState.gd"
 STATUS_PANEL_PATH = ROOT / "scenes" / "ui" / "StatusPanel.gd"
+GAME_STATE_PATH = ROOT / "scripts" / "systems" / "GameState.gd"
+WATER_CHEM_PATH = ROOT / "scripts" / "systems" / "WaterChemistrySystem.gd"
+ECONOMY_PATH = ROOT / "scripts" / "systems" / "EconomySystem.gd"
 MAIN_PATH = ROOT / "scenes" / "main" / "Main.gd"
 EQUIPMENT_TIERS_PATH = ROOT / "data" / "equipment" / "equipment_tiers_seed.json"
 UNLOCK_DATA_PATH = ROOT / "data" / "unlocks" / "unlock_milestones_seed.json"
-REPORT_PATH = ROOT / "reports" / "m7_basic_unlock_progression_check_summary.json"
-
-REQUIRED_UNLOCK_FUNCTIONS = [
-    "func initialize()",
-    "func update_unlocks(economy_state: Dictionary)",
-    "func get_current_stage()",
-    "func get_next_unlock_target()",
-    "func get_unlock_progress()",
-    "func is_unlocked(unlock_id: String)",
-    "func get_unlocked_preview_items()",
-    "func get_locked_preview_items()",
-    "func get_debug_state()",
-]
+REPORT_PATH = ROOT / "reports" / "m8_equipment_warehouse_and_delta_display_check_summary.json"
 
 REQUIRED_UI_TEXT = [
-    "\u73a9\u5bb6\u9636\u6bb5",
-    "\u4e0b\u4e2a\u76ee\u6807",
-    "\u89e3\u9501\u8fdb\u5ea6",
+    "\u6c34\u8d28\u53d8\u5316",
+    "\u6536\u76ca\u53d8\u5316",
     "\u4ed3\u5e93\u9884\u89c8",
     "\u4ed3\u5e93\u72b6\u6001",
-    "\u51b7\u6c34\u673a",
-    "\u6740\u83cc\u706f",
-    "\u85fb\u7f38\u706f",
-    "\u9020\u6d41\u6cf5",
+    "\u5df2\u89e3\u9501\u9884\u89c8",
+    "\u672a\u5b89\u88c5",
+    "\u672a\u751f\u6548",
     "\u9ad8\u7ea7\u7cfb\u7edf\uff1a\u672a\u89e3\u9501",
+]
+
+REQUIRED_DELTA_FIELDS = [
+    "delta_temperature",
+    "delta_salinity",
+    "delta_ph",
+    "delta_nitrate",
+    "delta_phosphate",
+    "delta_alkalinity",
+    "delta_calcium",
+    "delta_water_quality_score",
+]
+
+REQUIRED_ECONOMY_DELTA = [
+    "delta_reef_points",
+    "delta_reef_value",
+    "delta_income_rate",
+    "delta_health_modifier",
+    "delta_water_income_modifier",
 ]
 
 FORBIDDEN_GAMEPLAY_TERMS = [
@@ -56,15 +62,16 @@ FORBIDDEN_GAMEPLAY_TERMS = [
 ]
 
 SCAN_GDSCRIPT = [
-    UNLOCK_PATH,
-    GAME_STATE_PATH,
     STATUS_PANEL_PATH,
+    GAME_STATE_PATH,
+    WATER_CHEM_PATH,
+    ECONOMY_PATH,
     MAIN_PATH,
     ROOT / "scripts" / "systems" / "EquipmentSystem.gd",
     ROOT / "scripts" / "systems" / "EquipmentPlacementSystem.gd",
-    ROOT / "scripts" / "systems" / "WaterChemistrySystem.gd",
     ROOT / "scripts" / "systems" / "LivestockSystem.gd",
-    ROOT / "scripts" / "systems" / "EconomySystem.gd",
+    ROOT / "scripts" / "systems" / "UnlockSystem.gd",
+    ROOT / "scripts" / "systems" / "TimeSystem.gd",
     ROOT / "scenes" / "tank" / "PipeNetworkView.gd",
     ROOT / "scenes" / "tank" / "SumpView.gd",
     ROOT / "scenes" / "tank" / "DisplayTankView.gd",
@@ -95,29 +102,31 @@ def main() -> int:
     errors: list[dict[str, Any]] = []
     warnings: list[dict[str, Any]] = []
 
-    for path in [UNLOCK_PATH, GAME_STATE_PATH, STATUS_PANEL_PATH, MAIN_PATH, EQUIPMENT_TIERS_PATH, UNLOCK_DATA_PATH]:
+    for path in [STATUS_PANEL_PATH, GAME_STATE_PATH, WATER_CHEM_PATH, ECONOMY_PATH, MAIN_PATH, EQUIPMENT_TIERS_PATH, UNLOCK_DATA_PATH]:
         if not path.exists():
             errors.append({"type": "missing_file", "path": str(path)})
 
-    unlock_text = UNLOCK_PATH.read_text(encoding="utf-8") if UNLOCK_PATH.exists() else ""
-    game_state_text = GAME_STATE_PATH.read_text(encoding="utf-8") if GAME_STATE_PATH.exists() else ""
     status_text = STATUS_PANEL_PATH.read_text(encoding="utf-8") if STATUS_PANEL_PATH.exists() else ""
+    game_state_text = GAME_STATE_PATH.read_text(encoding="utf-8") if GAME_STATE_PATH.exists() else ""
+    water_chem_text = WATER_CHEM_PATH.read_text(encoding="utf-8") if WATER_CHEM_PATH.exists() else ""
+    economy_text = ECONOMY_PATH.read_text(encoding="utf-8") if ECONOMY_PATH.exists() else ""
     main_text = MAIN_PATH.read_text(encoding="utf-8") if MAIN_PATH.exists() else ""
 
-    missing_functions = [name for name in REQUIRED_UNLOCK_FUNCTIONS if name not in unlock_text]
-    if missing_functions:
-        errors.append({"type": "missing_unlock_functions", "functions": missing_functions})
+    missing_ui = [text for text in REQUIRED_UI_TEXT if text not in status_text]
+    if missing_ui:
+        errors.append({"type": "missing_ui_text", "texts": missing_ui})
 
-    for token in ["UnlockSystem", "unlock_system", "update_unlocks", "get_unlock_debug_state"]:
-        if token not in game_state_text:
-            errors.append({"type": "missing_gamestate_unlock_reference", "token": token})
+    for field in REQUIRED_DELTA_FIELDS:
+        if field not in water_chem_text:
+            errors.append({"type": "missing_water_delta_field", "field": field})
 
-    if "update_unlock_debug" not in main_text:
-        errors.append({"type": "missing_main_unlock_ui_binding"})
+    for field in REQUIRED_ECONOMY_DELTA:
+        found_in_code = field in game_state_text or field in economy_text
+        if not found_in_code:
+            errors.append({"type": "missing_economy_delta_field", "field": field})
 
-    missing_ui_text = [text for text in REQUIRED_UI_TEXT if text not in status_text and text not in unlock_text and text not in (UNLOCK_DATA_PATH.read_text(encoding="utf-8") if UNLOCK_DATA_PATH.exists() else "")]
-    if missing_ui_text:
-        errors.append({"type": "missing_unlock_ui_text", "texts": missing_ui_text})
+    if "update_delta_debug" not in main_text:
+        errors.append({"type": "missing_main_delta_binding"})
 
     data_errors: list[dict[str, Any]] = []
     equipment_data = load_json(EQUIPMENT_TIERS_PATH, data_errors) if EQUIPMENT_TIERS_PATH.exists() else []
@@ -151,16 +160,6 @@ def main() -> int:
         errors.append({"type": "tier3_not_locked", "records": tier3_bad})
     if tier2_effect_records:
         errors.append({"type": "tier2_nonzero_effects", "records": tier2_effect_records})
-
-    unlock_ids = {str(item.get("unlock_id")) for item in unlock_records if isinstance(item, dict)}
-    required_unlock_ids = {
-        "tier1_running",
-        "tier2_equipment_preview",
-        "tier2_sump_space_preview",
-        "tier3_advanced_system_preview",
-    }
-    if unlock_ids != required_unlock_ids:
-        errors.append({"type": "unlock_id_mismatch", "expected": sorted(required_unlock_ids), "actual": sorted(unlock_ids)})
 
     forbidden_hits: list[dict[str, Any]] = []
     for path in SCAN_GDSCRIPT:
@@ -211,9 +210,9 @@ def main() -> int:
     summary = {
         "root": str(ROOT),
         "passed": len(errors) == 0,
-        "unlock_system": str(UNLOCK_PATH),
-        "unlock_data": str(UNLOCK_DATA_PATH),
-        "unlock_ids": sorted(unlock_ids),
+        "status_panel": str(STATUS_PANEL_PATH),
+        "water_chem": str(WATER_CHEM_PATH),
+        "economy": str(ECONOMY_PATH),
         "tier2_bad_count": len(tier2_bad),
         "tier3_bad_count": len(tier3_bad),
         "tier2_effect_record_count": len(tier2_effect_records),
@@ -227,10 +226,10 @@ def main() -> int:
     REPORT_PATH.write_text(json.dumps(summary, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
     if errors:
-        print(f"Basic unlock progression check failed. Summary: {REPORT_PATH}")
+        print(f"M8 equipment warehouse and delta display check failed. Summary: {REPORT_PATH}")
         return 1
 
-    print(f"Basic unlock progression check passed. Summary: {REPORT_PATH}")
+    print(f"M8 equipment warehouse and delta display check passed. Summary: {REPORT_PATH}")
     return 0
 
 

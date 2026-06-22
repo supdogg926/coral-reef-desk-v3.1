@@ -25,6 +25,15 @@ var chemistry_tick_count: int = 0
 var accumulated_simulation_seconds: float = 0.0
 var last_chemistry_update_time: float = 0.0
 var last_parameter_delta_summary: String = "NO3 +0.00 / PO4 +0.000 / pH +0.00"
+var delta_temperature: float = 0.0
+var delta_salinity: float = 0.0
+var delta_ph: float = 0.0
+var delta_nitrate: float = 0.0
+var delta_phosphate: float = 0.0
+var delta_alkalinity: float = 0.0
+var delta_calcium: float = 0.0
+var delta_water_quality_score: float = 0.0
+var _prev_water_quality_score: float = 100.0
 
 
 func initialize() -> void:
@@ -45,25 +54,48 @@ func reset_to_initial_values() -> void:
 	accumulated_simulation_seconds = 0.0
 	last_chemistry_update_time = 0.0
 	last_parameter_delta_summary = "NO3 +0.00 / PO4 +0.000 / pH +0.00"
+	delta_temperature = 0.0
+	delta_salinity = 0.0
+	delta_ph = 0.0
+	delta_nitrate = 0.0
+	delta_phosphate = 0.0
+	delta_alkalinity = 0.0
+	delta_calcium = 0.0
+	delta_water_quality_score = 0.0
+	_prev_water_quality_score = 100.0
 	parameter_status = calculate_parameter_status()
 	water_quality_score = calculate_water_quality_score()
 	water_status = get_water_status()
 
 
 func simulate_tick(delta_seconds: float, equipment_effects_summary: Dictionary) -> void:
+	var before_temperature: float = temperature
+	var before_salinity: float = salinity
+	var before_ph: float = ph
 	var before_nitrate: float = nitrate
 	var before_phosphate: float = phosphate
-	var before_ph: float = ph
+	var before_alkalinity: float = alkalinity
+	var before_calcium: float = calcium
+	var before_quality: float = water_quality_score
 	apply_natural_drift(delta_seconds)
 	apply_equipment_stabilization(equipment_effects_summary, delta_seconds)
 	_clamp_debug_ranges()
 	chemistry_tick_count += 1
 	accumulated_simulation_seconds += max(delta_seconds, 0.0)
 	last_chemistry_update_time = accumulated_simulation_seconds
-	last_parameter_delta_summary = _format_delta_summary(nitrate - before_nitrate, phosphate - before_phosphate, ph - before_ph)
 	parameter_status = calculate_parameter_status()
 	water_quality_score = calculate_water_quality_score()
 	water_status = get_water_status()
+	delta_temperature = temperature - before_temperature
+	delta_salinity = salinity - before_salinity
+	delta_ph = ph - before_ph
+	delta_nitrate = nitrate - before_nitrate
+	delta_phosphate = phosphate - before_phosphate
+	delta_alkalinity = alkalinity - before_alkalinity
+	delta_calcium = calcium - before_calcium
+	delta_water_quality_score = water_quality_score - before_quality
+	_prev_water_quality_score = water_quality_score
+	last_parameter_delta_summary = _format_delta_summary(delta_nitrate, delta_phosphate, delta_ph)
 
 
 func apply_natural_drift(delta_seconds: float) -> void:
@@ -146,6 +178,14 @@ func get_debug_state() -> Dictionary:
 		"chemistry_tick_count": chemistry_tick_count,
 		"last_chemistry_update_time": last_chemistry_update_time,
 		"last_parameter_delta_summary": last_parameter_delta_summary,
+		"delta_temperature": delta_temperature,
+		"delta_salinity": delta_salinity,
+		"delta_ph": delta_ph,
+		"delta_nitrate": delta_nitrate,
+		"delta_phosphate": delta_phosphate,
+		"delta_alkalinity": delta_alkalinity,
+		"delta_calcium": delta_calcium,
+		"delta_water_quality_score": delta_water_quality_score,
 		"parameter_status": parameter_status.duplicate(),
 	}
 

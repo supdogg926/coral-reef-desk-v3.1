@@ -38,7 +38,8 @@ REQUIRED_STATUS_LABELS = [
     "\u65f6\u95f4\u500d\u7387\uff1a1\u79d2=10\u5206\u949f",
     "\u6e38\u620f\u65f6\u95f4",
     "\u6c34\u8d28\u66f4\u65b0",
-    "\u6700\u8fd1\u53d8\u5316",
+    "\u6c34\u8d28\u53d8\u5316",
+    "\u6536\u76ca\u53d8\u5316",
 ]
 
 REQUIRED_SUMP_LABELS = [

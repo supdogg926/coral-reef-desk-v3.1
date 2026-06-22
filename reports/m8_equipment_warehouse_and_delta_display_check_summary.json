@@ -1,0 +1,19 @@
+{
+  "root": "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3",
+  "passed": true,
+  "status_panel": "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3\\scenes\\ui\\StatusPanel.gd",
+  "water_chem": "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3\\scripts\\systems\\WaterChemistrySystem.gd",
+  "economy": "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3\\scripts\\systems\\EconomySystem.gd",
+  "tier2_bad_count": 0,
+  "tier3_bad_count": 0,
+  "tier2_effect_record_count": 0,
+  "dataregistry_counts": {
+    "species": 161,
+    "equipment": 28,
+    "tasks": 10,
+    "events": 7
+  },
+  "variant_inference_hit_count": 0,
+  "errors": [],
+  "warnings": []
+}

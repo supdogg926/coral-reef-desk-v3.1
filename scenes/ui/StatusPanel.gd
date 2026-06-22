@@ -18,7 +18,7 @@ func _ready() -> void:
 func update_counts(species_count: int, equipment_count: int, task_count: int, event_count: int, load_status: String, error_count: int) -> void:
 	_set_line("data", "data", "数据：物种%d｜设备%d｜任务%d｜事件%d" % [species_count, equipment_count, task_count, event_count])
 	_set_line("data", "validation", "校验：load=%s｜errors=%d" % [load_status, error_count])
-	_set_line("data", "milestone", "当前阶段：M7 基础解锁进度系统")
+	_set_line("data", "milestone", "当前阶段：M8 仓库预览与全量变化显示")
 
 
 func update_equipment_debug(game_state_debug: Dictionary) -> void:
@@ -55,7 +55,6 @@ func update_water_chemistry_debug(water_debug: Dictionary) -> void:
 	var localized_status: String = _localize_water_status(water_status)
 	var chemistry_tick_count: int = int(water_debug.get("chemistry_tick_count", 0))
 	var elapsed_game_minutes: int = int(water_debug.get("elapsed_game_minutes", 0))
-	var last_delta: String = String(water_debug.get("last_parameter_delta_summary", "NO3 +0.000 / PO4 +0.0000 / pH +0.000"))
 
 	_set_line("water", "summary", "水质状态：%s｜水质评分 %.1f" % [localized_status, water_quality_score])
 	_set_line("water", "temperature", "温度 %.1f℃｜盐度 %.1f｜pH %.2f" % [temperature, salinity, ph])
@@ -64,7 +63,6 @@ func update_water_chemistry_debug(water_debug: Dictionary) -> void:
 	_set_line("dynamic", "simulation", "模拟：自动运行中｜时间倍率：1秒=10分钟")
 	_set_line("dynamic", "time", "游戏时间：%s" % [_format_game_time(elapsed_game_minutes)])
 	_set_line("dynamic", "tick", "水质更新：第%d次" % [chemistry_tick_count])
-	_set_line("dynamic", "delta", "最近变化：%s" % [last_delta])
 
 
 func update_livestock_economy_debug(livestock_debug: Dictionary, economy_debug: Dictionary) -> void:
@@ -92,21 +90,49 @@ func update_unlock_debug(unlock_debug: Dictionary) -> void:
 	var progress: float = float(unlock_debug.get("unlock_progress", 0.0)) * 100.0
 	var unlocked_items: Array = _string_array_from(unlock_debug.get("unlocked_preview_items", []))
 	var locked_items: Array = _string_array_from(unlock_debug.get("locked_preview_items", []))
-	var unlocked_text: String = "Tier 1 运行"
+	var warehouse_text: String = "暂无"
 	if not unlocked_items.is_empty():
-		unlocked_text = _join_preview_items(unlocked_items, " / ")
-	while locked_items.size() > 4:
-		locked_items.pop_back()
-	var preview_items: Array = unlocked_items if not unlocked_items.is_empty() else locked_items
-	var preview_text: String = _join_preview_items(preview_items, " / ")
-	if preview_text.is_empty():
-		preview_text = "暂无"
+		warehouse_text = _join_preview_items(unlocked_items, " ")
+	else:
+		while locked_items.size() > 4:
+			locked_items.pop_back()
+		if not locked_items.is_empty():
+			warehouse_text = _join_preview_items(locked_items, " (锁定) ") + " (锁定)"
+	var warehouse_status: String = "未解锁预览"
+	var t2_unlocked: bool = bool(unlock_debug.get("unlocked_states", {}).get("tier2_equipment_preview", false))
+	if t2_unlocked:
+		warehouse_status = "已解锁预览 未安装 未生效"
 	_set_line("dynamic", "stage", "玩家阶段：%s" % [current_stage])
 	_set_line("dynamic", "target", "下个目标：%s" % [next_target])
 	_set_line("dynamic", "progress", "解锁进度：%.0f%%" % [progress])
-	_set_line("dynamic", "unlocked", "已解锁：%s" % [unlocked_text])
-	_set_line("dynamic", "preview", "预览设备：%s" % [preview_text])
+	_set_line("dynamic", "warehouse", "仓库预览：%s" % [warehouse_text])
+	_set_line("dynamic", "warehouse_status", "仓库状态：%s" % [warehouse_status])
 	_set_line("dynamic", "advanced", "高级系统：未解锁")
+
+
+func update_delta_debug(water_debug: Dictionary, delta_debug: Dictionary) -> void:
+	var d_temp: float = float(water_debug.get("delta_temperature", 0.0))
+	var d_sal: float = float(water_debug.get("delta_salinity", 0.0))
+	var d_ph: float = float(water_debug.get("delta_ph", 0.0))
+	var d_no3: float = float(water_debug.get("delta_nitrate", 0.0))
+	var d_po4: float = float(water_debug.get("delta_phosphate", 0.0))
+	var d_kh: float = float(water_debug.get("delta_alkalinity", 0.0))
+	var d_ca: float = float(water_debug.get("delta_calcium", 0.0))
+	var d_quality: float = float(water_debug.get("delta_water_quality_score", 0.0))
+	var d_rp: float = float(delta_debug.get("reef_points", 0.0))
+	var d_value: float = float(delta_debug.get("reef_value", 0.0))
+	var d_income: float = float(delta_debug.get("income_rate", 0.0))
+	var d_health: float = float(delta_debug.get("health_modifier", 0.0))
+	var d_water_income: float = float(delta_debug.get("water_income_modifier", 0.0))
+
+	var water_delta_text: String = "水质变化：温%+.2f 盐%+.2f pH%+.3f NO3%+.3f PO4%+.4f KH%+.2f Ca%+.1f 评分%+.2f" % [
+		d_temp, d_sal, d_ph, d_no3, d_po4, d_kh, d_ca, d_quality,
+	]
+	var economy_delta_text: String = "收益变化：RP%+.2f 价值%+.2f 收益%+.3f 健康%+.3f 水收%+.3f" % [
+		d_rp, d_value, d_income, d_health, d_water_income,
+	]
+	_set_line("dynamic", "water_delta", water_delta_text)
+	_set_line("dynamic", "economy_delta", economy_delta_text)
 
 
 func _build_status_layout() -> void:
@@ -143,7 +169,7 @@ func _build_status_layout() -> void:
 	_create_section(grid, "water", "水质", ["summary", "temperature", "nutrients", "minerals"])
 	_create_section(grid, "system", "系统", ["tier", "capacity", "plumbing", "reserved"])
 	_create_section(grid, "livestock", "生物与收益", ["count", "capacity", "value", "points", "income", "modifiers"])
-	_create_section(grid, "dynamic", "动态确认", ["simulation", "time", "tick", "delta", "stage", "target", "progress", "unlocked", "preview", "advanced"])
+	_create_section(grid, "dynamic", "动态确认", ["simulation", "time", "tick", "water_delta", "economy_delta", "stage", "target", "progress", "warehouse", "warehouse_status", "advanced"])
 
 
 func _create_section(parent: Control, section_id: String, title_text: String, line_ids: Array[String]) -> void:
@@ -182,7 +208,7 @@ func _make_label(text: String, font_size: int, is_title: bool) -> Label:
 func _set_default_text() -> void:
 	_set_line("data", "data", "数据：物种161｜设备28｜任务10｜事件7")
 	_set_line("data", "validation", "校验：load=OK｜errors=0")
-	_set_line("data", "milestone", "当前阶段：M7 基础解锁进度系统")
+	_set_line("data", "milestone", "当前阶段：M8 仓库预览与全量变化显示")
 	_set_line("water", "summary", "水质状态：正常｜水质评分 100.0")
 	_set_line("water", "temperature", "温度 25.1℃｜盐度 35.0｜pH 8.20")
 	_set_line("water", "nutrients", "NO3 2.60｜PO4 0.030")
@@ -200,12 +226,13 @@ func _set_default_text() -> void:
 	_set_line("dynamic", "simulation", "模拟：自动运行中｜时间倍率：1秒=10分钟")
 	_set_line("dynamic", "time", "游戏时间：第1天 00:00")
 	_set_line("dynamic", "tick", "水质更新：第0次")
-	_set_line("dynamic", "delta", "最近变化：NO3 +0.000 / PO4 +0.0000 / pH +0.000")
+	_set_line("dynamic", "water_delta", "水质变化：温+0.00 盐+0.00 pH+0.000 NO3+0.000 PO4+0.0000 KH+0.00 Ca+0.0 评分+0.00")
+	_set_line("dynamic", "economy_delta", "收益变化：RP+0.00 价值+0.00 收益+0.000 健康+0.000 水收+0.000")
 	_set_line("dynamic", "stage", "玩家阶段：初级玩家")
 	_set_line("dynamic", "target", "下个目标：解锁中级设备预览")
 	_set_line("dynamic", "progress", "解锁进度：0%")
-	_set_line("dynamic", "unlocked", "已解锁：Tier 1 运行")
-	_set_line("dynamic", "preview", "预览设备：暂无")
+	_set_line("dynamic", "warehouse", "仓库预览：暂无")
+	_set_line("dynamic", "warehouse_status", "仓库状态：未解锁预览")
 	_set_line("dynamic", "advanced", "高级系统：未解锁")
 
 

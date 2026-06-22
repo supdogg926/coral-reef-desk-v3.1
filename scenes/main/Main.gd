@@ -42,3 +42,6 @@ func _update_status_labels() -> void:
 		game_state.get_economy_debug_state(),
 	)
 	status_panel.update_unlock_debug(game_state.get_unlock_debug_state())
+	var water_delta_state: Dictionary = game_state.get_water_chemistry_debug_state()
+	var delta_state: Dictionary = game_state.get_debug_state().get("delta", {})
+	status_panel.update_delta_debug(water_delta_state, delta_state)

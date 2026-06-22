@@ -6,6 +6,7 @@ var reef_points: float = 0.0
 var total_reef_points_earned: float = 0.0
 var reef_value: float = 0.0
 var income_rate_per_game_hour: float = 0.0
+var delta_reef_points: float = 0.0
 
 
 func initialize() -> void:
@@ -13,12 +14,14 @@ func initialize() -> void:
 	total_reef_points_earned = 0.0
 	reef_value = 0.0
 	income_rate_per_game_hour = 0.0
+	delta_reef_points = 0.0
 	initialized = true
 
 
 func update_income(delta_seconds: float, income_rate: float) -> void:
 	income_rate_per_game_hour = max(income_rate, 0.0)
 	var earned: float = income_rate_per_game_hour * max(delta_seconds, 0.0) / 3600.0
+	delta_reef_points = earned
 	add_reef_points(earned)
 
 
@@ -48,4 +51,5 @@ func get_debug_state() -> Dictionary:
 		"total_reef_points_earned": total_reef_points_earned,
 		"reef_value": reef_value,
 		"income_rate_per_game_hour": income_rate_per_game_hour,
+		"delta_reef_points": delta_reef_points,
 	}

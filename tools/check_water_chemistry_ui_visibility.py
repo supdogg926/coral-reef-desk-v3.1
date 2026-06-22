@@ -81,6 +81,7 @@ def main() -> int:
         "\u5f53\u524d\u9636\u6bb5\uff1aM5 \u6c34\u8d28\u6700\u5c0f\u6a21\u62df",
         "\u5f53\u524d\u9636\u6bb5\uff1aM6 \u751f\u7269\u627f\u8f7d\u4e0e\u6536\u76ca\u5faa\u73af",
         "\u5f53\u524d\u9636\u6bb5\uff1aM7 \u57fa\u7840\u89e3\u9501\u8fdb\u5ea6\u7cfb\u7edf",
+        "\u5f53\u524d\u9636\u6bb5\uff1aM8 \u4ed3\u5e93\u9884\u89c8\u4e0e\u5168\u91cf\u53d8\u5316\u663e\u793a",
     ]
     if not any(text in combined_text for text in allowed_milestones):
         errors.append({"type": "current_milestone_missing"})
