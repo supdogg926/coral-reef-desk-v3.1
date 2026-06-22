@@ -250,12 +250,19 @@ func buy_livestock_from_shop(shop_id: String) -> Dictionary:
 		economy_system.add_reef_points(price)
 		return {"success": false, "error": "capacity_exceeded", "price": price, "capacity_used": livestock_system.get_capacity_used(), "max_capacity": livestock_system.get_max_capacity()}
 	reef_points = economy_system.get_reef_points()
+	_update_livestock_and_economy(0.0)
+	_update_unlocks()
+	_perform_autosave()
 	return {
 		"success": true,
 		"species_name": purchase_entry["species_name"],
 		"price": price,
 		"new_count": livestock_system.get_livestock_count(),
 		"capacity_used": livestock_system.get_capacity_used(),
+		"max_capacity": livestock_system.get_max_capacity(),
+		"base_income_per_hour": float(livestock_system.get_debug_state().get("total_base_income_per_hour", 0.0)),
+		"effective_income_per_hour": float(livestock_system.get_debug_state().get("total_effective_income_per_hour", 0.0)),
+		"reef_points": reef_points,
 	}
 
 

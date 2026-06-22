@@ -3,6 +3,9 @@ extends PanelContainer
 
 var game_state: GameState = null
 var status_label: Label = null
+var item_list: VBoxContainer = null
+var _built: bool = false
+var _on_purchase_callback: Callable = Callable()
 
 
 func _ready() -> void:
@@ -14,54 +17,21 @@ func _ready() -> void:
 	add_theme_stylebox_override("panel", style)
 
 
-func setup(gs: GameState) -> void:
+func setup(gs: GameState, on_purchase: Callable = Callable()) -> void:
 	game_state = gs
-	_build_ui()
+	_on_purchase_callback = on_purchase
+	if not _built:
+		_build_ui()
+		_built = true
 
 
-func _build_ui() -> void:
-	for child in get_children():
-		child.queue_free()
-
-	var margin: MarginContainer = MarginContainer.new()
-	margin.add_theme_constant_override("margin_left", 10)
-	margin.add_theme_constant_override("margin_top", 6)
-	margin.add_theme_constant_override("margin_right", 10)
-	margin.add_theme_constant_override("margin_bottom", 6)
-	add_child(margin)
-
-	var root: VBoxContainer = VBoxContainer.new()
-	root.add_theme_constant_override("separation", 3)
-	margin.add_child(root)
-
-	var title: Label = Label.new()
-	title.text = "生物商店"
-	title.add_theme_font_size_override("font_size", 14)
-	title.add_theme_color_override("font_color", Color(0.90, 0.96, 0.90))
-	root.add_child(title)
-
-	var header: Label = Label.new()
-	header.text = "名称｜分类｜稀有度｜价格｜尺寸｜容量｜收益/h"
-	header.add_theme_font_size_override("font_size", 9)
-	header.add_theme_color_override("font_color", Color(0.60, 0.70, 0.65))
-	root.add_child(header)
-
-	var scroll: ScrollContainer = ScrollContainer.new()
-	scroll.custom_minimum_size = Vector2(0, 280)
-	scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	root.add_child(scroll)
-
-	var item_list: VBoxContainer = VBoxContainer.new()
-	item_list.add_theme_constant_override("separation", 2)
-	scroll.add_child(item_list)
-
-	status_label = Label.new()
-	status_label.add_theme_font_size_override("font_size", 10)
-	status_label.add_theme_color_override("font_color", Color(0.90, 0.70, 0.40))
-	root.add_child(status_label)
-
-	if game_state == null:
+func update_display() -> void:
+	if not _built:
 		return
+	if game_state == null or item_list == null:
+		return
+	for row_child in item_list.get_children():
+		row_child.queue_free()
 	var ls: LivestockSystem = game_state.livestock_system
 	if ls == null:
 		return
@@ -94,12 +64,57 @@ func _build_ui() -> void:
 		buy_btn.pressed.connect(_make_buy_callback(item_id))
 		row.add_child(buy_btn)
 
+
+func _build_ui() -> void:
+	for child in get_children():
+		child.queue_free()
+
+	var margin: MarginContainer = MarginContainer.new()
+	margin.add_theme_constant_override("margin_left", 10)
+	margin.add_theme_constant_override("margin_top", 6)
+	margin.add_theme_constant_override("margin_right", 10)
+	margin.add_theme_constant_override("margin_bottom", 6)
+	add_child(margin)
+
+	var root: VBoxContainer = VBoxContainer.new()
+	root.add_theme_constant_override("separation", 3)
+	margin.add_child(root)
+
+	var title: Label = Label.new()
+	title.text = "生物商店"
+	title.add_theme_font_size_override("font_size", 14)
+	title.add_theme_color_override("font_color", Color(0.90, 0.96, 0.90))
+	root.add_child(title)
+
+	var header: Label = Label.new()
+	header.text = "名称｜分类｜稀有度｜价格｜尺寸｜容量｜收益/h"
+	header.add_theme_font_size_override("font_size", 9)
+	header.add_theme_color_override("font_color", Color(0.60, 0.70, 0.65))
+	root.add_child(header)
+
+	var scroll: ScrollContainer = ScrollContainer.new()
+	scroll.custom_minimum_size = Vector2(0, 240)
+	scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	root.add_child(scroll)
+
+	item_list = VBoxContainer.new()
+	item_list.add_theme_constant_override("separation", 2)
+	scroll.add_child(item_list)
+
+	status_label = Label.new()
+	status_label.add_theme_font_size_override("font_size", 10)
+	status_label.add_theme_color_override("font_color", Color(0.90, 0.70, 0.40))
+	root.add_child(status_label)
+
 	var close_btn: Button = Button.new()
 	close_btn.text = "关闭商店"
 	close_btn.custom_minimum_size = Vector2(0, 26)
 	close_btn.add_theme_font_size_override("font_size", 10)
 	close_btn.pressed.connect(_on_close)
 	root.add_child(close_btn)
+
+	if game_state != null:
+		update_display()
 
 
 func _make_buy_callback(shop_id: String) -> Callable:
@@ -116,9 +131,12 @@ func _on_buy(shop_id: String) -> void:
 			int(result.get("price", 0)),
 			int(result.get("new_count", 0)),
 			float(result.get("capacity_used", 0)),
-			game_state.livestock_system.get_max_capacity(),
+			float(result.get("max_capacity", 30.0)),
 		]
 		status_label.add_theme_color_override("font_color", Color(0.50, 0.90, 0.55))
+		update_display()
+		if _on_purchase_callback.is_valid():
+			_on_purchase_callback.call()
 	else:
 		var err: String = String(result.get("error", "unknown"))
 		if err == "capacity_exceeded":

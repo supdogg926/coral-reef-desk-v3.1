@@ -8,6 +8,8 @@ var livestock_panel: LivestockPanel = null
 var shop_btn: Button = null
 var livestock_btn: Button = null
 var _panels_setup_done: bool = false
+var _livestock_refresh_timer: float = 0.0
+const LIVESTOCK_REFRESH_INTERVAL: float = 0.5
 
 
 func _ready() -> void:
@@ -23,9 +25,10 @@ func _process(delta: float) -> void:
 	game_state.update(delta)
 	_update_status_labels()
 	if livestock_panel != null and livestock_panel.visible:
-		livestock_panel.refresh()
-	if shop_panel != null and shop_panel.visible:
-		shop_panel.setup(game_state)
+		_livestock_refresh_timer += delta
+		if _livestock_refresh_timer >= LIVESTOCK_REFRESH_INTERVAL:
+			_livestock_refresh_timer = 0.0
+			livestock_panel.update_display()
 
 
 func _setup_panels() -> void:
@@ -56,7 +59,6 @@ func _setup_panels() -> void:
 	var bar_row: HBoxContainer = HBoxContainer.new()
 	bar_row.add_theme_constant_override("separation", 8)
 	bar_margin.add_child(bar_row)
-	layout.add_child(btn_bar)
 
 	shop_btn = Button.new()
 	shop_btn.text = "生物商店"
@@ -72,10 +74,21 @@ func _setup_panels() -> void:
 	livestock_btn.pressed.connect(_toggle_livestock)
 	bar_row.add_child(livestock_btn)
 
+	layout.add_child(btn_bar)
+
+	var status_index: int = btn_bar.get_index()
+	for i in range(layout.get_child_count()):
+		var child: Node = layout.get_child(i)
+		if child == status_panel:
+			status_index = i
+			break
+	if btn_bar.get_index() > status_index:
+		layout.move_child(btn_bar, status_index)
+
 	shop_panel = ShopPanel.new()
 	shop_panel.hide()
 	add_child(shop_panel)
-	shop_panel.setup(game_state)
+	shop_panel.setup(game_state, Callable(self, "_on_shop_purchase"))
 
 	livestock_panel = LivestockPanel.new()
 	livestock_panel.hide()
@@ -85,6 +98,13 @@ func _setup_panels() -> void:
 	_panels_setup_done = true
 
 
+func _on_shop_purchase() -> void:
+	_update_status_labels()
+	if livestock_panel != null and livestock_panel.visible:
+		livestock_panel.update_display()
+	_livestock_refresh_timer = 0.0
+
+
 func _toggle_shop() -> void:
 	if shop_panel == null:
 		return
@@ -92,16 +112,16 @@ func _toggle_shop() -> void:
 		shop_panel.hide()
 	else:
 		livestock_panel.hide()
-		shop_panel.setup(game_state)
 		shop_panel.anchor_left = 0.03
 		shop_panel.anchor_right = 0.97
-		shop_panel.anchor_top = 0.55
-		shop_panel.anchor_bottom = 0.98
+		shop_panel.anchor_top = 0.50
+		shop_panel.anchor_bottom = 0.96
 		shop_panel.offset_left = 0.0
 		shop_panel.offset_right = 0.0
 		shop_panel.offset_top = 0.0
 		shop_panel.offset_bottom = 0.0
 		shop_panel.show()
+		shop_panel.raise()
 
 
 func _toggle_livestock() -> void:
@@ -111,16 +131,17 @@ func _toggle_livestock() -> void:
 		livestock_panel.hide()
 	else:
 		shop_panel.hide()
-		livestock_panel.setup(game_state)
+		livestock_panel.update_display()
 		livestock_panel.anchor_left = 0.03
 		livestock_panel.anchor_right = 0.97
-		livestock_panel.anchor_top = 0.55
-		livestock_panel.anchor_bottom = 0.98
+		livestock_panel.anchor_top = 0.50
+		livestock_panel.anchor_bottom = 0.96
 		livestock_panel.offset_left = 0.0
 		livestock_panel.offset_right = 0.0
 		livestock_panel.offset_top = 0.0
 		livestock_panel.offset_bottom = 0.0
 		livestock_panel.show()
+		livestock_panel.raise()
 
 
 func _update_status_labels() -> void:
