@@ -83,6 +83,14 @@ func _setup_panels() -> void:
 	livestock_btn.pressed.connect(_toggle_livestock)
 	bar_row.add_child(livestock_btn)
 
+	var reset_btn: Button = Button.new()
+	reset_btn.text = "重置M10测试存档"
+	reset_btn.custom_minimum_size = Vector2(130, 30)
+	reset_btn.add_theme_font_size_override("font_size", 11)
+	reset_btn.add_theme_color_override("font_color", Color(0.95, 0.70, 0.40))
+	reset_btn.pressed.connect(_reset_test_save)
+	bar_row.add_child(reset_btn)
+
 	panel_status_label = Label.new()
 	panel_status_label.text = ""
 	panel_status_label.add_theme_font_size_override("font_size", 10)
@@ -118,6 +126,21 @@ func _on_shop_purchase() -> void:
 	if livestock_panel != null and livestock_panel.visible:
 		livestock_panel.update_display()
 	_livestock_refresh_timer = 0.0
+
+
+func _reset_test_save() -> void:
+	if game_state == null or game_state.save_system == null:
+		return
+	game_state.save_system.clear_save()
+	shop_panel.hide()
+	livestock_panel.hide()
+	game_state = null
+	game_state = GameState.new()
+	game_state.initialize()
+	_update_status_labels()
+	if panel_status_label != null:
+		panel_status_label.text = "存档已重置，已恢复6个初始生物"
+	print("[RESET] save cleared, GameState reinitialized")
 
 
 func _toggle_shop() -> void:
