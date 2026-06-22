@@ -125,14 +125,22 @@ func update_delta_debug(water_debug: Dictionary, delta_debug: Dictionary) -> voi
 	var d_health: float = float(delta_debug.get("health_modifier", 0.0))
 	var d_water_income: float = float(delta_debug.get("water_income_modifier", 0.0))
 
-	var water_delta_text: String = "水质变化：温%+.2f 盐%+.2f pH%+.3f NO3%+.3f PO4%+.4f KH%+.2f Ca%+.1f 评分%+.2f" % [
-		d_temp, d_sal, d_ph, d_no3, d_po4, d_kh, d_ca, d_quality,
+	var water_delta_a: String = "水质变化A：温%+.2f｜盐%+.2f｜pH%+.3f｜NO3%+.3f" % [
+		d_temp, d_sal, d_ph, d_no3,
 	]
-	var economy_delta_text: String = "收益变化：RP%+.2f 价值%+.2f 收益%+.3f 健康%+.3f 水收%+.3f" % [
-		d_rp, d_value, d_income, d_health, d_water_income,
+	var water_delta_b: String = "水质变化B：PO4%+.4f｜KH%+.2f｜Ca%+.1f｜评分%+.2f" % [
+		d_po4, d_kh, d_ca, d_quality,
 	]
-	_set_line("dynamic", "water_delta", water_delta_text)
-	_set_line("dynamic", "economy_delta", economy_delta_text)
+	var economy_delta_a: String = "收益变化A：RP%+.2f｜价值%+.2f｜收益%+.3f" % [
+		d_rp, d_value, d_income,
+	]
+	var economy_delta_b: String = "收益变化B：健康%+.3f｜水质收益%+.3f" % [
+		d_health, d_water_income,
+	]
+	_set_line("dynamic", "water_delta_a", water_delta_a)
+	_set_line("dynamic", "water_delta_b", water_delta_b)
+	_set_line("dynamic", "economy_delta_a", economy_delta_a)
+	_set_line("dynamic", "economy_delta_b", economy_delta_b)
 
 
 func _build_status_layout() -> void:
@@ -157,19 +165,43 @@ func _build_status_layout() -> void:
 	var title: Label = _make_label("状态总览", 12, true)
 	root.add_child(title)
 
-	var grid: GridContainer = GridContainer.new()
-	grid.columns = 5
-	grid.add_theme_constant_override("h_separation", 10)
-	grid.add_theme_constant_override("v_separation", 2)
-	grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	grid.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	root.add_child(grid)
+	var top_grid: GridContainer = GridContainer.new()
+	top_grid.columns = 4
+	top_grid.add_theme_constant_override("h_separation", 10)
+	top_grid.add_theme_constant_override("v_separation", 2)
+	top_grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	root.add_child(top_grid)
 
-	_create_section(grid, "data", "数据与阶段", ["data", "validation", "milestone"])
-	_create_section(grid, "water", "水质", ["summary", "temperature", "nutrients", "minerals"])
-	_create_section(grid, "system", "系统", ["tier", "capacity", "plumbing", "reserved"])
-	_create_section(grid, "livestock", "生物与收益", ["count", "capacity", "value", "points", "income", "modifiers"])
-	_create_section(grid, "dynamic", "动态确认", ["simulation", "time", "tick", "water_delta", "economy_delta", "stage", "target", "progress", "warehouse", "warehouse_status", "advanced"])
+	_create_section(top_grid, "data", "数据与阶段", ["data", "validation", "milestone"])
+	_create_section(top_grid, "water", "水质", ["summary", "temperature", "nutrients", "minerals"])
+	_create_section(top_grid, "system", "系统", ["tier", "capacity", "plumbing", "reserved"])
+	_create_section(top_grid, "livestock", "生物与收益", ["count", "capacity", "value", "points", "income", "modifiers"])
+
+	var sep: HSeparator = HSeparator.new()
+	sep.add_theme_constant_override("separation", 4)
+	root.add_child(sep)
+
+	var dynamic_title: Label = _make_label("动态确认", 12, true)
+	root.add_child(dynamic_title)
+
+	var dynamic_box: VBoxContainer = VBoxContainer.new()
+	dynamic_box.add_theme_constant_override("separation", 1)
+	dynamic_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	root.add_child(dynamic_box)
+
+	var dynamic_lines: Dictionary = {}
+	var dynamic_line_ids: Array[String] = [
+		"simulation", "time", "tick",
+		"water_delta_a", "water_delta_b",
+		"economy_delta_a", "economy_delta_b",
+		"stage", "target", "progress",
+		"warehouse", "warehouse_status", "advanced",
+	]
+	for line_id in dynamic_line_ids:
+		var label: Label = _make_label("", 10, false)
+		dynamic_box.add_child(label)
+		dynamic_lines[line_id] = label
+	section_labels["dynamic"] = dynamic_lines
 
 
 func _create_section(parent: Control, section_id: String, title_text: String, line_ids: Array[String]) -> void:
@@ -226,8 +258,10 @@ func _set_default_text() -> void:
 	_set_line("dynamic", "simulation", "模拟：自动运行中｜时间倍率：1秒=10分钟")
 	_set_line("dynamic", "time", "游戏时间：第1天 00:00")
 	_set_line("dynamic", "tick", "水质更新：第0次")
-	_set_line("dynamic", "water_delta", "水质变化：温+0.00 盐+0.00 pH+0.000 NO3+0.000 PO4+0.0000 KH+0.00 Ca+0.0 评分+0.00")
-	_set_line("dynamic", "economy_delta", "收益变化：RP+0.00 价值+0.00 收益+0.000 健康+0.000 水收+0.000")
+	_set_line("dynamic", "water_delta_a", "水质变化A：温+0.00｜盐+0.00｜pH+0.000｜NO3+0.000")
+	_set_line("dynamic", "water_delta_b", "水质变化B：PO4+0.0000｜KH+0.00｜Ca+0.0｜评分+0.00")
+	_set_line("dynamic", "economy_delta_a", "收益变化A：RP+0.00｜价值+0.00｜收益+0.000")
+	_set_line("dynamic", "economy_delta_b", "收益变化B：健康+0.000｜水质收益+0.000")
 	_set_line("dynamic", "stage", "玩家阶段：初级玩家")
 	_set_line("dynamic", "target", "下个目标：解锁中级设备预览")
 	_set_line("dynamic", "progress", "解锁进度：0%")

@@ -111,7 +111,7 @@ def main() -> int:
     sump_text = SUMP_VIEW_PATH.read_text(encoding="utf-8") if SUMP_VIEW_PATH.exists() else ""
     scene_text = MAIN_SCENE_PATH.read_text(encoding="utf-8") if MAIN_SCENE_PATH.exists() else ""
 
-    for token in ["_build_status_layout", "_create_section", "GridContainer", "columns = 5"]:
+    for token in ["_build_status_layout", "_create_section", "GridContainer", "columns = 4"]:
         if token not in status_text:
             errors.append({"type": "statuspanel_not_structured", "token": token})
 
