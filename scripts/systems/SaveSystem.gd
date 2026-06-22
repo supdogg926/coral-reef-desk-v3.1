@@ -22,6 +22,7 @@ func initialize() -> void:
 
 func save_game(game_state_dict: Dictionary) -> bool:
 	save_errors.clear()
+	print("[SAVE] save_game start")
 	var timestamp: int = _get_current_unix_time()
 	var save_data: Dictionary = {
 		"save_version": SAVE_VERSION,
@@ -33,16 +34,31 @@ func save_game(game_state_dict: Dictionary) -> bool:
 		"livestock": game_state_dict.get("livestock", {}),
 		"equipment": game_state_dict.get("equipment", {}),
 	}
+	print("[SAVE] save_data keys=", save_data.keys())
+	print("[SAVE] has livestock=", save_data.has("livestock"))
+	var raw_ls2: Variant = save_data.get("livestock", {})
+	if raw_ls2 is Dictionary:
+		var raw_arr: Variant = raw_ls2.get("owned_livestock", [])
+		print("[SAVE] livestock count=", raw_arr.size() if raw_arr is Array else -1)
+	print("[SAVE] json stringify start")
 	var json_text: String = JSON.stringify(save_data, "\t")
 	if json_text.is_empty():
+		print("[SAVE] json stringify FAILED")
 		save_errors.append("Failed to serialize save data")
 		return false
+	print("[SAVE] json stringify done length=", json_text.length())
+	print("[SAVE] file open start path=", SAVE_PATH)
 	var file: FileAccess = FileAccess.open(SAVE_PATH, FileAccess.WRITE)
 	if file == null:
+		print("[SAVE] file open FAILED")
 		save_errors.append("Cannot open save file for writing: " + SAVE_PATH)
 		return false
+	print("[SAVE] file open done")
+	print("[SAVE] file store_string start")
 	file.store_string(json_text)
+	print("[SAVE] file store_string done")
 	file.close()
+	print("[SAVE] file close done")
 	last_save_unix_time = timestamp
 	save_exists = true
 	last_saved_keys = save_data.keys().duplicate()

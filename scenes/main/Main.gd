@@ -92,6 +92,14 @@ func _setup_panels() -> void:
 	reset_btn.pressed.connect(_reset_test_save)
 	bar_row.add_child(reset_btn)
 
+	var manual_save_btn: Button = Button.new()
+	manual_save_btn.text = "手动保存测试"
+	manual_save_btn.custom_minimum_size = Vector2(110, 30)
+	manual_save_btn.add_theme_font_size_override("font_size", 11)
+	manual_save_btn.add_theme_color_override("font_color", Color(0.85, 0.85, 0.40))
+	manual_save_btn.pressed.connect(_manual_save_test)
+	bar_row.add_child(manual_save_btn)
+
 	panel_status_label = Label.new()
 	panel_status_label.text = ""
 	panel_status_label.add_theme_font_size_override("font_size", 10)
@@ -142,6 +150,16 @@ func _reset_test_save() -> void:
 	if panel_status_label != null:
 		panel_status_label.text = "存档已重置，已恢复6个初始生物"
 	print("[RESET] save cleared, GameState reinitialized")
+
+
+func _manual_save_test() -> void:
+	if game_state == null:
+		return
+	print("[MANUAL SAVE] calling _perform_autosave")
+	game_state._perform_autosave()
+	print("[MANUAL SAVE] _perform_autosave returned")
+	if panel_status_label != null:
+		panel_status_label.text = "手动保存完成"
 
 
 func _toggle_shop() -> void:

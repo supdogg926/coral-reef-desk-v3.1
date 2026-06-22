@@ -25,12 +25,13 @@ var delta_income_rate: float = 0.0
 var delta_health_modifier: float = 0.0
 var delta_water_income_modifier: float = 0.0
 var _autosave_timer: float = 0.0
-const AUTOSAVE_INTERVAL: float = 10.0
+const AUTOSAVE_INTERVAL: float = 60.0
 var save_loaded: bool = false
 var offline_summary: Dictionary = {}
 var _pending_save_after_purchase: bool = false
 var _purchase_save_timer: float = 0.0
-const PURCHASE_SAVE_DELAY: float = 0.3
+const PURCHASE_SAVE_DELAY: float = 2.0
+var _save_in_progress: bool = false
 
 
 func initialize() -> void:
@@ -352,11 +353,25 @@ func _apply_offline_progression(offline_seconds: float) -> void:
 func _perform_autosave() -> void:
 	if save_system == null:
 		return
+	if _save_in_progress:
+		print("[SAVE] skipped: already in progress")
+		return
+	_save_in_progress = true
+	print("[SAVE] perform_autosave start")
 	var economy_state: Dictionary = economy_system.export_state() if economy_system != null else {}
+	print("[SAVE] economy export ok")
 	var water_state: Dictionary = water_chemistry_system.export_state() if water_chemistry_system != null else {}
+	print("[SAVE] water export ok")
 	var time_state: Dictionary = time_system.export_state() if time_system != null else {}
+	print("[SAVE] time export ok")
 	var unlock_state: Dictionary = unlock_system.export_state() if unlock_system != null else {}
+	print("[SAVE] unlock export ok")
 	var livestock_state: Dictionary = livestock_system.export_state() if livestock_system != null else {}
+	var ls_count: int = 0
+	var raw_ls: Variant = livestock_state.get("owned_livestock", [])
+	if raw_ls is Array:
+		ls_count = raw_ls.size()
+	print("[SAVE] livestock export ok count=", ls_count)
 	var equipment_state: Dictionary = {
 		"tier1_installed": true,
 		"tier2_preview": unlock_system.unlocked_states.get("tier2_equipment_preview", false) if unlock_system != null else false,
@@ -370,4 +385,7 @@ func _perform_autosave() -> void:
 		"livestock": livestock_state,
 		"equipment": equipment_state,
 	}
-	save_system.save_game(save_dict)
+	print("[SAVE] calling save_game with keys=", save_dict.keys())
+	var ok: bool = save_system.save_game(save_dict)
+	print("[SAVE] save_game returned=", ok)
+	_save_in_progress = false
