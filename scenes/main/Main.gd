@@ -7,6 +7,7 @@ var shop_panel: ShopPanel = null
 var livestock_panel: LivestockPanel = null
 var shop_btn: Button = null
 var livestock_btn: Button = null
+var panel_status_label: Label = null
 var _panels_setup_done: bool = false
 var _livestock_refresh_timer: float = 0.0
 const LIVESTOCK_REFRESH_INTERVAL: float = 0.5
@@ -74,6 +75,12 @@ func _setup_panels() -> void:
 	livestock_btn.pressed.connect(_toggle_livestock)
 	bar_row.add_child(livestock_btn)
 
+	panel_status_label = Label.new()
+	panel_status_label.text = ""
+	panel_status_label.add_theme_font_size_override("font_size", 10)
+	panel_status_label.add_theme_color_override("font_color", Color(0.60, 0.85, 0.70))
+	bar_row.add_child(panel_status_label)
+
 	layout.add_child(btn_bar)
 
 	var status_index: int = btn_bar.get_index()
@@ -82,7 +89,7 @@ func _setup_panels() -> void:
 		if child == status_panel:
 			status_index = i
 			break
-	if btn_bar.get_index() > status_index:
+	if btn_bar.get_index() > status_index and status_index >= 0 and status_index < layout.get_child_count():
 		layout.move_child(btn_bar, status_index)
 
 	shop_panel = ShopPanel.new()
@@ -110,6 +117,8 @@ func _toggle_shop() -> void:
 		return
 	if shop_panel.visible:
 		shop_panel.hide()
+		if panel_status_label != null:
+			panel_status_label.text = ""
 	else:
 		livestock_panel.hide()
 		shop_panel.anchor_left = 0.03
@@ -121,7 +130,10 @@ func _toggle_shop() -> void:
 		shop_panel.offset_top = 0.0
 		shop_panel.offset_bottom = 0.0
 		shop_panel.show()
-		shop_panel.raise()
+		if shop_panel.get_parent() != null:
+			shop_panel.get_parent().move_child(shop_panel, shop_panel.get_parent().get_child_count() - 1)
+		if panel_status_label != null:
+			panel_status_label.text = "已打开：生物商店"
 
 
 func _toggle_livestock() -> void:
@@ -129,6 +141,8 @@ func _toggle_livestock() -> void:
 		return
 	if livestock_panel.visible:
 		livestock_panel.hide()
+		if panel_status_label != null:
+			panel_status_label.text = ""
 	else:
 		shop_panel.hide()
 		livestock_panel.update_display()
@@ -141,7 +155,10 @@ func _toggle_livestock() -> void:
 		livestock_panel.offset_top = 0.0
 		livestock_panel.offset_bottom = 0.0
 		livestock_panel.show()
-		livestock_panel.raise()
+		if livestock_panel.get_parent() != null:
+			livestock_panel.get_parent().move_child(livestock_panel, livestock_panel.get_parent().get_child_count() - 1)
+		if panel_status_label != null:
+			panel_status_label.text = "已打开：我的生物"
 
 
 func _update_status_labels() -> void:
