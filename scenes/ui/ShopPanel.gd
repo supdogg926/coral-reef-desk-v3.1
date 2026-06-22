@@ -6,6 +6,7 @@ var status_label: Label = null
 var item_list: VBoxContainer = null
 var _built: bool = false
 var _on_purchase_callback: Callable = Callable()
+var _purchase_in_progress: bool = false
 
 
 func _ready() -> void:
@@ -139,14 +140,19 @@ func _make_buy_callback(shop_id: String) -> Callable:
 	return func(): _on_buy(shop_id)
 
 
-var _last_buy_result: Dictionary = {}
-
-
 func _on_buy(shop_id: String) -> void:
 	if game_state == null:
+		print("[BUY] game_state is null")
 		return
-	_last_buy_result = game_state.buy_livestock_from_shop(shop_id)
-	var result: Dictionary = _last_buy_result
+	if _purchase_in_progress:
+		print("[BUY] purchase already in progress, ignoring")
+		return
+	_purchase_in_progress = true
+	print("[BUY] click start shop_id=", shop_id)
+
+	var result: Dictionary = game_state.buy_livestock_from_shop(shop_id)
+	print("[BUY] game_state result=", result.get("success", false))
+
 	if result.get("success", false):
 		status_label.text = "购买成功：%s｜RP-%d｜生物数：%d｜容量：%.1f/%.1f" % [
 			result.get("species_name", ""),
@@ -156,6 +162,7 @@ func _on_buy(shop_id: String) -> void:
 			float(result.get("max_capacity", 30.0)),
 		]
 		status_label.add_theme_color_override("font_color", Color(0.50, 0.90, 0.55))
+		print("[BUY] ui status updated")
 	else:
 		var err: String = String(result.get("error", "unknown"))
 		if err == "capacity_exceeded":
@@ -165,14 +172,18 @@ func _on_buy(shop_id: String) -> void:
 		else:
 			status_label.text = "购买失败：%s" % err
 		status_label.add_theme_color_override("font_color", Color(0.95, 0.50, 0.40))
-	call_deferred("_deferred_after_buy")
+		print("[BUY] purchase failed: ", err)
+
+	_purchase_in_progress = false
+	if _on_purchase_callback.is_valid():
+		print("[BUY] scheduling callback")
+		call_deferred("_notify_purchase_callback")
 
 
-func _deferred_after_buy() -> void:
-	if _last_buy_result.get("success", false):
-		update_display()
-		if _on_purchase_callback.is_valid():
-			_on_purchase_callback.call()
+func _notify_purchase_callback() -> void:
+	if _on_purchase_callback.is_valid():
+		_on_purchase_callback.call()
+		print("[BUY] callback done")
 
 
 func _on_close() -> void:

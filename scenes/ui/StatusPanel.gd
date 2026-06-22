@@ -110,16 +110,20 @@ func update_unlock_debug(unlock_debug: Dictionary) -> void:
 	_set_line("dynamic", "advanced", "高级：未解锁")
 
 
-func update_delta_debug(water_debug: Dictionary, delta_debug: Dictionary, economy_debug: Dictionary) -> void:
-	var d_rp: float = float(delta_debug.get("reef_points", 0.0))
-	var rp_per_sec: float = d_rp
+func update_delta_debug(water_debug: Dictionary, delta_debug: Dictionary, economy_debug: Dictionary, livestock_debug: Dictionary) -> void:
 	var income_rate: float = float(economy_debug.get("income_rate_per_game_hour", 0.0))
+	var rp_per_sec: float = income_rate / 3600.0
+	var base_income: float = float(livestock_debug.get("total_base_income_per_hour", 0.0))
+	var effective_income: float = float(livestock_debug.get("total_effective_income_per_hour", 0.0))
+	var water_mult: float = float(livestock_debug.get("water_quality_multiplier", 1.0))
+	var health_mod: float = float(livestock_debug.get("health_modifier", 1.0))
 
-	if abs(rp_per_sec) < 0.00001 and income_rate > 0.0:
-		rp_per_sec = income_rate / 3600.0
+	var sim_delta: float = float(water_debug.get("last_delta_seconds", 0.0))
+	var sim_delta_safe: float = max(sim_delta, 0.001)
+	var to_per_min: float = 60.0 / sim_delta_safe
+	var to_per_hour: float = 3600.0 / sim_delta_safe
 
 	var tick_count: int = int(water_debug.get("chemistry_tick_count", 0))
-	var water_any_change: bool = false
 	var d_temp: float = float(water_debug.get("delta_temperature", 0.0))
 	var d_sal: float = float(water_debug.get("delta_salinity", 0.0))
 	var d_ph: float = float(water_debug.get("delta_ph", 0.0))
@@ -127,38 +131,25 @@ func update_delta_debug(water_debug: Dictionary, delta_debug: Dictionary, econom
 	var d_po4: float = float(water_debug.get("delta_phosphate", 0.0))
 	var d_kh: float = float(water_debug.get("delta_alkalinity", 0.0))
 	var d_ca: float = float(water_debug.get("delta_calcium", 0.0))
-	var d_quality: float = float(water_debug.get("delta_water_quality_score", 0.0))
-	if abs(d_temp) > 0.0001 or abs(d_sal) > 0.0001 or abs(d_ph) > 0.0001 or abs(d_no3) > 0.0001:
-		water_any_change = true
-	if abs(d_po4) > 0.00001 or abs(d_kh) > 0.0001 or abs(d_ca) > 0.01 or abs(d_quality) > 0.001:
-		water_any_change = true
 
-	var drift_line: String = ""
-	if tick_count > 0 and water_any_change:
-		drift_line = "水变A：温%+.3f 盐%+.3f pH%+.3f NO3%+.3f/min" % [
-			d_temp * 60.0, d_sal * 60.0, d_ph * 60.0, d_no3 * 60.0,
+	var water_min_line: String
+	var water_hour_line: String
+	if tick_count > 0 and sim_delta > 0.0:
+		water_min_line = "水变/min：NO3%+.4f PO4%+.5f pH%+.4f T%+.3f" % [
+			d_no3 * to_per_min, d_po4 * to_per_min, d_ph * to_per_min, d_temp * to_per_min,
+		]
+		water_hour_line = "水变/h：NO3%+.3f PO4%+.4f KH%+.2f Ca%+.1f S%+.2f" % [
+			d_no3 * to_per_hour, d_po4 * to_per_hour, d_kh * to_per_hour, d_ca * to_per_hour, d_sal * to_per_hour,
 		]
 	else:
-		drift_line = "水变：稳定｜本阶段未触发漂移"
+		water_min_line = "水变：稳定｜等待首次水质更新"
+		water_hour_line = "水变：稳定｜%d次更新后显示" % tick_count
 
-	var drift_line_b: String = ""
-	if tick_count > 0 and water_any_change:
-		drift_line_b = "水变B：PO4%+.4f KH%+.3f Ca%+.1f 评%+.2f/min" % [
-			d_po4 * 60.0, d_kh * 60.0, d_ca * 60.0, d_quality * 60.0,
-		]
-	else:
-		drift_line_b = "水变：等待首次水质更新"
+	var econ_line_a: String = "结算：每秒+%.5f RP｜每小时+%.2f RP" % [rp_per_sec, income_rate]
+	var econ_line_b: String = "收益：基础%.2f/h｜有效%.2f/h｜倍率%.2f｜健康%.2f" % [base_income, effective_income, water_mult, health_mod]
 
-	var econ_line_a: String = "结算：每秒+%.5f RP｜每小时+%.2f RP" % [
-		rp_per_sec, income_rate,
-	]
-	var econ_line_b: String = "收益：基础+%.2f/h｜水质倍率+%.2f" % [
-		float(economy_debug.get("reef_value", 0.0)) if abs(float(economy_debug.get("reef_value", 0.0))) < 1000 else 0.0,
-		float(delta_debug.get("water_income_modifier", 0.0)),
-	]
-
-	_set_line("dynamic", "water_delta_a", drift_line)
-	_set_line("dynamic", "water_delta_b", drift_line_b)
+	_set_line("dynamic", "water_delta_a", water_min_line)
+	_set_line("dynamic", "water_delta_b", water_hour_line)
 	_set_line("dynamic", "economy_delta_a", econ_line_a)
 	_set_line("dynamic", "economy_delta_b", econ_line_b)
 
@@ -285,10 +276,10 @@ func _set_default_text() -> void:
 	_set_line("livestock", "modifiers", "健康系数：1.00｜实际收益：2.36/h")
 	_set_line("dynamic", "simulation", "模拟：自动运行中｜倍率：1秒=10分钟")
 	_set_line("dynamic", "time_tick", "时间：第1天 00:00｜更新：第0次")
-	_set_line("dynamic", "water_delta_a", "水变：稳定｜本阶段未触发漂移")
-	_set_line("dynamic", "water_delta_b", "水变：等待首次水质更新")
+	_set_line("dynamic", "water_delta_a", "水变/min：等待首次更新...")
+	_set_line("dynamic", "water_delta_b", "水变/h：等待首次更新...")
 	_set_line("dynamic", "economy_delta_a", "结算：每秒+0.00000 RP｜每小时+0.00 RP")
-	_set_line("dynamic", "economy_delta_b", "收益：等待系统初始化")
+	_set_line("dynamic", "economy_delta_b", "收益：等待系统初始化...")
 	_set_line("dynamic", "save_status", "存档：新游戏｜自动存档：开启｜最近：--:--:--")
 	_set_line("dynamic", "save_offline", "离线：无")
 	_set_line("dynamic", "stage", "阶段：初级玩家")

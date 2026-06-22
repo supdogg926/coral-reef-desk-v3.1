@@ -97,6 +97,7 @@ func get_water_chemistry_debug_state() -> Dictionary:
 		var time_debug: Dictionary = time_system.get_debug_state()
 		water_debug["elapsed_game_minutes"] = int(time_debug.get("elapsed_game_minutes", 0))
 		water_debug["elapsed_game_time_text"] = String(time_debug.get("elapsed_game_time_text", "Day 1 00:00"))
+		water_debug["last_delta_seconds"] = float(time_debug.get("last_delta_seconds", 0.0))
 	return water_debug
 
 
