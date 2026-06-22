@@ -1,0 +1,57 @@
+{
+  "root": "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3",
+  "passed": true,
+  "files": {
+    "equipment_tiers": "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3\\data\\equipment\\equipment_tiers_seed.json",
+    "placement_zones": "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3\\data\\equipment\\placement_zones_seed.json",
+    "equipment_placement_schema": "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3\\data\\schemas\\equipment_placement_schema.json",
+    "tasks": "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3\\data\\tasks\\maintenance_tasks_seed.json"
+  },
+  "tier1_equipment": [
+    "filter_media",
+    "filter_sock",
+    "heater",
+    "live_rock",
+    "protein_skimmer",
+    "refugium",
+    "return_pump"
+  ],
+  "tier1_count": 7,
+  "tier1_first_version_enabled_count": 7,
+  "tier1_installed_effective_count": 7,
+  "tier2_reserved_count": 4,
+  "tier3_reserved_count": 5,
+  "placement_zones": [
+    "display_tank",
+    "mechanical_filtration_chamber",
+    "refugium_chamber",
+    "reserved_tier2_display",
+    "reserved_tier2_utility",
+    "reserved_tier3_controller",
+    "reserved_tier3_mechanical",
+    "reserved_tier3_reactor",
+    "reserved_tier3_utility",
+    "return_chamber",
+    "skimmer_chamber"
+  ],
+  "required_zones": [
+    "display_tank",
+    "mechanical_filtration_chamber",
+    "refugium_chamber",
+    "return_chamber",
+    "skimmer_chamber"
+  ],
+  "debug_scores": {
+    "stability_score": 92.0,
+    "carrying_capacity_score": 27.0,
+    "maintenance_load": 12.0
+  },
+  "plumbing_model": {
+    "implicit_plumbing": true,
+    "pipe_connection_required": false,
+    "plumbing_gameplay": false
+  },
+  "reward_residue_count": 0,
+  "errors": [],
+  "warnings": []
+}

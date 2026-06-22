@@ -1,0 +1,62 @@
+[
+  {
+    "id": "clownfish_pair",
+    "display_name_cn": "小丑鱼一对",
+    "display_name_en": "Clownfish Pair",
+    "category": "fish",
+    "capacity_cost": 4.0,
+    "base_reef_value": 12.0,
+    "water_sensitivity": 0.45,
+    "enabled": true
+  },
+  {
+    "id": "blue_tang",
+    "display_name_cn": "蓝吊",
+    "display_name_en": "Blue Tang",
+    "category": "fish",
+    "capacity_cost": 5.0,
+    "base_reef_value": 16.0,
+    "water_sensitivity": 0.6,
+    "enabled": true
+  },
+  {
+    "id": "anemone",
+    "display_name_cn": "海葵",
+    "display_name_en": "Anemone",
+    "category": "invertebrate",
+    "capacity_cost": 3.0,
+    "base_reef_value": 10.0,
+    "water_sensitivity": 0.75,
+    "enabled": true
+  },
+  {
+    "id": "green_star_polyps",
+    "display_name_cn": "草皮珊瑚",
+    "display_name_en": "Green Star Polyps",
+    "category": "coral",
+    "capacity_cost": 2.0,
+    "base_reef_value": 8.0,
+    "water_sensitivity": 0.35,
+    "enabled": true
+  },
+  {
+    "id": "zoanthids",
+    "display_name_cn": "纽扣珊瑚",
+    "display_name_en": "Zoanthids",
+    "category": "coral",
+    "capacity_cost": 2.0,
+    "base_reef_value": 7.0,
+    "water_sensitivity": 0.4,
+    "enabled": true
+  },
+  {
+    "id": "soft_coral_frag",
+    "display_name_cn": "软体珊瑚断枝",
+    "display_name_en": "Soft Coral Frag",
+    "category": "coral",
+    "capacity_cost": 2.0,
+    "base_reef_value": 6.0,
+    "water_sensitivity": 0.3,
+    "enabled": true
+  }
+]

@@ -1,0 +1,38 @@
+{
+  "root": "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3",
+  "passed": true,
+  "required_files": [
+    "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3\\scripts\\systems\\WaterChemistrySystem.gd",
+    "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3\\scripts\\systems\\TimeSystem.gd",
+    "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3\\scripts\\systems\\GameState.gd",
+    "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3\\scenes\\main\\Main.gd",
+    "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3\\scenes\\ui\\StatusPanel.gd"
+  ],
+  "dataregistry_counts": {
+    "species": 161,
+    "equipment": 28,
+    "tasks": 10,
+    "events": 7
+  },
+  "required_water_functions": [
+    "func initialize()",
+    "func reset_to_initial_values()",
+    "func simulate_tick(delta_seconds: float, equipment_effects_summary: Dictionary)",
+    "func apply_natural_drift(delta_seconds: float)",
+    "func apply_equipment_stabilization(equipment_effects_summary: Dictionary, delta_seconds: float)",
+    "func calculate_parameter_status()",
+    "func calculate_water_quality_score()",
+    "func get_water_status()",
+    "func get_debug_state()"
+  ],
+  "required_time_functions": [
+    "func initialize()",
+    "func update_time(delta_seconds: float)",
+    "func get_elapsed_seconds()",
+    "func get_elapsed_days_debug()",
+    "func get_debug_state()"
+  ],
+  "variant_inference_hit_count": 0,
+  "errors": [],
+  "warnings": []
+}

@@ -1,0 +1,346 @@
+[
+  {
+    "id": "gsp",
+    "name": "荧光草皮",
+    "name_en": "Green Star Polyp",
+    "category": "soft",
+    "rarity": 1,
+    "source": "shop",
+    "price": 20,
+    "split_hours": 4,
+    "income_per_hour": 2,
+    "release_income_per_hour": 1,
+    "unlock": {
+      "tank_level": 1
+    },
+    "color": "#4CAF50",
+    "desc": "入门级珊瑚，翠绿荧光触手覆盖岩石表面，生命力极强"
+  },
+  {
+    "id": "flash_xenia",
+    "name": "闪千手",
+    "name_en": "Pulsing Xenia",
+    "category": "soft",
+    "rarity": 1,
+    "source": "shop",
+    "price": 30,
+    "split_hours": 3,
+    "income_per_hour": 3,
+    "release_income_per_hour": 1.5,
+    "unlock": {
+      "tank_level": 1
+    },
+    "color": "#CE93D8",
+    "desc": "触手有节律地开合跳动，是海缸中最有动感的珊瑚"
+  },
+  {
+    "id": "green_finger",
+    "name": "绿手指",
+    "name_en": "Green Finger Leather",
+    "category": "soft",
+    "rarity": 1,
+    "source": "shop",
+    "price": 25,
+    "split_hours": 5,
+    "income_per_hour": 2.5,
+    "release_income_per_hour": 1.2,
+    "unlock": {
+      "tank_level": 1
+    },
+    "color": "#66BB6A",
+    "desc": "指状分枝的皮革珊瑚，随水流轻柔摆动"
+  },
+  {
+    "id": "button",
+    "name": "纽扣珊瑚",
+    "name_en": "Zoanthid Button",
+    "category": "soft",
+    "rarity": 1,
+    "source": "shop",
+    "price": 35,
+    "split_hours": 6,
+    "income_per_hour": 4,
+    "release_income_per_hour": 2,
+    "unlock": {
+      "tank_level": 1
+    },
+    "color": "#FF7043",
+    "desc": "色彩缤纷的纽扣状群体，品种花色极其丰富"
+  },
+  {
+    "id": "toadstool",
+    "name": "象耳皮革",
+    "name_en": "Toadstool Leather",
+    "category": "soft",
+    "rarity": 2,
+    "source": "shop",
+    "price": 80,
+    "split_hours": 8,
+    "income_per_hour": 8,
+    "release_income_per_hour": 4,
+    "unlock": {
+      "tank_level": 2
+    },
+    "color": "#8D6E63",
+    "desc": "伞盖形态的皮革珊瑚，展开时触手密布如草坪"
+  },
+  {
+    "id": "kenya_tree",
+    "name": "肯尼亚树",
+    "name_en": "Kenya Tree",
+    "category": "soft",
+    "rarity": 1,
+    "source": "shop",
+    "price": 40,
+    "split_hours": 3.5,
+    "income_per_hour": 3,
+    "release_income_per_hour": 1.5,
+    "unlock": {
+      "tank_level": 2
+    },
+    "color": "#A1887F",
+    "desc": "树状分枝的软珊瑚，会自动断枝繁殖，生长迅速"
+  },
+  {
+    "id": "clove_polyp",
+    "name": "丁香水螅",
+    "name_en": "Clove Polyp",
+    "category": "soft",
+    "rarity": 2,
+    "source": "shop",
+    "price": 60,
+    "split_hours": 5,
+    "income_per_hour": 6,
+    "release_income_per_hour": 3,
+    "unlock": {
+      "tank_level": 3
+    },
+    "color": "#7E57C2",
+    "desc": "花朵状的水螅体，白色触手如丁香花瓣般优雅"
+  },
+  {
+    "id": "candy_cane",
+    "name": "糖果脑",
+    "name_en": "Candy Cane Coral",
+    "category": "lps",
+    "rarity": 2,
+    "source": "shop",
+    "price": 150,
+    "split_hours": 12,
+    "income_per_hour": 15,
+    "release_income_per_hour": 8,
+    "unlock": {
+      "tank_level": 4,
+      "equipment": [
+        "skimmer"
+      ]
+    },
+    "color": "#26C6DA",
+    "desc": "LPS入门首选，管状骨骼顶端膨大如糖果，色彩鲜艳"
+  },
+  {
+    "id": "torch",
+    "name": "火炬珊瑚",
+    "name_en": "Torch Coral",
+    "category": "lps",
+    "rarity": 3,
+    "source": "shop",
+    "price": 300,
+    "split_hours": 18,
+    "income_per_hour": 30,
+    "release_income_per_hour": 15,
+    "unlock": {
+      "tank_level": 5,
+      "equipment": [
+        "calcium_reactor"
+      ]
+    },
+    "color": "#FFB74D",
+    "desc": "长触手在水流中飘舞如火炬燃烧，LPS经典品种"
+  },
+  {
+    "id": "hammer",
+    "name": "锤头珊瑚",
+    "name_en": "Hammer Coral",
+    "category": "lps",
+    "rarity": 3,
+    "source": "shop",
+    "price": 350,
+    "split_hours": 18,
+    "income_per_hour": 35,
+    "release_income_per_hour": 18,
+    "unlock": {
+      "tank_level": 5,
+      "equipment": [
+        "calcium_reactor"
+      ]
+    },
+    "color": "#69F0AE",
+    "desc": "T形触手末端膨大如锤头，荧光绿色在蓝光下极亮"
+  },
+  {
+    "id": "frogspawn",
+    "name": "蛙卵珊瑚",
+    "name_en": "Frogspawn",
+    "category": "lps",
+    "rarity": 3,
+    "source": "shop",
+    "price": 320,
+    "split_hours": 20,
+    "income_per_hour": 32,
+    "release_income_per_hour": 16,
+    "unlock": {
+      "tank_level": 5
+    },
+    "color": "#AED581",
+    "desc": "触手末端如蛙卵般圆润，与火炬锤头并称LPS三大天王"
+  },
+  {
+    "id": "brain",
+    "name": "脑珊瑚",
+    "name_en": "Brain Coral",
+    "category": "lps",
+    "rarity": 3,
+    "source": "shop",
+    "price": 400,
+    "split_hours": 24,
+    "income_per_hour": 40,
+    "release_income_per_hour": 20,
+    "unlock": {
+      "tank_level": 6
+    },
+    "color": "#EF5350",
+    "desc": "表面沟回如大脑纹路，生长缓慢但色彩浓郁沉稳"
+  },
+  {
+    "id": "acan",
+    "name": "澳洲脑",
+    "name_en": "Acan Lord",
+    "category": "lps",
+    "rarity": 4,
+    "source": "shop",
+    "price": 800,
+    "split_hours": 36,
+    "income_per_hour": 80,
+    "release_income_per_hour": 40,
+    "unlock": {
+      "tank_level": 7,
+      "equipment": [
+        "coral_light"
+      ]
+    },
+    "color": "#FF6F00",
+    "desc": "极品彩虹色个体价值连城，珊瑚收藏家的梦想"
+  },
+  {
+    "id": "chalice",
+    "name": "圣杯珊瑚",
+    "name_en": "Chalice Coral",
+    "category": "lps",
+    "rarity": 4,
+    "source": "dive",
+    "price": 0,
+    "split_hours": 48,
+    "income_per_hour": 120,
+    "release_income_per_hour": 60,
+    "unlock": {
+      "dive_unlock": true
+    },
+    "color": "#E91E63",
+    "desc": "色彩最绚丽的珊瑚之一，渐变如油画，只能在深海中找到"
+  },
+  {
+    "id": "montipora",
+    "name": "蒙提珊瑚",
+    "name_en": "Montipora",
+    "category": "sps",
+    "rarity": 3,
+    "source": "shop",
+    "price": 500,
+    "split_hours": 24,
+    "income_per_hour": 50,
+    "release_income_per_hour": 25,
+    "unlock": {
+      "tank_level": 8,
+      "equipment": [
+        "calcium_reactor",
+        "kh_stab",
+        "chiller"
+      ]
+    },
+    "color": "#AB47BC",
+    "desc": "SPS入门种，片状包覆岩石生长，对水质要求严格"
+  },
+  {
+    "id": "birdsnest",
+    "name": "鸟巢珊瑚",
+    "name_en": "Birdsnest",
+    "category": "sps",
+    "rarity": 3,
+    "source": "shop",
+    "price": 450,
+    "split_hours": 20,
+    "income_per_hour": 45,
+    "release_income_per_hour": 22,
+    "unlock": {
+      "tank_level": 8
+    },
+    "color": "#F48FB1",
+    "desc": "纤细分枝交错如鸟巢，粉紫色在蓝光下如梦似幻"
+  },
+  {
+    "id": "acropora_green",
+    "name": "绿色鹿角",
+    "name_en": "Green Acropora",
+    "category": "sps",
+    "rarity": 4,
+    "source": "shop",
+    "price": 1200,
+    "split_hours": 48,
+    "income_per_hour": 150,
+    "release_income_per_hour": 80,
+    "unlock": {
+      "tank_level": 9,
+      "equipment": [
+        "chiller"
+      ]
+    },
+    "color": "#00E676",
+    "desc": "鹿角珊瑚入门品种，翠绿分枝向光生长，珊瑚之王的起点"
+  },
+  {
+    "id": "acropora_blue",
+    "name": "蓝色鹿角",
+    "name_en": "Blue Acropora",
+    "category": "sps",
+    "rarity": 5,
+    "source": "dive",
+    "price": 0,
+    "split_hours": 72,
+    "income_per_hour": 300,
+    "release_income_per_hour": 150,
+    "unlock": {
+      "dive_unlock": true
+    },
+    "color": "#42A5F5",
+    "desc": "深海中的蓝色精灵，需要极致水质才能存活"
+  },
+  {
+    "id": "acropora_rainbow",
+    "name": "彩虹鹿角",
+    "name_en": "Rainbow Acropora",
+    "category": "sps",
+    "rarity": 5,
+    "source": "dive",
+    "price": 0,
+    "split_hours": 96,
+    "income_per_hour": 500,
+    "release_income_per_hour": 250,
+    "unlock": {
+      "dive_unlock": true,
+      "dive_rarity": "legendary"
+    },
+    "color": "#FF1744",
+    "desc": "传说中的彩虹鹿角，一株顶上同时呈现七种色彩，极其罕见"
+  }
+]

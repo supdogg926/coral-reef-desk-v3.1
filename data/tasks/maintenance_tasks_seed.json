@@ -1,0 +1,159 @@
+[
+  {
+    "id": "feed_fish",
+    "name": "投喂鱼粮",
+    "cooldown_hours": 4,
+    "consumes": [
+      "fish_food"
+    ],
+    "auto_by": [
+      "auto_feeder",
+      "controller"
+    ],
+    "exec_cost": {
+      "items": [
+        {
+          "id": "fish_food",
+          "quantity": 1
+        }
+      ]
+    }
+  },
+  {
+    "id": "feed_coral",
+    "name": "投喂珊瑚粮",
+    "cooldown_hours": 8,
+    "consumes": [
+      "coral_food"
+    ],
+    "auto_by": [
+      "auto_feeder",
+      "controller"
+    ],
+    "exec_cost": {
+      "items": [
+        {
+          "id": "coral_food",
+          "quantity": 1
+        }
+      ]
+    }
+  },
+  {
+    "id": "water_change",
+    "name": "换水",
+    "cooldown_hours": 24,
+    "consumes": [
+      "sea_salt",
+      "ro_water"
+    ],
+    "auto_by": [
+      "auto_water_change",
+      "controller"
+    ],
+    "exec_cost": {
+      "items": [
+        {
+          "id": "sea_salt",
+          "quantity": 1
+        },
+        {
+          "id": "ro_water",
+          "quantity": 1
+        }
+      ]
+    }
+  },
+  {
+    "id": "clean_glass",
+    "name": "清洁缸壁",
+    "cooldown_hours": 12,
+    "consumes": [],
+    "auto_by": [
+      "controller"
+    ],
+    "exec_cost": {
+      "items": []
+    }
+  },
+  {
+    "id": "clean_sand",
+    "name": "清理底沙",
+    "cooldown_hours": 48,
+    "consumes": [],
+    "auto_by": [
+      "controller"
+    ],
+    "exec_cost": {
+      "items": []
+    }
+  },
+  {
+    "id": "remove_algae",
+    "name": "清除杂藻",
+    "cooldown_hours": 24,
+    "consumes": [],
+    "auto_by": [
+      "controller"
+    ],
+    "reduced_by": [
+      "refugium"
+    ],
+    "exec_cost": {
+      "items": []
+    }
+  },
+  {
+    "id": "test_water",
+    "name": "水质测试",
+    "cooldown_hours": 24,
+    "consumes": [],
+    "auto_by": [
+      "icp_test",
+      "controller"
+    ],
+    "exec_cost": {
+      "items": []
+    }
+  },
+  {
+    "id": "dose_elements",
+    "name": "添加微量元素",
+    "cooldown_hours": 12,
+    "consumes": [],
+    "auto_by": [
+      "doser",
+      "controller"
+    ],
+    "exec_cost": {
+      "items": []
+    }
+  },
+  {
+    "id": "trim_coral",
+    "name": "修剪珊瑚",
+    "cooldown_hours": 72,
+    "consumes": [],
+    "auto_by": [
+      "controller"
+    ],
+    "exec_cost": {
+      "items": []
+    }
+  },
+  {
+    "id": "clean_skimmer",
+    "name": "清洗蛋分集污杯",
+    "cooldown_hours": 48,
+    "consumes": [],
+    "auto_by": [
+      "controller"
+    ],
+    "requires": [
+      "skimmer"
+    ],
+    "exec_cost": {
+      "items": []
+    }
+  }
+]

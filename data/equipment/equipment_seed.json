@@ -1,0 +1,326 @@
+[
+  {
+    "id": "sea_salt",
+    "name": "海盐",
+    "category": "chemistry",
+    "price": 5,
+    "consumable": true,
+    "max_level": 0,
+    "effect": "换水必需品",
+    "unlock": {
+      "tank_level": 1
+    },
+    "icon": "🧂"
+  },
+  {
+    "id": "ro_water",
+    "name": "RO纯净水",
+    "category": "chemistry",
+    "price": 3,
+    "consumable": true,
+    "max_level": 0,
+    "effect": "配合海盐调配海水",
+    "unlock": {
+      "tank_level": 1
+    },
+    "icon": "💧"
+  },
+  {
+    "id": "fish_food",
+    "name": "鱼粮",
+    "category": "feeding",
+    "price": 8,
+    "consumable": true,
+    "max_level": 0,
+    "effect": "喂鱼，加速繁殖5%",
+    "unlock": {
+      "tank_level": 1
+    },
+    "icon": "🐟"
+  },
+  {
+    "id": "coral_food",
+    "name": "珊瑚粮",
+    "category": "feeding",
+    "price": 15,
+    "consumable": true,
+    "max_level": 0,
+    "effect": "喂珊瑚，加速分裂5%",
+    "unlock": {
+      "tank_level": 1
+    },
+    "icon": "🪸"
+  },
+  {
+    "id": "heater",
+    "name": "加热棒",
+    "category": "temperature",
+    "price": 50,
+    "consumable": false,
+    "max_level": 5,
+    "effect": "防低温，每级+2℃安全范围",
+    "effect_per_level": 0.0,
+    "unlock": {
+      "tank_level": 1
+    },
+    "icon": "🌡️"
+  },
+  {
+    "id": "basic_light",
+    "name": "基础LED灯",
+    "category": "lighting",
+    "price": 80,
+    "consumable": false,
+    "max_level": 5,
+    "effect": "珊瑚存活基础",
+    "effect_per_level": 0.08,
+    "unlock": {
+      "tank_level": 1
+    },
+    "icon": "💡"
+  },
+  {
+    "id": "hang_filter",
+    "name": "外挂过滤器",
+    "category": "filtration",
+    "price": 60,
+    "consumable": false,
+    "max_level": 3,
+    "effect": "延长换水间隔",
+    "effect_per_level": 0.2,
+    "unlock": {
+      "tank_level": 1
+    },
+    "icon": "🔄"
+  },
+  {
+    "id": "wavemaker_s",
+    "name": "小型造浪泵",
+    "category": "flow",
+    "price": 120,
+    "consumable": false,
+    "max_level": 5,
+    "effect": "珊瑚产出+10%/级",
+    "effect_per_level": 0.1,
+    "unlock": {
+      "tank_level": 2
+    },
+    "icon": "🌊"
+  },
+  {
+    "id": "live_rock",
+    "name": "活石",
+    "category": "filtration",
+    "price": 200,
+    "consumable": false,
+    "max_level": 10,
+    "effect": "生物过滤-15%水质恶化/级",
+    "effect_per_level": 0.15,
+    "unlock": {
+      "tank_level": 2
+    },
+    "icon": "🪨"
+  },
+  {
+    "id": "sump",
+    "name": "底缸系统",
+    "category": "filtration",
+    "price": 800,
+    "consumable": false,
+    "max_level": 3,
+    "effect": "解锁底缸设备槽+30%过滤/级",
+    "effect_per_level": 0.3,
+    "unlock": {
+      "tank_level": 4
+    },
+    "icon": "📦"
+  },
+  {
+    "id": "refugium",
+    "name": "藻缸(高等藻钢)",
+    "category": "filtration",
+    "price": 500,
+    "consumable": false,
+    "max_level": 5,
+    "effect": "自然过滤-25%换水频率/级",
+    "effect_per_level": 0.25,
+    "unlock": {
+      "requires": [
+        "sump"
+      ]
+    },
+    "icon": "🌿"
+  },
+  {
+    "id": "skimmer",
+    "name": "蛋白质分离器",
+    "category": "filtration",
+    "price": 600,
+    "consumable": false,
+    "max_level": 8,
+    "effect": "全局产出+12%/级",
+    "effect_per_level": 0.12,
+    "unlock": {
+      "requires": [
+        "sump"
+      ]
+    },
+    "icon": "🫧"
+  },
+  {
+    "id": "coral_light",
+    "name": "AI智能珊瑚灯",
+    "category": "lighting",
+    "price": 1500,
+    "consumable": false,
+    "max_level": 8,
+    "effect": "珊瑚产出+15%/级，解锁SPS",
+    "effect_per_level": 0.15,
+    "unlock": {
+      "tank_level": 5
+    },
+    "icon": "🔆"
+  },
+  {
+    "id": "wavemaker_l",
+    "name": "变频造浪泵",
+    "category": "flow",
+    "price": 1000,
+    "consumable": false,
+    "max_level": 8,
+    "effect": "产出+15%/级",
+    "effect_per_level": 0.15,
+    "unlock": {
+      "tank_level": 5
+    },
+    "icon": "🌊"
+  },
+  {
+    "id": "return_pump",
+    "name": "变频回水泵",
+    "category": "flow",
+    "price": 800,
+    "consumable": false,
+    "max_level": 5,
+    "effect": "底缸循环+20%/级",
+    "effect_per_level": 0.2,
+    "unlock": {
+      "requires": [
+        "sump"
+      ]
+    },
+    "icon": "⬆️"
+  },
+  {
+    "id": "auto_feeder",
+    "name": "自动喂食器",
+    "category": "feeding",
+    "price": 400,
+    "consumable": false,
+    "max_level": 3,
+    "effect": "自动完成喂食任务",
+    "effect_per_level": 0.0,
+    "unlock": {
+      "tank_level": 4
+    },
+    "icon": "🤖"
+  },
+  {
+    "id": "calcium_reactor",
+    "name": "钙反应器",
+    "category": "chemistry",
+    "price": 3000,
+    "consumable": false,
+    "max_level": 5,
+    "effect": "自动补钙，LPS/SPS+20%/级",
+    "effect_per_level": 0.2,
+    "unlock": {
+      "tank_level": 6
+    },
+    "icon": "⚗️"
+  },
+  {
+    "id": "kh_stab",
+    "name": "KH稳定器",
+    "category": "chemistry",
+    "price": 2000,
+    "consumable": false,
+    "max_level": 5,
+    "effect": "碱度稳定，白化概率-15%/级",
+    "effect_per_level": 0.15,
+    "unlock": {
+      "tank_level": 6
+    },
+    "icon": "⚖️"
+  },
+  {
+    "id": "doser",
+    "name": "三头滴定泵",
+    "category": "chemistry",
+    "price": 2500,
+    "consumable": false,
+    "max_level": 5,
+    "effect": "自动补Ca/KH/Mg，维护-30%/级",
+    "effect_per_level": 0.3,
+    "unlock": {
+      "tank_level": 7
+    },
+    "icon": "💉"
+  },
+  {
+    "id": "chiller",
+    "name": "冷水机",
+    "category": "temperature",
+    "price": 5000,
+    "consumable": false,
+    "max_level": 3,
+    "effect": "精准控温，防高温白化，解锁高端SPS",
+    "effect_per_level": 0.0,
+    "unlock": {
+      "tank_level": 8
+    },
+    "icon": "❄️"
+  },
+  {
+    "id": "icp_test",
+    "name": "ICP水质检测仪",
+    "category": "monitoring",
+    "price": 8000,
+    "consumable": false,
+    "max_level": 1,
+    "effect": "精确水质面板+全局产出25%",
+    "effect_per_level": 0.25,
+    "unlock": {
+      "tank_level": 8
+    },
+    "icon": "🔬"
+  },
+  {
+    "id": "auto_water_change",
+    "name": "自动换水系统",
+    "category": "chemistry",
+    "price": 20000,
+    "consumable": false,
+    "max_level": 1,
+    "effect": "自动完成换水任务",
+    "effect_per_level": 0.0,
+    "unlock": {
+      "tank_level": 9
+    },
+    "icon": "🚿"
+  },
+  {
+    "id": "controller",
+    "name": "中控系统",
+    "category": "monitoring",
+    "price": 50000,
+    "consumable": false,
+    "max_level": 1,
+    "effect": "自动完成所有日常维护任务",
+    "effect_per_level": 0.0,
+    "unlock": {
+      "tank_level": 10
+    },
+    "icon": "🖥️"
+  }
+]

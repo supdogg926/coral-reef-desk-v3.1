@@ -1,0 +1,41 @@
+{
+  "root": "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3",
+  "data_dir": "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3\\data",
+  "checked_files": [
+    "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3\\data\\equipment\\equipment_seed.json",
+    "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3\\data\\equipment\\equipment_tiers_seed.json",
+    "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3\\data\\equipment\\placement_zones_seed.json",
+    "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3\\data\\equipment\\tanks_seed.json",
+    "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3\\data\\events\\random_events_seed.json",
+    "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3\\data\\formulas\\formulas_seed.json",
+    "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3\\data\\livestock\\starter_livestock_seed.json",
+    "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3\\data\\schemas\\equipment_placement_schema.json",
+    "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3\\data\\schemas\\equipment_schema.json",
+    "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3\\data\\schemas\\species_schema.json",
+    "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3\\data\\schemas\\task_schema.json",
+    "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3\\data\\species\\corals_seed.json",
+    "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3\\data\\species\\fish_seed.json",
+    "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3\\data\\species\\legacy_species_extracted.json",
+    "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3\\data\\species\\tool_creatures_seed.json",
+    "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3\\data\\tasks\\maintenance_tasks_seed.json",
+    "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3\\data\\unlocks\\unlock_milestones_seed.json"
+  ],
+  "checked_file_count": 17,
+  "schema_files": [
+    "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3\\data\\schemas\\equipment_placement_schema.json",
+    "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3\\data\\schemas\\equipment_schema.json",
+    "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3\\data\\schemas\\species_schema.json",
+    "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3\\data\\schemas\\task_schema.json"
+  ],
+  "schema_file_count": 4,
+  "category_counts": {
+    "species_records": 161,
+    "equipment_records": 55,
+    "task_records": 10
+  },
+  "reward_field_residue": [],
+  "reward_field_residue_count": 0,
+  "schema_validation_passed": true,
+  "errors": [],
+  "warnings": []
+}

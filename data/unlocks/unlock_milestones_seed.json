@@ -1,0 +1,47 @@
+[
+  {
+    "unlock_id": "tier1_running",
+    "display_name_cn": "初级玩家",
+    "threshold_total_reef_points": 0,
+    "preview_items": [],
+    "enabled_effects": false,
+    "visible": true
+  },
+  {
+    "unlock_id": "tier2_equipment_preview",
+    "display_name_cn": "解锁中级设备预览",
+    "threshold_total_reef_points": 500,
+    "preview_items": [
+      "冷水机",
+      "杀菌灯",
+      "藻缸灯",
+      "造流泵"
+    ],
+    "enabled_effects": false,
+    "visible": true
+  },
+  {
+    "unlock_id": "tier2_sump_space_preview",
+    "display_name_cn": "解锁中级底缸空间预览",
+    "threshold_total_reef_points": 1500,
+    "preview_items": [
+      "中级底缸空间"
+    ],
+    "enabled_effects": false,
+    "visible": true
+  },
+  {
+    "unlock_id": "tier3_advanced_system_preview",
+    "display_name_cn": "高级系统预告",
+    "threshold_total_reef_points": 5000,
+    "preview_items": [
+      "KH 稳定器",
+      "钙反",
+      "卷纸机",
+      "煮豆机"
+    ],
+    "enabled_effects": false,
+    "visible": true,
+    "force_locked_in_m7": true
+  }
+]

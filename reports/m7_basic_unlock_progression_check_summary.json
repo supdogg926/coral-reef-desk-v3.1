@@ -1,0 +1,24 @@
+{
+  "root": "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3",
+  "passed": true,
+  "unlock_system": "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3\\scripts\\systems\\UnlockSystem.gd",
+  "unlock_data": "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3\\data\\unlocks\\unlock_milestones_seed.json",
+  "unlock_ids": [
+    "tier1_running",
+    "tier2_equipment_preview",
+    "tier2_sump_space_preview",
+    "tier3_advanced_system_preview"
+  ],
+  "tier2_bad_count": 0,
+  "tier3_bad_count": 0,
+  "tier2_effect_record_count": 0,
+  "dataregistry_counts": {
+    "species": 161,
+    "equipment": 28,
+    "tasks": 10,
+    "events": 7
+  },
+  "variant_inference_hit_count": 0,
+  "errors": [],
+  "warnings": []
+}

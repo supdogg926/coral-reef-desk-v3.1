@@ -1,0 +1,52 @@
+{
+  "root": "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3",
+  "passed": true,
+  "status_panel": "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3\\scenes\\ui\\StatusPanel.gd",
+  "sump_view": "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3\\scenes\\tank\\SumpView.gd",
+  "main": "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3\\scenes\\main\\Main.gd",
+  "game_state": "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3\\scripts\\systems\\GameState.gd",
+  "dataregistry_counts": {
+    "species": 161,
+    "equipment": 28,
+    "tasks": 10,
+    "events": 7
+  },
+  "required_status_labels": [
+    "数据：",
+    "校验：",
+    "当前阶段",
+    "水质状态",
+    "水质评分",
+    "温度",
+    "盐度",
+    "pH",
+    "NO3",
+    "PO4",
+    "KH",
+    "Ca",
+    "初级设备",
+    "稳定度",
+    "承载力",
+    "维护负担",
+    "管路：隐式连接",
+    "管路玩法：关闭",
+    "模拟：自动运行中",
+    "时间倍率：1秒=10分钟",
+    "游戏时间",
+    "水质更新",
+    "最近变化"
+  ],
+  "required_sump_labels": [
+    "滤袋｜已装",
+    "蛋分｜已装",
+    "藻缸｜已装",
+    "回水｜已装",
+    "加热｜已装",
+    "滤材｜已装",
+    "活石｜已装"
+  ],
+  "forbidden_sump_hits": [],
+  "variant_inference_hit_count": 0,
+  "errors": [],
+  "warnings": []
+}

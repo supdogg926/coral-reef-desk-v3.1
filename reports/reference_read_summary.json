@@ -1,0 +1,186 @@
+{
+  "legacy_audit_files": [
+    {
+      "path": "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\reports\\legacy_audit\\audit_summary.json",
+      "bytes": 7540,
+      "chars": 6566
+    },
+    {
+      "path": "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\reports\\legacy_audit\\codex_cli_readonly_check.md",
+      "bytes": 5652,
+      "chars": 5172
+    },
+    {
+      "path": "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\reports\\legacy_audit\\codex_cli_readonly_check_after_ignore.md",
+      "bytes": 4919,
+      "chars": 4663
+    },
+    {
+      "path": "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\reports\\legacy_audit\\legacy_code_analysis.md",
+      "bytes": 8353,
+      "chars": 4941
+    },
+    {
+      "path": "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\reports\\legacy_audit\\legacy_data_analysis.md",
+      "bytes": 12417,
+      "chars": 9679
+    },
+    {
+      "path": "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\reports\\legacy_audit\\legacy_godot_project_supplement.md",
+      "bytes": 19227,
+      "chars": 16542
+    },
+    {
+      "path": "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\reports\\legacy_audit\\legacy_inventory.md",
+      "bytes": 10843,
+      "chars": 6977
+    },
+    {
+      "path": "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\reports\\legacy_audit\\migration_plan_to_v3.md",
+      "bytes": 8093,
+      "chars": 5503
+    },
+    {
+      "path": "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\reports\\legacy_audit\\valuable_assets_report.md",
+      "bytes": 7574,
+      "chars": 4646
+    }
+  ],
+  "atlas_incoming_json_files": [
+    {
+      "path": "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\AtlasIncoming\\batch_real_001_25species.json",
+      "bytes": 23211,
+      "json_type": "list",
+      "top_count": 25
+    },
+    {
+      "path": "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\AtlasIncoming\\batch_real_002_32species.json",
+      "bytes": 30325,
+      "json_type": "list",
+      "top_count": 32
+    },
+    {
+      "path": "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\AtlasIncoming\\batch_real_003_skupage_86species.json",
+      "bytes": 15411,
+      "json_type": "list",
+      "top_count": 86
+    },
+    {
+      "path": "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\AtlasIncoming\\batch_real_004_skupage_130species.json",
+      "bytes": 21991,
+      "json_type": "list",
+      "top_count": 133
+    },
+    {
+      "path": "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\AtlasIncoming\\batch_real_005_海水观赏鱼SKU提取_122种.json",
+      "bytes": 56790,
+      "json_type": "list",
+      "top_count": 122
+    },
+    {
+      "path": "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\AtlasIncoming\\batch_real_005_海葵奶嘴地毯与海水鱼_36种.json",
+      "bytes": 16163,
+      "json_type": "list",
+      "top_count": 36
+    },
+    {
+      "path": "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\AtlasIncoming\\batch_real_006_excluded_待补标题.json",
+      "bytes": 594,
+      "json_type": "list",
+      "top_count": 1
+    },
+    {
+      "path": "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\AtlasIncoming\\batch_real_006_海水生物详情卡提取_54条.json",
+      "bytes": 47103,
+      "json_type": "list",
+      "top_count": 54
+    },
+    {
+      "path": "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\AtlasIncoming\\batch_real_006_海水鱼虾珊瑚提取_36种.json",
+      "bytes": 18966,
+      "json_type": "list",
+      "top_count": 36
+    },
+    {
+      "path": "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\AtlasIncoming\\batch_real_007_excluded_无品名.json",
+      "bytes": 439,
+      "json_type": "list",
+      "top_count": 1
+    },
+    {
+      "path": "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\AtlasIncoming\\batch_real_007_海水生物详情卡提取_18条.json",
+      "bytes": 17236,
+      "json_type": "list",
+      "top_count": 18
+    },
+    {
+      "path": "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\AtlasIncoming\\batch_real_007_海水鱼虾珊瑚提取_32种.json",
+      "bytes": 18585,
+      "json_type": "list",
+      "top_count": 32
+    },
+    {
+      "path": "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\AtlasIncoming\\batch_real_008_海水鱼虾珊瑚棘皮提取_25种.json",
+      "bytes": 18505,
+      "json_type": "list",
+      "top_count": 25
+    },
+    {
+      "path": "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\AtlasIncoming\\batch_real_009_excluded_无品名.json",
+      "bytes": 384,
+      "json_type": "list",
+      "top_count": 1
+    },
+    {
+      "path": "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\AtlasIncoming\\batch_real_009_海水鱼虾珊瑚提取_31种.json",
+      "bytes": 16173,
+      "json_type": "list",
+      "top_count": 31
+    },
+    {
+      "path": "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\AtlasIncoming\\batch_real_009_跨批次重复记录.json",
+      "bytes": 1510,
+      "json_type": "list",
+      "top_count": 5
+    },
+    {
+      "path": "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\AtlasIncoming\\batch_real_010_海水鱼虾珊瑚提取_30种.json",
+      "bytes": 17950,
+      "json_type": "list",
+      "top_count": 30
+    },
+    {
+      "path": "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\AtlasIncoming\\batch_real_010_跨批次重复记录.json",
+      "bytes": 648,
+      "json_type": "list",
+      "top_count": 1
+    }
+  ],
+  "named_gd_files": [
+    {
+      "path": "C:\\Users\\admin\\CoralReefIdle\\Scripts\\SpeciesData.gd",
+      "bytes": 22222,
+      "chars": 20068
+    },
+    {
+      "path": "C:\\Users\\admin\\CoralReefIdle\\Scripts\\GameManager.gd",
+      "bytes": 34827,
+      "chars": 29246
+    },
+    {
+      "path": "C:\\Users\\admin\\CoralReefIdle\\Scripts\\SaveManager.gd",
+      "bytes": 4383,
+      "chars": 4236
+    },
+    {
+      "path": "C:\\Users\\admin\\CoralReefIdle\\Scripts\\WaterQuality.gd",
+      "bytes": 3967,
+      "chars": 3751
+    },
+    {
+      "path": "C:\\Users\\admin\\CoralReefIdle\\Scripts\\EquipmentManager.gd",
+      "bytes": 5944,
+      "chars": 5585
+    }
+  ]
+}

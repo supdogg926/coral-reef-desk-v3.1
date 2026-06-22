@@ -1,0 +1,461 @@
+[
+  {
+    "id": "filter_sock",
+    "name": "Filter Sock",
+    "tier": 1,
+    "first_version_enabled": true,
+    "default_unlocked": true,
+    "default_owned": true,
+    "default_enabled": true,
+    "reserved": false,
+    "effects": {
+      "stability_score": 4,
+      "carrying_capacity_score": 1,
+      "maintenance_load": 2,
+      "nutrient_export": 2
+    },
+    "legal_zone_ids": [
+      "mechanical_filtration_chamber"
+    ],
+    "footprint_size": "small",
+    "pipe_connection_required": false,
+    "implicit_plumbing": true,
+    "sump_template_id": "starter_berlin_sump_v1",
+    "storage_state": "installed",
+    "slot_id": "slot_mech_01",
+    "slot_type": "mechanical_filtration",
+    "installed_effective": true,
+    "installable": true,
+    "removable": true
+  },
+  {
+    "id": "protein_skimmer",
+    "name": "Protein Skimmer",
+    "tier": 1,
+    "first_version_enabled": true,
+    "default_unlocked": true,
+    "default_owned": true,
+    "default_enabled": true,
+    "reserved": false,
+    "effects": {
+      "stability_score": 8,
+      "carrying_capacity_score": 4,
+      "maintenance_load": 3,
+      "oxygenation": 3,
+      "nutrient_export": 4
+    },
+    "legal_zone_ids": [
+      "skimmer_chamber"
+    ],
+    "footprint_size": "large_tall",
+    "pipe_connection_required": false,
+    "implicit_plumbing": true,
+    "sump_template_id": "starter_berlin_sump_v1",
+    "storage_state": "installed",
+    "slot_id": "slot_skimmer_01",
+    "slot_type": "skimmer",
+    "installed_effective": true,
+    "installable": true,
+    "removable": true
+  },
+  {
+    "id": "refugium",
+    "name": "Refugium",
+    "tier": 1,
+    "first_version_enabled": true,
+    "default_unlocked": true,
+    "default_owned": true,
+    "default_enabled": true,
+    "reserved": false,
+    "effects": {
+      "stability_score": 7,
+      "carrying_capacity_score": 3,
+      "maintenance_load": 2,
+      "nutrient_export": 4
+    },
+    "legal_zone_ids": [
+      "refugium_chamber"
+    ],
+    "footprint_size": "large_chamber",
+    "pipe_connection_required": false,
+    "implicit_plumbing": true,
+    "sump_template_id": "starter_berlin_sump_v1",
+    "storage_state": "installed",
+    "slot_id": "slot_refugium_01",
+    "slot_type": "refugium",
+    "installed_effective": true,
+    "installable": true,
+    "removable": true
+  },
+  {
+    "id": "return_pump",
+    "name": "Return Pump",
+    "tier": 1,
+    "first_version_enabled": true,
+    "default_unlocked": true,
+    "default_owned": true,
+    "default_enabled": true,
+    "reserved": false,
+    "effects": {
+      "stability_score": 6,
+      "carrying_capacity_score": 1,
+      "maintenance_load": 2,
+      "flow": 4
+    },
+    "legal_zone_ids": [
+      "return_chamber"
+    ],
+    "footprint_size": "medium",
+    "pipe_connection_required": false,
+    "implicit_plumbing": true,
+    "sump_template_id": "starter_berlin_sump_v1",
+    "storage_state": "installed",
+    "slot_id": "slot_return_01",
+    "slot_type": "return_pump",
+    "installed_effective": true,
+    "installable": true,
+    "removable": true
+  },
+  {
+    "id": "live_rock",
+    "name": "Live Rock",
+    "tier": 1,
+    "first_version_enabled": true,
+    "default_unlocked": true,
+    "default_owned": true,
+    "default_enabled": true,
+    "reserved": false,
+    "effects": {
+      "stability_score": 7,
+      "carrying_capacity_score": 5,
+      "maintenance_load": 1,
+      "bio_filtration": 5
+    },
+    "legal_zone_ids": [
+      "display_tank",
+      "refugium_chamber"
+    ],
+    "footprint_size": "rock_stack",
+    "pipe_connection_required": false,
+    "implicit_plumbing": true,
+    "sump_template_id": "starter_berlin_sump_v1",
+    "storage_state": "installed",
+    "slot_id": "slot_display_rock_01",
+    "slot_type": "display_biological",
+    "installed_effective": true,
+    "installable": true,
+    "removable": true
+  },
+  {
+    "id": "filter_media",
+    "name": "Filter Media",
+    "tier": 1,
+    "first_version_enabled": true,
+    "default_unlocked": true,
+    "default_owned": true,
+    "default_enabled": true,
+    "reserved": false,
+    "effects": {
+      "stability_score": 5,
+      "carrying_capacity_score": 3,
+      "maintenance_load": 1,
+      "bio_filtration": 3
+    },
+    "legal_zone_ids": [
+      "mechanical_filtration_chamber",
+      "refugium_chamber"
+    ],
+    "footprint_size": "small_basket",
+    "pipe_connection_required": false,
+    "implicit_plumbing": true,
+    "sump_template_id": "starter_berlin_sump_v1",
+    "storage_state": "installed",
+    "slot_id": "slot_mech_media_01",
+    "slot_type": "media_basket",
+    "installed_effective": true,
+    "installable": true,
+    "removable": true
+  },
+  {
+    "id": "heater",
+    "name": "Heater",
+    "tier": 1,
+    "first_version_enabled": true,
+    "default_unlocked": true,
+    "default_owned": true,
+    "default_enabled": true,
+    "reserved": false,
+    "effects": {
+      "stability_score": 5,
+      "carrying_capacity_score": 0,
+      "maintenance_load": 1,
+      "temperature_control": 4
+    },
+    "legal_zone_ids": [
+      "return_chamber",
+      "refugium_chamber"
+    ],
+    "footprint_size": "slim_rod",
+    "pipe_connection_required": false,
+    "implicit_plumbing": true,
+    "sump_template_id": "starter_berlin_sump_v1",
+    "storage_state": "installed",
+    "slot_id": "slot_return_heater_01",
+    "slot_type": "heater",
+    "installed_effective": true,
+    "installable": true,
+    "removable": true
+  },
+  {
+    "id": "chiller",
+    "name": "Chiller",
+    "tier": 2,
+    "first_version_enabled": false,
+    "default_unlocked": false,
+    "default_owned": false,
+    "default_enabled": false,
+    "reserved": true,
+    "effects": {
+      "stability_score": 0,
+      "carrying_capacity_score": 0,
+      "maintenance_load": 0
+    },
+    "legal_zone_ids": [
+      "reserved_tier2_utility"
+    ],
+    "footprint_size": "large_external",
+    "pipe_connection_required": false,
+    "implicit_plumbing": true,
+    "sump_template_id": "starter_berlin_sump_v1",
+    "storage_state": "locked",
+    "slot_id": "",
+    "slot_type": "future_unlock_preview",
+    "installed_effective": false,
+    "installable": false,
+    "removable": false
+  },
+  {
+    "id": "uv_sterilizer",
+    "name": "UV Sterilizer",
+    "tier": 2,
+    "first_version_enabled": false,
+    "default_unlocked": false,
+    "default_owned": false,
+    "default_enabled": false,
+    "reserved": true,
+    "effects": {
+      "stability_score": 0,
+      "carrying_capacity_score": 0,
+      "maintenance_load": 0
+    },
+    "legal_zone_ids": [
+      "reserved_tier2_utility"
+    ],
+    "footprint_size": "medium_inline_preview",
+    "pipe_connection_required": false,
+    "implicit_plumbing": true,
+    "sump_template_id": "starter_berlin_sump_v1",
+    "storage_state": "locked",
+    "slot_id": "",
+    "slot_type": "future_unlock_preview",
+    "installed_effective": false,
+    "installable": false,
+    "removable": false
+  },
+  {
+    "id": "refugium_light",
+    "name": "Refugium Light",
+    "tier": 2,
+    "first_version_enabled": false,
+    "default_unlocked": false,
+    "default_owned": false,
+    "default_enabled": false,
+    "reserved": true,
+    "effects": {
+      "stability_score": 0,
+      "carrying_capacity_score": 0,
+      "maintenance_load": 0
+    },
+    "legal_zone_ids": [
+      "reserved_tier2_utility"
+    ],
+    "footprint_size": "small_overhead_preview",
+    "pipe_connection_required": false,
+    "implicit_plumbing": true,
+    "sump_template_id": "starter_berlin_sump_v1",
+    "storage_state": "locked",
+    "slot_id": "",
+    "slot_type": "future_unlock_preview",
+    "installed_effective": false,
+    "installable": false,
+    "removable": false
+  },
+  {
+    "id": "wave_pump",
+    "name": "Wave Pump",
+    "tier": 2,
+    "first_version_enabled": false,
+    "default_unlocked": false,
+    "default_owned": false,
+    "default_enabled": false,
+    "reserved": true,
+    "effects": {
+      "stability_score": 0,
+      "carrying_capacity_score": 0,
+      "maintenance_load": 0
+    },
+    "legal_zone_ids": [
+      "reserved_tier2_display"
+    ],
+    "footprint_size": "small_display_preview",
+    "pipe_connection_required": false,
+    "implicit_plumbing": true,
+    "sump_template_id": "starter_berlin_sump_v1",
+    "storage_state": "locked",
+    "slot_id": "",
+    "slot_type": "future_unlock_preview",
+    "installed_effective": false,
+    "installable": false,
+    "removable": false
+  },
+  {
+    "id": "kh_stabilizer",
+    "name": "KH Stabilizer",
+    "tier": 3,
+    "first_version_enabled": false,
+    "default_unlocked": false,
+    "default_owned": false,
+    "default_enabled": false,
+    "reserved": true,
+    "effects": {
+      "stability_score": 0,
+      "carrying_capacity_score": 0,
+      "maintenance_load": 0
+    },
+    "legal_zone_ids": [
+      "reserved_tier3_controller"
+    ],
+    "footprint_size": "controller_preview",
+    "pipe_connection_required": false,
+    "implicit_plumbing": true,
+    "sump_template_id": "starter_berlin_sump_v1",
+    "storage_state": "locked",
+    "slot_id": "",
+    "slot_type": "future_unlock_preview",
+    "installed_effective": false,
+    "installable": false,
+    "removable": false
+  },
+  {
+    "id": "calcium_reactor",
+    "name": "Calcium Reactor",
+    "tier": 3,
+    "first_version_enabled": false,
+    "default_unlocked": false,
+    "default_owned": false,
+    "default_enabled": false,
+    "reserved": true,
+    "effects": {
+      "stability_score": 0,
+      "carrying_capacity_score": 0,
+      "maintenance_load": 0
+    },
+    "legal_zone_ids": [
+      "reserved_tier3_reactor"
+    ],
+    "footprint_size": "large_reactor_preview",
+    "pipe_connection_required": false,
+    "implicit_plumbing": true,
+    "sump_template_id": "starter_berlin_sump_v1",
+    "storage_state": "locked",
+    "slot_id": "",
+    "slot_type": "future_unlock_preview",
+    "installed_effective": false,
+    "installable": false,
+    "removable": false
+  },
+  {
+    "id": "roller_mat",
+    "name": "Roller Mat",
+    "tier": 3,
+    "first_version_enabled": false,
+    "default_unlocked": false,
+    "default_owned": false,
+    "default_enabled": false,
+    "reserved": true,
+    "effects": {
+      "stability_score": 0,
+      "carrying_capacity_score": 0,
+      "maintenance_load": 0
+    },
+    "legal_zone_ids": [
+      "reserved_tier3_mechanical"
+    ],
+    "footprint_size": "large_mechanical_preview",
+    "pipe_connection_required": false,
+    "implicit_plumbing": true,
+    "sump_template_id": "starter_berlin_sump_v1",
+    "storage_state": "locked",
+    "slot_id": "",
+    "slot_type": "future_unlock_preview",
+    "installed_effective": false,
+    "installable": false,
+    "removable": false
+  },
+  {
+    "id": "bio_pellet_reactor",
+    "name": "Bio Pellet Reactor",
+    "tier": 3,
+    "first_version_enabled": false,
+    "default_unlocked": false,
+    "default_owned": false,
+    "default_enabled": false,
+    "reserved": true,
+    "effects": {
+      "stability_score": 0,
+      "carrying_capacity_score": 0,
+      "maintenance_load": 0
+    },
+    "legal_zone_ids": [
+      "reserved_tier3_reactor"
+    ],
+    "footprint_size": "medium_reactor_preview",
+    "pipe_connection_required": false,
+    "implicit_plumbing": true,
+    "sump_template_id": "starter_berlin_sump_v1",
+    "storage_state": "locked",
+    "slot_id": "",
+    "slot_type": "future_unlock_preview",
+    "installed_effective": false,
+    "installable": false,
+    "removable": false
+  },
+  {
+    "id": "ato_reservoir",
+    "name": "ATO Reservoir",
+    "tier": 3,
+    "first_version_enabled": false,
+    "default_unlocked": false,
+    "default_owned": false,
+    "default_enabled": false,
+    "reserved": true,
+    "effects": {
+      "stability_score": 0,
+      "carrying_capacity_score": 0,
+      "maintenance_load": 0
+    },
+    "legal_zone_ids": [
+      "reserved_tier3_utility"
+    ],
+    "footprint_size": "large_reservoir_preview",
+    "pipe_connection_required": false,
+    "implicit_plumbing": true,
+    "sump_template_id": "starter_berlin_sump_v1",
+    "storage_state": "locked",
+    "slot_id": "",
+    "slot_type": "future_unlock_preview",
+    "installed_effective": false,
+    "installable": false,
+    "removable": false
+  }
+]

@@ -1,0 +1,19 @@
+[gd_scene format=3 uid="uid://r7cvglc8lyrs"]
+
+[ext_resource type="Script" path="res://scenes/tank/DisplayTankView.gd" id="1_display"]
+
+[node name="DisplayTankView" type="Control"]
+custom_minimum_size = Vector2(0, 300)
+layout_mode = 2
+script = ExtResource("1_display")
+
+[node name="Label" type="Label" parent="."]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_left = 18.0
+offset_top = 24.0
+offset_right = -18.0
+offset_bottom = 48.0
+text = "主缸"
+horizontal_alignment = 1

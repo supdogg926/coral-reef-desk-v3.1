@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "CoralReefIdleV3 Equipment Record",
+  "type": "object",
+  "required": [
+    "id",
+    "name"
+  ],
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "name": {
+      "type": "string"
+    },
+    "category": {
+      "type": "string"
+    },
+    "price": {
+      "type": "number"
+    },
+    "effect": {
+      "type": [
+        "object",
+        "string",
+        "array",
+        "null"
+      ]
+    }
+  },
+  "additionalProperties": true
+}

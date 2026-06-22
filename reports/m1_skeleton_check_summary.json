@@ -1,0 +1,39 @@
+{
+  "root": "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3",
+  "passed": true,
+  "files": {
+    "project": "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3\\project.godot",
+    "main_scene": "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3\\scenes\\main\\Main.tscn",
+    "data_registry": "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3\\scripts\\autoload\\DataRegistry.gd",
+    "main_script": "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3\\scenes\\main\\Main.gd",
+    "smoke_test": "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3\\tests\\smoke_test.gd",
+    "validation_summary": "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3\\reports\\validation_summary.json"
+  },
+  "data_files": [
+    "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3\\data\\species\\corals_seed.json",
+    "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3\\data\\species\\fish_seed.json",
+    "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3\\data\\species\\legacy_species_extracted.json",
+    "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3\\data\\species\\tool_creatures_seed.json",
+    "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3\\data\\equipment\\equipment_seed.json",
+    "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3\\data\\equipment\\tanks_seed.json",
+    "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3\\data\\tasks\\maintenance_tasks_seed.json",
+    "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3\\data\\events\\random_events_seed.json",
+    "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3\\data\\formulas\\formulas_seed.json"
+  ],
+  "counts": {
+    "species": 161,
+    "equipment": 28,
+    "tasks": 10,
+    "events": 7
+  },
+  "expectations": {
+    "species_count_at_least_100": true,
+    "equipment_count_at_least_20": true,
+    "task_count_equals_10": true,
+    "reward_residue_count_zero": true,
+    "phase1_validation_passed": true
+  },
+  "reward_residue": [],
+  "errors": [],
+  "warnings": []
+}

@@ -1,0 +1,16 @@
+.claude/
+.godot/
+.import/
+*.tmp
+*.log
+*.bak
+*.bak_*
+*.zip
+*.7z
+*.rar
+export/
+build/
+dist/
+.cache/
+.DS_Store
+Thumbs.db

@@ -1,0 +1,64 @@
+{
+  "source_files_read": [
+    "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\game_data.json",
+    "C:\\Users\\admin\\CoralReefIdle\\Scripts\\SpeciesData.gd"
+  ],
+  "split_counts": {
+    "corals": 19,
+    "fish": 11,
+    "tanks": 5,
+    "equipment": 23,
+    "tasks": 10,
+    "events": 7,
+    "formulas": 6
+  },
+  "species_extraction_counts": {
+    "real_fish": 79,
+    "legacy_corals": 13,
+    "legacy_fish": 6,
+    "legacy_species_total": 98,
+    "tool_creatures": 33
+  },
+  "task_reward_fields_removed": [
+    {
+      "id": "feed_fish",
+      "legacy_reward": 10
+    },
+    {
+      "id": "feed_coral",
+      "legacy_reward": 15
+    },
+    {
+      "id": "water_change",
+      "legacy_reward": 50
+    },
+    {
+      "id": "clean_glass",
+      "legacy_reward": 20
+    },
+    {
+      "id": "clean_sand",
+      "legacy_reward": 40
+    },
+    {
+      "id": "remove_algae",
+      "legacy_reward": 30
+    },
+    {
+      "id": "test_water",
+      "legacy_reward": 25
+    },
+    {
+      "id": "dose_elements",
+      "legacy_reward": 20
+    },
+    {
+      "id": "trim_coral",
+      "legacy_reward": 60
+    },
+    {
+      "id": "clean_skimmer",
+      "legacy_reward": 35
+    }
+  ]
+}

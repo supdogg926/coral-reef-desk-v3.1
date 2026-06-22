@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "CoralReefIdleV3 Maintenance Task Record",
+  "type": "object",
+  "required": [
+    "id",
+    "name",
+    "cooldown_hours"
+  ],
+  "not": {
+    "required": [
+      "reward"
+    ]
+  },
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "name": {
+      "type": "string"
+    },
+    "cooldown_hours": {
+      "type": "number"
+    },
+    "exec_cost": {
+      "description": "Allowed execution cost. Legacy reward is forbidden.",
+      "type": [
+        "object",
+        "array",
+        "number",
+        "null"
+      ]
+    },
+    "reward": {
+      "description": "Forbidden legacy field. If present in task data, validation must fail."
+    },
+    "consumes": {
+      "type": "array"
+    },
+    "auto_by": {
+      "type": "array"
+    }
+  },
+  "additionalProperties": true,
+  "forbidden_fields": [
+    "reward"
+  ]
+}

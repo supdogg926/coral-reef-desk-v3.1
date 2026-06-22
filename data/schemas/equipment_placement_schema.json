@@ -1,0 +1,60 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "CoralReefIdleV3 Equipment Placement Record",
+  "type": "object",
+  "required": [
+    "id",
+    "name",
+    "area",
+    "sump_template_id",
+    "slot_type",
+    "slot_ids",
+    "allowed_equipment",
+    "implicit_plumbing",
+    "pipe_connection_required"
+  ],
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "name": {
+      "type": "string"
+    },
+    "area": {
+      "type": "string"
+    },
+    "sump_template_id": {
+      "type": "string"
+    },
+    "slot_type": {
+      "type": "string"
+    },
+    "slot_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "allowed_equipment": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "reserved": {
+      "type": "boolean"
+    },
+    "tier": {
+      "type": "integer"
+    },
+    "implicit_plumbing": {
+      "type": "boolean",
+      "const": true
+    },
+    "pipe_connection_required": {
+      "type": "boolean",
+      "const": false
+    }
+  },
+  "additionalProperties": true
+}

@@ -1,0 +1,42 @@
+[
+  {
+    "id": "tank_30",
+    "name": "30cm方缸",
+    "level": 1,
+    "price": 0,
+    "capacity": 6,
+    "desc": "桌面小缸，适合新手起步"
+  },
+  {
+    "id": "tank_60",
+    "name": "60cm方缸",
+    "level": 4,
+    "price": 2000,
+    "capacity": 15,
+    "desc": "标准入门缸，可以养LPS和中型鱼"
+  },
+  {
+    "id": "tank_120",
+    "name": "120cm标准缸(含底缸)",
+    "level": 7,
+    "price": 15000,
+    "capacity": 30,
+    "desc": "正式玩家标配，底缸系统提供强大过滤"
+  },
+  {
+    "id": "tank_180",
+    "name": "180cm海洋馆缸",
+    "level": 9,
+    "price": 80000,
+    "capacity": 50,
+    "desc": "可容纳大型鱼和珊瑚群落"
+  },
+  {
+    "id": "tank_farm",
+    "name": "海洋牧场(串联缸组)",
+    "level": 10,
+    "price": 500000,
+    "capacity": 200,
+    "desc": "多缸串联，批量繁殖放归，海洋修复的终极形态"
+  }
+]

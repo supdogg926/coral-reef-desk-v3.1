@@ -1,0 +1,25 @@
+{
+  "root": "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3",
+  "passed": true,
+  "files": {
+    "livestock_system": "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3\\scripts\\systems\\LivestockSystem.gd",
+    "economy_system": "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3\\scripts\\systems\\EconomySystem.gd",
+    "game_state": "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3\\scripts\\systems\\GameState.gd",
+    "status_panel": "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3\\scenes\\ui\\StatusPanel.gd",
+    "starter_livestock": "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3\\data\\livestock\\starter_livestock_seed.json"
+  },
+  "starter_livestock_count": 6,
+  "enabled_starter_livestock_count": 6,
+  "dataregistry_counts": {
+    "species": 161,
+    "equipment": 28,
+    "tasks": 10,
+    "events": 7
+  },
+  "variant_inference_hit_count": 0,
+  "forbidden_simulation_hits": [],
+  "forbidden_tier_unlock_hits": [],
+  "forbidden_plumbing_or_drag_hits": [],
+  "errors": [],
+  "warnings": []
+}

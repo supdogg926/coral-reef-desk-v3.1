@@ -1,0 +1,74 @@
+[gd_scene load_steps=6 format=3 uid="uid://reefidlev3main"]
+
+[ext_resource type="Script" path="res://scenes/main/Main.gd" id="1_main"]
+[ext_resource type="PackedScene" path="res://scenes/tank/DisplayTankView.tscn" id="2_display"]
+[ext_resource type="PackedScene" path="res://scenes/tank/SumpView.tscn" id="3_sump"]
+[ext_resource type="Script" path="res://scenes/tank/PipeNetworkView.gd" id="4_pipe"]
+[ext_resource type="Script" path="res://scenes/ui/StatusPanel.gd" id="5_status"]
+
+[node name="Main" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_right = 0.0
+offset_bottom = 0.0
+script = ExtResource("1_main")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.09, 0.1, 0.11, 1)
+
+[node name="RootMargin" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme_override_constants/margin_left = 24
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 24
+theme_override_constants/margin_bottom = 8
+
+[node name="Layout" type="VBoxContainer" parent="RootMargin"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="TitleBar" type="PanelContainer" parent="RootMargin/Layout"]
+custom_minimum_size = Vector2(0, 34)
+layout_mode = 2
+
+[node name="TitleLabel" type="Label" parent="RootMargin/Layout/TitleBar"]
+layout_mode = 2
+text = "CoralReefIdleV3 - 柏林系统静态布局"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="DisplayTankView" parent="RootMargin/Layout" instance=ExtResource("2_display")]
+layout_mode = 2
+
+[node name="SumpView" parent="RootMargin/Layout" instance=ExtResource("3_sump")]
+layout_mode = 2
+
+[node name="PipeNetworkView" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+script = ExtResource("4_pipe")
+
+[node name="StatusPanel" type="PanelContainer" parent="RootMargin/Layout"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 190)
+layout_mode = 2
+script = ExtResource("5_status")
+
+[node name="StatusPlaceholder" type="Label" parent="RootMargin/Layout/StatusPanel"]
+layout_mode = 2
+text = "状态总览"
+horizontal_alignment = 1
+vertical_alignment = 1
+

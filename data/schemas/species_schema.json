@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "CoralReefIdleV3 Species Record",
+  "type": "object",
+  "required": [
+    "id",
+    "name"
+  ],
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "name": {
+      "type": "string"
+    },
+    "species_type": {
+      "type": "string",
+      "enum": [
+        "coral",
+        "fish",
+        "tool_creature"
+      ]
+    },
+    "category": {
+      "type": "string"
+    },
+    "min_size": {
+      "type": "number"
+    },
+    "max_size": {
+      "type": "number"
+    },
+    "size_price_points": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "size_cm",
+          "price_usd"
+        ],
+        "properties": {
+          "size_cm": {
+            "type": "number"
+          },
+          "price_usd": {
+            "type": "number"
+          }
+        }
+      }
+    }
+  },
+  "additionalProperties": true
+}

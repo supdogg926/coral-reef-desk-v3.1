@@ -1,0 +1,27 @@
+{
+  "root": "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3",
+  "passed": true,
+  "tier1_count": 7,
+  "tier1_installed_count": 7,
+  "locked_tier2_tier3_count": 9,
+  "warehouse_count": 0,
+  "locked_count": 9,
+  "required_ui_files": [
+    "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3\\scenes\\tank\\SumpView.gd",
+    "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3\\scenes\\ui\\StatusPanel.gd",
+    "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3\\scenes\\main\\Main.tscn"
+  ],
+  "required_tier1_slots": {
+    "filter_sock": "slot_mech_01",
+    "protein_skimmer": "slot_skimmer_01",
+    "refugium": "slot_refugium_01",
+    "return_pump": "slot_return_01",
+    "live_rock": "slot_display_rock_01",
+    "filter_media": "slot_mech_media_01",
+    "heater": "slot_return_heater_01"
+  },
+  "pipe_connection_required_false_for_all": true,
+  "implicit_plumbing_true_for_all": true,
+  "errors": [],
+  "warnings": []
+}

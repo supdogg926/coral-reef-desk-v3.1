@@ -1,0 +1,28 @@
+{
+  "root": "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3",
+  "passed": true,
+  "status_panel": "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3\\scenes\\ui\\StatusPanel.gd",
+  "main_scene": "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3\\scenes\\main\\Main.tscn",
+  "required_chinese_labels": [
+    "水质状态",
+    "水质评分",
+    "温度",
+    "盐度",
+    "pH",
+    "NO3",
+    "PO4",
+    "KH",
+    "Ca",
+    "模拟",
+    "当前阶段"
+  ],
+  "dataregistry_counts": {
+    "species": 161,
+    "equipment": 28,
+    "tasks": 10,
+    "events": 7
+  },
+  "variant_inference_hit_count": 0,
+  "errors": [],
+  "warnings": []
+}

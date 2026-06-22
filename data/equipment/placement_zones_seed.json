@@ -1,0 +1,187 @@
+[
+  {
+    "id": "display_tank",
+    "name": "Display Tank Biological Zone",
+    "area": "display",
+    "reserved": false,
+    "tier": 1,
+    "sump_template_id": "starter_berlin_sump_v1",
+    "slot_type": "display_biological",
+    "slot_ids": [
+      "slot_display_rock_01"
+    ],
+    "allowed_equipment": [
+      "live_rock"
+    ],
+    "implicit_plumbing": true,
+    "pipe_connection_required": false
+  },
+  {
+    "id": "mechanical_filtration_chamber",
+    "name": "Mechanical Filtration Chamber",
+    "area": "sump",
+    "reserved": false,
+    "tier": 1,
+    "sump_template_id": "starter_berlin_sump_v1",
+    "slot_type": "mechanical_filtration",
+    "slot_ids": [
+      "slot_mech_01",
+      "slot_mech_media_01"
+    ],
+    "allowed_equipment": [
+      "filter_sock",
+      "filter_media"
+    ],
+    "implicit_plumbing": true,
+    "pipe_connection_required": false
+  },
+  {
+    "id": "skimmer_chamber",
+    "name": "Skimmer Chamber",
+    "area": "sump",
+    "reserved": false,
+    "tier": 1,
+    "sump_template_id": "starter_berlin_sump_v1",
+    "slot_type": "skimmer",
+    "slot_ids": [
+      "slot_skimmer_01"
+    ],
+    "allowed_equipment": [
+      "protein_skimmer"
+    ],
+    "implicit_plumbing": true,
+    "pipe_connection_required": false
+  },
+  {
+    "id": "refugium_chamber",
+    "name": "Refugium Chamber",
+    "area": "sump",
+    "reserved": false,
+    "tier": 1,
+    "sump_template_id": "starter_berlin_sump_v1",
+    "slot_type": "refugium",
+    "slot_ids": [
+      "slot_refugium_01"
+    ],
+    "allowed_equipment": [
+      "refugium",
+      "heater",
+      "live_rock",
+      "filter_media"
+    ],
+    "implicit_plumbing": true,
+    "pipe_connection_required": false
+  },
+  {
+    "id": "return_chamber",
+    "name": "Return Chamber",
+    "area": "sump",
+    "reserved": false,
+    "tier": 1,
+    "sump_template_id": "starter_berlin_sump_v1",
+    "slot_type": "return_pump",
+    "slot_ids": [
+      "slot_return_01",
+      "slot_return_heater_01"
+    ],
+    "allowed_equipment": [
+      "return_pump",
+      "heater"
+    ],
+    "implicit_plumbing": true,
+    "pipe_connection_required": false
+  },
+  {
+    "id": "reserved_tier2_utility",
+    "name": "Reserved Tier 2 Utility Warehouse Preview",
+    "area": "warehouse_preview",
+    "reserved": true,
+    "tier": 2,
+    "sump_template_id": "future_tier2_sump_template",
+    "slot_type": "future_unlock_preview",
+    "slot_ids": [],
+    "allowed_equipment": [
+      "chiller",
+      "uv_sterilizer",
+      "refugium_light"
+    ],
+    "implicit_plumbing": true,
+    "pipe_connection_required": false
+  },
+  {
+    "id": "reserved_tier2_display",
+    "name": "Reserved Tier 2 Display Warehouse Preview",
+    "area": "warehouse_preview",
+    "reserved": true,
+    "tier": 2,
+    "sump_template_id": "future_tier2_display_template",
+    "slot_type": "future_unlock_preview",
+    "slot_ids": [],
+    "allowed_equipment": [
+      "wave_pump"
+    ],
+    "implicit_plumbing": true,
+    "pipe_connection_required": false
+  },
+  {
+    "id": "reserved_tier3_controller",
+    "name": "Reserved Tier 3 Controller Warehouse Preview",
+    "area": "warehouse_preview",
+    "reserved": true,
+    "tier": 3,
+    "sump_template_id": "future_tier3_controller_template",
+    "slot_type": "future_unlock_preview",
+    "slot_ids": [],
+    "allowed_equipment": [
+      "kh_stabilizer"
+    ],
+    "implicit_plumbing": true,
+    "pipe_connection_required": false
+  },
+  {
+    "id": "reserved_tier3_reactor",
+    "name": "Reserved Tier 3 Reactor Warehouse Preview",
+    "area": "warehouse_preview",
+    "reserved": true,
+    "tier": 3,
+    "sump_template_id": "future_tier3_reactor_template",
+    "slot_type": "future_unlock_preview",
+    "slot_ids": [],
+    "allowed_equipment": [
+      "calcium_reactor",
+      "bio_pellet_reactor"
+    ],
+    "implicit_plumbing": true,
+    "pipe_connection_required": false
+  },
+  {
+    "id": "reserved_tier3_mechanical",
+    "name": "Reserved Tier 3 Mechanical Warehouse Preview",
+    "area": "warehouse_preview",
+    "reserved": true,
+    "tier": 3,
+    "sump_template_id": "future_tier3_mechanical_template",
+    "slot_type": "future_unlock_preview",
+    "slot_ids": [],
+    "allowed_equipment": [
+      "roller_mat"
+    ],
+    "implicit_plumbing": true,
+    "pipe_connection_required": false
+  },
+  {
+    "id": "reserved_tier3_utility",
+    "name": "Reserved Tier 3 Utility Warehouse Preview",
+    "area": "warehouse_preview",
+    "reserved": true,
+    "tier": 3,
+    "sump_template_id": "future_tier3_utility_template",
+    "slot_type": "future_unlock_preview",
+    "slot_ids": [],
+    "allowed_equipment": [
+      "ato_reservoir"
+    ],
+    "implicit_plumbing": true,
+    "pipe_connection_required": false
+  }
+]

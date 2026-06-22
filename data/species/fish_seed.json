@@ -1,0 +1,179 @@
+[
+  {
+    "id": "ocellaris",
+    "name": "公子小丑",
+    "name_en": "Ocellaris Clownfish",
+    "rarity": 1,
+    "source": "shop",
+    "price": 30,
+    "breed_hours": 24,
+    "income_per_hour": 3,
+    "release_income_per_hour": 1.5,
+    "unlock": {
+      "tank_level": 1
+    },
+    "min_tank": "tank_30",
+    "desc": "海底总动员的主角尼莫，最亲民的海水鱼入门品种"
+  },
+  {
+    "id": "blue_damsel",
+    "name": "蓝魔鬼",
+    "name_en": "Blue Damselfish",
+    "rarity": 1,
+    "source": "shop",
+    "price": 20,
+    "breed_hours": 18,
+    "income_per_hour": 2,
+    "release_income_per_hour": 1,
+    "unlock": {
+      "tank_level": 1
+    },
+    "min_tank": "tank_30",
+    "desc": "电光蓝色的小型鱼，性格活泼好斗，常用来闯缸"
+  },
+  {
+    "id": "percula",
+    "name": "透红小丑",
+    "name_en": "Percula Clownfish",
+    "rarity": 2,
+    "source": "shop",
+    "price": 80,
+    "breed_hours": 36,
+    "income_per_hour": 8,
+    "release_income_per_hour": 4,
+    "unlock": {
+      "tank_level": 2
+    },
+    "min_tank": "tank_30",
+    "desc": "比公子小丑更鲜艳的红色，白色条纹边缘有黑色勾边"
+  },
+  {
+    "id": "firefish",
+    "name": "火焰鱼",
+    "name_en": "Firefish Goby",
+    "rarity": 2,
+    "source": "shop",
+    "price": 60,
+    "breed_hours": 48,
+    "income_per_hour": 6,
+    "release_income_per_hour": 3,
+    "unlock": {
+      "tank_level": 3
+    },
+    "min_tank": "tank_30",
+    "desc": "身体前半白色后半火红，背鳍高耸如旗帜"
+  },
+  {
+    "id": "royal_gramma",
+    "name": "紫背鱼",
+    "name_en": "Royal Gramma",
+    "rarity": 2,
+    "source": "shop",
+    "price": 100,
+    "breed_hours": 48,
+    "income_per_hour": 10,
+    "release_income_per_hour": 5,
+    "unlock": {
+      "tank_level": 4
+    },
+    "min_tank": "tank_60",
+    "desc": "前紫后黄的双色鱼，性格温和，躲在洞穴中探头观望"
+  },
+  {
+    "id": "yellow_tang",
+    "name": "黄吊",
+    "name_en": "Yellow Tang",
+    "rarity": 3,
+    "source": "shop",
+    "price": 300,
+    "breed_hours": 72,
+    "income_per_hour": 35,
+    "release_income_per_hour": 18,
+    "unlock": {
+      "tank_level": 6
+    },
+    "min_tank": "tank_60",
+    "desc": "纯正柠檬黄色的吊类鱼，海缸除藻功臣"
+  },
+  {
+    "id": "blue_tang",
+    "name": "蓝吊(多莉)",
+    "name_en": "Blue Tang",
+    "rarity": 3,
+    "source": "shop",
+    "price": 400,
+    "breed_hours": 72,
+    "income_per_hour": 40,
+    "release_income_per_hour": 20,
+    "unlock": {
+      "tank_level": 6
+    },
+    "min_tank": "tank_60",
+    "desc": "海底总动员中的多莉，宝蓝色身体配亮黄色尾鳍"
+  },
+  {
+    "id": "mandarin",
+    "name": "青蛙(麒麟)",
+    "name_en": "Mandarin Dragonet",
+    "rarity": 4,
+    "source": "shop",
+    "price": 800,
+    "breed_hours": 96,
+    "income_per_hour": 80,
+    "release_income_per_hour": 40,
+    "unlock": {
+      "tank_level": 8
+    },
+    "min_tank": "tank_120",
+    "desc": "全身迷幻花纹如中国瓷器彩绘，被誉为最美海水鱼之一"
+  },
+  {
+    "id": "flame_angel",
+    "name": "火焰仙",
+    "name_en": "Flame Angelfish",
+    "rarity": 4,
+    "source": "dive",
+    "price": 0,
+    "breed_hours": 96,
+    "income_per_hour": 100,
+    "release_income_per_hour": 50,
+    "unlock": {
+      "dive_unlock": true
+    },
+    "min_tank": "tank_120",
+    "desc": "通体烈焰橙红配黑色竖纹，野生个体只能在深海礁石中遇到"
+  },
+  {
+    "id": "moorish_idol",
+    "name": "镰鱼(吉尔)",
+    "name_en": "Moorish Idol",
+    "rarity": 5,
+    "source": "dive",
+    "price": 0,
+    "breed_hours": 168,
+    "income_per_hour": 250,
+    "release_income_per_hour": 120,
+    "unlock": {
+      "dive_unlock": true,
+      "dive_rarity": "legendary"
+    },
+    "min_tank": "tank_180",
+    "desc": "海底总动员中的吉尔，黑白黄三色镰刀状背鳍极其优雅"
+  },
+  {
+    "id": "seahorse",
+    "name": "海马",
+    "name_en": "Seahorse",
+    "rarity": 5,
+    "source": "dive",
+    "price": 0,
+    "breed_hours": 120,
+    "income_per_hour": 200,
+    "release_income_per_hour": 100,
+    "unlock": {
+      "dive_unlock": true
+    },
+    "min_tank": "tank_120",
+    "desc": "雄性海马负责怀孕育儿，自然界最温柔的父亲"
+  }
+]

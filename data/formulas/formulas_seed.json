@@ -1,0 +1,8 @@
+{
+  "purchase_price": "base_price × 1.15^owned_count",
+  "split_actual_hours": "base_hours / (1 + equipment_bonus_sum)",
+  "tank_income_per_hour": "Σ(bio.income × (1 + equipment_global_bonus))",
+  "release_income_per_hour": "Σ(released_bio.release_income) × (1 + ocean_level × 0.05)",
+  "ocean_restore_level": "floor(total_released / 10)",
+  "offline_income": "(tank_income + release_income) × hours × 0.7"
+}

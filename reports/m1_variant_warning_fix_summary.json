@@ -1,0 +1,12 @@
+{
+  "task": "manual_m1_variant_warning_fix",
+  "root": "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3",
+  "changed_files": [
+    "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3\\scripts\\autoload\\DataRegistry.gd",
+    "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3\\scenes\\main\\Main.gd",
+    "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3\\tests\\smoke_test.gd"
+  ],
+  "missing_files": [],
+  "backup_suffix": ".bak_m1_variant_fix",
+  "note": "Replaced local var := inference with var = in M1 GDScript files to avoid Godot 4.7 Variant inference warnings treated as errors."
+}
