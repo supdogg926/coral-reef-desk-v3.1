@@ -5,8 +5,9 @@ var game_state: GameState = null
 var status_label: Label = null
 var item_list: VBoxContainer = null
 var _built: bool = false
-var _on_purchase_callback: Callable = Callable()
 var _purchase_in_progress: bool = false
+var _alive_tick: int = 0
+var _alive_timer: float = 0.0
 
 
 func _ready() -> void:
@@ -18,12 +19,21 @@ func _ready() -> void:
 	add_theme_stylebox_override("panel", style)
 
 
-func setup(gs: GameState, on_purchase: Callable = Callable()) -> void:
+func _process(delta: float) -> void:
+	_alive_timer += delta
+	if _alive_timer >= 1.0:
+		_alive_timer = 0.0
+		_alive_tick += 1
+		if status_label != null and status_label.text.begins_with("购买成功"):
+			status_label.text = "购买成功 tick=%d" % _alive_tick
+
+
+func setup(gs: GameState) -> void:
 	game_state = gs
-	_on_purchase_callback = on_purchase
 	if not _built:
 		_build_ui()
 		_built = true
+	set_process(true)
 
 
 func update_display() -> void:
@@ -148,11 +158,15 @@ func _on_buy(shop_id: String) -> void:
 		print("[BUY] purchase already in progress, ignoring")
 		return
 	_purchase_in_progress = true
-	print("[BUY] click start shop_id=", shop_id)
+	status_label.text = "购买处理中..."
+	print("[BUY] pressed, defer purchase shop_id=", shop_id)
+	call_deferred("_perform_buy_deferred", shop_id)
 
+
+func _perform_buy_deferred(shop_id: String) -> void:
+	print("[BUY] deferred start")
 	var result: Dictionary = game_state.buy_livestock_from_shop(shop_id)
-	print("[BUY] game_state result=", result.get("success", false))
-
+	print("[BUY] deferred result success=", result.get("success", false))
 	if result.get("success", false):
 		status_label.text = "购买成功：%s｜RP-%d｜生物数：%d｜容量：%.1f/%.1f" % [
 			result.get("species_name", ""),
@@ -162,7 +176,6 @@ func _on_buy(shop_id: String) -> void:
 			float(result.get("max_capacity", 30.0)),
 		]
 		status_label.add_theme_color_override("font_color", Color(0.50, 0.90, 0.55))
-		print("[BUY] ui status updated")
 	else:
 		var err: String = String(result.get("error", "unknown"))
 		if err == "capacity_exceeded":
@@ -172,18 +185,10 @@ func _on_buy(shop_id: String) -> void:
 		else:
 			status_label.text = "购买失败：%s" % err
 		status_label.add_theme_color_override("font_color", Color(0.95, 0.50, 0.40))
-		print("[BUY] purchase failed: ", err)
-
+	_alive_tick = 0
+	_alive_timer = 0.0
 	_purchase_in_progress = false
-	if _on_purchase_callback.is_valid():
-		print("[BUY] scheduling callback")
-		call_deferred("_notify_purchase_callback")
-
-
-func _notify_purchase_callback() -> void:
-	if _on_purchase_callback.is_valid():
-		_on_purchase_callback.call()
-		print("[BUY] callback done")
+	print("[BUY] deferred done, input should remain alive")
 
 
 func _on_close() -> void:

@@ -28,6 +28,9 @@ var _autosave_timer: float = 0.0
 const AUTOSAVE_INTERVAL: float = 10.0
 var save_loaded: bool = false
 var offline_summary: Dictionary = {}
+var _pending_save_after_purchase: bool = false
+var _purchase_save_timer: float = 0.0
+const PURCHASE_SAVE_DELAY: float = 0.3
 
 
 func initialize() -> void:
@@ -79,6 +82,14 @@ func update(delta_seconds: float) -> void:
 	if _autosave_timer >= AUTOSAVE_INTERVAL:
 		_perform_autosave()
 		_autosave_timer = 0.0
+	if _pending_save_after_purchase:
+		_purchase_save_timer += delta_seconds
+		if _purchase_save_timer >= PURCHASE_SAVE_DELAY:
+			print("[BUY] delayed autosave start")
+			_perform_autosave()
+			print("[BUY] delayed autosave done")
+			_pending_save_after_purchase = false
+			_purchase_save_timer = 0.0
 
 
 func get_system_stability_score() -> float:
@@ -253,7 +264,8 @@ func buy_livestock_from_shop(shop_id: String) -> Dictionary:
 	reef_points = economy_system.get_reef_points()
 	_update_livestock_and_economy(0.0)
 	_update_unlocks()
-	_perform_autosave()
+	_pending_save_after_purchase = true
+	_purchase_save_timer = 0.0
 	return {
 		"success": true,
 		"species_name": purchase_entry["species_name"],

@@ -11,6 +11,8 @@ var panel_status_label: Label = null
 var _panels_setup_done: bool = false
 var _livestock_refresh_timer: float = 0.0
 const LIVESTOCK_REFRESH_INTERVAL: float = 0.5
+var _alive_tick: int = 0
+var _alive_timer: float = 0.0
 
 
 func _ready() -> void:
@@ -25,6 +27,12 @@ func _process(delta: float) -> void:
 		return
 	game_state.update(delta)
 	_update_status_labels()
+	_alive_timer += delta
+	if _alive_timer >= 1.0:
+		_alive_timer = 0.0
+		_alive_tick += 1
+		if panel_status_label != null:
+			panel_status_label.text = "tick=%d" % _alive_tick
 	if livestock_panel != null and livestock_panel.visible:
 		_livestock_refresh_timer += delta
 		if _livestock_refresh_timer >= LIVESTOCK_REFRESH_INTERVAL:
@@ -95,7 +103,7 @@ func _setup_panels() -> void:
 	shop_panel = ShopPanel.new()
 	shop_panel.hide()
 	add_child(shop_panel)
-	shop_panel.setup(game_state, Callable(self, "_on_shop_purchase"))
+	shop_panel.setup(game_state)
 
 	livestock_panel = LivestockPanel.new()
 	livestock_panel.hide()
