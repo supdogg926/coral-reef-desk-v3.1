@@ -110,12 +110,15 @@ func _build_ui() -> void:
 	root.add_child(header)
 
 	var scroll: ScrollContainer = ScrollContainer.new()
-	scroll.custom_minimum_size = Vector2(0, 180)
+	scroll.custom_minimum_size = Vector2(0, 160)
 	scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	root.add_child(scroll)
 
 	item_list = VBoxContainer.new()
 	item_list.add_theme_constant_override("separation", 2)
+	item_list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	item_list.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	scroll.add_child(item_list)
 
 	var close_btn: Button = Button.new()

@@ -36,6 +36,14 @@ func update_display() -> void:
 	if ls == null:
 		return
 	var shop_items: Array[Dictionary] = ls.get_shop_items()
+	var debug_label: Label = get_node_or_null("MarginContainer/VBoxContainer/DebugCount") as Label
+	if debug_label != null:
+		debug_label.text = "商店商品数：%d" % shop_items.size()
+	if shop_items.is_empty():
+		if status_label != null:
+			status_label.text = "错误：商店数据为空"
+			status_label.add_theme_color_override("font_color", Color(0.95, 0.50, 0.40))
+		return
 	for item in shop_items:
 		var row: HBoxContainer = HBoxContainer.new()
 		row.add_theme_constant_override("separation", 4)
@@ -92,13 +100,23 @@ func _build_ui() -> void:
 	header.add_theme_color_override("font_color", Color(0.60, 0.70, 0.65))
 	root.add_child(header)
 
+	var debug_count: Label = Label.new()
+	debug_count.text = "商店商品数：--"
+	debug_count.add_theme_font_size_override("font_size", 10)
+	debug_count.add_theme_color_override("font_color", Color(0.60, 0.85, 0.70))
+	debug_count.name = "DebugCount"
+	root.add_child(debug_count)
+
 	var scroll: ScrollContainer = ScrollContainer.new()
-	scroll.custom_minimum_size = Vector2(0, 240)
+	scroll.custom_minimum_size = Vector2(0, 200)
 	scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	root.add_child(scroll)
 
 	item_list = VBoxContainer.new()
 	item_list.add_theme_constant_override("separation", 2)
+	item_list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	item_list.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	scroll.add_child(item_list)
 
 	status_label = Label.new()

@@ -121,14 +121,15 @@ func _toggle_shop() -> void:
 			panel_status_label.text = ""
 	else:
 		livestock_panel.hide()
-		shop_panel.anchor_left = 0.03
-		shop_panel.anchor_right = 0.97
-		shop_panel.anchor_top = 0.50
-		shop_panel.anchor_bottom = 0.96
+		shop_panel.anchor_left = 0.04
+		shop_panel.anchor_right = 0.96
+		shop_panel.anchor_top = 0.10
+		shop_panel.anchor_bottom = 0.90
 		shop_panel.offset_left = 0.0
 		shop_panel.offset_right = 0.0
 		shop_panel.offset_top = 0.0
 		shop_panel.offset_bottom = 0.0
+		shop_panel.update_display()
 		shop_panel.show()
 		if shop_panel.get_parent() != null:
 			shop_panel.get_parent().move_child(shop_panel, shop_panel.get_parent().get_child_count() - 1)
@@ -146,10 +147,10 @@ func _toggle_livestock() -> void:
 	else:
 		shop_panel.hide()
 		livestock_panel.update_display()
-		livestock_panel.anchor_left = 0.03
-		livestock_panel.anchor_right = 0.97
-		livestock_panel.anchor_top = 0.50
-		livestock_panel.anchor_bottom = 0.96
+		livestock_panel.anchor_left = 0.04
+		livestock_panel.anchor_right = 0.96
+		livestock_panel.anchor_top = 0.10
+		livestock_panel.anchor_bottom = 0.90
 		livestock_panel.offset_left = 0.0
 		livestock_panel.offset_right = 0.0
 		livestock_panel.offset_top = 0.0
