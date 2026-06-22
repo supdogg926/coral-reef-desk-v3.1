@@ -87,7 +87,7 @@ func _build_ui() -> void:
 		row.add_child(info)
 
 		var buy_btn: Button = Button.new()
-		buy_btn.text = "购买"
+		buy_btn.text = "带回家"
 		buy_btn.custom_minimum_size = Vector2(48, 22)
 		buy_btn.add_theme_font_size_override("font_size", 9)
 		var item_id: String = String(item.get("id", ""))

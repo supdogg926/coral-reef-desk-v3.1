@@ -41,23 +41,36 @@ func _setup_panels() -> void:
 	if layout == null:
 		return
 
-	var btn_bar: HBoxContainer = HBoxContainer.new()
-	btn_bar.add_theme_constant_override("separation", 8)
+	var btn_bar: PanelContainer = PanelContainer.new()
+	var bar_style: StyleBoxFlat = StyleBoxFlat.new()
+	bar_style.bg_color = Color(0.15, 0.18, 0.20, 1.0)
+	bar_style.set_border_width_all(0)
+	bar_style.set_corner_radius_all(4)
+	btn_bar.add_theme_stylebox_override("panel", bar_style)
+	var bar_margin: MarginContainer = MarginContainer.new()
+	bar_margin.add_theme_constant_override("margin_left", 8)
+	bar_margin.add_theme_constant_override("margin_top", 4)
+	bar_margin.add_theme_constant_override("margin_right", 8)
+	bar_margin.add_theme_constant_override("margin_bottom", 4)
+	btn_bar.add_child(bar_margin)
+	var bar_row: HBoxContainer = HBoxContainer.new()
+	bar_row.add_theme_constant_override("separation", 8)
+	bar_margin.add_child(bar_row)
 	layout.add_child(btn_bar)
 
 	shop_btn = Button.new()
 	shop_btn.text = "生物商店"
-	shop_btn.custom_minimum_size = Vector2(100, 28)
-	shop_btn.add_theme_font_size_override("font_size", 11)
+	shop_btn.custom_minimum_size = Vector2(100, 30)
+	shop_btn.add_theme_font_size_override("font_size", 12)
 	shop_btn.pressed.connect(_toggle_shop)
-	btn_bar.add_child(shop_btn)
+	bar_row.add_child(shop_btn)
 
 	livestock_btn = Button.new()
 	livestock_btn.text = "我的生物"
-	livestock_btn.custom_minimum_size = Vector2(100, 28)
-	livestock_btn.add_theme_font_size_override("font_size", 11)
+	livestock_btn.custom_minimum_size = Vector2(100, 30)
+	livestock_btn.add_theme_font_size_override("font_size", 12)
 	livestock_btn.pressed.connect(_toggle_livestock)
-	btn_bar.add_child(livestock_btn)
+	bar_row.add_child(livestock_btn)
 
 	shop_panel = ShopPanel.new()
 	shop_panel.hide()
@@ -136,7 +149,7 @@ func _update_status_labels() -> void:
 	status_panel.update_unlock_debug(game_state.get_unlock_debug_state())
 	var water_delta_state: Dictionary = game_state.get_water_chemistry_debug_state()
 	var delta_state: Dictionary = game_state.get_debug_state().get("delta", {})
-	status_panel.update_delta_debug(water_delta_state, delta_state)
+	status_panel.update_delta_debug(water_delta_state, delta_state, game_state.get_economy_debug_state())
 	status_panel.update_save_debug(
 		game_state.get_save_debug_state(),
 		game_state.save_loaded,

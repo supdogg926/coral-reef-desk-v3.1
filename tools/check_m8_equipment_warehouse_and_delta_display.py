@@ -17,7 +17,7 @@ REPORT_PATH = ROOT / "reports" / "m8_equipment_warehouse_and_delta_display_check
 
 REQUIRED_UI_TEXT = [
     "\u6c34\u53d8",
-    "\u6536\u53d8",
+    "\u7ed3\u7b97",
     "\u4ed3\u5e93",
     "\u9884\u89c8",
     "\u9501\u5b9a",

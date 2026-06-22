@@ -39,7 +39,7 @@ REQUIRED_STATUS_TEXT = [
     "\u65f6\u95f4\uff1a",
     "\u66f4\u65b0\uff1a",
     "\u6c34\u53d8",
-    "\u6536\u53d8",
+    "\u7ed3\u7b97",
 ]
 
 REQUIRED_SUMP_LABELS = [

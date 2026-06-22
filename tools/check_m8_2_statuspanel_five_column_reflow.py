@@ -13,8 +13,8 @@ REPORT_PATH = ROOT / "reports" / "m8_2_statuspanel_five_column_reflow_check_summ
 REQUIRED_UI_TEXT = [
     "\u6c34\u53d8A",
     "\u6c34\u53d8B",
-    "\u6536\u53d8A",
-    "\u6536\u53d8B",
+    "\u7ed3\u7b97",
+    "\u6536\u76ca\uff1a",
     "\u4ed3\u5e93",
     "\u9ad8\u7ea7\uff1a\u672a\u89e3\u9501",
     "\u5f53\u524d\u9636\u6bb5\uff1aM10",
@@ -33,7 +33,7 @@ REQUIRED_DELTA_LABELS = [
     "\u4ef7\u503c",
     "\u6536\u76ca",
     "\u5065\u5eb7",
-    "\u6c34\u8d28\u6536\u76ca",
+    "\u6c34\u8d28\u500d\u7387",
 ]
 
 FORBIDDEN_GAMEPLAY_TERMS = [
