@@ -139,10 +139,14 @@ func _make_buy_callback(shop_id: String) -> Callable:
 	return func(): _on_buy(shop_id)
 
 
+var _last_buy_result: Dictionary = {}
+
+
 func _on_buy(shop_id: String) -> void:
 	if game_state == null:
 		return
-	var result: Dictionary = game_state.buy_livestock_from_shop(shop_id)
+	_last_buy_result = game_state.buy_livestock_from_shop(shop_id)
+	var result: Dictionary = _last_buy_result
 	if result.get("success", false):
 		status_label.text = "购买成功：%s｜RP-%d｜生物数：%d｜容量：%.1f/%.1f" % [
 			result.get("species_name", ""),
@@ -152,9 +156,6 @@ func _on_buy(shop_id: String) -> void:
 			float(result.get("max_capacity", 30.0)),
 		]
 		status_label.add_theme_color_override("font_color", Color(0.50, 0.90, 0.55))
-		update_display()
-		if _on_purchase_callback.is_valid():
-			_on_purchase_callback.call()
 	else:
 		var err: String = String(result.get("error", "unknown"))
 		if err == "capacity_exceeded":
@@ -164,6 +165,14 @@ func _on_buy(shop_id: String) -> void:
 		else:
 			status_label.text = "购买失败：%s" % err
 		status_label.add_theme_color_override("font_color", Color(0.95, 0.50, 0.40))
+	call_deferred("_deferred_after_buy")
+
+
+func _deferred_after_buy() -> void:
+	if _last_buy_result.get("success", false):
+		update_display()
+		if _on_purchase_callback.is_valid():
+			_on_purchase_callback.call()
 
 
 func _on_close() -> void:
