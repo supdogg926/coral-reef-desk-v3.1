@@ -61,10 +61,15 @@ func save_game(game_state_dict: Dictionary) -> bool:
 	print("[SAVE] file close done")
 	last_save_unix_time = timestamp
 	save_exists = true
-	last_saved_keys = save_data.keys().duplicate()
+	print("[SAVE] last_saved_keys update start")
+	last_saved_keys.clear()
+	for key in save_data.keys():
+		last_saved_keys.append(String(key))
+	print("[SAVE] last_saved_keys update done keys=", last_saved_keys)
 	var raw_livestock: Variant = save_data.get("livestock", {})
+	print("[SAVE] livestock debug update start")
 	if raw_livestock is Dictionary:
-		has_livestock_in_last_save = raw_livestock.has("owned_livestock")
+		has_livestock_in_last_save = "owned_livestock" in raw_livestock
 		if has_livestock_in_last_save:
 			var arr: Variant = raw_livestock.get("owned_livestock", [])
 			last_saved_livestock_count = arr.size() if arr is Array else 0
@@ -73,6 +78,8 @@ func save_game(game_state_dict: Dictionary) -> bool:
 	else:
 		has_livestock_in_last_save = false
 		last_saved_livestock_count = 0
+	print("[SAVE] livestock debug update done count=", last_saved_livestock_count)
+	print("[SAVE] save_game return true")
 	return true
 
 
