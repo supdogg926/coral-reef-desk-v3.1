@@ -295,7 +295,8 @@ func _apply_save_state(save_data: Dictionary) -> void:
 		unlock_system.recalculate_from_reef_points(economy_system.total_reef_points_earned if economy_system != null else 0.0)
 	var raw_livestock: Variant = save_data.get("livestock", {})
 	if raw_livestock is Dictionary and livestock_system != null:
-		livestock_system.import_state(raw_livestock)
+		if raw_livestock.has("owned_livestock"):
+			livestock_system.import_state(raw_livestock)
 	reef_points = economy_system.reef_points if economy_system != null else 0.0
 
 

@@ -3,12 +3,18 @@ extends Control
 @onready var status_panel: StatusPanel = %StatusPanel
 
 var game_state: GameState = null
+var shop_panel: ShopPanel = null
+var livestock_panel: LivestockPanel = null
+var shop_btn: Button = null
+var livestock_btn: Button = null
+var _panels_setup_done: bool = false
 
 
 func _ready() -> void:
 	game_state = GameState.new()
 	game_state.initialize()
 	_update_status_labels()
+	_setup_panels()
 
 
 func _process(delta: float) -> void:
@@ -16,6 +22,81 @@ func _process(delta: float) -> void:
 		return
 	game_state.update(delta)
 	_update_status_labels()
+	if livestock_panel != null and livestock_panel.visible:
+		livestock_panel.refresh()
+
+
+func _setup_panels() -> void:
+	if _panels_setup_done:
+		return
+	var layout: VBoxContainer = null
+	for child in get_children():
+		if child is MarginContainer:
+			for sub in child.get_children():
+				if sub is VBoxContainer:
+					layout = sub
+					break
+	if layout == null:
+		return
+
+	var btn_bar: HBoxContainer = HBoxContainer.new()
+	btn_bar.add_theme_constant_override("separation", 8)
+	layout.add_child(btn_bar)
+
+	shop_btn = Button.new()
+	shop_btn.text = "生物商店"
+	shop_btn.custom_minimum_size = Vector2(100, 28)
+	shop_btn.add_theme_font_size_override("font_size", 11)
+	shop_btn.pressed.connect(_toggle_shop)
+	btn_bar.add_child(shop_btn)
+
+	livestock_btn = Button.new()
+	livestock_btn.text = "我的生物"
+	livestock_btn.custom_minimum_size = Vector2(100, 28)
+	livestock_btn.add_theme_font_size_override("font_size", 11)
+	livestock_btn.pressed.connect(_toggle_livestock)
+	btn_bar.add_child(livestock_btn)
+
+	shop_panel = ShopPanel.new()
+	shop_panel.setup(game_state)
+	shop_panel.hide()
+	shop_panel.custom_minimum_size = Vector2(0, 320)
+	add_child(shop_panel)
+
+	livestock_panel = LivestockPanel.new()
+	livestock_panel.setup(game_state)
+	livestock_panel.hide()
+	livestock_panel.custom_minimum_size = Vector2(0, 260)
+	add_child(livestock_panel)
+
+	_panels_setup_done = true
+
+
+func _toggle_shop() -> void:
+	if shop_panel == null:
+		return
+	if shop_panel.visible:
+		shop_panel.hide()
+	else:
+		livestock_panel.hide()
+		shop_panel.show()
+		var vp_size: Vector2 = get_viewport().get_visible_rect().size
+		shop_panel.position = Vector2(40, vp_size.y - 360)
+		shop_panel.size = Vector2(vp_size.x - 80, 310)
+
+
+func _toggle_livestock() -> void:
+	if livestock_panel == null:
+		return
+	if livestock_panel.visible:
+		livestock_panel.hide()
+	else:
+		shop_panel.hide()
+		livestock_panel.refresh()
+		livestock_panel.show()
+		var vp_size: Vector2 = get_viewport().get_visible_rect().size
+		livestock_panel.position = Vector2(40, vp_size.y - 310)
+		livestock_panel.size = Vector2(vp_size.x - 80, 260)
 
 
 func _update_status_labels() -> void:

@@ -1,0 +1,119 @@
+class_name ShopPanel
+extends PanelContainer
+
+var game_state: GameState = null
+var item_buttons: Array[Dictionary] = []
+var status_label: Label = null
+
+func setup(gs: GameState) -> void:
+	game_state = gs
+	var style: StyleBoxFlat = StyleBoxFlat.new()
+	style.bg_color = Color(0.10, 0.12, 0.14, 0.95)
+	style.border_color = Color(0.35, 0.55, 0.50)
+	style.set_border_width_all(2)
+	style.set_corner_radius_all(6)
+	add_theme_stylebox_override("panel", style)
+
+	var margin: MarginContainer = MarginContainer.new()
+	margin.add_theme_constant_override("margin_left", 10)
+	margin.add_theme_constant_override("margin_top", 6)
+	margin.add_theme_constant_override("margin_right", 10)
+	margin.add_theme_constant_override("margin_bottom", 6)
+	add_child(margin)
+
+	var root: VBoxContainer = VBoxContainer.new()
+	root.add_theme_constant_override("separation", 3)
+	margin.add_child(root)
+
+	var title: Label = Label.new()
+	title.text = "生物商店"
+	title.add_theme_font_size_override("font_size", 14)
+	title.add_theme_color_override("font_color", Color(0.90, 0.96, 0.90))
+	root.add_child(title)
+
+	var header: Label = Label.new()
+	header.text = "名称｜分类｜稀有度｜价格｜尺寸｜容量｜收益/h"
+	header.add_theme_font_size_override("font_size", 9)
+	header.add_theme_color_override("font_color", Color(0.60, 0.70, 0.65))
+	root.add_child(header)
+
+	var scroll: ScrollContainer = ScrollContainer.new()
+	scroll.custom_minimum_size = Vector2(0, 280)
+	scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	root.add_child(scroll)
+
+	var item_list: VBoxContainer = VBoxContainer.new()
+	item_list.add_theme_constant_override("separation", 2)
+	scroll.add_child(item_list)
+
+	status_label = Label.new()
+	status_label.add_theme_font_size_override("font_size", 10)
+	status_label.add_theme_color_override("font_color", Color(0.90, 0.70, 0.40))
+	root.add_child(status_label)
+
+	var shop_items: Array[Dictionary] = game_state.livestock_system.get_shop_items() if game_state != null else []
+	item_buttons.clear()
+	for item in shop_items:
+		var row: HBoxContainer = HBoxContainer.new()
+		row.add_theme_constant_override("separation", 4)
+		item_list.add_child(row)
+
+		var info: Label = Label.new()
+		var name_str: String = String(item.get("species_name", "?"))
+		var cat_str: String = String(item.get("category", "?"))
+		var rarity_str: String = String(item.get("rarity", "?"))
+		var price: float = float(item.get("price", 0))
+		var size_min: float = float(item.get("size_min", 0))
+		var size_max: float = float(item.get("size_max", 0))
+		var slot: float = float(item.get("tank_slot_cost", 0))
+		var income: float = float(item.get("base_income_per_hour", 0))
+		info.text = "%s｜%s｜%s｜RP%.0f｜%.0f-%.0fcm｜%.1f格｜%.2f/h" % [name_str, cat_str, rarity_str, price, size_min, size_max, slot, income]
+		info.add_theme_font_size_override("font_size", 9)
+		info.add_theme_color_override("font_color", Color(0.78, 0.84, 0.82))
+		info.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		row.add_child(info)
+
+		var buy_btn: Button = Button.new()
+		buy_btn.text = "带回家"
+		buy_btn.custom_minimum_size = Vector2(55, 22)
+		buy_btn.add_theme_font_size_override("font_size", 9)
+		var item_id: String = String(item.get("id", ""))
+		buy_btn.pressed.connect(_on_buy.bind(item_id))
+		row.add_child(buy_btn)
+
+		item_buttons.append({"id": item_id, "button": buy_btn, "row": row})
+
+	var close_btn: Button = Button.new()
+	close_btn.text = "关闭商店"
+	close_btn.custom_minimum_size = Vector2(0, 26)
+	close_btn.add_theme_font_size_override("font_size", 10)
+	close_btn.pressed.connect(_on_close)
+	root.add_child(close_btn)
+
+
+func _on_buy(shop_id: String) -> void:
+	if game_state == null:
+		return
+	var result: Dictionary = game_state.buy_livestock_from_shop(shop_id)
+	if result.get("success", false):
+		status_label.text = "购买成功：%s｜RP-%d｜生物数：%d｜容量：%.1f/%.1f" % [
+			result.get("species_name", ""),
+			int(result.get("price", 0)),
+			int(result.get("new_count", 0)),
+			float(result.get("capacity_used", 0)),
+			game_state.livestock_system.get_max_capacity(),
+		]
+		status_label.add_theme_color_override("font_color", Color(0.50, 0.90, 0.55))
+	else:
+		var err: String = String(result.get("error", "unknown"))
+		if err == "capacity_exceeded":
+			status_label.text = "容量不足，无法带回家"
+		elif err == "insufficient_rp":
+			status_label.text = "Reef Points 不足，需要 RP%d｜当前 RP%d" % [int(result.get("price", 0)), int(result.get("current_rp", 0))]
+		else:
+			status_label.text = "购买失败：%s" % err
+		status_label.add_theme_color_override("font_color", Color(0.95, 0.50, 0.40))
+
+
+func _on_close() -> void:
+	hide()
