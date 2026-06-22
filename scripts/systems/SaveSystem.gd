@@ -9,6 +9,9 @@ var initialized: bool = false
 var last_save_unix_time: int = 0
 var save_exists: bool = false
 var save_errors: Array[String] = []
+var last_saved_keys: Array[String] = []
+var has_livestock_in_last_save: bool = false
+var last_saved_livestock_count: int = 0
 
 
 func initialize() -> void:
@@ -27,6 +30,7 @@ func save_game(game_state_dict: Dictionary) -> bool:
 		"water_chemistry": game_state_dict.get("water_chemistry", {}),
 		"time": game_state_dict.get("time", {}),
 		"unlocks": game_state_dict.get("unlocks", {}),
+		"livestock": game_state_dict.get("livestock", {}),
 		"equipment": game_state_dict.get("equipment", {}),
 	}
 	var json_text: String = JSON.stringify(save_data, "\t")
@@ -41,6 +45,18 @@ func save_game(game_state_dict: Dictionary) -> bool:
 	file.close()
 	last_save_unix_time = timestamp
 	save_exists = true
+	last_saved_keys = save_data.keys().duplicate()
+	var raw_livestock: Variant = save_data.get("livestock", {})
+	if raw_livestock is Dictionary:
+		has_livestock_in_last_save = raw_livestock.has("owned_livestock")
+		if has_livestock_in_last_save:
+			var arr: Variant = raw_livestock.get("owned_livestock", [])
+			last_saved_livestock_count = arr.size() if arr is Array else 0
+		else:
+			last_saved_livestock_count = 0
+	else:
+		has_livestock_in_last_save = false
+		last_saved_livestock_count = 0
 	return true
 
 
@@ -110,6 +126,9 @@ func get_debug_state() -> Dictionary:
 		"save_exists": save_exists,
 		"last_save_unix_time": last_save_unix_time,
 		"offline_cap_seconds": OFFLINE_CAP_SECONDS,
+		"last_saved_keys": last_saved_keys.duplicate(),
+		"has_livestock_in_last_save": has_livestock_in_last_save,
+		"last_saved_livestock_count": last_saved_livestock_count,
 		"save_errors": save_errors.duplicate(),
 	}
 
