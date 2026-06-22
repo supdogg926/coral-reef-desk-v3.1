@@ -31,6 +31,7 @@ func _process(delta: float) -> void:
 	if _alive_timer >= 1.0:
 		_alive_timer = 0.0
 		_alive_tick += 1
+		print("[HEARTBEAT] tick=%d" % _alive_tick)
 		if panel_status_label != null:
 			panel_status_label.text = "tick=%d" % _alive_tick
 	if livestock_panel != null and livestock_panel.visible:
@@ -148,10 +149,13 @@ func _toggle_shop() -> void:
 		return
 	if shop_panel.visible:
 		shop_panel.hide()
+		shop_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		if panel_status_label != null:
 			panel_status_label.text = ""
 	else:
 		livestock_panel.hide()
+		livestock_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		shop_panel.mouse_filter = Control.MOUSE_FILTER_STOP
 		shop_panel.anchor_left = 0.04
 		shop_panel.anchor_right = 0.96
 		shop_panel.anchor_top = 0.10
@@ -173,10 +177,13 @@ func _toggle_livestock() -> void:
 		return
 	if livestock_panel.visible:
 		livestock_panel.hide()
+		livestock_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		if panel_status_label != null:
 			panel_status_label.text = ""
 	else:
 		shop_panel.hide()
+		shop_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		livestock_panel.mouse_filter = Control.MOUSE_FILTER_STOP
 		livestock_panel.update_display()
 		livestock_panel.anchor_left = 0.04
 		livestock_panel.anchor_right = 0.96

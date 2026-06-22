@@ -80,14 +80,16 @@ func update(delta_seconds: float) -> void:
 	_update_unlocks()
 	_autosave_timer += delta_seconds
 	if _autosave_timer >= AUTOSAVE_INTERVAL:
+		print("[SAVE] regular autosave firing")
 		_perform_autosave()
 		_autosave_timer = 0.0
 	if _pending_save_after_purchase:
 		_purchase_save_timer += delta_seconds
 		if _purchase_save_timer >= PURCHASE_SAVE_DELAY:
-			print("[BUY] delayed autosave start")
+			print("[SAVE] delayed autosave start timer=%.1f" % _autosave_timer)
 			_perform_autosave()
-			print("[BUY] delayed autosave done")
+			_autosave_timer = 0.0
+			print("[SAVE] delayed autosave done, timer reset")
 			_pending_save_after_purchase = false
 			_purchase_save_timer = 0.0
 
