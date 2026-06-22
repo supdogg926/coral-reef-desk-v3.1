@@ -11,6 +11,8 @@ layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+offset_left = 0.0
+offset_top = 0.0
 offset_right = 0.0
 offset_bottom = 0.0
 script = ExtResource("1_main")
@@ -37,7 +39,7 @@ layout_mode = 2
 theme_override_constants/separation = 6
 
 [node name="TitleBar" type="PanelContainer" parent="RootMargin/Layout"]
-custom_minimum_size = Vector2(0, 34)
+custom_minimum_size = Vector2(0, 42)
 layout_mode = 2
 
 [node name="TitleLabel" type="Label" parent="RootMargin/Layout/TitleBar"]
@@ -45,6 +47,7 @@ layout_mode = 2
 text = "CoralReefIdleV3 - 柏林系统静态布局"
 horizontal_alignment = 1
 vertical_alignment = 1
+theme_override_font_sizes/font_size = 16
 
 [node name="DisplayTankView" parent="RootMargin/Layout" instance=ExtResource("2_display")]
 layout_mode = 2

@@ -51,8 +51,7 @@ func update_display() -> void:
 			if not entry is Dictionary:
 				continue
 			var d: Dictionary = entry
-			if bool(d.get("locked", false)):
-				continue
+			var is_locked: bool = bool(d.get("locked", false))
 			var row: HBoxContainer = HBoxContainer.new()
 			row.add_theme_constant_override("separation", 4)
 			item_list.add_child(row)
@@ -65,11 +64,15 @@ func update_display() -> void:
 			var hp_val: float = float(d.get("health_percent", 100))
 			var inc_val: float = float(d.get("base_income_per_hour", 0))
 			var slot_val: float = float(d.get("tank_slot_cost", 0))
+			var lock_text: String = "[锁]" if is_locked else "[活]"
+			if is_locked:
+				inc_val = 0.0
 
 			var info: Label = Label.new()
-			info.text = "%s｜%s｜%s｜%.1f｜%.0f%%｜%.0f%%｜%.2f/h｜%.1f" % [name_str, cat_str, rarity_str, size_val, mat_val, hp_val, inc_val, slot_val]
+			info.text = "%s｜%s｜%s｜%.1f｜%.0f%%｜%.0f%%｜%.2f/h｜%.1f｜%s" % [name_str, cat_str, rarity_str, size_val, mat_val, hp_val, inc_val, slot_val, lock_text]
 			info.add_theme_font_size_override("font_size", 9)
-			info.add_theme_color_override("font_color", Color(0.78, 0.84, 0.82))
+			var label_color: Color = Color(0.60, 0.60, 0.65) if is_locked else Color(0.78, 0.84, 0.82)
+			info.add_theme_color_override("font_color", label_color)
 			info.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 			row.add_child(info)
 
@@ -101,7 +104,7 @@ func _build_ui() -> void:
 	root.add_child(summary_label)
 
 	var header: Label = Label.new()
-	header.text = "名称｜分类｜稀有度｜尺寸cm｜成熟%｜健康%｜收益/h｜容量"
+	header.text = "名称｜分类｜稀有度｜尺寸cm｜成熟%｜健康%｜收益/h｜容量｜状态"
 	header.add_theme_font_size_override("font_size", 9)
 	header.add_theme_color_override("font_color", Color(0.55, 0.65, 0.60))
 	root.add_child(header)
