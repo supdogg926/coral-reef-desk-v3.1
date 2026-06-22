@@ -12,13 +12,12 @@ UNLOCK_DATA_PATH = ROOT / "data" / "unlocks" / "unlock_milestones_seed.json"
 REPORT_PATH = ROOT / "reports" / "m8_1_statuspanel_dynamic_reflow_check_summary.json"
 
 REQUIRED_UI_TEXT = [
-    "\u6c34\u8d28\u53d8\u5316A",
-    "\u6c34\u8d28\u53d8\u5316B",
-    "\u6536\u76ca\u53d8\u5316A",
-    "\u6536\u76ca\u53d8\u5316B",
-    "\u4ed3\u5e93\u9884\u89c8",
-    "\u4ed3\u5e93\u72b6\u6001",
-    "\u9ad8\u7ea7\u7cfb\u7edf\uff1a\u672a\u89e3\u9501",
+    "\u6c34\u53d8A",
+    "\u6c34\u53d8B",
+    "\u6536\u53d8A",
+    "\u6536\u53d8B",
+    "\u4ed3\u5e93",
+    "\u9ad8\u7ea7\uff1a\u672a\u89e3\u9501",
     "\u5f53\u524d\u9636\u6bb5\uff1aM8",
 ]
 
@@ -30,7 +29,7 @@ REQUIRED_DELTA_LABELS = [
     "PO4",
     "KH",
     "Ca",
-    "\u8bc4\u5206",
+    "\u8bc4",
     "RP",
     "\u4ef7\u503c",
     "\u6536\u76ca",

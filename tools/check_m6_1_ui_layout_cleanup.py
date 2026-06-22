@@ -36,10 +36,10 @@ REQUIRED_STATUS_TEXT = [
     "\u6c34\u8d28\u6536\u76ca\u7cfb\u6570",
     "\u52a8\u6001\u786e\u8ba4",
     "\u6a21\u62df",
-    "\u6e38\u620f\u65f6\u95f4",
-    "\u6c34\u8d28\u66f4\u65b0",
-    "\u6c34\u8d28\u53d8\u5316",
-    "\u6536\u76ca\u53d8\u5316",
+    "\u65f6\u95f4\uff1a",
+    "\u66f4\u65b0\uff1a",
+    "\u6c34\u53d8",
+    "\u6536\u53d8",
 ]
 
 REQUIRED_SUMP_LABELS = [
@@ -111,7 +111,7 @@ def main() -> int:
     sump_text = SUMP_VIEW_PATH.read_text(encoding="utf-8") if SUMP_VIEW_PATH.exists() else ""
     scene_text = MAIN_SCENE_PATH.read_text(encoding="utf-8") if MAIN_SCENE_PATH.exists() else ""
 
-    for token in ["_build_status_layout", "_create_section", "GridContainer", "columns = 4"]:
+    for token in ["_build_status_layout", "_create_section", "HBoxContainer", "stretch_ratio"]:
         if token not in status_text:
             errors.append({"type": "statuspanel_not_structured", "token": token})
 

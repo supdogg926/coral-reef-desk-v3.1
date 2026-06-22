@@ -27,16 +27,15 @@ REQUIRED_UNLOCK_FUNCTIONS = [
 ]
 
 REQUIRED_UI_TEXT = [
-    "\u73a9\u5bb6\u9636\u6bb5",
-    "\u4e0b\u4e2a\u76ee\u6807",
-    "\u89e3\u9501\u8fdb\u5ea6",
-    "\u4ed3\u5e93\u9884\u89c8",
-    "\u4ed3\u5e93\u72b6\u6001",
+    "\u9636\u6bb5\uff1a",
+    "\u76ee\u6807\uff1a",
+    "\u8fdb\u5ea6\uff1a",
+    "\u4ed3\u5e93\uff1a",
     "\u51b7\u6c34\u673a",
     "\u6740\u83cc\u706f",
     "\u85fb\u7f38\u706f",
     "\u9020\u6d41\u6cf5",
-    "\u9ad8\u7ea7\u7cfb\u7edf\uff1a\u672a\u89e3\u9501",
+    "\u9ad8\u7ea7\uff1a\u672a\u89e3\u9501",
 ]
 
 FORBIDDEN_GAMEPLAY_TERMS = [

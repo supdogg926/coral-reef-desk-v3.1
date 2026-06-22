@@ -89,7 +89,7 @@ def main() -> int:
     if "\u6a21\u62df\uff1a\u81ea\u52a8\u8fd0\u884c\u4e2d" not in combined_text:
         errors.append({"type": "simulation_running_label_missing"})
 
-    if "\u65f6\u95f4\u500d\u7387\uff1a1\u79d2=10\u5206\u949f" not in combined_text:
+    if "\u500d\u7387\uff1a1\u79d2=10\u5206\u949f" not in combined_text:
         errors.append({"type": "time_scale_label_missing"})
 
     variant_hits: list[dict[str, Any]] = []
