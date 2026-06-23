@@ -54,8 +54,13 @@ func _setup_panels() -> void:
 					break
 	if layout == null:
 		return
+	_stabilize_main_layout(layout)
 
 	var btn_bar: PanelContainer = PanelContainer.new()
+	btn_bar.name = "M11PrototypeEntryBar"
+	btn_bar.custom_minimum_size = Vector2(0, 36)
+	btn_bar.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	btn_bar.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	var bar_style: StyleBoxFlat = StyleBoxFlat.new()
 	bar_style.bg_color = Color(0.15, 0.18, 0.20, 1.0)
 	bar_style.set_border_width_all(0)
@@ -110,14 +115,14 @@ func _setup_panels() -> void:
 
 	layout.add_child(btn_bar)
 
-	var status_index: int = btn_bar.get_index()
+	var title_index: int = -1
 	for i in range(layout.get_child_count()):
 		var child: Node = layout.get_child(i)
-		if child == status_panel:
-			status_index = i
+		if child.name == "TitleBar":
+			title_index = i
 			break
-	if btn_bar.get_index() > status_index and status_index >= 0 and status_index < layout.get_child_count():
-		layout.move_child(btn_bar, status_index)
+	if title_index >= 0:
+		layout.move_child(btn_bar, min(title_index + 1, layout.get_child_count() - 1))
 
 	shop_panel = ShopPanel.new()
 	shop_panel.hide()
@@ -130,6 +135,25 @@ func _setup_panels() -> void:
 	livestock_panel.setup(game_state)
 
 	_panels_setup_done = true
+
+
+func _stabilize_main_layout(layout: VBoxContainer) -> void:
+	layout.add_theme_constant_override("separation", 3)
+	for child in layout.get_children():
+		if child.name == "DisplayTankView" and child is Control:
+			var display: Control = child
+			display.custom_minimum_size = Vector2(0, 260)
+			display.size_flags_vertical = Control.SIZE_EXPAND_FILL
+			display.size_flags_stretch_ratio = 3.0
+		elif child.name == "SumpView" and child is Control:
+			var sump: Control = child
+			sump.custom_minimum_size = Vector2(0, 112)
+			sump.size_flags_vertical = Control.SIZE_EXPAND_FILL
+			sump.size_flags_stretch_ratio = 1.2
+		elif child == status_panel:
+			status_panel.custom_minimum_size = Vector2(0, 142)
+			status_panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
+			status_panel.size_flags_stretch_ratio = 1.4
 
 
 func _on_shop_purchase() -> void:

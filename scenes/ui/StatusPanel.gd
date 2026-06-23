@@ -5,6 +5,9 @@ var section_labels: Dictionary = {}
 
 
 func _ready() -> void:
+	custom_minimum_size = Vector2(0, 142)
+	size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	size_flags_vertical = Control.SIZE_EXPAND_FILL
 	var style: StyleBoxFlat = StyleBoxFlat.new()
 	style.bg_color = Color(0.12, 0.14, 0.15)
 	style.border_color = Color(0.32, 0.38, 0.4)
@@ -194,11 +197,19 @@ func _build_status_layout() -> void:
 	margin.add_theme_constant_override("margin_bottom", 4)
 	add_child(margin)
 
+	var scroll: ScrollContainer = ScrollContainer.new()
+	scroll.name = "StatusScroll"
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
+	scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	margin.add_child(scroll)
+
 	var root: VBoxContainer = VBoxContainer.new()
 	root.add_theme_constant_override("separation", 2)
 	root.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	root.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	margin.add_child(root)
+	scroll.add_child(root)
 
 	var title: Label = _make_label("状态总览", 11, true)
 	root.add_child(title)
@@ -228,15 +239,15 @@ func _create_section(parent: Control, section_id: String, title_text: String, st
 	box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	box.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	box.size_flags_stretch_ratio = stretch_ratio
-	box.add_theme_constant_override("separation", 1)
+	box.add_theme_constant_override("separation", 0)
 	parent.add_child(box)
 
-	var title: Label = _make_label(title_text, 10, true)
+	var title: Label = _make_label(title_text, 9, true)
 	box.add_child(title)
 
 	var lines: Dictionary = {}
 	for line_id in line_ids:
-		var label: Label = _make_label("", 9, false)
+		var label: Label = _make_label("", 8, false)
 		box.add_child(label)
 		lines[line_id] = label
 	section_labels[section_id] = lines
@@ -249,6 +260,7 @@ func _make_label(text: String, font_size: int, is_title: bool) -> Label:
 	label.clip_text = true
 	label.autowrap_mode = TextServer.AUTOWRAP_OFF
 	label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	label.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	if is_title:
 		label.add_theme_color_override("font_color", Color(0.86, 0.94, 0.92))
 	else:

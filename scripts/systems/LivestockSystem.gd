@@ -104,6 +104,41 @@ func add_livestock(entry: Dictionary) -> bool:
 	return true
 
 
+func get_livestock_snapshot(livestock_id: String) -> Dictionary:
+	for entry in owned_livestock:
+		if String(entry.get("id", "")) == livestock_id:
+			return entry.duplicate(true)
+	return {}
+
+
+func release_livestock(livestock_id: String) -> Dictionary:
+	var before_count: int = get_livestock_count()
+	var before_capacity: float = current_capacity_used
+	var before_base_income: float = total_base_income_per_hour
+	var released_entry: Dictionary = get_livestock_snapshot(livestock_id)
+	if released_entry.is_empty():
+		return {"success": false, "error": "not_found", "livestock_id": livestock_id}
+	if bool(released_entry.get("locked", false)):
+		return {"success": false, "error": "locked", "livestock_id": livestock_id}
+	if not remove_livestock(livestock_id):
+		return {"success": false, "error": "remove_failed", "livestock_id": livestock_id}
+	return {
+		"success": true,
+		"livestock_id": livestock_id,
+		"species_name": String(released_entry.get("species_name", "")),
+		"rarity": String(released_entry.get("rarity", "普通")),
+		"released_capacity": float(released_entry.get("tank_slot_cost", 0.0)),
+		"released_base_income_per_hour": float(released_entry.get("base_income_per_hour", 0.0)),
+		"old_count": before_count,
+		"new_count": get_livestock_count(),
+		"old_capacity_used": before_capacity,
+		"capacity_used": current_capacity_used,
+		"max_capacity": max_capacity,
+		"old_base_income_per_hour": before_base_income,
+		"base_income_per_hour": total_base_income_per_hour,
+	}
+
+
 func remove_livestock(livestock_id: String) -> bool:
 	for i in range(owned_livestock.size()):
 		var entry: Dictionary = owned_livestock[i]

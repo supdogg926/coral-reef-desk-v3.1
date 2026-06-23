@@ -31,6 +31,9 @@ var offline_summary: Dictionary = {}
 var _pending_save_after_purchase: bool = false
 var _purchase_save_timer: float = 0.0
 const PURCHASE_SAVE_DELAY: float = 2.0
+var _pending_save_after_livestock_change: bool = false
+var _livestock_change_save_timer: float = 0.0
+const LIVESTOCK_CHANGE_SAVE_DELAY: float = 2.0
 var _save_in_progress: bool = false
 
 
@@ -93,6 +96,14 @@ func update(delta_seconds: float) -> void:
 			print("[SAVE] delayed autosave done, timer reset")
 			_pending_save_after_purchase = false
 			_purchase_save_timer = 0.0
+	if _pending_save_after_livestock_change:
+		_livestock_change_save_timer += delta_seconds
+		if _livestock_change_save_timer >= LIVESTOCK_CHANGE_SAVE_DELAY:
+			print("[M11 PROTOTYPE] delayed autosave after livestock release")
+			_perform_autosave()
+			_autosave_timer = 0.0
+			_pending_save_after_livestock_change = false
+			_livestock_change_save_timer = 0.0
 
 
 func get_system_stability_score() -> float:
@@ -284,6 +295,28 @@ func buy_livestock_from_shop(shop_id: String) -> Dictionary:
 		"effective_income_per_hour": float(livestock_system.get_debug_state().get("total_effective_income_per_hour", 0.0)),
 		"reef_points": reef_points,
 	}
+
+
+func release_owned_livestock(livestock_id: String) -> Dictionary:
+	print("[M11 PROTOTYPE] release request livestock_id=", livestock_id)
+	if livestock_system == null or economy_system == null:
+		return {"success": false, "error": "system_unavailable", "livestock_id": livestock_id}
+	var before_effective_income: float = float(livestock_system.get_debug_state().get("total_effective_income_per_hour", 0.0))
+	var result: Dictionary = livestock_system.release_livestock(livestock_id)
+	if not bool(result.get("success", false)):
+		print("[M11 PROTOTYPE] release failed error=", result.get("error", "unknown"))
+		return result
+	_update_livestock_and_economy(0.0)
+	_update_unlocks()
+	var ls_debug: Dictionary = livestock_system.get_debug_state()
+	result["effective_income_per_hour"] = float(ls_debug.get("total_effective_income_per_hour", 0.0))
+	result["old_effective_income_per_hour"] = before_effective_income
+	result["reef_value"] = float(economy_system.reef_value)
+	reef_points = economy_system.get_reef_points()
+	_pending_save_after_livestock_change = true
+	_livestock_change_save_timer = 0.0
+	print("[M11 PROTOTYPE] release success name=", result.get("species_name", ""), " count=", result.get("new_count", 0))
+	return result
 
 
 func _try_load_game() -> void:
