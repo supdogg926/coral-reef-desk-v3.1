@@ -24,6 +24,16 @@
     "category": {
       "type": "string"
     },
+    "rarity": {
+      "type": "string",
+      "enum": [
+        "普通",
+        "精品",
+        "稀有",
+        "大师",
+        "传奇"
+      ]
+    },
     "min_size": {
       "type": "number"
     },

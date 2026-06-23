@@ -3,11 +3,13 @@ extends RefCounted
 
 const STARTER_LIVESTOCK_PATH: String = "res://data/livestock/starter_livestock_seed.json"
 const SHOP_DATA_PATH: String = "res://data/shop/initial_shop_seed.json"
+const DEFAULT_MAX_CAPACITY: float = 30.0
+const M10_SHOP_ITEM_COUNT: int = 10
 
 var initialized: bool = false
 var owned_livestock: Array[Dictionary] = []
 var tank_level: int = 1
-var max_capacity: float = 30.0
+var max_capacity: float = DEFAULT_MAX_CAPACITY
 var current_capacity_used: float = 0.0
 var capacity_status: String = "normal"
 var total_base_income_per_hour: float = 0.0
@@ -40,7 +42,7 @@ func initialize() -> void:
 	load_errors.clear()
 	owned_livestock.clear()
 	tank_level = 1
-	max_capacity = 30.0
+	max_capacity = DEFAULT_MAX_CAPACITY
 	current_capacity_used = 0.0
 	total_base_income_per_hour = 0.0
 	total_effective_income_per_hour = 0.0
@@ -67,7 +69,7 @@ func _load_starter_livestock() -> void:
 			"id": String(record.get("id", "")),
 			"species_name": _map_name(String(record.get("display_name_cn", ""))),
 			"category": String(record.get("category", "coral")),
-			"rarity": "普通",
+			"rarity": _normalize_rarity(String(record.get("rarity", "普通"))),
 			"size_cm": float(record.get("size_cm", 3.0)),
 			"maturity_percent": 100.0,
 			"health_percent": 100.0,
@@ -151,6 +153,8 @@ func get_shop_items() -> Array[Dictionary]:
 			entry["rarity"] = _normalize_rarity(String(entry.get("rarity", "普通")))
 			entry["species_name"] = _map_name(String(entry.get("species_name", "")))
 			items.append(entry)
+	if items.size() != M10_SHOP_ITEM_COUNT:
+		load_errors.append("M10 shop item count mismatch: expected %d got %d" % [M10_SHOP_ITEM_COUNT, items.size()])
 	return items
 
 
@@ -261,7 +265,7 @@ func import_state(state: Dictionary) -> void:
 				entry["species_name"] = _map_name(String(entry.get("species_name", "")))
 				owned_livestock.append(entry)
 	tank_level = int(state.get("tank_level", 1))
-	max_capacity = float(state.get("max_capacity", 30.0))
+	max_capacity = float(state.get("max_capacity", DEFAULT_MAX_CAPACITY))
 	current_capacity_used = float(state.get("current_capacity_used", 0.0))
 	_recalculate_capacity_and_income()
 

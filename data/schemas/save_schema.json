@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "CoralReefIdleV3 M10 Save Schema",
+  "type": "object",
+  "required": [
+    "save_version",
+    "last_save_unix_time",
+    "economy",
+    "water_chemistry",
+    "time",
+    "unlocks",
+    "livestock",
+    "equipment"
+  ],
+  "properties": {
+    "save_version": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "save_schema": {
+      "type": "string"
+    },
+    "last_save_unix_time": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "economy": {
+      "type": "object"
+    },
+    "water_chemistry": {
+      "type": "object"
+    },
+    "time": {
+      "type": "object"
+    },
+    "unlocks": {
+      "type": "object"
+    },
+    "livestock": {
+      "type": "object",
+      "properties": {
+        "owned_livestock": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "tank_level": {
+          "type": "integer"
+        },
+        "max_capacity": {
+          "type": "number"
+        },
+        "current_capacity_used": {
+          "type": "number"
+        }
+      }
+    },
+    "equipment": {
+      "type": "object"
+    }
+  },
+  "additionalProperties": false
+}

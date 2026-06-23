@@ -27,8 +27,9 @@ func _process(delta: float) -> void:
 		return
 	game_state.update(delta)
 	_update_status_labels()
-	_alive_timer += delta
-	if _alive_timer >= 1.0:
+	if _is_dev_debug_ui_enabled():
+		_alive_timer += delta
+	if _is_dev_debug_ui_enabled() and _alive_timer >= 1.0:
 		_alive_timer = 0.0
 		_alive_tick += 1
 		print("[HEARTBEAT] tick=%d" % _alive_tick)
@@ -84,27 +85,28 @@ func _setup_panels() -> void:
 	livestock_btn.pressed.connect(_toggle_livestock)
 	bar_row.add_child(livestock_btn)
 
-	var reset_btn: Button = Button.new()
-	reset_btn.text = "重置M10测试存档"
-	reset_btn.custom_minimum_size = Vector2(130, 30)
-	reset_btn.add_theme_font_size_override("font_size", 11)
-	reset_btn.add_theme_color_override("font_color", Color(0.95, 0.70, 0.40))
-	reset_btn.pressed.connect(_reset_test_save)
-	bar_row.add_child(reset_btn)
+	if _is_dev_debug_ui_enabled():
+		var reset_btn: Button = Button.new()
+		reset_btn.text = "重置M10测试存档"
+		reset_btn.custom_minimum_size = Vector2(130, 30)
+		reset_btn.add_theme_font_size_override("font_size", 11)
+		reset_btn.add_theme_color_override("font_color", Color(0.95, 0.70, 0.40))
+		reset_btn.pressed.connect(_reset_test_save)
+		bar_row.add_child(reset_btn)
 
-	var manual_save_btn: Button = Button.new()
-	manual_save_btn.text = "手动保存测试"
-	manual_save_btn.custom_minimum_size = Vector2(110, 30)
-	manual_save_btn.add_theme_font_size_override("font_size", 11)
-	manual_save_btn.add_theme_color_override("font_color", Color(0.85, 0.85, 0.40))
-	manual_save_btn.pressed.connect(_manual_save_test)
-	bar_row.add_child(manual_save_btn)
+		var manual_save_btn: Button = Button.new()
+		manual_save_btn.text = "手动保存测试"
+		manual_save_btn.custom_minimum_size = Vector2(110, 30)
+		manual_save_btn.add_theme_font_size_override("font_size", 11)
+		manual_save_btn.add_theme_color_override("font_color", Color(0.85, 0.85, 0.40))
+		manual_save_btn.pressed.connect(_manual_save_test)
+		bar_row.add_child(manual_save_btn)
 
-	panel_status_label = Label.new()
-	panel_status_label.text = ""
-	panel_status_label.add_theme_font_size_override("font_size", 10)
-	panel_status_label.add_theme_color_override("font_color", Color(0.60, 0.85, 0.70))
-	bar_row.add_child(panel_status_label)
+		panel_status_label = Label.new()
+		panel_status_label.text = ""
+		panel_status_label.add_theme_font_size_override("font_size", 10)
+		panel_status_label.add_theme_color_override("font_color", Color(0.60, 0.85, 0.70))
+		bar_row.add_child(panel_status_label)
 
 	layout.add_child(btn_bar)
 
@@ -160,6 +162,10 @@ func _manual_save_test() -> void:
 	print("[MANUAL SAVE] _perform_autosave returned")
 	if panel_status_label != null:
 		panel_status_label.text = "手动保存完成"
+
+
+func _is_dev_debug_ui_enabled() -> bool:
+	return OS.is_debug_build()
 
 
 func _toggle_shop() -> void:

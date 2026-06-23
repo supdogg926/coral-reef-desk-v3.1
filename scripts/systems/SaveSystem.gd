@@ -3,15 +3,19 @@ extends RefCounted
 
 const SAVE_PATH: String = "user://reef_idle_v3_save.json"
 const SAVE_VERSION: int = 1
+const SAVE_SCHEMA_ID: String = "res://data/schemas/save_schema.json"
 const OFFLINE_CAP_SECONDS: float = 86400.0
 
 var initialized: bool = false
+var _is_saving: bool = false
 var last_save_unix_time: int = 0
 var save_exists: bool = false
 var save_errors: Array[String] = []
 var last_saved_keys: Array[String] = []
 var has_livestock_in_last_save: bool = false
 var last_saved_livestock_count: int = 0
+var last_json_safety_ok: bool = true
+var last_json_safety_error_count: int = 0
 
 
 func initialize() -> void:
@@ -21,11 +25,19 @@ func initialize() -> void:
 
 
 func save_game(game_state_dict: Dictionary) -> bool:
+	if _is_saving:
+		save_errors.append("Save already in progress")
+		print("[SAVE] skipped: save already in progress")
+		return false
+	_is_saving = true
 	save_errors.clear()
+	last_json_safety_ok = true
+	last_json_safety_error_count = 0
 	print("[SAVE] save_game start")
 	var timestamp: int = _get_current_unix_time()
-	var save_data: Dictionary = {
+	var raw_save_data: Dictionary = {
 		"save_version": SAVE_VERSION,
+		"save_schema": SAVE_SCHEMA_ID,
 		"last_save_unix_time": timestamp,
 		"economy": game_state_dict.get("economy", {}),
 		"water_chemistry": game_state_dict.get("water_chemistry", {}),
@@ -34,6 +46,10 @@ func save_game(game_state_dict: Dictionary) -> bool:
 		"livestock": game_state_dict.get("livestock", {}),
 		"equipment": game_state_dict.get("equipment", {}),
 	}
+	var safe_variant: Variant = _to_json_safe(raw_save_data, "save")
+	if not (safe_variant is Dictionary) or not last_json_safety_ok:
+		return _finish_save_failure("Save data contains non JSON-safe values")
+	var save_data: Dictionary = safe_variant
 	print("[SAVE] save_data keys=", save_data.keys())
 	print("[SAVE] has livestock=", save_data.has("livestock"))
 	var raw_ls2: Variant = save_data.get("livestock", {})
@@ -44,15 +60,13 @@ func save_game(game_state_dict: Dictionary) -> bool:
 	var json_text: String = JSON.stringify(save_data, "\t")
 	if json_text.is_empty():
 		print("[SAVE] json stringify FAILED")
-		save_errors.append("Failed to serialize save data")
-		return false
+		return _finish_save_failure("Failed to serialize save data")
 	print("[SAVE] json stringify done length=", json_text.length())
 	print("[SAVE] file open start path=", SAVE_PATH)
 	var file: FileAccess = FileAccess.open(SAVE_PATH, FileAccess.WRITE)
 	if file == null:
 		print("[SAVE] file open FAILED")
-		save_errors.append("Cannot open save file for writing: " + SAVE_PATH)
-		return false
+		return _finish_save_failure("Cannot open save file for writing: " + SAVE_PATH)
 	print("[SAVE] file open done")
 	print("[SAVE] file store_string start")
 	file.store_string(json_text)
@@ -80,6 +94,7 @@ func save_game(game_state_dict: Dictionary) -> bool:
 		last_saved_livestock_count = 0
 	print("[SAVE] livestock debug update done count=", last_saved_livestock_count)
 	print("[SAVE] save_game return true")
+	_is_saving = false
 	return true
 
 
@@ -145,16 +160,65 @@ func get_debug_state() -> Dictionary:
 		"system": "SaveSystem",
 		"initialized": initialized,
 		"save_version": SAVE_VERSION,
+		"save_schema": SAVE_SCHEMA_ID,
 		"save_path": SAVE_PATH,
 		"save_exists": save_exists,
 		"last_save_unix_time": last_save_unix_time,
 		"offline_cap_seconds": OFFLINE_CAP_SECONDS,
-		"last_saved_keys": last_saved_keys.duplicate(),
+		"last_saved_keys": _to_plain_string_array(last_saved_keys),
 		"has_livestock_in_last_save": has_livestock_in_last_save,
 		"last_saved_livestock_count": last_saved_livestock_count,
-		"save_errors": save_errors.duplicate(),
+		"save_errors": _to_plain_string_array(save_errors),
+		"save_in_progress": _is_saving,
+		"last_json_safety_ok": last_json_safety_ok,
+		"last_json_safety_error_count": last_json_safety_error_count,
 	}
 
 
 func _get_current_unix_time() -> int:
 	return int(Time.get_unix_time_from_system())
+
+
+func _finish_save_failure(message: String) -> bool:
+	save_errors.append(message)
+	_is_saving = false
+	return false
+
+
+func _to_json_safe(value: Variant, path: String) -> Variant:
+	match typeof(value):
+		TYPE_NIL, TYPE_BOOL, TYPE_INT, TYPE_FLOAT, TYPE_STRING:
+			return value
+		TYPE_ARRAY:
+			var safe_array: Array = []
+			var source_array: Array = value
+			for i in range(source_array.size()):
+				safe_array.append(_to_json_safe(source_array[i], "%s[%d]" % [path, i]))
+			return safe_array
+		TYPE_DICTIONARY:
+			var safe_dict: Dictionary = {}
+			var source_dict: Dictionary = value
+			for key in source_dict.keys():
+				var key_type: int = typeof(key)
+				if key_type != TYPE_STRING and key_type != TYPE_INT and key_type != TYPE_FLOAT and key_type != TYPE_BOOL:
+					_mark_non_json_safe("%s.<key>" % path, key)
+					continue
+				var safe_key: String = String(key)
+				safe_dict[safe_key] = _to_json_safe(source_dict[key], "%s.%s" % [path, safe_key])
+			return safe_dict
+		_:
+			_mark_non_json_safe(path, value)
+			return null
+
+
+func _mark_non_json_safe(path: String, value: Variant) -> void:
+	last_json_safety_ok = false
+	last_json_safety_error_count += 1
+	save_errors.append("Non JSON-safe value at %s, type=%d" % [path, typeof(value)])
+
+
+func _to_plain_string_array(values: Array) -> Array:
+	var result: Array = []
+	for value in values:
+		result.append(String(value))
+	return result

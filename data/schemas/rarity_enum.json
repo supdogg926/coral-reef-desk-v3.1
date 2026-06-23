@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "M10.1 Rarity Enum",
+  "description": "Fixed rarity labels for M10 livestock starter data, shop items, and save data.",
+  "type": "string",
+  "enum": [
+    "普通",
+    "精品",
+    "稀有",
+    "大师",
+    "传奇"
+  ]
+}
