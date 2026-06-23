@@ -3,6 +3,16 @@ extends PanelContainer
 
 var section_labels: Dictionary = {}
 
+const WATER_DEVIATION_TARGETS: Dictionary = {
+	"temperature": 25.0,
+	"salinity": 35.0,
+	"ph": 8.20,
+	"nitrate": 2.00,
+	"phosphate": 0.030,
+	"alkalinity": 8.3,
+	"calcium": 430.0,
+}
+
 
 func _ready() -> void:
 	custom_minimum_size = Vector2(0, 142)
@@ -63,6 +73,7 @@ func update_water_chemistry_debug(water_debug: Dictionary) -> void:
 	_set_line("water", "temperature", "温度 %.1f℃｜盐度 %.1f｜pH %.2f" % [temperature, salinity, ph])
 	_set_line("water", "nutrients", "NO3 %.2f｜PO4 %.3f" % [nitrate, phosphate])
 	_set_line("water", "minerals", "KH %.1f｜Ca %.0f" % [alkalinity, calcium])
+	_update_water_deviation_lines(water_debug)
 	_set_line("dynamic", "simulation", "模拟：自动运行中｜倍率：1秒=10分钟")
 	_set_line("dynamic", "time_tick", "时间：%s｜更新：第%d次" % [_format_game_time(elapsed_game_minutes), chemistry_tick_count])
 
@@ -221,7 +232,12 @@ func _build_status_layout() -> void:
 	root.add_child(row)
 
 	_create_section(row, "data", "数据与阶段", 18, ["data", "validation", "milestone"])
-	_create_section(row, "water", "水质", 18, ["summary", "temperature", "nutrients", "minerals"])
+	_create_section(row, "water", "水质", 22, [
+		"summary",
+		"temperature", "temperature_deviation", "salinity_deviation", "ph_deviation",
+		"nutrients", "nitrate_deviation", "phosphate_deviation",
+		"minerals", "alkalinity_deviation", "calcium_deviation",
+	])
 	_create_section(row, "system", "系统", 18, ["tier", "capacity", "plumbing", "reserved"])
 	_create_section(row, "livestock", "生物与收益", 20, ["count", "capacity", "value", "points", "income", "modifiers"])
 	_create_section(row, "dynamic", "动态确认", 26, [
@@ -276,6 +292,13 @@ func _set_default_text() -> void:
 	_set_line("water", "temperature", "温度 25.1℃｜盐度 35.0｜pH 8.20")
 	_set_line("water", "nutrients", "NO3 2.60｜PO4 0.030")
 	_set_line("water", "minerals", "KH 8.3｜Ca 430")
+	_set_line("water", "temperature_deviation", "温度 25.1℃ / 目标25.0℃ / Δ+0.1 / 正常")
+	_set_line("water", "salinity_deviation", "盐度 35.0‰ / 目标35.0‰ / Δ+0.0 / 正常")
+	_set_line("water", "ph_deviation", "pH 8.20 / 目标8.20 / Δ+0.00 / 正常")
+	_set_line("water", "nitrate_deviation", "NO3 2.60 / 目标2.00 / Δ+0.60 / 正常")
+	_set_line("water", "phosphate_deviation", "PO4 0.030 / 目标0.030 / Δ+0.000 / 正常")
+	_set_line("water", "alkalinity_deviation", "KH 8.3 / 目标8.3 / Δ+0.0 / 正常")
+	_set_line("water", "calcium_deviation", "Ca 430 / 目标430 / Δ+0 / 正常")
 	_set_line("system", "tier", "初级设备 7/7｜稳定度 92.0")
 	_set_line("system", "capacity", "承载力 27.0｜维护负担 12.0")
 	_set_line("system", "plumbing", "管路：隐式连接｜管路玩法：关闭")
@@ -348,6 +371,127 @@ func _localize_capacity_status(capacity_status: String) -> String:
 	if capacity_status == "overloaded":
 		return "超载"
 	return capacity_status
+
+
+func _update_water_deviation_lines(water_debug: Dictionary) -> void:
+	_set_line("water", "temperature_deviation", _build_absolute_deviation_line(
+		"温度", water_debug, "temperature", "℃", 1, 1, 1, 0.5, 1.5
+	))
+	_set_line("water", "salinity_deviation", _build_absolute_deviation_line(
+		"盐度", water_debug, "salinity", "‰", 1, 1, 1, 1.0, 3.0
+	))
+	_set_line("water", "ph_deviation", _build_absolute_deviation_line(
+		"pH", water_debug, "ph", "", 2, 2, 2, 0.15, 0.35
+	))
+	_set_line("water", "nitrate_deviation", _build_range_deviation_line(
+		"NO3", water_debug, "nitrate", "", 2, 2, 2
+	))
+	_set_line("water", "phosphate_deviation", _build_range_deviation_line(
+		"PO4", water_debug, "phosphate", "", 3, 3, 3
+	))
+	_set_line("water", "alkalinity_deviation", _build_absolute_deviation_line(
+		"KH", water_debug, "alkalinity", "", 1, 1, 1, 0.5, 1.0
+	))
+	_set_line("water", "calcium_deviation", _build_absolute_deviation_line(
+		"Ca", water_debug, "calcium", "", 0, 0, 0, 30.0, 60.0
+	))
+
+
+func _build_absolute_deviation_line(label: String, water_debug: Dictionary, key: String, unit: String, value_decimals: int, target_decimals: int, delta_decimals: int, normal_limit: float, caution_limit: float) -> String:
+	var target: float = float(WATER_DEVIATION_TARGETS.get(key, 0.0))
+	var target_text: String = _format_number(target, target_decimals)
+	if not water_debug.has(key):
+		return "%s --%s / 目标%s%s / Δ-- / --" % [label, unit, target_text, unit]
+
+	var value: float = float(water_debug.get(key, target))
+	var delta: float = value - target
+	var status: String = _classify_absolute_deviation(delta, normal_limit, caution_limit)
+	return "%s %s%s / 目标%s%s / Δ%s / %s" % [
+		label,
+		_format_number(value, value_decimals),
+		unit,
+		target_text,
+		unit,
+		_format_signed_number(delta, delta_decimals),
+		status,
+	]
+
+
+func _build_range_deviation_line(label: String, water_debug: Dictionary, key: String, unit: String, value_decimals: int, target_decimals: int, delta_decimals: int) -> String:
+	var target: float = float(WATER_DEVIATION_TARGETS.get(key, 0.0))
+	var target_text: String = _format_number(target, target_decimals)
+	if not water_debug.has(key):
+		return "%s --%s / 目标%s%s / Δ-- / --" % [label, unit, target_text, unit]
+
+	var value: float = float(water_debug.get(key, target))
+	var delta: float = value - target
+	var status: String = _classify_range_deviation(key, value)
+	return "%s %s%s / 目标%s%s / Δ%s / %s" % [
+		label,
+		_format_number(value, value_decimals),
+		unit,
+		target_text,
+		unit,
+		_format_signed_number(delta, delta_decimals),
+		status,
+	]
+
+
+func _classify_absolute_deviation(delta: float, normal_limit: float, caution_limit: float) -> String:
+	var magnitude: float = abs(delta)
+	if magnitude <= normal_limit:
+		return "正常"
+	if magnitude <= caution_limit:
+		return "偏高" if delta > 0.0 else "偏低"
+	return "危险偏高" if delta > 0.0 else "危险偏低"
+
+
+func _classify_range_deviation(key: String, value: float) -> String:
+	if key == "nitrate":
+		if value < 0.5:
+			return "过低/过净"
+		if value < 1.0:
+			return "偏低"
+		if value <= 10.0:
+			return "正常"
+		if value <= 20.0:
+			return "注意偏高"
+		return "偏高"
+	if key == "phosphate":
+		if value < 0.005:
+			return "过低/过净"
+		if value < 0.010:
+			return "偏低"
+		if value <= 0.100:
+			return "正常"
+		if value <= 0.200:
+			return "注意偏高"
+		return "偏高"
+	return "正常"
+
+
+func _format_number(value: float, decimals: int) -> String:
+	if decimals <= 0:
+		return "%.0f" % value
+	if decimals == 1:
+		return "%.1f" % value
+	if decimals == 2:
+		return "%.2f" % value
+	if decimals == 3:
+		return "%.3f" % value
+	return "%.4f" % value
+
+
+func _format_signed_number(value: float, decimals: int) -> String:
+	if decimals <= 0:
+		return "%+.0f" % value
+	if decimals == 1:
+		return "%+.1f" % value
+	if decimals == 2:
+		return "%+.2f" % value
+	if decimals == 3:
+		return "%+.3f" % value
+	return "%+.4f" % value
 
 
 func _format_game_time(elapsed_game_minutes: int) -> String:
