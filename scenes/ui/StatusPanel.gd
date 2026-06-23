@@ -48,11 +48,19 @@ func update_equipment_debug(game_state_debug: Dictionary) -> void:
 	var stability_score: float = float(game_state_debug.get("stability_score", 0.0))
 	var carrying_capacity_score: float = float(game_state_debug.get("carrying_capacity_score", 0.0))
 	var maintenance_load: float = float(game_state_debug.get("maintenance_load", 0.0))
+	var raw_device_state: Variant = game_state_debug.get("device", {})
+	var device_state: Dictionary = raw_device_state if raw_device_state is Dictionary else {}
+	var raw_device_effect: Variant = game_state_debug.get("device_effect", {})
+	var device_effect: Dictionary = raw_device_effect if raw_device_effect is Dictionary else {}
+	var device_line: String = _format_device_state_line(device_state, device_effect)
+	var device_risk: String = String(device_effect.get("risk_message", "无"))
+	if device_risk.is_empty():
+		device_risk = "无"
 
 	_set_line("system", "tier", "初级设备 %d/%d｜稳定度 %.1f" % [tier1_enabled_count, tier1_total_count, stability_score])
 	_set_line("system", "capacity", "承载力 %.1f｜维护负担 %.1f" % [carrying_capacity_score, maintenance_load])
-	_set_line("system", "plumbing", "管路：隐式连接｜管路玩法：关闭")
-	_set_line("system", "reserved", "预留：T2 %d｜T3 %d｜仓库%d｜锁定%d" % [tier2_reserved_count, tier3_reserved_count, warehouse_count, locked_count])
+	_set_line("system", "plumbing", device_line)
+	_set_line("system", "reserved", "设备风险：%s｜预留T2 %d/T3 %d｜仓%d｜锁%d" % [device_risk, tier2_reserved_count, tier3_reserved_count, warehouse_count, locked_count])
 
 
 func update_water_chemistry_debug(water_debug: Dictionary) -> void:
@@ -290,6 +298,31 @@ func _make_label(text: String, font_size: int, is_title: bool) -> Label:
 	return label
 
 
+func _format_device_state_line(device_state: Dictionary, device_effect: Dictionary) -> String:
+	var raw_devices: Variant = device_state.get("devices", {})
+	var devices: Dictionary = raw_devices if raw_devices is Dictionary else {}
+	var parts: Array[String] = []
+	for device_id in ["return_pump", "wave_pump", "main_light"]:
+		var raw_device: Variant = devices.get(device_id, {})
+		var device_info: Dictionary = raw_device if raw_device is Dictionary else {}
+		var display_name: String = String(device_info.get("display_name", device_id))
+		var enabled: bool = bool(device_info.get("enabled", false))
+		parts.append("%s%s" % [display_name, "ON" if enabled else "OFF"])
+	var income_multiplier: float = float(device_effect.get("income_multiplier", 1.0))
+	var stability_effect: float = float(device_effect.get("stability_effect", 0.0))
+	var water_quality_effect: float = float(device_effect.get("water_quality_effect", 0.0))
+	return "设备：%s｜收益 x%.2f｜稳%+.0f｜水%+.0f" % [_join_short_parts(parts), income_multiplier, stability_effect, water_quality_effect]
+
+
+func _join_short_parts(parts: Array[String]) -> String:
+	var text: String = ""
+	for part in parts:
+		if not text.is_empty():
+			text += "｜"
+		text += part
+	return text
+
+
 func _set_default_text() -> void:
 	_set_line("data", "data", "数据：物种161｜设备28｜任务10｜事件7")
 	_set_line("data", "validation", "校验：load=OK｜errors=0")
@@ -303,8 +336,8 @@ func _set_default_text() -> void:
 	_set_line("water", "maintenance", "最近维护：无｜维护：无")
 	_set_line("system", "tier", "初级设备 7/7｜稳定度 92.0")
 	_set_line("system", "capacity", "承载力 27.0｜维护负担 12.0")
-	_set_line("system", "plumbing", "管路：隐式连接｜管路玩法：关闭")
-	_set_line("system", "reserved", "预留：T2 4｜T3 5｜仓库0｜锁定9")
+	_set_line("system", "plumbing", "设备：水泵ON｜造浪ON｜主灯ON｜收益 x1.00")
+	_set_line("system", "reserved", "设备风险：无｜预留T2 4/T3 5")
 	_set_line("livestock", "count", "生物数量：6｜缸等级：1")
 	_set_line("livestock", "capacity", "容量：18.0/30.0｜状态：正常")
 	_set_line("livestock", "value", "缸价值：59.0｜基础收益：2.36/h")

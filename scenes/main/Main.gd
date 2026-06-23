@@ -12,6 +12,8 @@ var maintenance_feedback_label: Label = null
 var maintenance_buttons: Dictionary = {}
 var maintenance_button_base_texts: Dictionary = {}
 var maintenance_button_costs: Dictionary = {}
+var device_buttons: Dictionary = {}
+var device_button_base_texts: Dictionary = {}
 var _panels_setup_done: bool = false
 var _livestock_refresh_timer: float = 0.0
 var _maintenance_button_refresh_timer: float = 0.0
@@ -50,6 +52,7 @@ func _process(delta: float) -> void:
 	if _maintenance_button_refresh_timer >= MAINTENANCE_BUTTON_REFRESH_INTERVAL:
 		_maintenance_button_refresh_timer = 0.0
 		_update_maintenance_button_states()
+		_update_device_button_states()
 
 
 func _setup_panels() -> void:
@@ -68,7 +71,7 @@ func _setup_panels() -> void:
 
 	var btn_bar: PanelContainer = PanelContainer.new()
 	btn_bar.name = "M11PrototypeEntryBar"
-	btn_bar.custom_minimum_size = Vector2(0, 36)
+	btn_bar.custom_minimum_size = Vector2(0, 66)
 	btn_bar.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	btn_bar.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	var bar_style: StyleBoxFlat = StyleBoxFlat.new()
@@ -82,9 +85,15 @@ func _setup_panels() -> void:
 	bar_margin.add_theme_constant_override("margin_right", 8)
 	bar_margin.add_theme_constant_override("margin_bottom", 4)
 	btn_bar.add_child(bar_margin)
+	var bar_column: VBoxContainer = VBoxContainer.new()
+	bar_column.add_theme_constant_override("separation", 3)
+	bar_margin.add_child(bar_column)
 	var bar_row: HBoxContainer = HBoxContainer.new()
 	bar_row.add_theme_constant_override("separation", 8)
-	bar_margin.add_child(bar_row)
+	bar_column.add_child(bar_row)
+	var device_row: HBoxContainer = HBoxContainer.new()
+	device_row.add_theme_constant_override("separation", 6)
+	bar_column.add_child(device_row)
 
 	shop_btn = Button.new()
 	shop_btn.text = "生物商店"
@@ -125,6 +134,7 @@ func _setup_panels() -> void:
 		panel_status_label.add_theme_color_override("font_color", Color(0.60, 0.85, 0.70))
 		bar_row.add_child(panel_status_label)
 
+	_add_device_controls(device_row)
 	layout.add_child(btn_bar)
 
 	var title_index: int = -1
@@ -148,6 +158,7 @@ func _setup_panels() -> void:
 
 	_panels_setup_done = true
 	_update_maintenance_button_states()
+	_update_device_button_states()
 
 
 func _stabilize_main_layout(layout: VBoxContainer) -> void:
@@ -307,6 +318,38 @@ func _add_water_maintenance_controls(bar_row: HBoxContainer) -> void:
 	bar_row.add_child(maintenance_feedback_label)
 
 
+func _add_device_controls(device_row: HBoxContainer) -> void:
+	if game_state == null:
+		return
+	device_buttons.clear()
+	device_button_base_texts.clear()
+
+	var title_label: Label = Label.new()
+	title_label.text = "设备控制"
+	title_label.custom_minimum_size = Vector2(58, 24)
+	title_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	title_label.add_theme_font_size_override("font_size", 11)
+	title_label.add_theme_color_override("font_color", Color(0.74, 0.86, 0.88))
+	device_row.add_child(title_label)
+
+	var device_order: Array[String] = ["return_pump", "wave_pump", "main_light", "reserve"]
+	for device_id in device_order:
+		var state: Dictionary = game_state.get_device_state()
+		var raw_devices: Variant = state.get("devices", {})
+		var devices: Dictionary = raw_devices if raw_devices is Dictionary else {}
+		var raw_device: Variant = devices.get(device_id, {})
+		var device_info: Dictionary = raw_device if raw_device is Dictionary else {}
+		var display_name: String = String(device_info.get("display_name", device_id))
+		var button: Button = Button.new()
+		button.custom_minimum_size = Vector2(86, 26)
+		button.add_theme_font_size_override("font_size", 11)
+		button.tooltip_text = "切换%s（prototype运行时状态，不写入存档）" % display_name
+		button.pressed.connect(_on_device_pressed.bind(device_id))
+		device_row.add_child(button)
+		device_buttons[device_id] = button
+		device_button_base_texts[device_id] = display_name
+
+
 func _on_water_maintenance_pressed(action_id: String) -> void:
 	if game_state == null:
 		return
@@ -349,6 +392,39 @@ func _update_maintenance_button_states() -> void:
 		else:
 			button.disabled = false
 			button.text = base_text
+
+
+func _on_device_pressed(device_id: String) -> void:
+	if game_state == null:
+		return
+	var result: Dictionary = game_state.toggle_device(device_id)
+	_update_status_labels()
+	_update_device_button_states()
+	if panel_status_label != null:
+		panel_status_label.text = String(result.get("summary", "设备状态已更新"))
+
+
+func _update_device_button_states() -> void:
+	if game_state == null:
+		return
+	var state: Dictionary = game_state.get_device_state()
+	var raw_devices: Variant = state.get("devices", {})
+	var devices: Dictionary = raw_devices if raw_devices is Dictionary else {}
+	for device_id in device_buttons.keys():
+		var raw_button: Variant = device_buttons.get(device_id, null)
+		if not raw_button is Button:
+			continue
+		var button: Button = raw_button
+		var raw_device: Variant = devices.get(device_id, {})
+		var device_info: Dictionary = raw_device if raw_device is Dictionary else {}
+		var display_name: String = String(device_button_base_texts.get(device_id, device_info.get("display_name", device_id)))
+		var enabled: bool = bool(device_info.get("enabled", false))
+		button.disabled = false
+		button.text = "%s:%s" % [display_name, "ON" if enabled else "OFF"]
+		if enabled:
+			button.add_theme_color_override("font_color", Color(0.78, 0.92, 0.86))
+		else:
+			button.add_theme_color_override("font_color", Color(0.72, 0.72, 0.72))
 
 
 func _update_status_labels() -> void:

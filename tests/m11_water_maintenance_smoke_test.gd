@@ -114,6 +114,41 @@ func _run() -> void:
 	var no_budget_state_query: Dictionary = no_budget_state.get_maintenance_action_state("top_off")
 	_assert(String(no_budget_state_query.get("reason", "")) == "insufficient_funds", "GameState action query reports insufficient funds")
 	_assert(no_budget_state.save_system == null, "GameState maintenance test does not touch SaveSystem")
+
+	var device_state: Dictionary = game_state.get_device_state()
+	var raw_devices: Variant = device_state.get("devices", {})
+	var devices: Dictionary = raw_devices if raw_devices is Dictionary else {}
+	_assert(_device_enabled(devices, "return_pump"), "Device return pump defaults to ON")
+	_assert(_device_enabled(devices, "wave_pump"), "Device wave pump defaults to ON")
+	_assert(_device_enabled(devices, "main_light"), "Device main light defaults to ON")
+	_assert(not _device_enabled(devices, "reserve"), "Device reserve defaults to OFF")
+
+	var rp_before_device_toggle: float = game_state.economy_system.get_reef_points()
+	var return_pump_result: Dictionary = game_state.toggle_device("return_pump")
+	_assert(bool(return_pump_result.get("success", false)), "Device return pump toggle succeeds")
+	_assert(not bool(return_pump_result.get("enabled", true)), "Device return pump toggles OFF")
+	var return_pump_effects: Dictionary = game_state.get_device_effect_summary()
+	_assert(String(return_pump_effects.get("risk_message", "")).contains("过滤"), "Device return pump OFF reports filtration risk")
+	_assert(float(return_pump_effects.get("device_water_quality_penalty", 0.0)) > 0.0, "Device return pump OFF applies water quality penalty")
+	_assert(float(return_pump_effects.get("device_nitrate_drift_per_day", 0.0)) > 0.0, "Device return pump OFF worsens nitrate drift")
+
+	var main_light_result: Dictionary = game_state.toggle_device("main_light")
+	_assert(bool(main_light_result.get("success", false)), "Device main light toggle succeeds")
+	var light_effects: Dictionary = game_state.get_device_effect_summary()
+	_assert(float(light_effects.get("income_multiplier", 1.0)) < 0.90, "Device main light OFF reduces income multiplier")
+	_assert(String(light_effects.get("risk_message", "")).contains("光照不足"), "Device main light OFF reports light risk")
+
+	var wave_result: Dictionary = game_state.toggle_device("wave_pump")
+	_assert(bool(wave_result.get("success", false)), "Device wave pump toggle succeeds")
+	var wave_effects: Dictionary = game_state.get_device_effect_summary()
+	_assert(float(wave_effects.get("stability_effect", 0.0)) < 0.0, "Device wave pump OFF reduces stability")
+	_assert(String(wave_effects.get("risk_message", "")).contains("造浪不足"), "Device wave pump OFF reports comfort risk")
+
+	var restore_result: Dictionary = game_state.toggle_device("return_pump")
+	_assert(bool(restore_result.get("success", false)), "Device return pump restore toggle succeeds")
+	_assert(bool(restore_result.get("enabled", false)), "Device return pump toggles back ON")
+	_assert(is_equal_approx(game_state.economy_system.get_reef_points(), rp_before_device_toggle), "Device toggles do not change RP")
+	_assert(game_state.save_system == null, "Device control test does not touch SaveSystem")
 	_print_results()
 
 
@@ -146,3 +181,9 @@ func _make_test_game_state(starting_reef_points: float) -> GameState:
 	game_state.water_chemistry_system = WaterChemistrySystem.new()
 	game_state.water_chemistry_system.initialize()
 	return game_state
+
+
+func _device_enabled(devices: Dictionary, device_id: String) -> bool:
+	var raw_device: Variant = devices.get(device_id, {})
+	var device_info: Dictionary = raw_device if raw_device is Dictionary else {}
+	return bool(device_info.get("enabled", false))

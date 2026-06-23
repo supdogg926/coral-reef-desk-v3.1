@@ -18,6 +18,7 @@ var phosphate: float = TARGET_PHOSPHATE
 var alkalinity: float = TARGET_ALKALINITY
 var calcium: float = TARGET_CALCIUM
 var system_stability: float = 50.0
+var device_water_quality_penalty: float = 0.0
 var water_quality_score: float = 100.0
 var water_status: String = "OK"
 var parameter_status: Dictionary = {}
@@ -55,6 +56,7 @@ func reset_to_initial_values() -> void:
 	alkalinity = TARGET_ALKALINITY
 	calcium = TARGET_CALCIUM
 	system_stability = 50.0
+	device_water_quality_penalty = 0.0
 	chemistry_tick_count = 0
 	accumulated_simulation_seconds = 0.0
 	last_chemistry_update_time = 0.0
@@ -127,11 +129,16 @@ func apply_equipment_stabilization(equipment_effects_summary: Dictionary, delta_
 	var temperature_control: float = float(equipment_effects_summary.get("temperature_control", 0.0))
 	var flow: float = float(equipment_effects_summary.get("flow", 0.0))
 	var oxygenation: float = float(equipment_effects_summary.get("oxygenation", 0.0))
+	var device_nitrate_drift: float = float(equipment_effects_summary.get("device_nitrate_drift_per_day", 0.0))
+	var device_phosphate_drift: float = float(equipment_effects_summary.get("device_phosphate_drift_per_day", 0.0))
 	var ph_support: float = min((flow + oxygenation + nutrient_export) * 0.002, 0.04)
 
 	system_stability = 50.0 + stability_bonus
+	device_water_quality_penalty = float(equipment_effects_summary.get("device_water_quality_penalty", 0.0))
 	nitrate -= (nutrient_export * 0.030 + bio_filtration * 0.020) * days
 	phosphate -= nutrient_export * 0.0007 * days
+	nitrate += device_nitrate_drift * days
+	phosphate += device_phosphate_drift * days
 	ph += ph_support * days
 	alkalinity += min(stability_bonus * 0.001, 0.04) * days
 	calcium += min(stability_bonus * 0.010, 0.30) * days
@@ -159,8 +166,16 @@ func calculate_water_quality_score() -> float:
 	score -= _range_penalty(phosphate, 0.0, 0.10, 14.0)
 	score -= _range_penalty(alkalinity, 7.0, 10.0, 14.0)
 	score -= _range_penalty(calcium, 380.0, 460.0, 14.0)
+	score -= device_water_quality_penalty
 	score += clamp((system_stability - 50.0) * 0.10, 0.0, 5.0)
 	return clamp(score, 0.0, 100.0)
+
+
+func apply_device_effect_summary(device_effect_summary: Dictionary) -> void:
+	device_water_quality_penalty = float(device_effect_summary.get("device_water_quality_penalty", 0.0))
+	parameter_status = calculate_parameter_status()
+	water_quality_score = calculate_water_quality_score()
+	water_status = get_water_status()
 
 
 func get_water_status() -> String:
@@ -300,6 +315,7 @@ func get_debug_state() -> Dictionary:
 		"alkalinity": alkalinity,
 		"calcium": calcium,
 		"system_stability": system_stability,
+		"device_water_quality_penalty": device_water_quality_penalty,
 		"water_quality_score": water_quality_score,
 		"water_status": water_status,
 		"chemistry_tick_count": chemistry_tick_count,
@@ -411,6 +427,7 @@ func import_state(state: Dictionary) -> void:
 	accumulated_simulation_seconds = float(state.get("accumulated_simulation_seconds", 0.0))
 	chemistry_tick_count = int(state.get("chemistry_tick_count", 0))
 	_clamp_debug_ranges()
+	device_water_quality_penalty = 0.0
 	parameter_status = calculate_parameter_status()
 	water_quality_score = calculate_water_quality_score()
 	water_status = get_water_status()

@@ -40,12 +40,25 @@ const MAINTENANCE_SAVE_DELAY: float = 2.0
 var _save_in_progress: bool = false
 var _maintenance_cooldown_until_msec: Dictionary = {}
 var last_maintenance_runtime_summary: String = "未维护"
+var device_states: Dictionary = {
+	"return_pump": true,
+	"wave_pump": true,
+	"main_light": true,
+	"reserve": false,
+}
+var last_device_runtime_summary: String = "设备：默认运行"
 const MAINTENANCE_ACTION_RULES: Dictionary = {
 	"water_change_10": {"cost": 20.0, "cooldown_sec": 10.0, "risk_message": "无"},
 	"clean_filter": {"cost": 15.0, "cooldown_sec": 8.0, "risk_message": "无"},
 	"dose_buffer": {"cost": 12.0, "cooldown_sec": 12.0, "risk_message": "KH偏高请谨慎"},
 	"top_off": {"cost": 8.0, "cooldown_sec": 6.0, "risk_message": "无"},
 	"travel_prep": {"cost": 60.0, "cooldown_sec": 30.0, "risk_message": "无"},
+}
+const DEVICE_DEFINITIONS: Dictionary = {
+	"return_pump": {"display_name": "水泵", "default_enabled": true},
+	"wave_pump": {"display_name": "造浪", "default_enabled": true},
+	"main_light": {"display_name": "主灯", "default_enabled": true},
+	"reserve": {"display_name": "预留", "default_enabled": false},
 }
 
 
@@ -90,6 +103,7 @@ func update(delta_seconds: float) -> void:
 		return
 	var simulation_delta_seconds: float = time_system.update_time(delta_seconds)
 	var effects_summary: Dictionary = equipment_system.get_equipment_effects_summary()
+	_apply_device_effects_to_equipment_summary(effects_summary)
 	water_chemistry_system.simulate_tick(simulation_delta_seconds, effects_summary)
 	_recalculate_debug_scores()
 	_update_livestock_and_economy(simulation_delta_seconds)
@@ -200,6 +214,99 @@ func get_maintenance_cooldown_remaining(action_id: String) -> float:
 func get_maintenance_cost(action_id: String) -> float:
 	var rule: Dictionary = _get_maintenance_rule(action_id)
 	return float(rule.get("cost", 0.0))
+
+
+func toggle_device(device_id: String) -> Dictionary:
+	if not DEVICE_DEFINITIONS.has(device_id):
+		return _build_device_result(device_id, false, false, "未知设备", "unknown_device")
+	return set_device_enabled(device_id, not bool(device_states.get(device_id, false)))
+
+
+func set_device_enabled(device_id: String, enabled: bool) -> Dictionary:
+	if not DEVICE_DEFINITIONS.has(device_id):
+		return _build_device_result(device_id, false, false, "未知设备", "unknown_device")
+	device_states[device_id] = enabled
+	var effect_summary: Dictionary = get_device_effect_summary()
+	if water_chemistry_system != null:
+		water_chemistry_system.apply_device_effect_summary(effect_summary)
+	_recalculate_debug_scores()
+	_update_livestock_and_economy(0.0)
+	_update_unlocks()
+	var display_name: String = _get_device_display_name(device_id)
+	var state_text: String = "ON" if enabled else "OFF"
+	var risk_message: String = String(effect_summary.get("risk_message", "无"))
+	var summary: String = "%s：%s｜%s" % [display_name, state_text, String(effect_summary.get("summary", "设备影响：无"))]
+	if not risk_message.is_empty() and risk_message != "无":
+		summary += "｜风险：" + risk_message
+	last_device_runtime_summary = summary
+	var result: Dictionary = _build_device_result(device_id, true, enabled, summary, "ok")
+	result["risk_message"] = risk_message
+	result["income_multiplier"] = float(effect_summary.get("income_multiplier", 1.0))
+	result["income_effect"] = float(effect_summary.get("income_effect", 0.0))
+	result["water_quality_effect"] = float(effect_summary.get("water_quality_effect", 0.0))
+	result["stability_effect"] = float(effect_summary.get("stability_effect", 0.0))
+	return result
+
+
+func get_device_state() -> Dictionary:
+	_ensure_device_state_defaults()
+	var devices: Dictionary = {}
+	for device_id in DEVICE_DEFINITIONS.keys():
+		devices[device_id] = {
+			"device_id": device_id,
+			"display_name": _get_device_display_name(device_id),
+			"enabled": bool(device_states.get(device_id, false)),
+		}
+	return {
+		"devices": devices,
+		"last_device_runtime_summary": last_device_runtime_summary,
+	}
+
+
+func get_device_effect_summary() -> Dictionary:
+	_ensure_device_state_defaults()
+	var income_multiplier: float = 1.0
+	var stability_effect: float = 0.0
+	var water_quality_effect: float = 0.0
+	var device_water_quality_penalty: float = 0.0
+	var nitrate_drift_per_day: float = 0.0
+	var phosphate_drift_per_day: float = 0.0
+	var risks: Array[String] = []
+
+	if not bool(device_states.get("return_pump", true)):
+		income_multiplier *= 0.85
+		stability_effect -= 8.0
+		water_quality_effect -= 10.0
+		device_water_quality_penalty += 10.0
+		nitrate_drift_per_day += 0.35
+		phosphate_drift_per_day += 0.006
+		risks.append("水泵关闭，过滤循环不足")
+	if not bool(device_states.get("wave_pump", true)):
+		income_multiplier *= 0.90
+		stability_effect -= 5.0
+		water_quality_effect -= 3.0
+		device_water_quality_penalty += 3.0
+		risks.append("造浪不足，生物舒适度下降")
+	if not bool(device_states.get("main_light", true)):
+		income_multiplier *= 0.65
+		stability_effect -= 2.0
+		risks.append("主灯关闭，光照不足，收益降低")
+
+	var risk_message: String = "无"
+	if not risks.is_empty():
+		risk_message = _join_device_risks(risks)
+	return {
+		"income_multiplier": clamp(income_multiplier, 0.10, 1.0),
+		"income_effect": clamp(income_multiplier, 0.10, 1.0) - 1.0,
+		"stability_effect": stability_effect,
+		"water_quality_effect": water_quality_effect,
+		"device_water_quality_penalty": device_water_quality_penalty,
+		"device_nitrate_drift_per_day": nitrate_drift_per_day,
+		"device_phosphate_drift_per_day": phosphate_drift_per_day,
+		"risk_message": risk_message,
+		"risk_messages": risks.duplicate(),
+		"summary": "收益 x%.2f｜稳定 %+.0f｜水质 %+.0f" % [clamp(income_multiplier, 0.10, 1.0), stability_effect, water_quality_effect],
+	}
 
 
 func apply_water_maintenance_action(action_id: String) -> Dictionary:
@@ -321,6 +428,50 @@ func _get_maintenance_action_name(action_id: String) -> String:
 	return action_id
 
 
+func _ensure_device_state_defaults() -> void:
+	for device_id in DEVICE_DEFINITIONS.keys():
+		if not device_states.has(device_id):
+			var definition: Dictionary = DEVICE_DEFINITIONS.get(device_id, {})
+			device_states[device_id] = bool(definition.get("default_enabled", false))
+
+
+func _get_device_display_name(device_id: String) -> String:
+	var definition: Dictionary = DEVICE_DEFINITIONS.get(device_id, {})
+	return String(definition.get("display_name", device_id))
+
+
+func _build_device_result(device_id: String, success: bool, enabled: bool, summary: String, reason: String) -> Dictionary:
+	return {
+		"success": success,
+		"device_id": device_id,
+		"display_name": _get_device_display_name(device_id),
+		"enabled": enabled,
+		"summary": summary,
+		"reason": reason,
+		"risk_message": "无",
+		"income_multiplier": 1.0,
+		"income_effect": 0.0,
+		"water_quality_effect": 0.0,
+		"stability_effect": 0.0,
+	}
+
+
+func _apply_device_effects_to_equipment_summary(effects_summary: Dictionary) -> void:
+	var device_effects: Dictionary = get_device_effect_summary()
+	effects_summary["device_water_quality_penalty"] = float(device_effects.get("device_water_quality_penalty", 0.0))
+	effects_summary["device_nitrate_drift_per_day"] = float(device_effects.get("device_nitrate_drift_per_day", 0.0))
+	effects_summary["device_phosphate_drift_per_day"] = float(device_effects.get("device_phosphate_drift_per_day", 0.0))
+
+
+func _join_device_risks(risks: Array[String]) -> String:
+	var text: String = ""
+	for risk in risks:
+		if not text.is_empty():
+			text += "；"
+		text += risk
+	return text
+
+
 func get_livestock_debug_state() -> Dictionary:
 	if livestock_system == null:
 		return {}
@@ -384,6 +535,8 @@ func get_debug_state() -> Dictionary:
 		"time": time_debug,
 		"economy": economy_debug,
 		"equipment": equipment_debug,
+		"device": get_device_state(),
+		"device_effect": get_device_effect_summary(),
 		"placement": placement_debug,
 		"water_chemistry": chemistry_debug,
 		"livestock": livestock_debug,
@@ -405,7 +558,8 @@ func _recalculate_debug_scores() -> void:
 	if equipment_system == null:
 		return
 	var effects_summary: Dictionary = equipment_system.get_equipment_effects_summary()
-	stability_score = 50.0 + float(effects_summary.get("stability_bonus", 0.0))
+	var device_effects: Dictionary = get_device_effect_summary()
+	stability_score = clamp(50.0 + float(effects_summary.get("stability_bonus", 0.0)) + float(device_effects.get("stability_effect", 0.0)), 0.0, 100.0)
 	carrying_capacity_score = 10.0 + float(effects_summary.get("carrying_capacity_bonus", 0.0))
 	maintenance_load = float(effects_summary.get("maintenance_load", 0.0))
 
@@ -415,7 +569,9 @@ func _update_livestock_and_economy(delta_seconds: float) -> void:
 		return
 	var water_state: Dictionary = water_chemistry_system.get_debug_state()
 	var equipment_mult: float = 1.0 + (stability_score - 50.0) * 0.004
-	var income_rate: float = livestock_system.calculate_income_rate(water_state, equipment_mult)
+	var device_effects: Dictionary = get_device_effect_summary()
+	var device_income_mult: float = float(device_effects.get("income_multiplier", 1.0))
+	var income_rate: float = livestock_system.calculate_income_rate(water_state, equipment_mult) * device_income_mult
 	var current_reef_value: float = livestock_system.calculate_reef_value(water_state)
 	var ls_debug: Dictionary = livestock_system.get_debug_state()
 	var current_health: float = float(ls_debug.get("health_modifier", 1.0))
