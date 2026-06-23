@@ -203,6 +203,7 @@ func get_maintenance_actions() -> Array:
 func apply_maintenance_action(action_id: String) -> Dictionary:
 	var before_state: Dictionary = _snapshot_parameters()
 	var before_quality: float = water_quality_score
+	var ph_before: float = ph
 	var label: String = ""
 	var result_text: String = ""
 
@@ -211,29 +212,29 @@ func apply_maintenance_action(action_id: String) -> Dictionary:
 			label = "换水10%"
 			temperature = _blend_toward(temperature, TARGET_TEMPERATURE, 0.18)
 			salinity = _blend_toward(salinity, TARGET_SALINITY, 0.28)
-			ph = _blend_toward(ph, TARGET_PH, 0.24)
+			ph = _blend_toward(ph, TARGET_PH, 0.32)
 			nitrate = _blend_toward(nitrate, TARGET_NITRATE, 0.35)
 			phosphate = _blend_toward(phosphate, TARGET_PHOSPHATE, 0.35)
 			alkalinity = _blend_toward(alkalinity, TARGET_ALKALINITY, 0.22)
 			calcium = _blend_toward(calcium, TARGET_CALCIUM, 0.18)
-			result_text = "已换水10%，营养盐下降，参数向目标回正"
+			result_text = "换水完成"
 		"clean_filter":
 			label = "清理滤材"
 			nitrate = max(0.0, nitrate - 0.75)
 			phosphate = max(0.0, phosphate - 0.012)
 			system_stability = clamp(system_stability + 2.0, 0.0, 100.0)
-			result_text = "已清理滤材，NO3/PO4立即下降"
+			result_text = "清滤完成"
 		"dose_buffer":
 			label = "补充KH缓冲"
-			ph = min(ph + 0.045, 8.80)
+			ph = _blend_toward(ph, TARGET_PH, 0.08)
 			alkalinity = min(alkalinity + 0.35, 14.0)
 			calcium = min(calcium + 8.0, 560.0)
-			result_text = "已补充缓冲，KH/pH/Ca上升"
+			result_text = "补KH完成"
 		"top_off":
 			label = "补淡水"
 			salinity = _blend_toward(salinity, TARGET_SALINITY, 0.45)
 			temperature = _blend_toward(temperature, TARGET_TEMPERATURE, 0.12)
-			result_text = "已补淡水，盐度向目标值回落"
+			result_text = "补水完成"
 		_:
 			return {
 				"success": false,
@@ -246,17 +247,22 @@ func apply_maintenance_action(action_id: String) -> Dictionary:
 	water_quality_score = calculate_water_quality_score()
 	water_status = get_water_status()
 	_update_delta_from_snapshot(before_state, before_quality)
+	var ph_after: float = ph
+	var ph_delta: float = ph_after - ph_before
 	maintenance_action_count += 1
 	last_maintenance_action_id = action_id
 	last_maintenance_action_label = label
 	last_maintenance_result_text = result_text
-	last_maintenance_delta_summary = _format_maintenance_delta_summary(delta_water_quality_score, delta_nitrate, delta_phosphate, delta_ph, delta_salinity)
+	last_maintenance_delta_summary = _format_maintenance_delta_summary(action_id, result_text, before_state, ph_before, ph_after, ph_delta)
 	last_parameter_delta_summary = _format_delta_summary(delta_nitrate, delta_phosphate, delta_ph)
 	return {
 		"success": true,
 		"action_id": action_id,
 		"label": label,
 		"result_text": result_text,
+		"ph_before": ph_before,
+		"ph_after": ph_after,
+		"ph_delta": ph_delta,
 		"water_quality_before": before_quality,
 		"water_quality_after": water_quality_score,
 		"delta_water_quality_score": delta_water_quality_score,
@@ -426,11 +432,19 @@ func _format_delta_summary(delta_nitrate: float, delta_phosphate: float, delta_p
 	]
 
 
-func _format_maintenance_delta_summary(delta_quality: float, delta_nitrate_value: float, delta_phosphate_value: float, delta_ph_value: float, delta_salinity_value: float) -> String:
-	return "评分%+.1f｜NO3%+.2f｜PO4%+.3f｜pH%+.2f｜盐%+.1f" % [
-		delta_quality,
-		delta_nitrate_value,
-		delta_phosphate_value,
-		delta_ph_value,
-		delta_salinity_value,
-	]
+func _format_maintenance_delta_summary(action_id: String, result_text: String, before_state: Dictionary, ph_before: float, ph_after: float, ph_delta_value: float) -> String:
+	var nitrate_before: float = float(before_state.get("nitrate", nitrate))
+	var alkalinity_before: float = float(before_state.get("alkalinity", alkalinity))
+	var nitrate_delta: float = nitrate - nitrate_before
+	var alkalinity_delta: float = alkalinity - alkalinity_before
+	var ph_text: String = "pH %.2f→%.2f｜ΔpH %+.2f" % [ph_before, ph_after, ph_delta_value]
+	match action_id:
+		"water_change_10":
+			return "%s｜%s｜NO3%+.2f｜风险：无" % [result_text, ph_text, nitrate_delta]
+		"dose_buffer":
+			return "%s｜KH%+.1f｜%s｜提示：KH偏高请谨慎" % [result_text, alkalinity_delta, ph_text]
+		"clean_filter":
+			return "%s｜%s｜NO3%+.2f｜风险：无" % [result_text, ph_text, nitrate_delta]
+		"top_off":
+			return "%s｜%s｜盐%+.1f｜风险：无" % [result_text, ph_text, delta_salinity]
+	return "%s｜%s" % [result_text, ph_text]
