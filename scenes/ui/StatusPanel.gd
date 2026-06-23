@@ -70,10 +70,9 @@ func update_water_chemistry_debug(water_debug: Dictionary) -> void:
 	var elapsed_game_minutes: int = int(water_debug.get("elapsed_game_minutes", 0))
 
 	_set_line("water", "summary", "水质状态：%s｜水质评分 %.1f" % [localized_status, water_quality_score])
-	_set_line("water", "temperature", "温度 %.1f℃｜盐度 %.1f｜pH %.2f" % [temperature, salinity, ph])
-	_set_line("water", "nutrients", "NO3 %.2f｜PO4 %.3f" % [nitrate, phosphate])
-	_set_line("water", "minerals", "KH %.1f｜Ca %.0f" % [alkalinity, calcium])
-	_update_water_deviation_lines(water_debug)
+	_set_line("water", "readings_core", "当前：温 %.1f℃｜盐 %.1f｜pH %.2f" % [temperature, salinity, ph])
+	_set_line("water", "readings_chemistry", "营养/矿物：NO3 %.2f｜PO4 %.3f｜KH %.1f｜Ca %.0f" % [nitrate, phosphate, alkalinity, calcium])
+	_update_water_deviation_summary(water_debug)
 	_set_line("dynamic", "simulation", "模拟：自动运行中｜倍率：1秒=10分钟")
 	_set_line("dynamic", "time_tick", "时间：%s｜更新：第%d次" % [_format_game_time(elapsed_game_minutes), chemistry_tick_count])
 
@@ -234,9 +233,8 @@ func _build_status_layout() -> void:
 	_create_section(row, "data", "数据与阶段", 18, ["data", "validation", "milestone"])
 	_create_section(row, "water", "水质", 22, [
 		"summary",
-		"temperature", "temperature_deviation", "salinity_deviation", "ph_deviation",
-		"nutrients", "nitrate_deviation", "phosphate_deviation",
-		"minerals", "alkalinity_deviation", "calcium_deviation",
+		"readings_core", "readings_chemistry",
+		"deviation_core", "deviation_nutrients", "deviation_minerals",
 	])
 	_create_section(row, "system", "系统", 18, ["tier", "capacity", "plumbing", "reserved"])
 	_create_section(row, "livestock", "生物与收益", 20, ["count", "capacity", "value", "points", "income", "modifiers"])
@@ -289,16 +287,11 @@ func _set_default_text() -> void:
 	_set_line("data", "validation", "校验：load=OK｜errors=0")
 	_set_line("data", "milestone", "当前阶段：M10 生物商店与容量循环")
 	_set_line("water", "summary", "水质状态：正常｜水质评分 100.0")
-	_set_line("water", "temperature", "温度 25.1℃｜盐度 35.0｜pH 8.20")
-	_set_line("water", "nutrients", "NO3 2.60｜PO4 0.030")
-	_set_line("water", "minerals", "KH 8.3｜Ca 430")
-	_set_line("water", "temperature_deviation", "温度 25.1℃ / 目标25.0℃ / Δ+0.1 / 正常")
-	_set_line("water", "salinity_deviation", "盐度 35.0‰ / 目标35.0‰ / Δ+0.0 / 正常")
-	_set_line("water", "ph_deviation", "pH 8.20 / 目标8.20 / Δ+0.00 / 正常")
-	_set_line("water", "nitrate_deviation", "NO3 2.60 / 目标2.00 / Δ+0.60 / 正常")
-	_set_line("water", "phosphate_deviation", "PO4 0.030 / 目标0.030 / Δ+0.000 / 正常")
-	_set_line("water", "alkalinity_deviation", "KH 8.3 / 目标8.3 / Δ+0.0 / 正常")
-	_set_line("water", "calcium_deviation", "Ca 430 / 目标430 / Δ+0 / 正常")
+	_set_line("water", "readings_core", "当前：温 25.1℃｜盐 35.0｜pH 8.20")
+	_set_line("water", "readings_chemistry", "营养/矿物：NO3 2.60｜PO4 0.030｜KH 8.3｜Ca 430")
+	_set_line("water", "deviation_core", "偏差：温 +0.1｜盐 +0.0｜pH +0.00")
+	_set_line("water", "deviation_nutrients", "营养偏差：NO3 +0.60｜PO4 +0.000")
+	_set_line("water", "deviation_minerals", "矿物偏差：KH +0.0｜Ca +0｜全部正常")
 	_set_line("system", "tier", "初级设备 7/7｜稳定度 92.0")
 	_set_line("system", "capacity", "承载力 27.0｜维护负担 12.0")
 	_set_line("system", "plumbing", "管路：隐式连接｜管路玩法：关闭")
@@ -373,65 +366,50 @@ func _localize_capacity_status(capacity_status: String) -> String:
 	return capacity_status
 
 
-func _update_water_deviation_lines(water_debug: Dictionary) -> void:
-	_set_line("water", "temperature_deviation", _build_absolute_deviation_line(
-		"温度", water_debug, "temperature", "℃", 1, 1, 1, 0.5, 1.5
-	))
-	_set_line("water", "salinity_deviation", _build_absolute_deviation_line(
-		"盐度", water_debug, "salinity", "‰", 1, 1, 1, 1.0, 3.0
-	))
-	_set_line("water", "ph_deviation", _build_absolute_deviation_line(
-		"pH", water_debug, "ph", "", 2, 2, 2, 0.15, 0.35
-	))
-	_set_line("water", "nitrate_deviation", _build_range_deviation_line(
-		"NO3", water_debug, "nitrate", "", 2, 2, 2
-	))
-	_set_line("water", "phosphate_deviation", _build_range_deviation_line(
-		"PO4", water_debug, "phosphate", "", 3, 3, 3
-	))
-	_set_line("water", "alkalinity_deviation", _build_absolute_deviation_line(
-		"KH", water_debug, "alkalinity", "", 1, 1, 1, 0.5, 1.0
-	))
-	_set_line("water", "calcium_deviation", _build_absolute_deviation_line(
-		"Ca", water_debug, "calcium", "", 0, 0, 0, 30.0, 60.0
-	))
+func _update_water_deviation_summary(water_debug: Dictionary) -> void:
+	var core_parts: PackedStringArray = PackedStringArray([
+		_build_absolute_deviation_part("温", water_debug, "temperature", 1, 0.5, 1.5),
+		_build_absolute_deviation_part("盐", water_debug, "salinity", 1, 1.0, 3.0),
+		_build_absolute_deviation_part("pH", water_debug, "ph", 2, 0.15, 0.35),
+	])
+	var nutrient_parts: PackedStringArray = PackedStringArray([
+		_build_range_deviation_part("NO3", water_debug, "nitrate", 2),
+		_build_range_deviation_part("PO4", water_debug, "phosphate", 3),
+	])
+	var mineral_parts: PackedStringArray = PackedStringArray([
+		_build_absolute_deviation_part("KH", water_debug, "alkalinity", 1, 0.5, 1.0),
+		_build_absolute_deviation_part("Ca", water_debug, "calcium", 0, 30.0, 60.0),
+	])
+	_set_line("water", "deviation_core", "偏差：" + "｜".join(core_parts))
+	_set_line("water", "deviation_nutrients", "营养偏差：" + "｜".join(nutrient_parts))
+	_set_line("water", "deviation_minerals", "矿物偏差：" + "｜".join(mineral_parts))
 
 
-func _build_absolute_deviation_line(label: String, water_debug: Dictionary, key: String, unit: String, value_decimals: int, target_decimals: int, delta_decimals: int, normal_limit: float, caution_limit: float) -> String:
+func _build_absolute_deviation_part(label: String, water_debug: Dictionary, key: String, delta_decimals: int, normal_limit: float, caution_limit: float) -> String:
 	var target: float = float(WATER_DEVIATION_TARGETS.get(key, 0.0))
-	var target_text: String = _format_number(target, target_decimals)
 	if not water_debug.has(key):
-		return "%s --%s / 目标%s%s / Δ-- / --" % [label, unit, target_text, unit]
+		return "%s --" % label
 
 	var value: float = float(water_debug.get(key, target))
 	var delta: float = value - target
 	var status: String = _classify_absolute_deviation(delta, normal_limit, caution_limit)
-	return "%s %s%s / 目标%s%s / Δ%s / %s" % [
+	return "%s %s %s" % [
 		label,
-		_format_number(value, value_decimals),
-		unit,
-		target_text,
-		unit,
 		_format_signed_number(delta, delta_decimals),
 		status,
 	]
 
 
-func _build_range_deviation_line(label: String, water_debug: Dictionary, key: String, unit: String, value_decimals: int, target_decimals: int, delta_decimals: int) -> String:
+func _build_range_deviation_part(label: String, water_debug: Dictionary, key: String, delta_decimals: int) -> String:
 	var target: float = float(WATER_DEVIATION_TARGETS.get(key, 0.0))
-	var target_text: String = _format_number(target, target_decimals)
 	if not water_debug.has(key):
-		return "%s --%s / 目标%s%s / Δ-- / --" % [label, unit, target_text, unit]
+		return "%s --" % label
 
 	var value: float = float(water_debug.get(key, target))
 	var delta: float = value - target
 	var status: String = _classify_range_deviation(key, value)
-	return "%s %s%s / 目标%s%s / Δ%s / %s" % [
+	return "%s %s %s" % [
 		label,
-		_format_number(value, value_decimals),
-		unit,
-		target_text,
-		unit,
 		_format_signed_number(delta, delta_decimals),
 		status,
 	]
