@@ -25,6 +25,11 @@ var chemistry_tick_count: int = 0
 var accumulated_simulation_seconds: float = 0.0
 var last_chemistry_update_time: float = 0.0
 var last_parameter_delta_summary: String = "NO3 +0.00 / PO4 +0.000 / pH +0.00"
+var last_maintenance_action_id: String = ""
+var last_maintenance_action_label: String = "无"
+var last_maintenance_result_text: String = "尚未进行手动维护"
+var last_maintenance_delta_summary: String = "维护：无"
+var maintenance_action_count: int = 0
 var delta_temperature: float = 0.0
 var delta_salinity: float = 0.0
 var delta_ph: float = 0.0
@@ -54,6 +59,11 @@ func reset_to_initial_values() -> void:
 	accumulated_simulation_seconds = 0.0
 	last_chemistry_update_time = 0.0
 	last_parameter_delta_summary = "NO3 +0.00 / PO4 +0.000 / pH +0.00"
+	last_maintenance_action_id = ""
+	last_maintenance_action_label = "无"
+	last_maintenance_result_text = "尚未进行手动维护"
+	last_maintenance_delta_summary = "维护：无"
+	maintenance_action_count = 0
 	delta_temperature = 0.0
 	delta_salinity = 0.0
 	delta_ph = 0.0
@@ -161,6 +171,101 @@ func get_water_status() -> String:
 	return "CRITICAL"
 
 
+func get_maintenance_actions() -> Array:
+	return [
+		{
+			"id": "water_change_10",
+			"label": "换水10%",
+			"short_label": "换水",
+			"description": "降低NO3/PO4，并把核心参数拉回目标值。",
+		},
+		{
+			"id": "clean_filter",
+			"label": "清理滤材",
+			"short_label": "清滤",
+			"description": "快速降低营养盐，轻微提升稳定度。",
+		},
+		{
+			"id": "dose_buffer",
+			"label": "补充KH缓冲",
+			"short_label": "补KH",
+			"description": "提高KH、pH和钙，适合矿物偏低时使用。",
+		},
+		{
+			"id": "top_off",
+			"label": "补淡水",
+			"short_label": "补水",
+			"description": "把盐度向目标值拉回，顺手稳定温度。",
+		},
+	]
+
+
+func apply_maintenance_action(action_id: String) -> Dictionary:
+	var before_state: Dictionary = _snapshot_parameters()
+	var before_quality: float = water_quality_score
+	var label: String = ""
+	var result_text: String = ""
+
+	match action_id:
+		"water_change_10":
+			label = "换水10%"
+			temperature = _blend_toward(temperature, TARGET_TEMPERATURE, 0.18)
+			salinity = _blend_toward(salinity, TARGET_SALINITY, 0.28)
+			ph = _blend_toward(ph, TARGET_PH, 0.24)
+			nitrate = _blend_toward(nitrate, TARGET_NITRATE, 0.35)
+			phosphate = _blend_toward(phosphate, TARGET_PHOSPHATE, 0.35)
+			alkalinity = _blend_toward(alkalinity, TARGET_ALKALINITY, 0.22)
+			calcium = _blend_toward(calcium, TARGET_CALCIUM, 0.18)
+			result_text = "已换水10%，营养盐下降，参数向目标回正"
+		"clean_filter":
+			label = "清理滤材"
+			nitrate = max(0.0, nitrate - 0.75)
+			phosphate = max(0.0, phosphate - 0.012)
+			system_stability = clamp(system_stability + 2.0, 0.0, 100.0)
+			result_text = "已清理滤材，NO3/PO4立即下降"
+		"dose_buffer":
+			label = "补充KH缓冲"
+			ph = min(ph + 0.045, 8.80)
+			alkalinity = min(alkalinity + 0.35, 14.0)
+			calcium = min(calcium + 8.0, 560.0)
+			result_text = "已补充缓冲，KH/pH/Ca上升"
+		"top_off":
+			label = "补淡水"
+			salinity = _blend_toward(salinity, TARGET_SALINITY, 0.45)
+			temperature = _blend_toward(temperature, TARGET_TEMPERATURE, 0.12)
+			result_text = "已补淡水，盐度向目标值回落"
+		_:
+			return {
+				"success": false,
+				"error": "unknown_maintenance_action",
+				"action_id": action_id,
+			}
+
+	_clamp_debug_ranges()
+	parameter_status = calculate_parameter_status()
+	water_quality_score = calculate_water_quality_score()
+	water_status = get_water_status()
+	_update_delta_from_snapshot(before_state, before_quality)
+	maintenance_action_count += 1
+	last_maintenance_action_id = action_id
+	last_maintenance_action_label = label
+	last_maintenance_result_text = result_text
+	last_maintenance_delta_summary = _format_maintenance_delta_summary(delta_water_quality_score, delta_nitrate, delta_phosphate, delta_ph, delta_salinity)
+	last_parameter_delta_summary = _format_delta_summary(delta_nitrate, delta_phosphate, delta_ph)
+	return {
+		"success": true,
+		"action_id": action_id,
+		"label": label,
+		"result_text": result_text,
+		"water_quality_before": before_quality,
+		"water_quality_after": water_quality_score,
+		"delta_water_quality_score": delta_water_quality_score,
+		"water_status": water_status,
+		"delta_summary": last_maintenance_delta_summary,
+		"maintenance_action_count": maintenance_action_count,
+	}
+
+
 func get_debug_state() -> Dictionary:
 	return {
 		"system": "WaterChemistrySystem",
@@ -178,6 +283,11 @@ func get_debug_state() -> Dictionary:
 		"chemistry_tick_count": chemistry_tick_count,
 		"last_chemistry_update_time": last_chemistry_update_time,
 		"last_parameter_delta_summary": last_parameter_delta_summary,
+		"last_maintenance_action_id": last_maintenance_action_id,
+		"last_maintenance_action_label": last_maintenance_action_label,
+		"last_maintenance_result_text": last_maintenance_result_text,
+		"last_maintenance_delta_summary": last_maintenance_delta_summary,
+		"maintenance_action_count": maintenance_action_count,
 		"delta_temperature": delta_temperature,
 		"delta_salinity": delta_salinity,
 		"delta_ph": delta_ph,
@@ -212,6 +322,34 @@ func _move_toward_float(value: float, target: float, step: float) -> float:
 	if value < target:
 		return min(value + step, target)
 	return max(value - step, target)
+
+
+func _blend_toward(value: float, target: float, strength: float) -> float:
+	return value + (target - value) * clamp(strength, 0.0, 1.0)
+
+
+func _snapshot_parameters() -> Dictionary:
+	return {
+		"temperature": temperature,
+		"salinity": salinity,
+		"ph": ph,
+		"nitrate": nitrate,
+		"phosphate": phosphate,
+		"alkalinity": alkalinity,
+		"calcium": calcium,
+	}
+
+
+func _update_delta_from_snapshot(before_state: Dictionary, before_quality: float) -> void:
+	delta_temperature = temperature - float(before_state.get("temperature", temperature))
+	delta_salinity = salinity - float(before_state.get("salinity", salinity))
+	delta_ph = ph - float(before_state.get("ph", ph))
+	delta_nitrate = nitrate - float(before_state.get("nitrate", nitrate))
+	delta_phosphate = phosphate - float(before_state.get("phosphate", phosphate))
+	delta_alkalinity = alkalinity - float(before_state.get("alkalinity", alkalinity))
+	delta_calcium = calcium - float(before_state.get("calcium", calcium))
+	delta_water_quality_score = water_quality_score - before_quality
+	_prev_water_quality_score = water_quality_score
 
 
 func _clamp_debug_ranges() -> void:
@@ -254,6 +392,11 @@ func import_state(state: Dictionary) -> void:
 	parameter_status = calculate_parameter_status()
 	water_quality_score = calculate_water_quality_score()
 	water_status = get_water_status()
+	last_maintenance_action_id = ""
+	last_maintenance_action_label = "无"
+	last_maintenance_result_text = "尚未进行手动维护"
+	last_maintenance_delta_summary = "维护：无"
+	maintenance_action_count = 0
 
 
 func apply_offline_drift(offline_game_hours: float, equipment_effects_summary: Dictionary) -> void:
@@ -280,4 +423,14 @@ func _format_delta_summary(delta_nitrate: float, delta_phosphate: float, delta_p
 		delta_nitrate,
 		delta_phosphate,
 		delta_ph,
+	]
+
+
+func _format_maintenance_delta_summary(delta_quality: float, delta_nitrate_value: float, delta_phosphate_value: float, delta_ph_value: float, delta_salinity_value: float) -> String:
+	return "评分%+.1f｜NO3%+.2f｜PO4%+.3f｜pH%+.2f｜盐%+.1f" % [
+		delta_quality,
+		delta_nitrate_value,
+		delta_phosphate_value,
+		delta_ph_value,
+		delta_salinity_value,
 	]

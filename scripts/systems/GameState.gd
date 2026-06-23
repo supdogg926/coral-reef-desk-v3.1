@@ -2,7 +2,7 @@ class_name GameState
 extends RefCounted
 
 var initialized: bool = false
-var milestone: String = "M10 livestock shop tank capacity core loop"
+var milestone: String = "M11 prototype biomanage and water maintenance"
 var reef_points: float = 0.0
 var unlocked_tier: int = 1
 var time_system: TimeSystem = null
@@ -34,6 +34,9 @@ const PURCHASE_SAVE_DELAY: float = 2.0
 var _pending_save_after_livestock_change: bool = false
 var _livestock_change_save_timer: float = 0.0
 const LIVESTOCK_CHANGE_SAVE_DELAY: float = 2.0
+var _pending_save_after_maintenance: bool = false
+var _maintenance_save_timer: float = 0.0
+const MAINTENANCE_SAVE_DELAY: float = 2.0
 var _save_in_progress: bool = false
 
 
@@ -104,6 +107,14 @@ func update(delta_seconds: float) -> void:
 			_autosave_timer = 0.0
 			_pending_save_after_livestock_change = false
 			_livestock_change_save_timer = 0.0
+	if _pending_save_after_maintenance:
+		_maintenance_save_timer += delta_seconds
+		if _maintenance_save_timer >= MAINTENANCE_SAVE_DELAY:
+			print("[M11 PROTOTYPE] delayed autosave after water maintenance")
+			_perform_autosave()
+			_autosave_timer = 0.0
+			_pending_save_after_maintenance = false
+			_maintenance_save_timer = 0.0
 
 
 func get_system_stability_score() -> float:
@@ -124,6 +135,30 @@ func get_water_chemistry_debug_state() -> Dictionary:
 		water_debug["elapsed_game_time_text"] = String(time_debug.get("elapsed_game_time_text", "Day 1 00:00"))
 		water_debug["last_delta_seconds"] = float(time_debug.get("last_delta_seconds", 0.0))
 	return water_debug
+
+
+func get_water_maintenance_actions() -> Array:
+	if water_chemistry_system == null:
+		return []
+	return water_chemistry_system.get_maintenance_actions()
+
+
+func apply_water_maintenance_action(action_id: String) -> Dictionary:
+	print("[M11 PROTOTYPE] water maintenance request action_id=", action_id)
+	if water_chemistry_system == null:
+		return {"success": false, "error": "system_unavailable", "action_id": action_id}
+	var result: Dictionary = water_chemistry_system.apply_maintenance_action(action_id)
+	if not bool(result.get("success", false)):
+		print("[M11 PROTOTYPE] water maintenance failed error=", result.get("error", "unknown"))
+		return result
+	_recalculate_debug_scores()
+	_update_livestock_and_economy(0.0)
+	_update_unlocks()
+	reef_points = economy_system.get_reef_points() if economy_system != null else reef_points
+	_pending_save_after_maintenance = true
+	_maintenance_save_timer = 0.0
+	print("[M11 PROTOTYPE] water maintenance success label=", result.get("label", ""), " delta=", result.get("delta_summary", ""))
+	return result
 
 
 func get_livestock_debug_state() -> Dictionary:

@@ -8,6 +8,7 @@ var livestock_panel: LivestockPanel = null
 var shop_btn: Button = null
 var livestock_btn: Button = null
 var panel_status_label: Label = null
+var maintenance_feedback_label: Label = null
 var _panels_setup_done: bool = false
 var _livestock_refresh_timer: float = 0.0
 const LIVESTOCK_REFRESH_INTERVAL: float = 0.5
@@ -89,6 +90,8 @@ func _setup_panels() -> void:
 	livestock_btn.add_theme_font_size_override("font_size", 12)
 	livestock_btn.pressed.connect(_toggle_livestock)
 	bar_row.add_child(livestock_btn)
+
+	_add_water_maintenance_controls(bar_row)
 
 	if _is_dev_debug_ui_enabled():
 		var reset_btn: Button = Button.new()
@@ -246,6 +249,64 @@ func _toggle_livestock() -> void:
 			livestock_panel.get_parent().move_child(livestock_panel, livestock_panel.get_parent().get_child_count() - 1)
 		if panel_status_label != null:
 			panel_status_label.text = "已打开：我的生物"
+
+
+func _add_water_maintenance_controls(bar_row: HBoxContainer) -> void:
+	if game_state == null:
+		return
+	var separator: VSeparator = VSeparator.new()
+	separator.custom_minimum_size = Vector2(4, 24)
+	bar_row.add_child(separator)
+
+	var title_label: Label = Label.new()
+	title_label.text = "水质维护"
+	title_label.custom_minimum_size = Vector2(58, 24)
+	title_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	title_label.add_theme_font_size_override("font_size", 11)
+	title_label.add_theme_color_override("font_color", Color(0.74, 0.86, 0.88))
+	bar_row.add_child(title_label)
+
+	for raw_action in game_state.get_water_maintenance_actions():
+		if not raw_action is Dictionary:
+			continue
+		var action: Dictionary = raw_action
+		var action_id: String = String(action.get("id", ""))
+		var button: Button = Button.new()
+		button.text = String(action.get("short_label", action.get("label", action_id)))
+		button.tooltip_text = String(action.get("description", ""))
+		button.custom_minimum_size = Vector2(54, 30)
+		button.add_theme_font_size_override("font_size", 11)
+		button.pressed.connect(_on_water_maintenance_pressed.bind(action_id))
+		bar_row.add_child(button)
+
+	maintenance_feedback_label = Label.new()
+	maintenance_feedback_label.text = "未维护"
+	maintenance_feedback_label.custom_minimum_size = Vector2(190, 24)
+	maintenance_feedback_label.clip_text = true
+	maintenance_feedback_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	maintenance_feedback_label.add_theme_font_size_override("font_size", 10)
+	maintenance_feedback_label.add_theme_color_override("font_color", Color(0.68, 0.88, 0.84))
+	bar_row.add_child(maintenance_feedback_label)
+
+
+func _on_water_maintenance_pressed(action_id: String) -> void:
+	if game_state == null:
+		return
+	var result: Dictionary = game_state.apply_water_maintenance_action(action_id)
+	_update_status_labels()
+	if bool(result.get("success", false)):
+		var label: String = String(result.get("label", action_id))
+		var delta_summary: String = String(result.get("delta_summary", ""))
+		if maintenance_feedback_label != null:
+			maintenance_feedback_label.text = "%s｜%s" % [label, delta_summary]
+		if panel_status_label != null:
+			panel_status_label.text = "水质维护完成：" + label
+	else:
+		var error_text: String = String(result.get("error", "unknown"))
+		if maintenance_feedback_label != null:
+			maintenance_feedback_label.text = "维护失败：" + error_text
+		if panel_status_label != null:
+			panel_status_label.text = "水质维护失败：" + error_text
 
 
 func _update_status_labels() -> void:
