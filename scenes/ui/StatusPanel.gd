@@ -52,15 +52,18 @@ func update_equipment_debug(game_state_debug: Dictionary) -> void:
 	var device_state: Dictionary = raw_device_state if raw_device_state is Dictionary else {}
 	var raw_device_effect: Variant = game_state_debug.get("device_effect", {})
 	var device_effect: Dictionary = raw_device_effect if raw_device_effect is Dictionary else {}
-	var device_line: String = _format_device_state_line(device_state, device_effect)
+	var device_filter_line: String = _format_device_filter_line(device_effect)
+	var device_comfort_line: String = _format_device_comfort_line(device_state, device_effect)
+	var device_light_line: String = _format_device_light_line(device_effect)
 	var device_risk: String = String(device_effect.get("risk_message", "无"))
 	if device_risk.is_empty():
 		device_risk = "无"
 
 	_set_line("system", "tier", "初级设备 %d/%d｜稳定度 %.1f" % [tier1_enabled_count, tier1_total_count, stability_score])
 	_set_line("system", "capacity", "承载力 %.1f｜维护负担 %.1f" % [carrying_capacity_score, maintenance_load])
-	_set_line("system", "plumbing", device_line)
-	_set_line("system", "reserved", "设备风险：%s｜预留T2 %d/T3 %d｜仓%d｜锁%d" % [device_risk, tier2_reserved_count, tier3_reserved_count, warehouse_count, locked_count])
+	_set_line("system", "plumbing", device_filter_line)
+	_set_line("system", "comfort", device_comfort_line)
+	_set_line("system", "reserved", "%s｜风险：%s｜预留T2 %d/T3 %d｜仓%d｜锁%d" % [device_light_line, device_risk, tier2_reserved_count, tier3_reserved_count, warehouse_count, locked_count])
 
 
 func update_water_chemistry_debug(water_debug: Dictionary) -> void:
@@ -252,7 +255,7 @@ func _build_status_layout() -> void:
 		"deviation_core", "deviation_nutrients", "deviation_minerals",
 		"maintenance",
 	])
-	_create_section(row, "system", "系统", 18, ["tier", "capacity", "plumbing", "reserved"])
+	_create_section(row, "system", "系统", 18, ["tier", "capacity", "plumbing", "comfort", "reserved"])
 	_create_section(row, "livestock", "生物与收益", 20, ["count", "capacity", "value", "points", "income", "modifiers"])
 	_create_section(row, "dynamic", "动态确认", 26, [
 		"simulation", "time_tick",
@@ -308,18 +311,48 @@ func _format_device_state_line(device_state: Dictionary, device_effect: Dictiona
 		var display_name: String = String(device_info.get("display_name", device_id))
 		var enabled: bool = bool(device_info.get("enabled", false))
 		parts.append("%s%s" % [display_name, "ON" if enabled else "OFF"])
-	var income_multiplier: float = float(device_effect.get("income_multiplier", 1.0))
-	var stability_effect: float = float(device_effect.get("stability_effect", 0.0))
-	var water_quality_effect: float = float(device_effect.get("water_quality_effect", 0.0))
+	return _join_short_parts(parts)
+
+
+func _format_device_filter_line(device_effect: Dictionary) -> String:
+	var filter_efficiency: float = float(device_effect.get("filter_efficiency_percent", 100.0))
 	var nitrate_drift: float = float(device_effect.get("device_nitrate_drift_per_day", 0.0))
 	var phosphate_drift: float = float(device_effect.get("device_phosphate_drift_per_day", 0.0))
-	return "设备：%s｜收益倍率 x%.2f｜稳定分 %+.0f｜水质评分 %+.0f｜NO3 %+.2f/日｜PO4 %+.3f/日" % [
-		_join_short_parts(parts),
-		income_multiplier,
-		stability_effect,
-		water_quality_effect,
+	var water_quality_effect: float = float(device_effect.get("water_quality_effect", 0.0))
+	return "过滤效率 %.0f%%｜NO3 %+.2f/日｜PO4 %+.3f/日｜水质评分 %+.0f" % [
+		filter_efficiency,
 		nitrate_drift,
 		phosphate_drift,
+		water_quality_effect,
+	]
+
+
+func _format_device_comfort_line(device_state: Dictionary, device_effect: Dictionary) -> String:
+	var raw_devices: Variant = device_state.get("devices", {})
+	var devices: Dictionary = raw_devices if raw_devices is Dictionary else {}
+	var raw_wave: Variant = devices.get("wave_pump", {})
+	var wave_info: Dictionary = raw_wave if raw_wave is Dictionary else {}
+	var wave_enabled: bool = bool(wave_info.get("enabled", true))
+	var wave_text: String = "造浪ON" if wave_enabled else "造浪OFF"
+	var comfort_score: float = float(device_effect.get("flow_comfort_score", device_effect.get("comfort_score", 100.0)))
+	var health_modifier: float = float(device_effect.get("comfort_health_modifier", 1.0))
+	var wave_effect: float = float(device_effect.get("wave_comfort_effect", 0.0))
+	return "%s：水流舒适度 %.0f/100｜健康系数 %.2f｜造浪影响 %+.2f" % [
+		wave_text,
+		comfort_score,
+		health_modifier,
+		wave_effect,
+	]
+
+
+func _format_device_light_line(device_effect: Dictionary) -> String:
+	var income_multiplier: float = float(device_effect.get("income_multiplier", 1.0))
+	var stability_effect: float = float(device_effect.get("stability_effect", 0.0))
+	var light_income_percent: float = float(device_effect.get("light_income_percent", 100.0))
+	return "光照收益 %.0f%%｜收益倍率 x%.2f｜稳定 %+.0f" % [
+		light_income_percent,
+		income_multiplier,
+		stability_effect,
 	]
 
 
@@ -345,8 +378,9 @@ func _set_default_text() -> void:
 	_set_line("water", "maintenance", "最近维护：无｜维护：无")
 	_set_line("system", "tier", "初级设备 7/7｜稳定度 92.0")
 	_set_line("system", "capacity", "承载力 27.0｜维护负担 12.0")
-	_set_line("system", "plumbing", "设备：水泵ON｜造浪ON｜主灯ON｜收益倍率 x1.00｜稳定分 +0｜水质评分 +0")
-	_set_line("system", "reserved", "设备风险：无｜预留T2 4/T3 5")
+	_set_line("system", "plumbing", "过滤效率 100%｜NO3 +0.00/日｜PO4 +0.000/日｜水质评分 +0")
+	_set_line("system", "comfort", "造浪ON：水流舒适度 100/100｜健康系数 1.00｜造浪影响 +0.00")
+	_set_line("system", "reserved", "光照收益 100%｜收益倍率 x1.00｜稳定 +0｜风险：无｜预留T2 4/T3 5")
 	_set_line("livestock", "count", "生物数量：6｜缸等级：1")
 	_set_line("livestock", "capacity", "容量：18.0/30.0｜状态：正常")
 	_set_line("livestock", "value", "缸价值：59.0｜基础收益：2.36/h")

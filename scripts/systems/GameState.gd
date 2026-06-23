@@ -232,10 +232,8 @@ func set_device_enabled(device_id: String, enabled: bool) -> Dictionary:
 	_recalculate_debug_scores()
 	_update_livestock_and_economy(0.0)
 	_update_unlocks()
-	var display_name: String = _get_device_display_name(device_id)
-	var state_text: String = "ON" if enabled else "OFF"
 	var risk_message: String = String(effect_summary.get("risk_message", "无"))
-	var summary: String = "%s：%s｜%s" % [display_name, state_text, String(effect_summary.get("summary", "设备影响：无"))]
+	var summary: String = _format_device_toggle_summary(device_id, enabled, effect_summary)
 	if not risk_message.is_empty() and risk_message != "无":
 		summary += "｜风险：" + risk_message
 	last_device_runtime_summary = summary
@@ -247,6 +245,12 @@ func set_device_enabled(device_id: String, enabled: bool) -> Dictionary:
 	result["stability_effect"] = float(effect_summary.get("stability_effect", 0.0))
 	result["device_nitrate_drift_per_day"] = float(effect_summary.get("device_nitrate_drift_per_day", 0.0))
 	result["device_phosphate_drift_per_day"] = float(effect_summary.get("device_phosphate_drift_per_day", 0.0))
+	result["filter_efficiency_percent"] = float(effect_summary.get("filter_efficiency_percent", 100.0))
+	result["flow_comfort_score"] = float(effect_summary.get("flow_comfort_score", 100.0))
+	result["comfort_score"] = float(effect_summary.get("comfort_score", 100.0))
+	result["comfort_health_modifier"] = float(effect_summary.get("comfort_health_modifier", 1.0))
+	result["wave_comfort_effect"] = float(effect_summary.get("wave_comfort_effect", 0.0))
+	result["light_income_percent"] = float(effect_summary.get("light_income_percent", 100.0))
 	return result
 
 
@@ -273,6 +277,11 @@ func get_device_effect_summary() -> Dictionary:
 	var device_water_quality_penalty: float = 0.0
 	var nitrate_drift_per_day: float = 0.0
 	var phosphate_drift_per_day: float = 0.0
+	var filter_efficiency_percent: float = 100.0
+	var comfort_score: float = 100.0
+	var comfort_health_modifier: float = 1.0
+	var wave_comfort_effect: float = 0.0
+	var light_income_percent: float = 100.0
 	var risks: Array[String] = []
 
 	if not bool(device_states.get("return_pump", true)):
@@ -282,22 +291,31 @@ func get_device_effect_summary() -> Dictionary:
 		device_water_quality_penalty += 10.0
 		nitrate_drift_per_day += 0.35
 		phosphate_drift_per_day += 0.006
+		filter_efficiency_percent = 50.0
+		comfort_score -= 5.0
+		comfort_health_modifier -= 0.03
 		risks.append("水泵关闭，过滤循环不足")
 	if not bool(device_states.get("wave_pump", true)):
 		income_multiplier *= 0.90
 		stability_effect -= 5.0
 		water_quality_effect -= 3.0
 		device_water_quality_penalty += 3.0
+		comfort_score -= 15.0
+		comfort_health_modifier -= 0.12
+		wave_comfort_effect = -0.12
 		risks.append("造浪不足，生物舒适度下降")
 	if not bool(device_states.get("main_light", true)):
 		income_multiplier *= 0.65
 		stability_effect -= 2.0
+		light_income_percent = 65.0
 		risks.append("主灯关闭，光照不足，收益降低")
 
 	var risk_message: String = "无"
 	if not risks.is_empty():
 		risk_message = _join_device_risks(risks)
 	var clamped_income_multiplier: float = clamp(income_multiplier, 0.10, 1.0)
+	var clamped_comfort_score: float = clamp(comfort_score, 0.0, 100.0)
+	var clamped_comfort_health_modifier: float = clamp(comfort_health_modifier, 0.50, 1.0)
 	return {
 		"income_multiplier": clamp(income_multiplier, 0.10, 1.0),
 		"income_effect": clamped_income_multiplier - 1.0,
@@ -306,6 +324,12 @@ func get_device_effect_summary() -> Dictionary:
 		"device_water_quality_penalty": device_water_quality_penalty,
 		"device_nitrate_drift_per_day": nitrate_drift_per_day,
 		"device_phosphate_drift_per_day": phosphate_drift_per_day,
+		"filter_efficiency_percent": filter_efficiency_percent,
+		"flow_comfort_score": clamped_comfort_score,
+		"comfort_score": clamped_comfort_score,
+		"comfort_health_modifier": clamped_comfort_health_modifier,
+		"wave_comfort_effect": wave_comfort_effect,
+		"light_income_percent": light_income_percent,
 		"risk_message": risk_message,
 		"risk_messages": risks.duplicate(),
 		"summary": _format_device_effect_summary(
@@ -313,7 +337,12 @@ func get_device_effect_summary() -> Dictionary:
 			stability_effect,
 			water_quality_effect,
 			nitrate_drift_per_day,
-			phosphate_drift_per_day
+			phosphate_drift_per_day,
+			filter_efficiency_percent,
+			clamped_comfort_score,
+			clamped_comfort_health_modifier,
+			wave_comfort_effect,
+			light_income_percent
 		),
 	}
 
@@ -462,6 +491,12 @@ func _build_device_result(device_id: String, success: bool, enabled: bool, summa
 		"income_effect": 0.0,
 		"water_quality_effect": 0.0,
 		"stability_effect": 0.0,
+		"filter_efficiency_percent": 100.0,
+		"flow_comfort_score": 100.0,
+		"comfort_score": 100.0,
+		"comfort_health_modifier": 1.0,
+		"wave_comfort_effect": 0.0,
+		"light_income_percent": 100.0,
 	}
 
 
@@ -481,14 +516,45 @@ func _join_device_risks(risks: Array[String]) -> String:
 	return text
 
 
-func _format_device_effect_summary(income_multiplier: float, stability_effect: float, water_quality_effect: float, nitrate_drift_per_day: float, phosphate_drift_per_day: float) -> String:
-	return "收益倍率 x%.2f｜稳定分 %+.0f｜水质评分 %+.0f｜NO3 %+.2f/日｜PO4 %+.3f/日" % [
-		income_multiplier,
-		stability_effect,
-		water_quality_effect,
+func _format_device_effect_summary(income_multiplier: float, stability_effect: float, water_quality_effect: float, nitrate_drift_per_day: float, phosphate_drift_per_day: float, filter_efficiency_percent: float, comfort_score: float, comfort_health_modifier: float, wave_comfort_effect: float, light_income_percent: float) -> String:
+	return "过滤效率 %.0f%%｜NO3 %+.2f/日｜PO4 %+.3f/日｜水质评分 %+.0f｜水流舒适度 %.0f/100｜健康系数 %.2f｜造浪影响 %+.2f｜光照收益 %.0f%%｜收益倍率 x%.2f｜稳定 %+.0f" % [
+		filter_efficiency_percent,
 		nitrate_drift_per_day,
 		phosphate_drift_per_day,
+		water_quality_effect,
+		comfort_score,
+		comfort_health_modifier,
+		wave_comfort_effect,
+		light_income_percent,
+		income_multiplier,
+		stability_effect,
 	]
+
+
+func _format_device_toggle_summary(device_id: String, enabled: bool, device_effect: Dictionary) -> String:
+	var state_text: String = "ON" if enabled else "OFF"
+	if device_id == "wave_pump":
+		return "造浪%s：水流舒适度 %.0f/100｜健康系数 %.2f｜造浪影响 %+.2f" % [
+			state_text,
+			float(device_effect.get("flow_comfort_score", 100.0)),
+			float(device_effect.get("comfort_health_modifier", 1.0)),
+			float(device_effect.get("wave_comfort_effect", 0.0)),
+		]
+	if device_id == "return_pump":
+		return "水泵%s：过滤效率 %.0f%%｜NO3/PO4将更快上升｜NO3 %+.2f/日｜PO4 %+.3f/日" % [
+			state_text,
+			float(device_effect.get("filter_efficiency_percent", 100.0)),
+			float(device_effect.get("device_nitrate_drift_per_day", 0.0)),
+			float(device_effect.get("device_phosphate_drift_per_day", 0.0)),
+		]
+	if device_id == "main_light":
+		return "主灯%s：光照收益 %.0f%%｜收益倍率 x%.2f" % [
+			state_text,
+			float(device_effect.get("light_income_percent", 100.0)),
+			float(device_effect.get("income_multiplier", 1.0)),
+		]
+	var display_name: String = _get_device_display_name(device_id)
+	return "%s：%s｜%s" % [display_name, state_text, String(device_effect.get("summary", "设备影响：无"))]
 
 
 func get_livestock_debug_state() -> Dictionary:

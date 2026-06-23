@@ -95,6 +95,7 @@ func _run() -> void:
 	var cooldown_state: Dictionary = game_state.get_maintenance_action_state("water_change_10")
 	_assert(float(cooldown_state.get("remaining_cooldown", 0.0)) > 0.0, "GameState cooldown query returns remaining seconds")
 	_assert(not bool(cooldown_state.get("can_execute", true)), "GameState cooldown query blocks execution")
+	_assert(cooldown_state.has("current_balance"), "GameState cooldown query exposes RP balance")
 
 	var before_buffer_ph: float = game_state.water_chemistry_system.ph
 	var before_buffer_kh: float = game_state.water_chemistry_system.alkalinity
@@ -122,6 +123,11 @@ func _run() -> void:
 	_assert(_device_enabled(devices, "wave_pump"), "Device wave pump defaults to ON")
 	_assert(_device_enabled(devices, "main_light"), "Device main light defaults to ON")
 	_assert(not _device_enabled(devices, "reserve"), "Device reserve defaults to OFF")
+	var default_device_effects: Dictionary = game_state.get_device_effect_summary()
+	_assert(default_device_effects.has("comfort_score"), "Device effect summary exposes comfort score")
+	_assert(is_equal_approx(float(default_device_effects.get("comfort_score", 0.0)), 100.0), "Device comfort score defaults to 100")
+	_assert(String(default_device_effects.get("summary", "")).contains("水流舒适度"), "Device summary labels flow comfort")
+	_assert(String(default_device_effects.get("summary", "")).contains("健康系数"), "Device summary labels health modifier")
 
 	var rp_before_device_toggle: float = game_state.economy_system.get_reef_points()
 	var return_pump_result: Dictionary = game_state.toggle_device("return_pump")
@@ -141,13 +147,24 @@ func _run() -> void:
 	_assert(bool(main_light_result.get("success", false)), "Device main light toggle succeeds")
 	var light_effects: Dictionary = game_state.get_device_effect_summary()
 	_assert(float(light_effects.get("income_multiplier", 1.0)) < 0.90, "Device main light OFF reduces income multiplier")
+	_assert(String(light_effects.get("summary", "")).contains("收益倍率"), "Device light summary includes income multiplier")
 	_assert(String(light_effects.get("risk_message", "")).contains("光照不足"), "Device main light OFF reports light risk")
 
 	var wave_result: Dictionary = game_state.toggle_device("wave_pump")
 	_assert(bool(wave_result.get("success", false)), "Device wave pump toggle succeeds")
 	var wave_effects: Dictionary = game_state.get_device_effect_summary()
 	_assert(float(wave_effects.get("stability_effect", 0.0)) < 0.0, "Device wave pump OFF reduces stability")
+	_assert(float(wave_effects.get("comfort_score", 100.0)) < 100.0, "Device wave pump OFF lowers comfort score")
+	_assert(String(wave_effects.get("summary", "")).contains("水流舒适度"), "Device wave summary includes flow comfort")
+	_assert(String(wave_effects.get("summary", "")).contains("健康系数"), "Device wave summary includes health modifier")
+	_assert(String(wave_result.get("summary", "")).contains("水流舒适度"), "Device wave toggle feedback includes flow comfort")
 	_assert(String(wave_effects.get("risk_message", "")).contains("造浪不足"), "Device wave pump OFF reports comfort risk")
+
+	var wave_restore_result: Dictionary = game_state.toggle_device("wave_pump")
+	_assert(bool(wave_restore_result.get("success", false)), "Device wave pump restore toggle succeeds")
+	var wave_restored_effects: Dictionary = game_state.get_device_effect_summary()
+	_assert(float(wave_restored_effects.get("comfort_score", 0.0)) > float(wave_effects.get("comfort_score", 100.0)), "Device wave pump ON restores comfort score")
+	_assert(String(wave_restore_result.get("summary", "")).contains("水流舒适度"), "Device wave restore feedback includes flow comfort")
 
 	var restore_result: Dictionary = game_state.toggle_device("return_pump")
 	_assert(bool(restore_result.get("success", false)), "Device return pump restore toggle succeeds")
