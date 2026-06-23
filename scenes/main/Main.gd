@@ -9,9 +9,14 @@ var shop_btn: Button = null
 var livestock_btn: Button = null
 var panel_status_label: Label = null
 var maintenance_feedback_label: Label = null
+var maintenance_buttons: Dictionary = {}
+var maintenance_button_base_texts: Dictionary = {}
+var maintenance_button_costs: Dictionary = {}
 var _panels_setup_done: bool = false
 var _livestock_refresh_timer: float = 0.0
+var _maintenance_button_refresh_timer: float = 0.0
 const LIVESTOCK_REFRESH_INTERVAL: float = 0.5
+const MAINTENANCE_BUTTON_REFRESH_INTERVAL: float = 0.5
 var _alive_tick: int = 0
 var _alive_timer: float = 0.0
 
@@ -41,6 +46,10 @@ func _process(delta: float) -> void:
 		if _livestock_refresh_timer >= LIVESTOCK_REFRESH_INTERVAL:
 			_livestock_refresh_timer = 0.0
 			livestock_panel.update_display()
+	_maintenance_button_refresh_timer += delta
+	if _maintenance_button_refresh_timer >= MAINTENANCE_BUTTON_REFRESH_INTERVAL:
+		_maintenance_button_refresh_timer = 0.0
+		_update_maintenance_button_states()
 
 
 func _setup_panels() -> void:
@@ -138,6 +147,7 @@ func _setup_panels() -> void:
 	livestock_panel.setup(game_state)
 
 	_panels_setup_done = true
+	_update_maintenance_button_states()
 
 
 func _stabilize_main_layout(layout: VBoxContainer) -> void:
@@ -254,6 +264,9 @@ func _toggle_livestock() -> void:
 func _add_water_maintenance_controls(bar_row: HBoxContainer) -> void:
 	if game_state == null:
 		return
+	maintenance_buttons.clear()
+	maintenance_button_base_texts.clear()
+	maintenance_button_costs.clear()
 	var separator: VSeparator = VSeparator.new()
 	separator.custom_minimum_size = Vector2(4, 24)
 	bar_row.add_child(separator)
@@ -273,12 +286,16 @@ func _add_water_maintenance_controls(bar_row: HBoxContainer) -> void:
 		var action_id: String = String(action.get("id", ""))
 		var action_cost: float = float(action.get("cost", 0.0))
 		var button: Button = Button.new()
-		button.text = "%s $%.0f" % [String(action.get("short_label", action.get("label", action_id))), action_cost]
+		var base_text: String = "%s %.0fRP" % [String(action.get("short_label", action.get("label", action_id))), action_cost]
+		button.text = base_text
 		button.tooltip_text = String(action.get("description", ""))
-		button.custom_minimum_size = Vector2(72, 30)
+		button.custom_minimum_size = Vector2(92, 30)
 		button.add_theme_font_size_override("font_size", 11)
 		button.pressed.connect(_on_water_maintenance_pressed.bind(action_id))
 		bar_row.add_child(button)
+		maintenance_buttons[action_id] = button
+		maintenance_button_base_texts[action_id] = base_text
+		maintenance_button_costs[action_id] = action_cost
 
 	maintenance_feedback_label = Label.new()
 	maintenance_feedback_label.text = "未维护"
@@ -295,6 +312,7 @@ func _on_water_maintenance_pressed(action_id: String) -> void:
 		return
 	var result: Dictionary = game_state.apply_water_maintenance_action(action_id)
 	_update_status_labels()
+	_update_maintenance_button_states()
 	if bool(result.get("success", false)):
 		var label: String = String(result.get("label", action_id))
 		var delta_summary: String = String(result.get("summary", result.get("delta_summary", "")))
@@ -308,6 +326,29 @@ func _on_water_maintenance_pressed(action_id: String) -> void:
 			maintenance_feedback_label.text = error_text
 		if panel_status_label != null:
 			panel_status_label.text = "水质维护失败：" + error_text
+
+
+func _update_maintenance_button_states() -> void:
+	if game_state == null:
+		return
+	for action_id in maintenance_buttons.keys():
+		var raw_button: Variant = maintenance_buttons.get(action_id, null)
+		if not raw_button is Button:
+			continue
+		var button: Button = raw_button
+		var base_text: String = String(maintenance_button_base_texts.get(action_id, action_id))
+		var state: Dictionary = game_state.get_maintenance_action_state(String(action_id))
+		var remaining: float = float(state.get("remaining_cooldown", 0.0))
+		var reason: String = String(state.get("reason", "ok"))
+		if remaining > 0.0:
+			button.disabled = true
+			button.text = "%s（%ds）" % [base_text, int(ceil(remaining))]
+		elif reason == "insufficient_funds":
+			button.disabled = true
+			button.text = "%s（余额不足）" % [base_text]
+		else:
+			button.disabled = false
+			button.text = base_text
 
 
 func _update_status_labels() -> void:

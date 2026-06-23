@@ -165,6 +165,43 @@ func get_water_maintenance_actions() -> Array:
 	return actions
 
 
+func get_maintenance_action_state(action_id: String) -> Dictionary:
+	var rule: Dictionary = _get_maintenance_rule(action_id)
+	var cost: float = float(rule.get("cost", 0.0))
+	var cooldown_sec: float = float(rule.get("cooldown_sec", 0.0))
+	var remaining_cooldown: float = _get_maintenance_remaining_cooldown(action_id)
+	var current_balance: float = economy_system.get_reef_points() if economy_system != null else 0.0
+	var reason: String = "ok"
+	var can_execute: bool = true
+	if rule.is_empty():
+		can_execute = false
+		reason = "unknown_action"
+	elif remaining_cooldown > 0.0:
+		can_execute = false
+		reason = "cooldown"
+	elif current_balance < cost:
+		can_execute = false
+		reason = "insufficient_funds"
+	return {
+		"action_id": action_id,
+		"cost": cost,
+		"cooldown_sec": cooldown_sec,
+		"remaining_cooldown": remaining_cooldown,
+		"can_execute": can_execute,
+		"reason": reason,
+		"current_balance": current_balance,
+	}
+
+
+func get_maintenance_cooldown_remaining(action_id: String) -> float:
+	return _get_maintenance_remaining_cooldown(action_id)
+
+
+func get_maintenance_cost(action_id: String) -> float:
+	var rule: Dictionary = _get_maintenance_rule(action_id)
+	return float(rule.get("cost", 0.0))
+
+
 func apply_water_maintenance_action(action_id: String) -> Dictionary:
 	print("[M11 PROTOTYPE] water maintenance request action_id=", action_id)
 	if water_chemistry_system == null or economy_system == null:
@@ -219,9 +256,11 @@ func _try_perform_maintenance(action_id: String) -> Dictionary:
 		return _build_maintenance_failure(action_id, String(result.get("error", "unknown")), "维护失败", cost, cooldown_sec, 0.0)
 
 	_maintenance_cooldown_until_msec[action_id] = Time.get_ticks_msec() + int(cooldown_sec * 1000.0)
-	var summary: String = "%s｜消耗 $%.0f｜冷却 %.0fs｜%s" % [
+	var current_balance: float = economy_system.get_reef_points()
+	var summary: String = "%s｜消耗 %.0fRP｜余额%.0fRP｜冷却 %.0fs｜%s" % [
 		String(result.get("result_text", result.get("label", action_id))),
 		cost,
+		current_balance,
 		cooldown_sec,
 		String(result.get("delta_summary", "")),
 	]
@@ -233,7 +272,7 @@ func _try_perform_maintenance(action_id: String) -> Dictionary:
 	result["reason"] = "ok"
 	result["summary"] = summary
 	result["risk_message"] = String(rule.get("risk_message", "无"))
-	result["reef_points"] = economy_system.get_reef_points()
+	result["reef_points"] = current_balance
 	return result
 
 
@@ -243,7 +282,7 @@ func _build_maintenance_failure(action_id: String, reason: String, summary: Stri
 	if reason == "cooldown":
 		display_summary = "%s｜冷却中 %.0fs" % [action_name, ceil(remaining_cooldown)]
 	elif reason == "insufficient_funds":
-		display_summary = "%s｜金币不足｜需要 $%.0f" % [action_name, cost]
+		display_summary = "%s｜余额不足｜需要%.0fRP｜当前%.0fRP" % [action_name, cost, current_balance]
 	last_maintenance_runtime_summary = display_summary
 	return {
 		"success": false,

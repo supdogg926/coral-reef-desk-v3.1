@@ -100,7 +100,7 @@ func update_livestock_economy_debug(livestock_debug: Dictionary, economy_debug: 
 	_set_line("livestock", "count", "生物数量：%d｜缸等级：%d" % [livestock_count, int(livestock_debug.get("tank_level", 1))])
 	_set_line("livestock", "capacity", "容量：%.1f/%.1f｜状态：%s" % [capacity_used, max_capacity, capacity_status])
 	_set_line("livestock", "value", "缸价值：%.1f｜基础收益：%.2f/h" % [reef_value, base_income])
-	_set_line("livestock", "points", "Reef Points：%.1f" % [reef_points])
+	_set_line("livestock", "points", "资源：RP %.0f｜收益 %.2f/h｜容量 %.1f/%.1f" % [reef_points, income_rate, capacity_used, max_capacity])
 	_set_line("livestock", "income", "有效收益：%.2f/h｜水质倍率：%.2f" % [effective_income, water_quality_mult])
 	_set_line("livestock", "modifiers", "健康系数：%.2f｜实际收益：%.2f/h" % [health_modifier, income_rate])
 
@@ -308,7 +308,7 @@ func _set_default_text() -> void:
 	_set_line("livestock", "count", "生物数量：6｜缸等级：1")
 	_set_line("livestock", "capacity", "容量：18.0/30.0｜状态：正常")
 	_set_line("livestock", "value", "缸价值：59.0｜基础收益：2.36/h")
-	_set_line("livestock", "points", "Reef Points：0.0")
+	_set_line("livestock", "points", "资源：RP 0｜收益 0.00/h｜容量 18.0/30.0")
 	_set_line("livestock", "income", "有效收益：2.36/h｜水质倍率：1.00")
 	_set_line("livestock", "modifiers", "健康系数：1.00｜实际收益：2.36/h")
 	_set_line("dynamic", "simulation", "模拟：自动运行中｜倍率：1秒=10分钟")
