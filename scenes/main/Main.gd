@@ -271,10 +271,11 @@ func _add_water_maintenance_controls(bar_row: HBoxContainer) -> void:
 			continue
 		var action: Dictionary = raw_action
 		var action_id: String = String(action.get("id", ""))
+		var action_cost: float = float(action.get("cost", 0.0))
 		var button: Button = Button.new()
-		button.text = String(action.get("short_label", action.get("label", action_id)))
+		button.text = "%s $%.0f" % [String(action.get("short_label", action.get("label", action_id))), action_cost]
 		button.tooltip_text = String(action.get("description", ""))
-		button.custom_minimum_size = Vector2(54, 30)
+		button.custom_minimum_size = Vector2(72, 30)
 		button.add_theme_font_size_override("font_size", 11)
 		button.pressed.connect(_on_water_maintenance_pressed.bind(action_id))
 		bar_row.add_child(button)
@@ -296,15 +297,15 @@ func _on_water_maintenance_pressed(action_id: String) -> void:
 	_update_status_labels()
 	if bool(result.get("success", false)):
 		var label: String = String(result.get("label", action_id))
-		var delta_summary: String = String(result.get("delta_summary", ""))
+		var delta_summary: String = String(result.get("summary", result.get("delta_summary", "")))
 		if maintenance_feedback_label != null:
-			maintenance_feedback_label.text = "%s｜%s" % [label, delta_summary]
+			maintenance_feedback_label.text = delta_summary
 		if panel_status_label != null:
 			panel_status_label.text = "水质维护完成：" + label
 	else:
-		var error_text: String = String(result.get("error", "unknown"))
+		var error_text: String = String(result.get("summary", result.get("error", "unknown")))
 		if maintenance_feedback_label != null:
-			maintenance_feedback_label.text = "维护失败：" + error_text
+			maintenance_feedback_label.text = error_text
 		if panel_status_label != null:
 			panel_status_label.text = "水质维护失败：" + error_text
 

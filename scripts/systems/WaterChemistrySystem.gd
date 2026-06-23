@@ -197,6 +197,12 @@ func get_maintenance_actions() -> Array:
 			"short_label": "补水",
 			"description": "把盐度向目标值拉回，顺手稳定温度。",
 		},
+		{
+			"id": "travel_prep",
+			"label": "出门维护",
+			"short_label": "出门维护",
+			"description": "高成本维护，显著把水质参数拉回目标值。",
+		},
 	]
 
 
@@ -235,6 +241,16 @@ func apply_maintenance_action(action_id: String) -> Dictionary:
 			salinity = _blend_toward(salinity, TARGET_SALINITY, 0.45)
 			temperature = _blend_toward(temperature, TARGET_TEMPERATURE, 0.12)
 			result_text = "补水完成"
+		"travel_prep":
+			label = "出门维护"
+			temperature = _blend_toward(temperature, TARGET_TEMPERATURE, 0.40)
+			salinity = _blend_toward(salinity, TARGET_SALINITY, 0.55)
+			ph = _blend_toward(ph, TARGET_PH, 0.40)
+			nitrate = _blend_toward(nitrate, TARGET_NITRATE, 0.60)
+			phosphate = _blend_toward(phosphate, TARGET_PHOSPHATE, 0.60)
+			alkalinity = _blend_toward(alkalinity, TARGET_ALKALINITY, 0.40)
+			calcium = _blend_toward(calcium, TARGET_CALCIUM, 0.35)
+			result_text = "出门维护完成"
 		_:
 			return {
 				"success": false,
@@ -447,4 +463,6 @@ func _format_maintenance_delta_summary(action_id: String, result_text: String, b
 			return "%s｜%s｜NO3%+.2f｜风险：无" % [result_text, ph_text, nitrate_delta]
 		"top_off":
 			return "%s｜%s｜盐%+.1f｜风险：无" % [result_text, ph_text, delta_salinity]
+		"travel_prep":
+			return "%s｜%s｜NO3%+.2f｜风险：无" % [result_text, ph_text, nitrate_delta]
 	return "%s｜%s" % [result_text, ph_text]

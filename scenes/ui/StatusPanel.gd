@@ -70,12 +70,16 @@ func update_water_chemistry_debug(water_debug: Dictionary) -> void:
 	var elapsed_game_minutes: int = int(water_debug.get("elapsed_game_minutes", 0))
 	var maintenance_label: String = String(water_debug.get("last_maintenance_action_label", "无"))
 	var maintenance_delta: String = String(water_debug.get("last_maintenance_delta_summary", "维护：无"))
+	var maintenance_runtime_summary: String = String(water_debug.get("last_maintenance_runtime_summary", ""))
 
 	_set_line("water", "summary", "水质状态：%s｜水质评分 %.1f" % [localized_status, water_quality_score])
 	_set_line("water", "readings_core", "当前：温 %.1f℃｜盐 %.1f｜pH %.2f" % [temperature, salinity, ph])
 	_set_line("water", "readings_chemistry", "营养/矿物：NO3 %.2f｜PO4 %.3f｜KH %.1f｜Ca %.0f" % [nitrate, phosphate, alkalinity, calcium])
 	_update_water_deviation_summary(water_debug)
-	_set_line("water", "maintenance", "最近维护：%s｜%s" % [maintenance_label, maintenance_delta])
+	if maintenance_runtime_summary.is_empty() or maintenance_runtime_summary == "未维护":
+		_set_line("water", "maintenance", "最近维护：%s｜%s" % [maintenance_label, maintenance_delta])
+	else:
+		_set_line("water", "maintenance", "最近维护：" + maintenance_runtime_summary)
 	_set_line("dynamic", "simulation", "模拟：自动运行中｜倍率：1秒=10分钟")
 	_set_line("dynamic", "time_tick", "时间：%s｜更新：第%d次" % [_format_game_time(elapsed_game_minutes), chemistry_tick_count])
 

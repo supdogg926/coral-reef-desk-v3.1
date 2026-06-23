@@ -71,6 +71,37 @@ func _run() -> void:
 
 	var bad_result: Dictionary = water.apply_maintenance_action("bad_action")
 	_assert(not bool(bad_result.get("success", true)), "unknown maintenance action fails")
+
+	var game_state: GameState = _make_test_game_state(100.0)
+	game_state.water_chemistry_system.ph = 7.86
+	game_state.water_chemistry_system.nitrate = 14.0
+	game_state.water_chemistry_system.phosphate = 0.18
+	var before_rp: float = game_state.economy_system.get_reef_points()
+	var water_change_result: Dictionary = game_state.apply_water_maintenance_action("water_change_10")
+	_assert(bool(water_change_result.get("success", false)), "GameState water_change_10 succeeds with budget")
+	_assert(is_equal_approx(game_state.economy_system.get_reef_points(), before_rp - 20.0), "GameState water_change_10 consumes cost")
+	_assert(float(water_change_result.get("cost", 0.0)) == 20.0, "GameState water_change_10 returns cost")
+	_assert(String(water_change_result.get("summary", "")).contains("消耗"), "GameState water_change_10 summary includes cost")
+
+	var repeat_result: Dictionary = game_state.apply_water_maintenance_action("water_change_10")
+	_assert(not bool(repeat_result.get("success", true)), "GameState water_change_10 immediate repeat is blocked")
+	_assert(String(repeat_result.get("reason", "")) == "cooldown", "GameState repeat failure reason is cooldown")
+	_assert(float(repeat_result.get("remaining_cooldown", 0.0)) > 0.0, "GameState cooldown returns remaining seconds")
+
+	var before_buffer_ph: float = game_state.water_chemistry_system.ph
+	var before_buffer_kh: float = game_state.water_chemistry_system.alkalinity
+	var buffer_result: Dictionary = game_state.apply_water_maintenance_action("dose_buffer")
+	_assert(bool(buffer_result.get("success", false)), "GameState dose_buffer succeeds with budget")
+	_assert(game_state.water_chemistry_system.alkalinity > before_buffer_kh or _is_closer_to_target(game_state.water_chemistry_system.ph, before_buffer_ph, 8.20), "GameState dose_buffer changes KH or pH")
+
+	var no_budget_state: GameState = _make_test_game_state(0.0)
+	no_budget_state.water_chemistry_system.salinity = 37.2
+	var before_no_budget_salinity: float = no_budget_state.water_chemistry_system.salinity
+	var no_budget_result: Dictionary = no_budget_state.apply_water_maintenance_action("top_off")
+	_assert(not bool(no_budget_result.get("success", true)), "GameState maintenance fails without budget")
+	_assert(String(no_budget_result.get("reason", "")) == "insufficient_funds", "GameState no-budget failure reason is insufficient funds")
+	_assert(is_equal_approx(no_budget_state.water_chemistry_system.salinity, before_no_budget_salinity), "GameState no-budget failure does not change water")
+	_assert(no_budget_state.save_system == null, "GameState maintenance test does not touch SaveSystem")
 	_print_results()
 
 
@@ -93,3 +124,13 @@ func _print_results() -> void:
 
 func _is_closer_to_target(after_value: float, before_value: float, target: float) -> bool:
 	return abs(after_value - target) < abs(before_value - target)
+
+
+func _make_test_game_state(starting_reef_points: float) -> GameState:
+	var game_state: GameState = GameState.new()
+	game_state.economy_system = EconomySystem.new()
+	game_state.economy_system.initialize()
+	game_state.economy_system.add_reef_points(starting_reef_points)
+	game_state.water_chemistry_system = WaterChemistrySystem.new()
+	game_state.water_chemistry_system.initialize()
+	return game_state
