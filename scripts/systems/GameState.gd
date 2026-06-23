@@ -245,6 +245,8 @@ func set_device_enabled(device_id: String, enabled: bool) -> Dictionary:
 	result["income_effect"] = float(effect_summary.get("income_effect", 0.0))
 	result["water_quality_effect"] = float(effect_summary.get("water_quality_effect", 0.0))
 	result["stability_effect"] = float(effect_summary.get("stability_effect", 0.0))
+	result["device_nitrate_drift_per_day"] = float(effect_summary.get("device_nitrate_drift_per_day", 0.0))
+	result["device_phosphate_drift_per_day"] = float(effect_summary.get("device_phosphate_drift_per_day", 0.0))
 	return result
 
 
@@ -295,9 +297,10 @@ func get_device_effect_summary() -> Dictionary:
 	var risk_message: String = "无"
 	if not risks.is_empty():
 		risk_message = _join_device_risks(risks)
+	var clamped_income_multiplier: float = clamp(income_multiplier, 0.10, 1.0)
 	return {
 		"income_multiplier": clamp(income_multiplier, 0.10, 1.0),
-		"income_effect": clamp(income_multiplier, 0.10, 1.0) - 1.0,
+		"income_effect": clamped_income_multiplier - 1.0,
 		"stability_effect": stability_effect,
 		"water_quality_effect": water_quality_effect,
 		"device_water_quality_penalty": device_water_quality_penalty,
@@ -305,7 +308,13 @@ func get_device_effect_summary() -> Dictionary:
 		"device_phosphate_drift_per_day": phosphate_drift_per_day,
 		"risk_message": risk_message,
 		"risk_messages": risks.duplicate(),
-		"summary": "收益 x%.2f｜稳定 %+.0f｜水质 %+.0f" % [clamp(income_multiplier, 0.10, 1.0), stability_effect, water_quality_effect],
+		"summary": _format_device_effect_summary(
+			clamped_income_multiplier,
+			stability_effect,
+			water_quality_effect,
+			nitrate_drift_per_day,
+			phosphate_drift_per_day
+		),
 	}
 
 
@@ -470,6 +479,16 @@ func _join_device_risks(risks: Array[String]) -> String:
 			text += "；"
 		text += risk
 	return text
+
+
+func _format_device_effect_summary(income_multiplier: float, stability_effect: float, water_quality_effect: float, nitrate_drift_per_day: float, phosphate_drift_per_day: float) -> String:
+	return "收益倍率 x%.2f｜稳定分 %+.0f｜水质评分 %+.0f｜NO3 %+.2f/日｜PO4 %+.3f/日" % [
+		income_multiplier,
+		stability_effect,
+		water_quality_effect,
+		nitrate_drift_per_day,
+		phosphate_drift_per_day,
+	]
 
 
 func get_livestock_debug_state() -> Dictionary:

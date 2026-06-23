@@ -129,8 +129,13 @@ func _run() -> void:
 	_assert(not bool(return_pump_result.get("enabled", true)), "Device return pump toggles OFF")
 	var return_pump_effects: Dictionary = game_state.get_device_effect_summary()
 	_assert(String(return_pump_effects.get("risk_message", "")).contains("过滤"), "Device return pump OFF reports filtration risk")
+	_assert(String(return_pump_effects.get("summary", "")).contains("水质评分"), "Device effect summary names water quality score")
+	_assert(String(return_pump_effects.get("summary", "")).contains("NO3"), "Device effect summary includes nitrate drift")
+	_assert(String(return_pump_effects.get("summary", "")).contains("PO4"), "Device effect summary includes phosphate drift")
 	_assert(float(return_pump_effects.get("device_water_quality_penalty", 0.0)) > 0.0, "Device return pump OFF applies water quality penalty")
 	_assert(float(return_pump_effects.get("device_nitrate_drift_per_day", 0.0)) > 0.0, "Device return pump OFF worsens nitrate drift")
+	_assert(return_pump_result.has("device_nitrate_drift_per_day"), "Device toggle result exposes nitrate drift")
+	_assert(return_pump_result.has("device_phosphate_drift_per_day"), "Device toggle result exposes phosphate drift")
 
 	var main_light_result: Dictionary = game_state.toggle_device("main_light")
 	_assert(bool(main_light_result.get("success", false)), "Device main light toggle succeeds")

@@ -311,7 +311,16 @@ func _format_device_state_line(device_state: Dictionary, device_effect: Dictiona
 	var income_multiplier: float = float(device_effect.get("income_multiplier", 1.0))
 	var stability_effect: float = float(device_effect.get("stability_effect", 0.0))
 	var water_quality_effect: float = float(device_effect.get("water_quality_effect", 0.0))
-	return "设备：%s｜收益 x%.2f｜稳%+.0f｜水%+.0f" % [_join_short_parts(parts), income_multiplier, stability_effect, water_quality_effect]
+	var nitrate_drift: float = float(device_effect.get("device_nitrate_drift_per_day", 0.0))
+	var phosphate_drift: float = float(device_effect.get("device_phosphate_drift_per_day", 0.0))
+	return "设备：%s｜收益倍率 x%.2f｜稳定分 %+.0f｜水质评分 %+.0f｜NO3 %+.2f/日｜PO4 %+.3f/日" % [
+		_join_short_parts(parts),
+		income_multiplier,
+		stability_effect,
+		water_quality_effect,
+		nitrate_drift,
+		phosphate_drift,
+	]
 
 
 func _join_short_parts(parts: Array[String]) -> String:
@@ -336,7 +345,7 @@ func _set_default_text() -> void:
 	_set_line("water", "maintenance", "最近维护：无｜维护：无")
 	_set_line("system", "tier", "初级设备 7/7｜稳定度 92.0")
 	_set_line("system", "capacity", "承载力 27.0｜维护负担 12.0")
-	_set_line("system", "plumbing", "设备：水泵ON｜造浪ON｜主灯ON｜收益 x1.00")
+	_set_line("system", "plumbing", "设备：水泵ON｜造浪ON｜主灯ON｜收益倍率 x1.00｜稳定分 +0｜水质评分 +0")
 	_set_line("system", "reserved", "设备风险：无｜预留T2 4/T3 5")
 	_set_line("livestock", "count", "生物数量：6｜缸等级：1")
 	_set_line("livestock", "capacity", "容量：18.0/30.0｜状态：正常")

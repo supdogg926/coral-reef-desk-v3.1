@@ -9,6 +9,7 @@ var shop_btn: Button = null
 var livestock_btn: Button = null
 var panel_status_label: Label = null
 var maintenance_feedback_label: Label = null
+var maintenance_balance_label: Label = null
 var maintenance_buttons: Dictionary = {}
 var maintenance_button_base_texts: Dictionary = {}
 var maintenance_button_costs: Dictionary = {}
@@ -278,6 +279,7 @@ func _add_water_maintenance_controls(bar_row: HBoxContainer) -> void:
 	maintenance_buttons.clear()
 	maintenance_button_base_texts.clear()
 	maintenance_button_costs.clear()
+	maintenance_balance_label = null
 	var separator: VSeparator = VSeparator.new()
 	separator.custom_minimum_size = Vector2(4, 24)
 	bar_row.add_child(separator)
@@ -289,6 +291,14 @@ func _add_water_maintenance_controls(bar_row: HBoxContainer) -> void:
 	title_label.add_theme_font_size_override("font_size", 11)
 	title_label.add_theme_color_override("font_color", Color(0.74, 0.86, 0.88))
 	bar_row.add_child(title_label)
+
+	maintenance_balance_label = Label.new()
+	maintenance_balance_label.text = "RP 0"
+	maintenance_balance_label.custom_minimum_size = Vector2(62, 24)
+	maintenance_balance_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	maintenance_balance_label.add_theme_font_size_override("font_size", 11)
+	maintenance_balance_label.add_theme_color_override("font_color", Color(0.90, 0.86, 0.62))
+	bar_row.add_child(maintenance_balance_label)
 
 	for raw_action in game_state.get_water_maintenance_actions():
 		if not raw_action is Dictionary:
@@ -356,6 +366,7 @@ func _on_water_maintenance_pressed(action_id: String) -> void:
 	var result: Dictionary = game_state.apply_water_maintenance_action(action_id)
 	_update_status_labels()
 	_update_maintenance_button_states()
+	_update_maintenance_balance_label()
 	if bool(result.get("success", false)):
 		var label: String = String(result.get("label", action_id))
 		var delta_summary: String = String(result.get("summary", result.get("delta_summary", "")))
@@ -374,6 +385,7 @@ func _on_water_maintenance_pressed(action_id: String) -> void:
 func _update_maintenance_button_states() -> void:
 	if game_state == null:
 		return
+	_update_maintenance_balance_label()
 	for action_id in maintenance_buttons.keys():
 		var raw_button: Variant = maintenance_buttons.get(action_id, null)
 		if not raw_button is Button:
@@ -392,6 +404,15 @@ func _update_maintenance_button_states() -> void:
 		else:
 			button.disabled = false
 			button.text = base_text
+
+
+func _update_maintenance_balance_label() -> void:
+	if maintenance_balance_label == null or game_state == null:
+		return
+	var balance: float = 0.0
+	if game_state.economy_system != null:
+		balance = game_state.economy_system.get_reef_points()
+	maintenance_balance_label.text = "RP %.0f" % balance
 
 
 func _on_device_pressed(device_id: String) -> void:
