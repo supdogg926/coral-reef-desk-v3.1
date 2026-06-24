@@ -86,6 +86,7 @@ func _setup_panels() -> void:
 	shop_panel.hide()
 	add_child(shop_panel)
 	shop_panel.setup(game_state)
+	shop_panel.purchase_completed.connect(_on_shop_purchase)
 
 	livestock_panel = LivestockPanel.new()
 	livestock_panel.hide()

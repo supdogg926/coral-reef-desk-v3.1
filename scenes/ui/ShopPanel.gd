@@ -1,6 +1,8 @@
 class_name ShopPanel
 extends PanelContainer
 
+signal purchase_completed()
+
 var game_state: GameState = null
 var status_label: Label = null
 var item_list: VBoxContainer = null
@@ -177,6 +179,7 @@ func _on_buy_timer_timeout() -> void:
 			float(result.get("max_capacity", 30.0)),
 		]
 		status_label.add_theme_color_override("font_color", Color(0.50, 0.90, 0.55))
+		purchase_completed.emit()
 		print("[BUY] status updated, success")
 	else:
 		var err: String = String(result.get("error", "unknown"))

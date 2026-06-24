@@ -146,11 +146,6 @@ func update_livestock_economy_debug(livestock_debug: Dictionary, economy_debug: 
 	_set_status_line("livestock", "reserve_metric", "\u2014", STATUS_IDLE_COLOR)
 	_set_status_line("livestock", "algae_count", "0", STATUS_IDLE_COLOR)
 	_set_status_line("livestock", "reserve_2", "\u2014", STATUS_IDLE_COLOR)
-	_set_status_line("livestock", "reserve_3", "\u2014", STATUS_IDLE_COLOR)
-	_set_status_line("livestock", "reserve_4", "\u2014", STATUS_IDLE_COLOR)
-	_set_status_line("livestock", "reserve_2", "\u2014", STATUS_IDLE_COLOR)
-	_set_status_line("livestock", "reserve_3", "\u2014", STATUS_IDLE_COLOR)
-	_set_status_line("livestock", "reserve_4", "\u2014", STATUS_IDLE_COLOR)
 
 
 func update_unlock_debug(unlock_debug: Dictionary) -> void:
@@ -313,37 +308,41 @@ func _create_timeline_section(parent: Control) -> void:
 	scroll_vbox.add_theme_constant_override("separation", 1)
 	scroll_vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	scroll.add_child(scroll_vbox)
-	for i in range(13):
-		var label: Label = _make_label("", 8, false)
-		label.add_theme_color_override("font_color", Color(0.60, 0.66, 0.66))
-		scroll_vbox.add_child(label)
-		timeline_labels.append(label)
+	dock_control_slots["timeline_scroll_vbox"] = scroll_vbox
 
 
 
 func update_timeline(entries: Array) -> void:
-		if timeline_labels.is_empty():
+		var scroll_vbox: Control = dock_control_slots.get("timeline_scroll_vbox", null)
+		if scroll_vbox == null:
 			return
-		var total: int = entries.size()
-		if total == 0:
-			# Show placeholder, hide rest
+		# Sync label count with entries (up to 50)
+		var target_count: int = clampi(entries.size(), 0, 50)
+		if target_count == 0:
+			target_count = 1  # placeholder label
+		# Add or remove labels to match target_count
+		while timeline_labels.size() < target_count:
+			var label: Label = _make_label("", 8, false)
+			label.add_theme_color_override("font_color", Color(0.60, 0.66, 0.66))
+			scroll_vbox.add_child(label)
+			timeline_labels.append(label)
+		while timeline_labels.size() > target_count:
+			var last: Label = timeline_labels.pop_back()
+			scroll_vbox.remove_child(last)
+			last.queue_free()
+		# Fill labels with entry data
+		if entries.is_empty():
 			timeline_labels[0].text = "暂无事件"
 			timeline_labels[0].add_theme_color_override("font_color", Color(0.50, 0.56, 0.56))
-			timeline_labels[0].visible = true
-			for i in range(1, timeline_labels.size()):
-				timeline_labels[i].visible = false
 			return
-		var show_count: int = min(total, timeline_labels.size())
-		for i in range(show_count):
-			var idx: int = total - show_count + i
-			var raw_entry: Variant = entries[idx]
+		var start_idx: int = max(entries.size() - timeline_labels.size(), 0)
+		for i in range(timeline_labels.size()):
+			var entry_idx: int = start_idx + i
+			var raw_entry: Variant = entries[entry_idx]
 			if raw_entry is Dictionary:
 				timeline_labels[i].text = String(raw_entry.get("text", ""))
 				var entry_color: Color = raw_entry.get("color", Color(0.60, 0.66, 0.66))
 				timeline_labels[i].add_theme_color_override("font_color", entry_color)
-			timeline_labels[i].visible = true
-		for i in range(show_count, timeline_labels.size()):
-			timeline_labels[i].visible = false
 
 func _create_section(parent: Control, section_id: String, title_text: String, stretch_ratio: float, line_ids: Array[String]) -> void:
 	var box: VBoxContainer = _create_card(parent, section_id, title_text, stretch_ratio)
@@ -467,14 +466,10 @@ func _create_core_status_section(parent: Control) -> void:
 	water_lines["phosphate"] = _create_secondary_tile(secondary_grid, "PO4")
 	water_lines["water_flow"] = _create_secondary_tile(secondary_grid, "水流")
 	water_lines["filter_efficiency"] = _create_secondary_tile(secondary_grid, "过滤")
-	livestock_lines["reserve_2"] = _create_secondary_tile(secondary_grid, "预留")
-	livestock_lines["reserve_3"] = _create_secondary_tile(secondary_grid, "预留")
-	livestock_lines["reserve_4"] = _create_secondary_tile(secondary_grid, "预留")
 	livestock_lines["coral_count"] = _create_secondary_tile(secondary_grid, "珊瑚")
 	livestock_lines["fish_count"] = _create_secondary_tile(secondary_grid, "鱼")
 	livestock_lines["crustacean_count"] = _create_secondary_tile(secondary_grid, "甲壳")
 	livestock_lines["algae_count"] = _create_secondary_tile(secondary_grid, "藻类")
-	livestock_lines["reserve_4"] = _create_secondary_tile(secondary_grid, "预留")
 
 	section_labels["status"] = status_lines
 
@@ -938,9 +933,6 @@ func _set_default_text() -> void:
 	_set_status_line("livestock", "crustacean_count", "0", STATUS_IDLE_COLOR)
 	_set_status_line("livestock", "reserve_metric", "\u2014", STATUS_IDLE_COLOR)
 	_set_status_line("livestock", "algae_count", "0", STATUS_IDLE_COLOR)
-	_set_status_line("livestock", "reserve_2", "\u2014", STATUS_IDLE_COLOR)
-	_set_status_line("livestock", "reserve_3", "\u2014", STATUS_IDLE_COLOR)
-	_set_status_line("livestock", "reserve_4", "\u2014", STATUS_IDLE_COLOR)
 	_set_line("livestock", "secondary", "倍率 水质1.00｜舒适1.10｜健康1.00")
 	_set_line("livestock", "value", "缸价值 59.0｜状态 正常")
 	_set_status_line("operations", "device_filter", "100%", STATUS_OK_COLOR)
