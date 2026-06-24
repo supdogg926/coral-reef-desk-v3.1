@@ -301,7 +301,7 @@ func _build_status_layout() -> void:
 
 func _create_timeline_section(parent: Control) -> void:
 	timeline_labels.clear()
-	var box: VBoxContainer = _create_card(parent, "timeline", "时间线", 1.80)
+	var box: VBoxContainer = _create_card(parent, "timeline", "时间线", 1.30)
 	_add_title_label(box, "时间线")
 	var scroll: ScrollContainer = ScrollContainer.new()
 	scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -313,7 +313,7 @@ func _create_timeline_section(parent: Control) -> void:
 	scroll_vbox.add_theme_constant_override("separation", 1)
 	scroll_vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	scroll.add_child(scroll_vbox)
-	for i in range(50):
+	for i in range(13):
 		var label: Label = _make_label("", 8, false)
 		label.add_theme_color_override("font_color", Color(0.60, 0.66, 0.66))
 		scroll_vbox.add_child(label)
@@ -322,27 +322,28 @@ func _create_timeline_section(parent: Control) -> void:
 
 
 func update_timeline(entries: Array) -> void:
-	if timeline_labels.is_empty():
-		return
-	var total: int = min(entries.size(), timeline_labels.size())
-	for i in range(timeline_labels.size()):
-		if i < total:
-			var raw_entry: Variant = entries[entries.size() - total + i]
+		if timeline_labels.is_empty():
+			return
+		var total: int = entries.size()
+		if total == 0:
+			# Show placeholder, hide rest
+			timeline_labels[0].text = "暂无事件"
+			timeline_labels[0].add_theme_color_override("font_color", Color(0.50, 0.56, 0.56))
+			timeline_labels[0].visible = true
+			for i in range(1, timeline_labels.size()):
+				timeline_labels[i].visible = false
+			return
+		var show_count: int = min(total, timeline_labels.size())
+		for i in range(show_count):
+			var idx: int = total - show_count + i
+			var raw_entry: Variant = entries[idx]
 			if raw_entry is Dictionary:
 				timeline_labels[i].text = String(raw_entry.get("text", ""))
 				var entry_color: Color = raw_entry.get("color", Color(0.60, 0.66, 0.66))
 				timeline_labels[i].add_theme_color_override("font_color", entry_color)
 			timeline_labels[i].visible = true
-		else:
-			timeline_labels[i].text = ""
-			timeline_labels[i].visible = true
-	# Auto-scroll to latest entries
-	if total > 0:
-		var scroll_parent: Variant = timeline_labels[total - 1].get_parent()
-		if scroll_parent != null and scroll_parent is Control:
-			var grandparent: Variant = scroll_parent.get_parent()
-			if grandparent is ScrollContainer:
-				grandparent.scroll_vertical = grandparent.get_v_scroll_bar().max_value
+		for i in range(show_count, timeline_labels.size()):
+			timeline_labels[i].visible = false
 
 func _create_section(parent: Control, section_id: String, title_text: String, stretch_ratio: float, line_ids: Array[String]) -> void:
 	var box: VBoxContainer = _create_card(parent, section_id, title_text, stretch_ratio)

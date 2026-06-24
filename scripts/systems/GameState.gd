@@ -1033,6 +1033,10 @@ func buy_livestock_from_shop(shop_id: String) -> Dictionary:
 	print("[BUY] gs.buy setting pending save flag")
 	_pending_save_after_purchase = true
 	_purchase_save_timer = 0.0
+	if action_timeline != null:
+		var bname: String = String(purchase_entry.get("species_name", ""))
+		if not bname.is_empty():
+			_timeline_log_player("购买 " + bname, ActionTimeline.COLOR_PLAYER)
 	print("[BUY] gs.buy about to return success")
 	return {
 		"success": true,
@@ -1065,6 +1069,10 @@ func release_owned_livestock(livestock_id: String) -> Dictionary:
 	reef_points = economy_system.get_reef_points()
 	_pending_save_after_livestock_change = true
 	_livestock_change_save_timer = 0.0
+	if action_timeline != null:
+		var rname: String = String(result.get("species_name", ""))
+		if not rname.is_empty():
+			_timeline_log_player("带回家 " + rname, ActionTimeline.COLOR_PLAYER)
 	print("[M11 PROTOTYPE] release success name=", result.get("species_name", ""), " count=", result.get("new_count", 0))
 	return result
 
