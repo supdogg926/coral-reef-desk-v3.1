@@ -521,7 +521,7 @@ func configure_dock_controls(maintenance_actions: Array, feeding_actions: Array,
 
 		# RP capsule — same visual language as secondary tiles
 		var rp_panel: PanelContainer = PanelContainer.new()
-		rp_panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		rp_panel.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 		rp_panel.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 		rp_panel.add_theme_stylebox_override("panel", _make_panel_style(Color(0.11, 0.123, 0.132), Color(0.18, 0.21, 0.22), 3))
 		system_parent.add_child(rp_panel)
