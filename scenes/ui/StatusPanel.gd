@@ -97,23 +97,31 @@ func update_water_chemistry_debug(water_debug: Dictionary) -> void:
 
 func update_livestock_economy_debug(livestock_debug: Dictionary, economy_debug: Dictionary) -> void:
 	var livestock_count: int = int(livestock_debug.get("livestock_count", 0))
+	var fish_count: int = int(livestock_debug.get("fish_count", 0))
+	var coral_count: int = int(livestock_debug.get("coral_count", 0))
 	var capacity_used: float = float(livestock_debug.get("capacity_used", 0.0))
 	var max_capacity: float = float(livestock_debug.get("max_capacity", 30.0))
 	var capacity_status: String = _localize_capacity_status(String(livestock_debug.get("capacity_status", "normal")))
 	var health_modifier: float = float(livestock_debug.get("health_modifier", 0.0))
 	var water_quality_mult: float = float(livestock_debug.get("water_quality_multiplier", 1.0))
+	var bio_load: float = float(livestock_debug.get("bio_load", capacity_used))
+	var system_capacity: float = float(livestock_debug.get("system_capacity", max_capacity))
+	var comfort_score: float = float(livestock_debug.get("comfort_score", 100.0))
+	var comfort_status: String = String(livestock_debug.get("comfort_status", "良好"))
+	var revenue_multiplier: float = float(livestock_debug.get("revenue_multiplier", 1.0))
+	var current_rp_per_tick: float = float(livestock_debug.get("current_rp_per_tick", 0.0))
 	var base_income: float = float(livestock_debug.get("total_base_income_per_hour", 0.0))
 	var effective_income: float = float(livestock_debug.get("total_effective_income_per_hour", 0.0))
 	var reef_value: float = float(economy_debug.get("reef_value", livestock_debug.get("reef_value", 0.0)))
 	var reef_points: float = float(economy_debug.get("reef_points", 0.0))
 	var income_rate: float = float(economy_debug.get("income_rate_per_game_hour", livestock_debug.get("income_rate_per_game_hour", 0.0)))
 
-	_set_line("livestock", "count", "生物数量：%d｜缸等级：%d" % [livestock_count, int(livestock_debug.get("tank_level", 1))])
-	_set_line("livestock", "capacity", "容量：%.1f/%.1f｜状态：%s" % [capacity_used, max_capacity, capacity_status])
+	_set_line("livestock", "count", "生物数量：%d｜鱼%d｜珊瑚%d｜缸等级：%d" % [livestock_count, fish_count, coral_count, int(livestock_debug.get("tank_level", 1))])
+	_set_line("livestock", "capacity", "生物负载：%.1f｜系统容量：%.1f｜槽位 %.1f/%.1f" % [bio_load, system_capacity, capacity_used, max_capacity])
 	_set_line("livestock", "value", "缸价值：%.1f｜基础收益：%.2f/h" % [reef_value, base_income])
-	_set_line("livestock", "points", "资源：RP %.0f｜收益 %.2f/h｜容量 %.1f/%.1f" % [reef_points, income_rate, capacity_used, max_capacity])
-	_set_line("livestock", "income", "有效收益：%.2f/h｜水质倍率：%.2f" % [effective_income, water_quality_mult])
-	_set_line("livestock", "modifiers", "健康系数：%.2f｜实际收益：%.2f/h" % [health_modifier, income_rate])
+	_set_line("livestock", "points", "资源：RP %.0f｜当前RP产出 %.5f/tick｜收益 %.2f/h" % [reef_points, current_rp_per_tick, income_rate])
+	_set_line("livestock", "income", "舒适度：%.0f/100 %s｜收益倍率：%.2fx｜水质倍率：%.2f" % [comfort_score, comfort_status, revenue_multiplier, water_quality_mult])
+	_set_line("livestock", "modifiers", "状态：%s｜健康系数：%.2f｜修正后收益：%.2f/h" % [capacity_status, health_modifier, effective_income])
 
 
 func update_unlock_debug(unlock_debug: Dictionary) -> void:
@@ -148,6 +156,9 @@ func update_delta_debug(water_debug: Dictionary, delta_debug: Dictionary, econom
 	var effective_income: float = float(livestock_debug.get("total_effective_income_per_hour", 0.0))
 	var water_mult: float = float(livestock_debug.get("water_quality_multiplier", 1.0))
 	var health_mod: float = float(livestock_debug.get("health_modifier", 1.0))
+	var revenue_mult: float = float(livestock_debug.get("revenue_multiplier", 1.0))
+	var current_rp_per_tick: float = float(livestock_debug.get("current_rp_per_tick", 0.0))
+	var bio_feedback: String = String(livestock_debug.get("last_bio_load_feedback", "舒适度良好，收益维持正常"))
 
 	var sim_delta: float = float(water_debug.get("last_delta_seconds", 0.0))
 	var sim_delta_safe: float = max(sim_delta, 0.001)
@@ -176,13 +187,14 @@ func update_delta_debug(water_debug: Dictionary, delta_debug: Dictionary, econom
 		water_min_line = "水变：稳定｜等待首次水质更新"
 		water_hour_line = "水变：稳定｜%d次更新后显示" % tick_count
 
-	var econ_line_a: String = "结算：每秒+%.5f RP｜每小时+%.2f RP" % [rp_per_sec, income_rate]
-	var econ_line_b: String = "收益：基础%.2f/h｜有效%.2f/h｜倍率%.2f｜健康%.2f" % [base_income, effective_income, water_mult, health_mod]
+	var econ_line_a: String = "结算：每tick+%.5f RP｜每秒+%.5f RP｜每小时+%.2f RP" % [current_rp_per_tick, rp_per_sec, income_rate]
+	var econ_line_b: String = "收益：基础%.2f/h｜修正%.2f/h｜水质%.2f｜舒适%.2f｜健康%.2f" % [base_income, effective_income, water_mult, revenue_mult, health_mod]
 
 	_set_line("dynamic", "water_delta_a", water_min_line)
 	_set_line("dynamic", "water_delta_b", water_hour_line)
 	_set_line("dynamic", "economy_delta_a", econ_line_a)
 	_set_line("dynamic", "economy_delta_b", econ_line_b)
+	_set_line("dynamic", "bio_feedback", bio_feedback)
 
 
 func update_save_debug(save_debug: Dictionary, save_loaded: bool, offline_summary: Dictionary) -> void:
@@ -260,7 +272,7 @@ func _build_status_layout() -> void:
 	_create_section(row, "dynamic", "动态确认", 26, [
 		"simulation", "time_tick",
 		"water_delta_a", "water_delta_b",
-		"economy_delta_a", "economy_delta_b",
+		"economy_delta_a", "economy_delta_b", "bio_feedback",
 		"save_status", "save_offline",
 		"stage", "target", "progress",
 		"warehouse", "advanced",
@@ -381,18 +393,19 @@ func _set_default_text() -> void:
 	_set_line("system", "plumbing", "过滤效率 100%｜NO3 +0.00/日｜PO4 +0.000/日｜水质评分 +0")
 	_set_line("system", "comfort", "造浪ON：水流舒适度 100/100｜健康系数 1.00｜造浪影响 +0.00")
 	_set_line("system", "reserved", "光照收益 100%｜收益倍率 x1.00｜稳定 +0｜风险：无｜预留T2 4/T3 5")
-	_set_line("livestock", "count", "生物数量：6｜缸等级：1")
-	_set_line("livestock", "capacity", "容量：18.0/30.0｜状态：正常")
+	_set_line("livestock", "count", "生物数量：6｜鱼2｜珊瑚3｜缸等级：1")
+	_set_line("livestock", "capacity", "生物负载：23.4｜系统容量：39.2｜槽位 18.0/30.0")
 	_set_line("livestock", "value", "缸价值：59.0｜基础收益：2.36/h")
-	_set_line("livestock", "points", "资源：RP 0｜收益 0.00/h｜容量 18.0/30.0")
-	_set_line("livestock", "income", "有效收益：2.36/h｜水质倍率：1.00")
-	_set_line("livestock", "modifiers", "健康系数：1.00｜实际收益：2.36/h")
+	_set_line("livestock", "points", "资源：RP 0｜当前RP产出 0.00000/tick｜收益 0.00/h")
+	_set_line("livestock", "income", "舒适度：100/100 优秀｜收益倍率：1.10x｜水质倍率：1.00")
+	_set_line("livestock", "modifiers", "状态：正常｜健康系数：1.00｜修正后收益：2.60/h")
 	_set_line("dynamic", "simulation", "模拟：自动运行中｜倍率：1秒=10分钟")
 	_set_line("dynamic", "time_tick", "时间：第1天 00:00｜更新：第0次")
 	_set_line("dynamic", "water_delta_a", "水变/min：等待首次更新...")
 	_set_line("dynamic", "water_delta_b", "水变/h：等待首次更新...")
-	_set_line("dynamic", "economy_delta_a", "结算：每秒+0.00000 RP｜每小时+0.00 RP")
-	_set_line("dynamic", "economy_delta_b", "收益：等待系统初始化...")
+	_set_line("dynamic", "economy_delta_a", "结算：每tick+0.00000 RP｜每秒+0.00000 RP｜每小时+0.00 RP")
+	_set_line("dynamic", "economy_delta_b", "收益：基础0.00/h｜修正0.00/h｜水质1.00｜舒适1.00｜健康1.00")
+	_set_line("dynamic", "bio_feedback", "舒适度良好，收益维持正常")
 	_set_line("dynamic", "save_status", "存档：新游戏｜自动存档：开启｜最近：--:--:--")
 	_set_line("dynamic", "save_offline", "离线：无")
 	_set_line("dynamic", "stage", "阶段：初级玩家")

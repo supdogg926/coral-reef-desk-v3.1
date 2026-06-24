@@ -16,6 +16,19 @@ var total_base_income_per_hour: float = 0.0
 var total_effective_income_per_hour: float = 0.0
 var water_quality_multiplier: float = 1.0
 var health_modifier: float = 1.0
+var fish_count: int = 0
+var coral_count: int = 0
+var other_livestock_count: int = 0
+var bio_load: float = 0.0
+var system_capacity: float = DEFAULT_MAX_CAPACITY
+var bio_load_ratio: float = 0.0
+var system_pressure: float = 0.0
+var comfort_score: float = 100.0
+var comfort_status: String = "良好"
+var revenue_multiplier: float = 1.0
+var current_rp_per_tick: float = 0.0
+var current_rp_per_second: float = 0.0
+var last_bio_load_feedback: String = "舒适度良好，收益维持正常"
 var load_errors: Array[String] = []
 
 const RARITY_MAP: Dictionary = {
@@ -48,6 +61,19 @@ func initialize() -> void:
 	total_effective_income_per_hour = 0.0
 	water_quality_multiplier = 1.0
 	health_modifier = 1.0
+	fish_count = 0
+	coral_count = 0
+	other_livestock_count = 0
+	bio_load = 0.0
+	system_capacity = DEFAULT_MAX_CAPACITY
+	bio_load_ratio = 0.0
+	system_pressure = 0.0
+	comfort_score = 100.0
+	comfort_status = "良好"
+	revenue_multiplier = 1.0
+	current_rp_per_tick = 0.0
+	current_rp_per_second = 0.0
+	last_bio_load_feedback = "舒适度良好，收益维持正常"
 	_load_starter_livestock()
 	_recalculate_capacity_and_income()
 	initialized = true
@@ -221,8 +247,45 @@ func calculate_income_rate(water_chemistry_state: Dictionary, equipment_multipli
 		base_income += individual_income * health_pct
 	total_base_income_per_hour = base_income
 	var eq_mult: float = max(equipment_multiplier, 0.5)
-	total_effective_income_per_hour = base_income * water_quality_multiplier * eq_mult
+	total_effective_income_per_hour = base_income * water_quality_multiplier * eq_mult * revenue_multiplier
 	return total_effective_income_per_hour
+
+
+func update_bio_load_metrics(context: Dictionary) -> void:
+	_recount_livestock_categories()
+	var water_quality_score: float = float(context.get("water_quality_score", 100.0))
+	var stability_score: float = float(context.get("stability_score", 50.0))
+	var carrying_capacity_score: float = float(context.get("carrying_capacity_score", max_capacity))
+	var current_maintenance_load: float = float(context.get("maintenance_load", 0.0))
+	var raw_device_effects: Variant = context.get("device_effects", {})
+	var device_effects: Dictionary = raw_device_effects if raw_device_effects is Dictionary else {}
+	var filter_efficiency: float = float(device_effects.get("filter_efficiency_percent", 100.0))
+	var flow_comfort: float = float(device_effects.get("flow_comfort_score", 100.0))
+	var maintenance_relief: float = _get_maintenance_relief(String(context.get("last_maintenance_action_id", "")))
+
+	bio_load = current_capacity_used + float(fish_count) * 1.5 + float(coral_count) * 0.8 + float(other_livestock_count)
+	system_capacity = max(max_capacity, carrying_capacity_score) + max(carrying_capacity_score - 10.0, 0.0) * 0.25
+	system_capacity += clamp(filter_efficiency, 0.0, 120.0) * 0.03
+	system_capacity += clamp(flow_comfort, 0.0, 120.0) * 0.02
+	system_capacity = max(system_capacity, 1.0)
+	bio_load_ratio = bio_load / system_capacity
+
+	var load_pressure: float = bio_load_ratio * 12.0 + max(bio_load_ratio - 0.65, 0.0) * 75.0
+	var water_pressure: float = max(100.0 - water_quality_score, 0.0) * 0.35
+	var device_relief: float = clamp(filter_efficiency, 0.0, 120.0) * 0.10 + clamp(flow_comfort, 0.0, 120.0) * 0.05
+	var stability_relief: float = max(stability_score - 50.0, 0.0) * 0.20
+	var water_quality_relief: float = max(water_quality_score - 85.0, 0.0) * 0.20
+	var headroom_relief: float = max(1.0 - bio_load_ratio, 0.0) * 6.0
+	system_pressure = clamp(load_pressure + water_pressure + current_maintenance_load * 0.4 - device_relief - stability_relief - water_quality_relief - headroom_relief - maintenance_relief, 0.0, 100.0)
+	comfort_score = clamp(100.0 - system_pressure, 0.0, 100.0)
+	comfort_status = _get_comfort_status(comfort_score)
+	revenue_multiplier = _get_revenue_multiplier_for_comfort(comfort_score)
+	last_bio_load_feedback = _build_bio_load_feedback()
+
+
+func set_runtime_income_result(income_rate_per_game_hour: float, delta_seconds: float) -> void:
+	current_rp_per_second = max(income_rate_per_game_hour, 0.0) / 3600.0
+	current_rp_per_tick = current_rp_per_second * max(delta_seconds, 0.0)
 
 
 func calculate_health_from_water(water_chemistry_state: Dictionary) -> float:
@@ -275,6 +338,7 @@ func _recalculate_capacity_and_income() -> void:
 		current_capacity_used += float(entry.get("tank_slot_cost", 0.0))
 		total_base_income_per_hour += float(entry.get("base_income_per_hour", 0.0))
 	capacity_status = get_capacity_status()
+	_recount_livestock_categories()
 
 
 func export_state() -> Dictionary:
@@ -310,6 +374,9 @@ func get_debug_state() -> Dictionary:
 		"system": "LivestockSystem",
 		"initialized": initialized,
 		"livestock_count": get_livestock_count(),
+		"fish_count": fish_count,
+		"coral_count": coral_count,
+		"other_livestock_count": other_livestock_count,
 		"capacity_used": current_capacity_used,
 		"max_capacity": max_capacity,
 		"capacity_status": capacity_status,
@@ -318,9 +385,84 @@ func get_debug_state() -> Dictionary:
 		"total_effective_income_per_hour": total_effective_income_per_hour,
 		"water_quality_multiplier": water_quality_multiplier,
 		"health_modifier": health_modifier,
+		"bio_load": bio_load,
+		"system_capacity": system_capacity,
+		"bio_load_ratio": bio_load_ratio,
+		"system_pressure": system_pressure,
+		"comfort_score": comfort_score,
+		"comfort_status": comfort_status,
+		"revenue_multiplier": revenue_multiplier,
+		"current_rp_per_tick": current_rp_per_tick,
+		"current_rp_per_second": current_rp_per_second,
+		"last_bio_load_feedback": last_bio_load_feedback,
 		"owned_livestock": owned_livestock.duplicate(true),
 		"load_errors": load_errors.duplicate(),
 	}
+
+
+func _recount_livestock_categories() -> void:
+	fish_count = 0
+	coral_count = 0
+	other_livestock_count = 0
+	for entry in owned_livestock:
+		if bool(entry.get("locked", false)):
+			continue
+		var category: String = String(entry.get("category", "")).to_lower()
+		if category == "fish":
+			fish_count += 1
+		elif category == "coral":
+			coral_count += 1
+		else:
+			other_livestock_count += 1
+
+
+func _get_maintenance_relief(action_id: String) -> float:
+	match action_id:
+		"water_change_10":
+			return 4.0
+		"clean_filter":
+			return 5.0
+		"dose_buffer":
+			return 2.0
+		"top_off":
+			return 2.0
+		"travel_prep":
+			return 8.0
+	return 0.0
+
+
+func _get_comfort_status(score: float) -> String:
+	if score >= 90.0:
+		return "优秀"
+	if score >= 75.0:
+		return "良好"
+	if score >= 60.0:
+		return "中等"
+	if score >= 40.0:
+		return "偏低"
+	return "危险"
+
+
+func _get_revenue_multiplier_for_comfort(score: float) -> float:
+	if score >= 90.0:
+		return 1.10
+	if score >= 75.0:
+		return 1.00
+	if score >= 60.0:
+		return 0.90
+	if score >= 40.0:
+		return 0.75
+	return 0.50
+
+
+func _build_bio_load_feedback() -> String:
+	if bio_load_ratio >= 0.90 or comfort_score < 60.0:
+		return "生物负载偏高，舒适度下降，收益倍率 %.2fx" % revenue_multiplier
+	if comfort_score >= 90.0:
+		return "舒适度良好，收益维持正常，收益倍率 %.2fx" % revenue_multiplier
+	if revenue_multiplier < 1.0:
+		return "舒适度中等，收益轻微下降，收益倍率 %.2fx" % revenue_multiplier
+	return "生物负载可控，收益倍率 %.2fx" % revenue_multiplier
 
 
 func _normalize_rarity(rarity: String) -> String:

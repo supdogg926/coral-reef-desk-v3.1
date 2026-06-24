@@ -236,6 +236,7 @@ func set_device_enabled(device_id: String, enabled: bool) -> Dictionary:
 	var summary: String = _format_device_toggle_summary(device_id, enabled, effect_summary)
 	if not risk_message.is_empty() and risk_message != "无":
 		summary += "｜风险：" + risk_message
+	summary += "｜" + _format_bio_load_runtime_summary("设备开启后系统压力下降" if enabled else "设备关闭后系统压力上升")
 	last_device_runtime_summary = summary
 	var result: Dictionary = _build_device_result(device_id, true, enabled, summary, "ok")
 	result["risk_message"] = risk_message
@@ -358,6 +359,11 @@ func apply_water_maintenance_action(action_id: String) -> Dictionary:
 	_recalculate_debug_scores()
 	_update_livestock_and_economy(0.0)
 	_update_unlocks()
+	var comfort_summary: String = _format_bio_load_runtime_summary("维护后舒适度恢复")
+	last_maintenance_runtime_summary += "｜" + comfort_summary
+	result["summary"] = String(result.get("summary", "")) + "｜" + comfort_summary
+	result["comfort_score"] = float(livestock_system.get_debug_state().get("comfort_score", 100.0)) if livestock_system != null else 100.0
+	result["revenue_multiplier"] = float(livestock_system.get_debug_state().get("revenue_multiplier", 1.0)) if livestock_system != null else 1.0
 	reef_points = economy_system.get_reef_points() if economy_system != null else reef_points
 	_pending_save_after_maintenance = true
 	_maintenance_save_timer = 0.0
@@ -557,6 +563,20 @@ func _format_device_toggle_summary(device_id: String, enabled: bool, device_effe
 	return "%s：%s｜%s" % [display_name, state_text, String(device_effect.get("summary", "设备影响：无"))]
 
 
+func _format_bio_load_runtime_summary(prefix: String) -> String:
+	if livestock_system == null:
+		return prefix
+	var ls_debug: Dictionary = livestock_system.get_debug_state()
+	return "%s｜生物负载 %.1f/%.1f｜压力 %.1f｜舒适度 %.0f｜收益倍率 %.2fx" % [
+		prefix,
+		float(ls_debug.get("bio_load", 0.0)),
+		float(ls_debug.get("system_capacity", 0.0)),
+		float(ls_debug.get("system_pressure", 0.0)),
+		float(ls_debug.get("comfort_score", 100.0)),
+		float(ls_debug.get("revenue_multiplier", 1.0)),
+	]
+
+
 func get_livestock_debug_state() -> Dictionary:
 	if livestock_system == null:
 		return {}
@@ -655,9 +675,18 @@ func _update_livestock_and_economy(delta_seconds: float) -> void:
 	var water_state: Dictionary = water_chemistry_system.get_debug_state()
 	var equipment_mult: float = 1.0 + (stability_score - 50.0) * 0.004
 	var device_effects: Dictionary = get_device_effect_summary()
+	livestock_system.update_bio_load_metrics({
+		"water_quality_score": float(water_state.get("water_quality_score", 100.0)),
+		"stability_score": stability_score,
+		"carrying_capacity_score": carrying_capacity_score,
+		"maintenance_load": maintenance_load,
+		"device_effects": device_effects,
+		"last_maintenance_action_id": String(water_state.get("last_maintenance_action_id", "")),
+	})
 	var device_income_mult: float = float(device_effects.get("income_multiplier", 1.0))
 	var income_rate: float = livestock_system.calculate_income_rate(water_state, equipment_mult) * device_income_mult
 	var current_reef_value: float = livestock_system.calculate_reef_value(water_state)
+	livestock_system.set_runtime_income_result(income_rate, delta_seconds)
 	var ls_debug: Dictionary = livestock_system.get_debug_state()
 	var current_health: float = float(ls_debug.get("health_modifier", 1.0))
 	var current_water_mult: float = float(ls_debug.get("water_quality_multiplier", 1.0))

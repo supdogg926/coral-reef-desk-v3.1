@@ -171,6 +171,64 @@ func _run() -> void:
 	_assert(bool(restore_result.get("enabled", false)), "Device return pump toggles back ON")
 	_assert(is_equal_approx(game_state.economy_system.get_reef_points(), rp_before_device_toggle), "Device toggles do not change RP")
 	_assert(game_state.save_system == null, "Device control test does not touch SaveSystem")
+
+	var loop_state: GameState = _make_bio_load_loop_state(100.0)
+	loop_state._update_livestock_and_economy(60.0)
+	var loop_debug: Dictionary = loop_state.livestock_system.get_debug_state()
+	var starting_bio_load: float = float(loop_debug.get("bio_load", 0.0))
+	var starting_comfort: float = float(loop_debug.get("comfort_score", 0.0))
+	var starting_multiplier: float = float(loop_debug.get("revenue_multiplier", 0.0))
+	var starting_income: float = loop_state.economy_system.income_rate_per_game_hour
+	_assert(starting_bio_load > 0.0, "BioLoad loop exposes positive livestock load")
+	_assert(float(loop_debug.get("system_capacity", 0.0)) > 0.0, "BioLoad loop exposes system capacity")
+	_assert(starting_comfort > 0.0, "BioLoad loop exposes comfort score")
+	_assert(starting_multiplier >= 1.0, "Good comfort keeps or boosts revenue multiplier")
+	_assert(float(loop_debug.get("current_rp_per_tick", 0.0)) > 0.0, "BioLoad loop exposes current RP per tick")
+
+	for i in range(3):
+		var added: bool = loop_state.livestock_system.add_livestock({
+			"id": "stress_fish_%d" % i,
+			"species_name": "压力测试鱼%d" % i,
+			"category": "fish",
+			"rarity": "普通",
+			"size_cm": 5.0,
+			"maturity_percent": 100.0,
+			"health_percent": 100.0,
+			"base_income_per_hour": 0.40,
+			"tank_slot_cost": 4.0,
+			"locked": false,
+			"water_sensitivity": 0.5,
+		})
+		_assert(added, "BioLoad loop can add stress fish %d within M10 capacity" % i)
+	loop_state._update_livestock_and_economy(60.0)
+	var crowded_debug: Dictionary = loop_state.livestock_system.get_debug_state()
+	_assert(float(crowded_debug.get("bio_load", 0.0)) > starting_bio_load, "More livestock increases BioLoad")
+	_assert(float(crowded_debug.get("comfort_score", 100.0)) < starting_comfort, "Higher BioLoad lowers comfort")
+	_assert(float(crowded_debug.get("revenue_multiplier", 1.0)) <= starting_multiplier, "Crowding does not improve comfort revenue multiplier")
+
+	var before_wave_income: float = loop_state.economy_system.income_rate_per_game_hour
+	var before_wave_comfort: float = float(crowded_debug.get("comfort_score", 100.0))
+	var wave_loop_result: Dictionary = loop_state.toggle_device("wave_pump")
+	_assert(bool(wave_loop_result.get("success", false)), "BioLoad loop wave toggle succeeds")
+	var wave_loop_debug: Dictionary = loop_state.livestock_system.get_debug_state()
+	_assert(float(wave_loop_debug.get("comfort_score", 100.0)) < before_wave_comfort, "Device OFF lowers BioLoad comfort")
+	_assert(loop_state.economy_system.income_rate_per_game_hour < before_wave_income, "Device OFF lowers RP income rate through loop")
+	_assert(String(wave_loop_result.get("summary", "")).contains("系统压力"), "Device feedback mentions system pressure")
+
+	loop_state.water_chemistry_system.nitrate = 25.0
+	loop_state.water_chemistry_system.phosphate = 0.25
+	loop_state.water_chemistry_system.ph = 7.70
+	loop_state.water_chemistry_system.parameter_status = loop_state.water_chemistry_system.calculate_parameter_status()
+	loop_state.water_chemistry_system.water_quality_score = loop_state.water_chemistry_system.calculate_water_quality_score()
+	loop_state.water_chemistry_system.water_status = loop_state.water_chemistry_system.get_water_status()
+	loop_state._update_livestock_and_economy(60.0)
+	var bad_water_comfort: float = float(loop_state.livestock_system.get_debug_state().get("comfort_score", 100.0))
+	var maintenance_loop_result: Dictionary = loop_state.apply_water_maintenance_action("water_change_10")
+	_assert(bool(maintenance_loop_result.get("success", false)), "BioLoad loop maintenance succeeds")
+	var maintained_debug: Dictionary = loop_state.livestock_system.get_debug_state()
+	_assert(float(maintained_debug.get("comfort_score", 0.0)) > bad_water_comfort, "Maintenance restores comfort through BioLoad loop")
+	_assert(String(maintenance_loop_result.get("summary", "")).contains("维护后舒适度恢复"), "Maintenance feedback mentions comfort recovery")
+	_assert(loop_state.economy_system.income_rate_per_game_hour != starting_income, "RP income rate reflects loop modifiers")
 	_print_results()
 
 
@@ -202,6 +260,16 @@ func _make_test_game_state(starting_reef_points: float) -> GameState:
 	game_state.economy_system.add_reef_points(starting_reef_points)
 	game_state.water_chemistry_system = WaterChemistrySystem.new()
 	game_state.water_chemistry_system.initialize()
+	return game_state
+
+
+func _make_bio_load_loop_state(starting_reef_points: float) -> GameState:
+	var game_state: GameState = _make_test_game_state(starting_reef_points)
+	game_state.livestock_system = LivestockSystem.new()
+	game_state.livestock_system.initialize()
+	game_state.stability_score = 92.0
+	game_state.carrying_capacity_score = 30.0
+	game_state.maintenance_load = 4.0
 	return game_state
 
 
