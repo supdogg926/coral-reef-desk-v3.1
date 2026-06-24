@@ -118,6 +118,8 @@ func _setup_bottom_dock_controls() -> void:
 		"maintenance": Callable(self, "_on_water_maintenance_pressed"),
 		"device": Callable(self, "_on_device_pressed"),
 		"feed": Callable(self, "_on_feeding_pressed"),
+		"light_intensity": Callable(self, "_on_light_intensity_changed"),
+		"light_temp": Callable(self, "_on_light_temp_changed"),
 		"save": Callable(self, "_manual_save_test"),
 		"reset": Callable(self, "_reset_test_save"),
 	}
@@ -128,6 +130,20 @@ func _setup_bottom_dock_controls() -> void:
 		callbacks,
 		_is_dev_debug_ui_enabled(),
 	)
+
+	# Wire light sliders
+	var light_intensity_slider: Variant = controls.get("light_intensity_slider", null)
+	if light_intensity_slider is HSlider:
+		light_intensity_slider.value_changed.connect(_on_light_intensity_changed)
+		var light_intensity_val: Variant = controls.get("light_intensity_value", null)
+		if light_intensity_val is Label:
+			light_intensity_slider.value_changed.connect(func(v: float): light_intensity_val.text = str(int(v)))
+	var light_temp_slider: Variant = controls.get("light_temp_slider", null)
+	if light_temp_slider is HSlider:
+		light_temp_slider.value_changed.connect(_on_light_temp_changed)
+		var light_temp_val: Variant = controls.get("light_temp_value", null)
+		if light_temp_val is Label:
+			light_temp_slider.value_changed.connect(func(v: float): light_temp_val.text = str(int(v)))
 	shop_btn = controls.get("shop_btn", null)
 	livestock_btn = controls.get("livestock_btn", null)
 	panel_status_label = controls.get("panel_status_label", null)
@@ -528,6 +544,14 @@ func _update_status_labels() -> void:
 		game_state.offline_summary,
 	)
 	status_panel.update_timeline(game_state.get_timeline_entries())
-	# Seed timeline with test events for scroll verification (once)
-	if game_state.action_timeline != null and game_state.action_timeline.size() == 0:
-		game_state.seed_timeline_for_test()
+
+
+func _on_light_intensity_changed(value: float) -> void:
+	if game_state != null:
+		game_state.set_light_intensity(int(value))
+
+
+func _on_light_temp_changed(value: float) -> void:
+	if game_state != null:
+		game_state.set_light_color_temp(int(value))
+

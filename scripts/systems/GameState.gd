@@ -56,6 +56,10 @@ var device_states: Dictionary = {
 	"reserve": false,
 }
 var last_device_runtime_summary: String = "设备：默认运行"
+var light_intensity: int = 100
+var light_color_temp: int = 50
+var _last_logged_light_intensity: int = 100
+var _last_logged_light_color_temp: int = 50
 const MAINTENANCE_ACTION_RULES: Dictionary = {
 	"water_change_10": {"cost": 20.0, "cooldown_sec": 10.0, "risk_message": "无"},
 	"clean_filter": {"cost": 15.0, "cooldown_sec": 8.0, "risk_message": "无"},
@@ -1339,6 +1343,30 @@ func get_timeline_entries(count: int = 13) -> Array:
 	if action_timeline == null:
 		return []
 	return action_timeline.get_recent(count)
+
+
+
+func set_light_intensity(value: int) -> void:
+	light_intensity = clamp(value, 0, 100)
+	if action_timeline != null and light_intensity != _last_logged_light_intensity:
+		_last_logged_light_intensity = light_intensity
+		var time_text: String = _format_timeline_time()
+		action_timeline.add_player_action(time_text + " 光照 " + str(light_intensity), ActionTimeline.COLOR_PLAYER)
+
+
+func set_light_color_temp(value: int) -> void:
+	light_color_temp = clamp(value, 0, 100)
+	if action_timeline != null and light_color_temp != _last_logged_light_color_temp:
+		_last_logged_light_color_temp = light_color_temp
+		var time_text: String = _format_timeline_time()
+		action_timeline.add_player_action(time_text + " 色温 " + str(light_color_temp), ActionTimeline.COLOR_PLAYER)
+
+
+func get_light_state() -> Dictionary:
+	return {
+		"light_intensity": light_intensity,
+		"light_color_temp": light_color_temp,
+	}
 
 func _perform_autosave() -> void:
 	if save_system == null:

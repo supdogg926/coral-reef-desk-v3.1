@@ -79,10 +79,8 @@ func update_equipment_debug(game_state_debug: Dictionary) -> void:
 	var filter_efficiency: float = float(device_effect.get("filter_efficiency_percent", 100.0))
 	var water_flow: float = float(device_effect.get("water_flow_percent", device_effect.get("flow_comfort_score", 100.0)))
 
-	_set_status_line("operations", "device_filter", "%.0f%%" % filter_efficiency, _score_color(filter_efficiency, 80.0, 50.0))
-	_set_status_line("operations", "device_comfort", "%.0f%%" % water_flow, _score_color(water_flow, 80.0, 50.0))
-	_set_status_line("operations", "device_summary", "\u2014", STATUS_IDLE_COLOR)  # 光照 placeholder
-	_set_status_line("operations", "maintenance", "\u2014", STATUS_IDLE_COLOR)  # 色温 placeholder
+	_set_status_line("water", "water_flow", "%.0f%%" % water_flow, _score_color(water_flow, 80.0, 50.0))
+	_set_status_line("water", "filter_efficiency", "%.0f%%" % filter_efficiency, _score_color(filter_efficiency, 80.0, 50.0))
 
 
 func update_water_chemistry_debug(water_debug: Dictionary) -> void:
@@ -110,8 +108,7 @@ func update_water_chemistry_debug(water_debug: Dictionary) -> void:
 	_set_water_delta_tag("water", "salinity", salinity, WATER_DEVIATION_TARGETS.get("salinity", 35.0), 1, "", 1.0, 3.0)
 	_set_range_tag("water", "nitrate", nitrate, 2, 1.0, 10.0, 20.0)
 	_set_range_tag("water", "phosphate", phosphate, 3, 0.010, 0.100, 0.200)
-	# 色温 tile — keep placeholder
-	_set_status_line("operations", "maintenance", "\u2014", STATUS_IDLE_COLOR)
+	# 色温 slider value updated via dock_control_slots
 	_set_line("status", "time_tick", _format_game_time(elapsed_game_minutes))
 
 
@@ -148,6 +145,12 @@ func update_livestock_economy_debug(livestock_debug: Dictionary, economy_debug: 
 	_set_status_line("livestock", "crustacean_count", "%d" % crustacean_count, STATUS_IDLE_COLOR if crustacean_count <= 0 else KEY_TEXT_COLOR)
 	_set_status_line("livestock", "reserve_metric", "\u2014", STATUS_IDLE_COLOR)
 	_set_status_line("livestock", "algae_count", "0", STATUS_IDLE_COLOR)
+	_set_status_line("livestock", "reserve_2", "\u2014", STATUS_IDLE_COLOR)
+	_set_status_line("livestock", "reserve_3", "\u2014", STATUS_IDLE_COLOR)
+	_set_status_line("livestock", "reserve_4", "\u2014", STATUS_IDLE_COLOR)
+	_set_status_line("livestock", "reserve_2", "\u2014", STATUS_IDLE_COLOR)
+	_set_status_line("livestock", "reserve_3", "\u2014", STATUS_IDLE_COLOR)
+	_set_status_line("livestock", "reserve_4", "\u2014", STATUS_IDLE_COLOR)
 
 
 func update_unlock_debug(unlock_debug: Dictionary) -> void:
@@ -310,7 +313,7 @@ func _create_timeline_section(parent: Control) -> void:
 	scroll_vbox.add_theme_constant_override("separation", 1)
 	scroll_vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	scroll.add_child(scroll_vbox)
-	for i in range(13):
+	for i in range(50):
 		var label: Label = _make_label("", 8, false)
 		label.add_theme_color_override("font_color", Color(0.60, 0.66, 0.66))
 		scroll_vbox.add_child(label)
@@ -334,6 +337,13 @@ func update_timeline(entries: Array) -> void:
 			timeline_labels[i].visible = false
 	for i in range(count, timeline_labels.size()):
 		timeline_labels[i].visible = false
+	# Auto-scroll to latest entries
+	if count > 0:
+		var scroll_parent: Variant = timeline_labels[count - 1].get_parent()
+		if scroll_parent != null and scroll_parent is Control:
+			var grandparent: Variant = scroll_parent.get_parent()
+			if grandparent is ScrollContainer:
+				grandparent.scroll_vertical = grandparent.get_v_scroll_bar().max_value
 
 func _create_section(parent: Control, section_id: String, title_text: String, stretch_ratio: float, line_ids: Array[String]) -> void:
 	var box: VBoxContainer = _create_card(parent, section_id, title_text, stretch_ratio)
@@ -455,11 +465,15 @@ func _create_core_status_section(parent: Control) -> void:
 	water_lines["salinity"] = _create_secondary_tile(secondary_grid, "盐度")
 	water_lines["nitrate"] = _create_secondary_tile(secondary_grid, "NO3")
 	water_lines["phosphate"] = _create_secondary_tile(secondary_grid, "PO4")
-	livestock_lines["reserve_metric"] = _create_secondary_tile(secondary_grid, "预留")
+	water_lines["water_flow"] = _create_secondary_tile(secondary_grid, "水流")
+	water_lines["filter_efficiency"] = _create_secondary_tile(secondary_grid, "过滤")
+	livestock_lines["reserve_2"] = _create_secondary_tile(secondary_grid, "预留")
+	livestock_lines["reserve_3"] = _create_secondary_tile(secondary_grid, "预留")
 	livestock_lines["fish_count"] = _create_secondary_tile(secondary_grid, "鱼")
 	livestock_lines["coral_count"] = _create_secondary_tile(secondary_grid, "珊瑚")
 	livestock_lines["crustacean_count"] = _create_secondary_tile(secondary_grid, "甲壳")
 	livestock_lines["algae_count"] = _create_secondary_tile(secondary_grid, "藻类")
+	livestock_lines["reserve_4"] = _create_secondary_tile(secondary_grid, "预留")
 
 	section_labels["status"] = status_lines
 
@@ -483,17 +497,63 @@ func _create_operations_section(parent: Control) -> void:
 	dock_control_slots["devices"] = ops_grid
 
 	var ops_lines: Dictionary = {}
-	var ops_info_grid: GridContainer = GridContainer.new()
-	ops_info_grid.columns = 2
-	ops_info_grid.add_theme_constant_override("h_separation", 4)
-	ops_info_grid.add_theme_constant_override("v_separation", 2)
-	ops_info_grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	box.add_child(ops_info_grid)
-	ops_lines["device_comfort"] = _create_secondary_tile(ops_info_grid, "水流")
-	ops_lines["device_filter"] = _create_secondary_tile(ops_info_grid, "过滤")
-	ops_lines["device_summary"] = _create_secondary_tile(ops_info_grid, "光照")
-	ops_lines["maintenance"] = _create_secondary_tile(ops_info_grid, "色温")
 	section_labels["operations"] = ops_lines
+
+	# 光照 slider row
+	var light_intensity_row: HBoxContainer = HBoxContainer.new()
+	light_intensity_row.add_theme_constant_override("separation", 4)
+	light_intensity_row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	box.add_child(light_intensity_row)
+	var li_label: Label = Label.new()
+	li_label.text = "光照"
+	li_label.add_theme_font_size_override("font_size", 8)
+	li_label.add_theme_color_override("font_color", MUTED_TEXT_COLOR)
+	li_label.custom_minimum_size = Vector2(28, 16)
+	light_intensity_row.add_child(li_label)
+	var light_intensity_slider: HSlider = HSlider.new()
+	light_intensity_slider.min_value = 0
+	light_intensity_slider.max_value = 100
+	light_intensity_slider.value = 100
+	light_intensity_slider.step = 1
+	light_intensity_slider.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	light_intensity_slider.custom_minimum_size = Vector2(60, 14)
+	light_intensity_row.add_child(light_intensity_slider)
+	var li_value_label: Label = Label.new()
+	li_value_label.text = "100"
+	li_value_label.add_theme_font_size_override("font_size", 8)
+	li_value_label.add_theme_color_override("font_color", KEY_TEXT_COLOR)
+	li_value_label.custom_minimum_size = Vector2(24, 16)
+	light_intensity_row.add_child(li_value_label)
+	dock_control_slots["light_intensity_slider"] = light_intensity_slider
+	dock_control_slots["light_intensity_value"] = li_value_label
+
+	# 色温 slider row
+	var light_temp_row: HBoxContainer = HBoxContainer.new()
+	light_temp_row.add_theme_constant_override("separation", 4)
+	light_temp_row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	box.add_child(light_temp_row)
+	var lt_label: Label = Label.new()
+	lt_label.text = "色温"
+	lt_label.add_theme_font_size_override("font_size", 8)
+	lt_label.add_theme_color_override("font_color", MUTED_TEXT_COLOR)
+	lt_label.custom_minimum_size = Vector2(28, 16)
+	light_temp_row.add_child(lt_label)
+	var light_temp_slider: HSlider = HSlider.new()
+	light_temp_slider.min_value = 0
+	light_temp_slider.max_value = 100
+	light_temp_slider.value = 50
+	light_temp_slider.step = 1
+	light_temp_slider.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	light_temp_slider.custom_minimum_size = Vector2(60, 14)
+	light_temp_row.add_child(light_temp_slider)
+	var lt_value_label: Label = Label.new()
+	lt_value_label.text = "50"
+	lt_value_label.add_theme_font_size_override("font_size", 8)
+	lt_value_label.add_theme_color_override("font_color", KEY_TEXT_COLOR)
+	lt_value_label.custom_minimum_size = Vector2(24, 16)
+	light_temp_row.add_child(lt_value_label)
+	dock_control_slots["light_temp_slider"] = light_temp_slider
+	dock_control_slots["light_temp_value"] = lt_value_label
 
 
 func configure_dock_controls(maintenance_actions: Array, feeding_actions: Array, device_state: Dictionary, callbacks: Dictionary, show_debug_controls: bool) -> Dictionary:
@@ -864,6 +924,8 @@ func _set_default_text() -> void:
 	_set_status_line("water", "alkalinity", "8.3 OK", STATUS_OK_COLOR)
 	_set_status_line("water", "calcium", "430 OK", STATUS_OK_COLOR)
 	_set_status_line("water", "salinity", "35.0 OK", STATUS_OK_COLOR)
+	_set_status_line("water", "water_flow", "100%", STATUS_OK_COLOR)
+	_set_status_line("water", "filter_efficiency", "100%", STATUS_OK_COLOR)
 	_set_status_line("water", "nitrate", "2.60 OK", STATUS_OK_COLOR)
 	_set_status_line("water", "phosphate", "0.030 OK", STATUS_OK_COLOR)
 	_set_line("water", "deviation_minerals", "矿物偏差：KH +0.0｜Ca +0｜全部正常")
@@ -875,11 +937,14 @@ func _set_default_text() -> void:
 	_set_status_line("livestock", "crustacean_count", "0", STATUS_IDLE_COLOR)
 	_set_status_line("livestock", "reserve_metric", "\u2014", STATUS_IDLE_COLOR)
 	_set_status_line("livestock", "algae_count", "0", STATUS_IDLE_COLOR)
+	_set_status_line("livestock", "reserve_2", "\u2014", STATUS_IDLE_COLOR)
+	_set_status_line("livestock", "reserve_3", "\u2014", STATUS_IDLE_COLOR)
+	_set_status_line("livestock", "reserve_4", "\u2014", STATUS_IDLE_COLOR)
 	_set_line("livestock", "secondary", "倍率 水质1.00｜舒适1.10｜健康1.00")
 	_set_line("livestock", "value", "缸价值 59.0｜状态 正常")
 	_set_status_line("operations", "device_filter", "100%", STATUS_OK_COLOR)
 	_set_status_line("operations", "device_comfort", "100%", STATUS_OK_COLOR)
-	_set_status_line("operations", "device_summary", "\u2014", STATUS_IDLE_COLOR)
+
 	_set_status_line("operations", "maintenance", "\u2014", STATUS_IDLE_COLOR)
 	_set_status_line("operations", "bio_feedback", "无", STATUS_IDLE_COLOR)
 
