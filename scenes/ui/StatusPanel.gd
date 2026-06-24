@@ -21,6 +21,10 @@ const TITLE_TEXT_COLOR: Color = Color(0.86, 0.90, 0.90)
 const BODY_TEXT_COLOR: Color = Color(0.66, 0.72, 0.72)
 const KEY_TEXT_COLOR: Color = Color(0.82, 0.88, 0.86)
 const MUTED_TEXT_COLOR: Color = Color(0.50, 0.56, 0.56)
+const STATUS_OK_COLOR: Color = Color(0.58, 0.82, 0.68)
+const STATUS_WARN_COLOR: Color = Color(0.88, 0.76, 0.44)
+const STATUS_BAD_COLOR: Color = Color(0.92, 0.45, 0.40)
+const STATUS_IDLE_COLOR: Color = Color(0.60, 0.65, 0.65)
 
 const WATER_DEVIATION_TARGETS: Dictionary = {
 	"temperature": 25.0,
@@ -70,15 +74,12 @@ func update_equipment_debug(game_state_debug: Dictionary) -> void:
 	var device_state: Dictionary = raw_device_state if raw_device_state is Dictionary else {}
 	var raw_device_effect: Variant = game_state_debug.get("device_effect", {})
 	var device_effect: Dictionary = raw_device_effect if raw_device_effect is Dictionary else {}
-	var device_filter_line: String = _format_device_filter_line(device_effect)
-	var device_comfort_line: String = _format_device_comfort_line(device_state, device_effect)
-	var device_light_line: String = _format_device_light_line(device_effect)
-	var device_risk: String = String(device_effect.get("risk_message", "无"))
-	if device_risk.is_empty():
-		device_risk = "无"
+	var filter_efficiency: float = float(device_effect.get("filter_efficiency_percent", 100.0))
+	var flow_comfort: float = float(device_effect.get("flow_comfort_score", device_effect.get("comfort_score", 100.0)))
 
-	_set_line("operations", "device_summary", "%d/%d  稳%.0f  承%.0f" % [tier1_enabled_count, tier1_total_count, stability_score, carrying_capacity_score])
-	_set_line("operations", "device_comfort", _compact_text(device_comfort_line, 22))
+	_set_status_line("operations", "device_filter", "%.0f%%" % filter_efficiency, _score_color(filter_efficiency, 80.0, 50.0))
+	_set_status_line("operations", "device_comfort", "%.0f%%" % flow_comfort, _score_color(flow_comfort, 80.0, 50.0))
+	_set_status_line("operations", "device_summary", "%.0f" % stability_score, _score_color(stability_score, 80.0, 55.0))
 
 
 func update_water_chemistry_debug(water_debug: Dictionary) -> void:
@@ -98,16 +99,18 @@ func update_water_chemistry_debug(water_debug: Dictionary) -> void:
 	var maintenance_delta: String = String(water_debug.get("last_maintenance_delta_summary", "维护：无"))
 	var maintenance_runtime_summary: String = String(water_debug.get("last_maintenance_runtime_summary", ""))
 
-	_set_line("water", "water_primary", "%s  %.0f" % [localized_status, water_quality_score])
-	_set_line("water", "readings_core", "%.1f℃   pH %.2f" % [temperature, ph])
-	_set_line("water", "readings_chemistry", "NO3 %.2f   PO4 %.3f" % [nitrate, phosphate])
-	_update_water_deviation_summary(water_debug)
+	_set_status_line("water", "water_primary", "%s %.0f" % [localized_status, water_quality_score], _water_status_color(water_status, water_quality_score))
+	_set_water_delta_tag("water", "temperature", temperature, WATER_DEVIATION_TARGETS.get("temperature", 25.0), 1, "°", 0.5, 1.5)
+	_set_water_delta_tag("water", "ph", ph, WATER_DEVIATION_TARGETS.get("ph", 8.2), 2, "", 0.15, 0.35)
+	_set_water_delta_tag("water", "alkalinity", alkalinity, WATER_DEVIATION_TARGETS.get("alkalinity", 8.3), 1, "", 0.5, 1.0)
+	_set_water_delta_tag("water", "calcium", calcium, WATER_DEVIATION_TARGETS.get("calcium", 430.0), 0, "", 30.0, 60.0)
+	_set_range_tag("water", "nitrate", nitrate, 2, 1.0, 10.0, 20.0)
+	_set_range_tag("water", "phosphate", phosphate, 3, 0.010, 0.100, 0.200)
 	if maintenance_runtime_summary.is_empty() or maintenance_runtime_summary == "未维护":
-		_set_line("operations", "maintenance", "%s｜%s" % [maintenance_label, _compact_text(maintenance_delta, 16)])
+		_set_status_line("operations", "maintenance", "无" if maintenance_label == "无" else maintenance_label, STATUS_IDLE_COLOR if maintenance_label == "无" else STATUS_OK_COLOR)
 	else:
-		_set_line("operations", "maintenance", _compact_text(maintenance_runtime_summary, 20))
-	_set_line("status", "time_tick", "%s｜更新 %d" % [_format_game_time(elapsed_game_minutes), chemistry_tick_count])
-	_set_line("status", "simulation", "模拟运行｜1秒=10分钟")
+		_set_status_line("operations", "maintenance", _compact_text(maintenance_runtime_summary, 8), STATUS_OK_COLOR)
+	_set_line("status", "time_tick", _format_game_time(elapsed_game_minutes))
 
 
 func update_livestock_economy_debug(livestock_debug: Dictionary, economy_debug: Dictionary) -> void:
@@ -131,14 +134,12 @@ func update_livestock_economy_debug(livestock_debug: Dictionary, economy_debug: 
 	var reef_points: float = float(economy_debug.get("reef_points", 0.0))
 	var income_rate: float = float(economy_debug.get("income_rate_per_game_hour", livestock_debug.get("income_rate_per_game_hour", 0.0)))
 
-	_set_line("status", "rp_primary", "RP %.0f" % reef_points)
-	_set_line("livestock", "comfort_primary", "%.0f %s" % [comfort_score, comfort_status])
-	_set_line("livestock", "load_primary", "%.1f / %.1f" % [bio_load, system_capacity])
-	_set_line("livestock", "revenue_primary", "%.2fx" % revenue_multiplier)
-	_set_line("livestock", "rp_tick", "+%.5f/t  +%.2f/h" % [current_rp_per_tick, income_rate])
-	_set_line("livestock", "count", "生物%d  鱼%d  珊瑚%d" % [livestock_count, fish_count, coral_count])
-	_set_line("livestock", "secondary", "水%.2f  舒%.2f  健%.2f" % [water_quality_mult, revenue_multiplier, health_modifier])
-	_set_line("livestock", "value", "缸价值 %.1f｜状态 %s" % [reef_value, capacity_status])
+	_set_status_line("status", "rp_primary", "RP %.0f" % reef_points, KEY_TEXT_COLOR)
+	_set_status_line("livestock", "comfort_primary", "%.0f %s" % [comfort_score, comfort_status], _score_color(comfort_score, 80.0, 55.0))
+	_set_status_line("livestock", "load_primary", "%.1f/%.1f" % [bio_load, system_capacity], _load_color(bio_load, system_capacity))
+	_set_status_line("livestock", "revenue_primary", "%.2fx" % revenue_multiplier, _multiplier_color(revenue_multiplier))
+	_set_status_line("livestock", "rp_tick", "+%.2f/h" % income_rate, _multiplier_color(revenue_multiplier))
+	_set_status_line("livestock", "count", "%d / 鱼%d 珊瑚%d" % [livestock_count, fish_count, coral_count], KEY_TEXT_COLOR)
 
 
 func update_unlock_debug(unlock_debug: Dictionary) -> void:
@@ -159,9 +160,8 @@ func update_unlock_debug(unlock_debug: Dictionary) -> void:
 			warehouse_text = _join_preview_items(locked_items, "/") + "(锁)"
 	var t2_unlocked: bool = bool(unlock_debug.get("unlocked_states", {}).get("tier2_equipment_preview", false))
 	var wh_status: String = "预览" if t2_unlocked else "锁定"
-	_set_line("status", "phase", "%s｜进度 %.0f%%" % [current_stage, progress])
-	_set_line("status", "validation", _compact_text(next_target, 12))
-	_set_line("status", "data", "%s｜%s" % [_compact_text(warehouse_text, 8), wh_status])
+	_set_line("status", "phase", "%s %.0f%%" % [_compact_text(current_stage, 6), progress])
+	_set_line("status", "validation", wh_status)
 
 
 func update_delta_debug(water_debug: Dictionary, delta_debug: Dictionary, economy_debug: Dictionary, livestock_debug: Dictionary) -> void:
@@ -205,9 +205,7 @@ func update_delta_debug(water_debug: Dictionary, delta_debug: Dictionary, econom
 	var econ_line_a: String = "结算 +%.5f/tick｜+%.2f/h" % [current_rp_per_tick, income_rate]
 	var econ_line_b: String = "倍率 水质%.2f｜舒适%.2f｜健康%.2f" % [water_mult, revenue_mult, health_mod]
 
-	_set_line("water", "deviation_nutrients", _compact_text(water_min_line, 18))
-	_set_line("livestock", "secondary", econ_line_b)
-	_set_line("livestock", "feedback", _compact_text(bio_feedback, 22))
+	# Delta values are represented by compact water tags and RP/h, not long text rows.
 
 
 func update_save_debug(save_debug: Dictionary, save_loaded: bool, offline_summary: Dictionary) -> void:
@@ -219,7 +217,7 @@ func update_save_debug(save_debug: Dictionary, save_loaded: bool, offline_summar
 	if last_save_time > 0:
 		var time_dict: Dictionary = Time.get_datetime_dict_from_unix_time(float(last_save_time))
 		last_save_text = "%02d:%02d:%02d" % [time_dict.get("hour", 0), time_dict.get("minute", 0), time_dict.get("second", 0)]
-	var save_line: String = "存档 %s｜自动 %s｜%s" % [load_status, auto_status, last_save_text]
+	var save_line: String = "%s %s" % [load_status, last_save_text]
 	_set_line("status", "save_status", save_line)
 
 	var offline_applied: bool = bool(offline_summary.get("applied", false))
@@ -374,19 +372,19 @@ func _create_core_status_section(parent: Control) -> void:
 	secondary_grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	box.add_child(secondary_grid)
 
-	water_lines["readings_core"] = _create_secondary_tile(secondary_grid, "水温 / pH")
-	water_lines["readings_chemistry"] = _create_secondary_tile(secondary_grid, "NO3 / PO4")
+	water_lines["temperature"] = _create_secondary_tile(secondary_grid, "温度")
+	water_lines["ph"] = _create_secondary_tile(secondary_grid, "pH")
+	water_lines["alkalinity"] = _create_secondary_tile(secondary_grid, "KH")
+	water_lines["calcium"] = _create_secondary_tile(secondary_grid, "Ca")
+	water_lines["nitrate"] = _create_secondary_tile(secondary_grid, "NO3")
+	water_lines["phosphate"] = _create_secondary_tile(secondary_grid, "PO4")
 	livestock_lines["rp_tick"] = _create_secondary_tile(secondary_grid, "RP产出")
 
 	section_labels["status"] = status_lines
 
-	water_lines["deviation_core"] = _create_secondary_tile(secondary_grid, "水质偏差")
-	water_lines["deviation_nutrients"] = _create_secondary_tile(secondary_grid, "水质变化")
 	section_labels["water"] = water_lines
 
-	livestock_lines["count"] = _create_secondary_tile(secondary_grid, "生物组成")
-	livestock_lines["secondary"] = _create_secondary_tile(secondary_grid, "修正因子")
-	livestock_lines["feedback"] = _create_secondary_tile(secondary_grid, "收益反馈")
+	livestock_lines["count"] = _create_secondary_tile(secondary_grid, "生物")
 	section_labels["livestock"] = livestock_lines
 
 
@@ -412,11 +410,10 @@ func _create_operations_section(parent: Control) -> void:
 	ops_info_grid.add_theme_constant_override("v_separation", 2)
 	ops_info_grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	box.add_child(ops_info_grid)
-	ops_lines["device_summary"] = _create_secondary_tile(ops_info_grid, "设备状态")
-	ops_lines["device_filter"] = _create_secondary_tile(ops_info_grid, "过滤修正")
-	ops_lines["device_comfort"] = _create_secondary_tile(ops_info_grid, "水流健康")
-	ops_lines["maintenance"] = _create_secondary_tile(ops_info_grid, "维护反馈")
-	ops_lines["bio_feedback"] = _create_secondary_tile(ops_info_grid, "设备风险")
+	ops_lines["device_summary"] = _create_secondary_tile(ops_info_grid, "稳定")
+	ops_lines["device_filter"] = _create_secondary_tile(ops_info_grid, "过滤")
+	ops_lines["device_comfort"] = _create_secondary_tile(ops_info_grid, "水流")
+	ops_lines["maintenance"] = _create_secondary_tile(ops_info_grid, "维护")
 	section_labels["operations"] = ops_lines
 
 
@@ -762,32 +759,34 @@ func _join_short_parts(parts: Array[String]) -> String:
 func _set_default_text() -> void:
 	_set_line("status", "rp_primary", "RP 0")
 	_set_line("status", "income_short", "+0.00 /h")
-	_set_line("status", "phase", "初级玩家｜进度 0%")
-	_set_line("status", "save_status", "存档 新游戏｜自动 开启")
-	_set_line("status", "time_tick", "第1天 00:00｜更新 0")
+	_set_line("status", "phase", "初级 0%")
+	_set_line("status", "save_status", "新游戏 --:--")
+	_set_line("status", "time_tick", "第1天 00:00")
 	_set_line("status", "simulation", "模拟运行｜1秒=10分钟")
 	_set_line("status", "data", "仓库 暂无｜锁定")
-	_set_line("status", "validation", "Load OK｜Errors 0")
+	_set_line("status", "validation", "锁定")
 	_set_line("status", "save_offline", "离线 无")
-	_set_line("water", "water_primary", "正常  100")
-	_set_line("water", "readings_core", "25.1℃   pH 8.20")
-	_set_line("water", "readings_chemistry", "NO3 2.60   PO4 0.030")
-	_set_line("water", "deviation_core", "偏差：温 +0.1｜盐 +0.0｜pH +0.00")
-	_set_line("water", "deviation_nutrients", "水变 等待首次更新")
+	_set_status_line("water", "water_primary", "正常 100", STATUS_OK_COLOR)
+	_set_status_line("water", "temperature", "25.1° +0.1", STATUS_OK_COLOR)
+	_set_status_line("water", "ph", "8.20 OK", STATUS_OK_COLOR)
+	_set_status_line("water", "alkalinity", "8.3 OK", STATUS_OK_COLOR)
+	_set_status_line("water", "calcium", "430 OK", STATUS_OK_COLOR)
+	_set_status_line("water", "nitrate", "2.60 OK", STATUS_OK_COLOR)
+	_set_status_line("water", "phosphate", "0.030 OK", STATUS_OK_COLOR)
 	_set_line("water", "deviation_minerals", "矿物偏差：KH +0.0｜Ca +0｜全部正常")
-	_set_line("livestock", "comfort_primary", "100 优秀")
-	_set_line("livestock", "load_primary", "23.4 / 39.2")
-	_set_line("livestock", "revenue_primary", "1.10x")
+	_set_status_line("livestock", "comfort_primary", "100 优秀", STATUS_OK_COLOR)
+	_set_status_line("livestock", "load_primary", "23.4/39.2", STATUS_OK_COLOR)
+	_set_status_line("livestock", "revenue_primary", "1.10x", STATUS_OK_COLOR)
 	_set_line("livestock", "rp_primary", "RP 0   +0.00/h")
-	_set_line("livestock", "rp_tick", "+0.00000/tick   +0.00/h")
-	_set_line("livestock", "count", "生物6｜鱼2｜珊瑚3｜槽位18.0/30.0")
+	_set_status_line("livestock", "rp_tick", "+0.00/h", STATUS_OK_COLOR)
+	_set_line("livestock", "count", "6 / 鱼2 珊瑚3")
 	_set_line("livestock", "secondary", "倍率 水质1.00｜舒适1.10｜健康1.00")
 	_set_line("livestock", "value", "缸价值 59.0｜状态 正常")
-	_set_line("operations", "device_filter", "过滤 100%  水质 +0")
-	_set_line("operations", "device_comfort", "造浪ON｜水流 100｜健康 1.00")
-	_set_line("operations", "device_summary", "设备 7/7｜稳定 92｜承载 27")
-	_set_line("operations", "maintenance", "维护 无")
-	_set_line("operations", "bio_feedback", "舒适度良好，收益维持正常")
+	_set_status_line("operations", "device_filter", "100%", STATUS_OK_COLOR)
+	_set_status_line("operations", "device_comfort", "100%", STATUS_OK_COLOR)
+	_set_status_line("operations", "device_summary", "92", STATUS_OK_COLOR)
+	_set_status_line("operations", "maintenance", "无", STATUS_IDLE_COLOR)
+	_set_status_line("operations", "bio_feedback", "无", STATUS_IDLE_COLOR)
 
 
 func _set_line(section_id: String, line_id: String, text: String) -> void:
@@ -799,6 +798,90 @@ func _set_line(section_id: String, line_id: String, text: String) -> void:
 	if raw_label is Label:
 		var label: Label = raw_label
 		label.text = text
+
+
+func _set_status_line(section_id: String, line_id: String, text: String, color: Color) -> void:
+	var raw_section: Variant = section_labels.get(section_id, {})
+	if not raw_section is Dictionary:
+		return
+	var section: Dictionary = raw_section
+	var raw_label: Variant = section.get(line_id, null)
+	if raw_label is Label:
+		var label: Label = raw_label
+		label.text = text
+		label.add_theme_color_override("font_color", color)
+
+
+func _set_water_delta_tag(section_id: String, line_id: String, value: float, target: float, decimals: int, unit: String, ok_delta: float, warn_delta: float) -> void:
+	var delta: float = value - target
+	var color: Color = _delta_color(delta, ok_delta, warn_delta)
+	var text: String = "%s%s %s" % [_format_number(value, decimals), unit, _format_delta_text(delta, decimals)]
+	_set_status_line(section_id, line_id, text, color)
+
+
+func _set_range_tag(section_id: String, line_id: String, value: float, decimals: int, low_ok: float, high_ok: float, high_warn: float) -> void:
+	var status: String = "OK"
+	var color: Color = STATUS_OK_COLOR
+	if value < low_ok:
+		status = "LOW"
+		color = STATUS_WARN_COLOR
+	elif value > high_warn:
+		status = "HIGH"
+		color = STATUS_BAD_COLOR
+	elif value > high_ok:
+		status = "偏高"
+		color = STATUS_WARN_COLOR
+	_set_status_line(section_id, line_id, "%s %s" % [_format_number(value, decimals), status], color)
+
+
+func _format_delta_text(delta: float, decimals: int) -> String:
+	if abs(delta) < 0.0001:
+		return "OK"
+	return _format_signed_number(delta, decimals)
+
+
+func _delta_color(delta: float, ok_delta: float, warn_delta: float) -> Color:
+	var magnitude: float = abs(delta)
+	if magnitude <= ok_delta:
+		return STATUS_OK_COLOR
+	if magnitude <= warn_delta:
+		return STATUS_WARN_COLOR
+	return STATUS_BAD_COLOR
+
+
+func _score_color(value: float, ok_min: float, warn_min: float) -> Color:
+	if value >= ok_min:
+		return STATUS_OK_COLOR
+	if value >= warn_min:
+		return STATUS_WARN_COLOR
+	return STATUS_BAD_COLOR
+
+
+func _water_status_color(water_status: String, score: float) -> Color:
+	if water_status == "CRITICAL" or score < 55.0:
+		return STATUS_BAD_COLOR
+	if water_status == "WARNING" or score < 80.0:
+		return STATUS_WARN_COLOR
+	return STATUS_OK_COLOR
+
+
+func _load_color(load: float, capacity: float) -> Color:
+	if capacity <= 0.0:
+		return STATUS_IDLE_COLOR
+	var ratio: float = load / capacity
+	if ratio <= 0.75:
+		return STATUS_OK_COLOR
+	if ratio <= 1.0:
+		return STATUS_WARN_COLOR
+	return STATUS_BAD_COLOR
+
+
+func _multiplier_color(multiplier: float) -> Color:
+	if multiplier >= 1.0:
+		return STATUS_OK_COLOR
+	if multiplier >= 0.85:
+		return STATUS_WARN_COLOR
+	return STATUS_BAD_COLOR
 
 
 func _compact_text(text: String, max_chars: int) -> String:
