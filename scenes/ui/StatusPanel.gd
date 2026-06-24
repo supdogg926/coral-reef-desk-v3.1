@@ -139,7 +139,7 @@ func update_livestock_economy_debug(livestock_debug: Dictionary, economy_debug: 
 	var income_rate: float = float(economy_debug.get("income_rate_per_game_hour", livestock_debug.get("income_rate_per_game_hour", 0.0)))
 
 	if rp_display_label != null:
-		rp_display_label.text = "RP %.0f  +%.2f/h" % [reef_points, income_rate]
+		rp_display_label.text = "%.0f  +%.2f/h" % [reef_points, income_rate]
 		rp_display_label.add_theme_color_override("font_color", Color(0.82, 0.88, 0.86))
 	_set_status_line("livestock", "comfort_primary", "%.0f %s" % [comfort_score, comfort_status], _score_color(comfort_score, 80.0, 55.0))
 	_set_status_line("livestock", "load_primary", "%.1f/%.1f" % [bio_load, system_capacity], _load_color(bio_load, system_capacity))
@@ -519,13 +519,27 @@ func configure_dock_controls(maintenance_actions: Array, feeding_actions: Array,
 		status_label.text = "0"
 		result["panel_status_label"] = status_label
 
-		rp_display_label = Label.new()
-		rp_display_label.text = "RP 0  +0.00/h"
-		rp_display_label.clip_text = false
-		rp_display_label.add_theme_font_size_override("font_size", 9)
-		rp_display_label.add_theme_color_override("font_color", Color(0.82, 0.88, 0.86))
-		rp_display_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		system_parent.add_child(rp_display_label)
+		# RP capsule — same visual language as secondary tiles
+		var rp_panel: PanelContainer = PanelContainer.new()
+		rp_panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		rp_panel.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+		rp_panel.add_theme_stylebox_override("panel", _make_panel_style(Color(0.11, 0.123, 0.132), Color(0.18, 0.21, 0.22), 3))
+		system_parent.add_child(rp_panel)
+		var rp_margin: MarginContainer = MarginContainer.new()
+		rp_margin.add_theme_constant_override("margin_left", 4)
+		rp_margin.add_theme_constant_override("margin_top", 2)
+		rp_margin.add_theme_constant_override("margin_right", 4)
+		rp_margin.add_theme_constant_override("margin_bottom", 2)
+		rp_panel.add_child(rp_margin)
+		var rp_box: VBoxContainer = VBoxContainer.new()
+		rp_box.add_theme_constant_override("separation", 0)
+		rp_margin.add_child(rp_box)
+		var rp_title: Label = _make_label("RP", 7, false)
+		rp_title.add_theme_color_override("font_color", MUTED_TEXT_COLOR)
+		rp_box.add_child(rp_title)
+		rp_display_label = _make_label("0  +0.00/h", KEY_FONT_SIZE, false, true)
+		rp_display_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
+		rp_box.add_child(rp_display_label)
 
 	var maintenance_parent: Control = dock_control_slots.get("maintenance", null)
 	var maintenance_buttons: Dictionary = {}
