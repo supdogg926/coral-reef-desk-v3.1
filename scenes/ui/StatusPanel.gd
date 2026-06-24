@@ -81,7 +81,8 @@ func update_equipment_debug(game_state_debug: Dictionary) -> void:
 
 	_set_status_line("operations", "device_filter", "%.0f%%" % filter_efficiency, _score_color(filter_efficiency, 80.0, 50.0))
 	_set_status_line("operations", "device_comfort", "%.0f%%" % water_flow, _score_color(water_flow, 80.0, 50.0))
-	_set_status_line("operations", "device_summary", "%.0f" % stability_score, _score_color(stability_score, 80.0, 55.0))
+	_set_status_line("operations", "device_summary", "\u2014", STATUS_IDLE_COLOR)  # 光照 placeholder
+	_set_status_line("operations", "maintenance", "\u2014", STATUS_IDLE_COLOR)  # 色温 placeholder
 
 
 func update_water_chemistry_debug(water_debug: Dictionary) -> void:
@@ -109,10 +110,8 @@ func update_water_chemistry_debug(water_debug: Dictionary) -> void:
 	_set_water_delta_tag("water", "salinity", salinity, WATER_DEVIATION_TARGETS.get("salinity", 35.0), 1, "", 1.0, 3.0)
 	_set_range_tag("water", "nitrate", nitrate, 2, 1.0, 10.0, 20.0)
 	_set_range_tag("water", "phosphate", phosphate, 3, 0.010, 0.100, 0.200)
-	if maintenance_runtime_summary.is_empty() or maintenance_runtime_summary == "未维护":
-		_set_status_line("operations", "maintenance", "\u2014" if maintenance_label == "无" else maintenance_label, STATUS_IDLE_COLOR if maintenance_label == "无" else STATUS_OK_COLOR)
-	else:
-		_set_status_line("operations", "maintenance", _compact_text(maintenance_runtime_summary, 8), STATUS_OK_COLOR)
+	# 色温 tile — keep placeholder
+	_set_status_line("operations", "maintenance", "\u2014", STATUS_IDLE_COLOR)
 	_set_line("status", "time_tick", _format_game_time(elapsed_game_minutes))
 
 
@@ -147,6 +146,8 @@ func update_livestock_economy_debug(livestock_debug: Dictionary, economy_debug: 
 	_set_status_line("livestock", "fish_count", "%d" % fish_count, KEY_TEXT_COLOR)
 	_set_status_line("livestock", "coral_count", "%d" % coral_count, KEY_TEXT_COLOR)
 	_set_status_line("livestock", "crustacean_count", "%d" % crustacean_count, STATUS_IDLE_COLOR if crustacean_count <= 0 else KEY_TEXT_COLOR)
+	_set_status_line("livestock", "reserve_metric", "\u2014", STATUS_IDLE_COLOR)
+	_set_status_line("livestock", "algae_count", "0", STATUS_IDLE_COLOR)
 
 
 func update_unlock_debug(unlock_debug: Dictionary) -> void:
@@ -389,10 +390,35 @@ func _create_entry_system_section(parent: Control) -> void:
 	info_grid.add_theme_constant_override("v_separation", 2)
 	info_grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	box.add_child(info_grid)
+
+	# RP capsule - full card width
+	var rp_panel: PanelContainer = PanelContainer.new()
+	rp_panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	rp_panel.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	rp_panel.add_theme_stylebox_override("panel", _make_panel_style(Color(0.11, 0.123, 0.132), Color(0.18, 0.21, 0.22), 3))
+	box.add_child(rp_panel)
+	var rp_margin: MarginContainer = MarginContainer.new()
+	rp_margin.add_theme_constant_override("margin_left", 4)
+	rp_margin.add_theme_constant_override("margin_top", 2)
+	rp_margin.add_theme_constant_override("margin_right", 4)
+	rp_margin.add_theme_constant_override("margin_bottom", 2)
+	rp_panel.add_child(rp_margin)
+	var rp_box: VBoxContainer = VBoxContainer.new()
+	rp_box.add_theme_constant_override("separation", 0)
+	rp_margin.add_child(rp_box)
+	var rp_title: Label = _make_label("RP", 7, false)
+	rp_title.add_theme_color_override("font_color", MUTED_TEXT_COLOR)
+	rp_box.add_child(rp_title)
+	rp_display_label = _make_label("0  +0.00/h", KEY_FONT_SIZE, false, true)
+	rp_display_label.clip_text = false
+	rp_display_label.autowrap_mode = TextServer.AUTOWRAP_OFF
+	rp_display_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
+	rp_box.add_child(rp_display_label)
+
 	status_lines["phase"] = _create_secondary_tile(info_grid, "等级")
 	status_lines["time_tick"] = _create_secondary_tile(info_grid, "时间")
-	status_lines["save_status"] = _create_secondary_tile(info_grid, "存档")
-	status_lines["validation"] = _create_secondary_tile(info_grid, "目标")
+	status_lines["save_status"] = _create_secondary_tile(info_grid, "任务")
+	status_lines["validation"] = _create_secondary_tile(info_grid, "消息")
 	section_labels["status"] = status_lines
 
 
@@ -429,9 +455,11 @@ func _create_core_status_section(parent: Control) -> void:
 	water_lines["salinity"] = _create_secondary_tile(secondary_grid, "盐度")
 	water_lines["nitrate"] = _create_secondary_tile(secondary_grid, "NO3")
 	water_lines["phosphate"] = _create_secondary_tile(secondary_grid, "PO4")
+	livestock_lines["reserve_metric"] = _create_secondary_tile(secondary_grid, "预留")
 	livestock_lines["fish_count"] = _create_secondary_tile(secondary_grid, "鱼")
 	livestock_lines["coral_count"] = _create_secondary_tile(secondary_grid, "珊瑚")
 	livestock_lines["crustacean_count"] = _create_secondary_tile(secondary_grid, "甲壳")
+	livestock_lines["algae_count"] = _create_secondary_tile(secondary_grid, "藻类")
 
 	section_labels["status"] = status_lines
 
@@ -461,10 +489,10 @@ func _create_operations_section(parent: Control) -> void:
 	ops_info_grid.add_theme_constant_override("v_separation", 2)
 	ops_info_grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	box.add_child(ops_info_grid)
-	ops_lines["device_summary"] = _create_secondary_tile(ops_info_grid, "稳定")
-	ops_lines["device_filter"] = _create_secondary_tile(ops_info_grid, "过滤")
 	ops_lines["device_comfort"] = _create_secondary_tile(ops_info_grid, "水流")
-	ops_lines["maintenance"] = _create_secondary_tile(ops_info_grid, "预留")
+	ops_lines["device_filter"] = _create_secondary_tile(ops_info_grid, "过滤")
+	ops_lines["device_summary"] = _create_secondary_tile(ops_info_grid, "光照")
+	ops_lines["maintenance"] = _create_secondary_tile(ops_info_grid, "色温")
 	section_labels["operations"] = ops_lines
 
 
@@ -519,29 +547,6 @@ func configure_dock_controls(maintenance_actions: Array, feeding_actions: Array,
 		status_label.text = "0"
 		result["panel_status_label"] = status_label
 
-		# RP capsule — same visual language as secondary tiles
-		var rp_panel: PanelContainer = PanelContainer.new()
-		rp_panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		rp_panel.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-		rp_panel.add_theme_stylebox_override("panel", _make_panel_style(Color(0.11, 0.123, 0.132), Color(0.18, 0.21, 0.22), 3))
-		system_parent.add_child(rp_panel)
-		var rp_margin: MarginContainer = MarginContainer.new()
-		rp_margin.add_theme_constant_override("margin_left", 4)
-		rp_margin.add_theme_constant_override("margin_top", 2)
-		rp_margin.add_theme_constant_override("margin_right", 4)
-		rp_margin.add_theme_constant_override("margin_bottom", 2)
-		rp_panel.add_child(rp_margin)
-		var rp_box: VBoxContainer = VBoxContainer.new()
-		rp_box.add_theme_constant_override("separation", 0)
-		rp_margin.add_child(rp_box)
-		var rp_title: Label = _make_label("RP", 7, false)
-		rp_title.add_theme_color_override("font_color", MUTED_TEXT_COLOR)
-		rp_box.add_child(rp_title)
-		rp_display_label = _make_label("0  +0.00/h", KEY_FONT_SIZE, false, true)
-		rp_display_label.clip_text = false
-		rp_display_label.autowrap_mode = TextServer.AUTOWRAP_OFF
-		rp_display_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
-		rp_box.add_child(rp_display_label)
 
 	var maintenance_parent: Control = dock_control_slots.get("maintenance", null)
 	var maintenance_buttons: Dictionary = {}
@@ -868,11 +873,13 @@ func _set_default_text() -> void:
 	_set_status_line("livestock", "fish_count", "0", KEY_TEXT_COLOR)
 	_set_status_line("livestock", "coral_count", "0", KEY_TEXT_COLOR)
 	_set_status_line("livestock", "crustacean_count", "0", STATUS_IDLE_COLOR)
+	_set_status_line("livestock", "reserve_metric", "\u2014", STATUS_IDLE_COLOR)
+	_set_status_line("livestock", "algae_count", "0", STATUS_IDLE_COLOR)
 	_set_line("livestock", "secondary", "倍率 水质1.00｜舒适1.10｜健康1.00")
 	_set_line("livestock", "value", "缸价值 59.0｜状态 正常")
 	_set_status_line("operations", "device_filter", "100%", STATUS_OK_COLOR)
 	_set_status_line("operations", "device_comfort", "100%", STATUS_OK_COLOR)
-	_set_status_line("operations", "device_summary", "92", STATUS_OK_COLOR)
+	_set_status_line("operations", "device_summary", "\u2014", STATUS_IDLE_COLOR)
 	_set_status_line("operations", "maintenance", "\u2014", STATUS_IDLE_COLOR)
 	_set_status_line("operations", "bio_feedback", "无", STATUS_IDLE_COLOR)
 
