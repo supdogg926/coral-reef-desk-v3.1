@@ -79,41 +79,41 @@ func _setup_panels() -> void:
 
 	var btn_bar: PanelContainer = PanelContainer.new()
 	btn_bar.name = "M11PrototypeEntryBar"
-	btn_bar.custom_minimum_size = Vector2(0, 66)
+	btn_bar.custom_minimum_size = Vector2(0, 58)
 	btn_bar.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	btn_bar.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	var bar_style: StyleBoxFlat = StyleBoxFlat.new()
-	bar_style.bg_color = Color(0.15, 0.18, 0.20, 1.0)
+	bar_style.bg_color = Color(0.125, 0.14, 0.155, 1.0)
 	bar_style.set_border_width_all(0)
 	bar_style.set_corner_radius_all(4)
 	btn_bar.add_theme_stylebox_override("panel", bar_style)
 	var bar_margin: MarginContainer = MarginContainer.new()
-	bar_margin.add_theme_constant_override("margin_left", 8)
-	bar_margin.add_theme_constant_override("margin_top", 4)
-	bar_margin.add_theme_constant_override("margin_right", 8)
-	bar_margin.add_theme_constant_override("margin_bottom", 4)
+	bar_margin.add_theme_constant_override("margin_left", 7)
+	bar_margin.add_theme_constant_override("margin_top", 3)
+	bar_margin.add_theme_constant_override("margin_right", 7)
+	bar_margin.add_theme_constant_override("margin_bottom", 3)
 	btn_bar.add_child(bar_margin)
 	var bar_column: VBoxContainer = VBoxContainer.new()
-	bar_column.add_theme_constant_override("separation", 3)
+	bar_column.add_theme_constant_override("separation", 2)
 	bar_margin.add_child(bar_column)
 	var bar_row: HBoxContainer = HBoxContainer.new()
-	bar_row.add_theme_constant_override("separation", 5)
+	bar_row.add_theme_constant_override("separation", 4)
 	bar_column.add_child(bar_row)
 	var device_row: HBoxContainer = HBoxContainer.new()
-	device_row.add_theme_constant_override("separation", 5)
+	device_row.add_theme_constant_override("separation", 4)
 	bar_column.add_child(device_row)
 
 	shop_btn = Button.new()
 	shop_btn.text = "生物商店"
-	shop_btn.custom_minimum_size = Vector2(92, 30)
-	shop_btn.add_theme_font_size_override("font_size", 12)
+	shop_btn.custom_minimum_size = Vector2(82, 26)
+	shop_btn.add_theme_font_size_override("font_size", 10)
 	shop_btn.pressed.connect(_toggle_shop)
 	bar_row.add_child(shop_btn)
 
 	livestock_btn = Button.new()
 	livestock_btn.text = "我的生物"
-	livestock_btn.custom_minimum_size = Vector2(92, 30)
-	livestock_btn.add_theme_font_size_override("font_size", 12)
+	livestock_btn.custom_minimum_size = Vector2(82, 26)
+	livestock_btn.add_theme_font_size_override("font_size", 10)
 	livestock_btn.pressed.connect(_toggle_livestock)
 	bar_row.add_child(livestock_btn)
 
@@ -122,16 +122,16 @@ func _setup_panels() -> void:
 	if _is_dev_debug_ui_enabled():
 		var reset_btn: Button = Button.new()
 		reset_btn.text = "重置M10测试存档"
-		reset_btn.custom_minimum_size = Vector2(130, 30)
-		reset_btn.add_theme_font_size_override("font_size", 11)
+		reset_btn.custom_minimum_size = Vector2(120, 26)
+		reset_btn.add_theme_font_size_override("font_size", 10)
 		reset_btn.add_theme_color_override("font_color", Color(0.95, 0.70, 0.40))
 		reset_btn.pressed.connect(_reset_test_save)
 		bar_row.add_child(reset_btn)
 
 		var manual_save_btn: Button = Button.new()
 		manual_save_btn.text = "手动保存测试"
-		manual_save_btn.custom_minimum_size = Vector2(110, 30)
-		manual_save_btn.add_theme_font_size_override("font_size", 11)
+		manual_save_btn.custom_minimum_size = Vector2(104, 26)
+		manual_save_btn.add_theme_font_size_override("font_size", 10)
 		manual_save_btn.add_theme_color_override("font_color", Color(0.85, 0.85, 0.40))
 		manual_save_btn.pressed.connect(_manual_save_test)
 		bar_row.add_child(manual_save_btn)
@@ -297,23 +297,23 @@ func _add_water_maintenance_controls(bar_row: HBoxContainer) -> void:
 	maintenance_button_costs.clear()
 	maintenance_balance_label = null
 	var separator: VSeparator = VSeparator.new()
-	separator.custom_minimum_size = Vector2(4, 24)
+	separator.custom_minimum_size = Vector2(4, 22)
 	bar_row.add_child(separator)
 
 	var title_label: Label = Label.new()
-	title_label.text = "水质维护"
-	title_label.custom_minimum_size = Vector2(54, 24)
+	title_label.text = "维护"
+	title_label.custom_minimum_size = Vector2(36, 22)
 	title_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	title_label.add_theme_font_size_override("font_size", 11)
-	title_label.add_theme_color_override("font_color", Color(0.74, 0.86, 0.88))
+	title_label.add_theme_font_size_override("font_size", 10)
+	title_label.add_theme_color_override("font_color", Color(0.70, 0.78, 0.80))
 	bar_row.add_child(title_label)
 
 	maintenance_balance_label = Label.new()
 	maintenance_balance_label.text = "RP 0"
-	maintenance_balance_label.custom_minimum_size = Vector2(58, 24)
+	maintenance_balance_label.custom_minimum_size = Vector2(56, 22)
 	maintenance_balance_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	maintenance_balance_label.add_theme_font_size_override("font_size", 11)
-	maintenance_balance_label.add_theme_color_override("font_color", Color(0.90, 0.86, 0.62))
+	maintenance_balance_label.add_theme_font_size_override("font_size", 10)
+	maintenance_balance_label.add_theme_color_override("font_color", Color(0.86, 0.84, 0.68))
 	bar_row.add_child(maintenance_balance_label)
 
 	for raw_action in game_state.get_water_maintenance_actions():
@@ -326,8 +326,8 @@ func _add_water_maintenance_controls(bar_row: HBoxContainer) -> void:
 		var base_text: String = "%s %.0fRP" % [String(action.get("short_label", action.get("label", action_id))), action_cost]
 		button.text = base_text
 		button.tooltip_text = String(action.get("description", ""))
-		button.custom_minimum_size = Vector2(86, 30)
-		button.add_theme_font_size_override("font_size", 11)
+		button.custom_minimum_size = Vector2(78, 26)
+		button.add_theme_font_size_override("font_size", 10)
 		button.pressed.connect(_on_water_maintenance_pressed.bind(action_id))
 		bar_row.add_child(button)
 		maintenance_buttons[action_id] = button
@@ -336,11 +336,11 @@ func _add_water_maintenance_controls(bar_row: HBoxContainer) -> void:
 
 	maintenance_feedback_label = Label.new()
 	maintenance_feedback_label.text = "未维护"
-	maintenance_feedback_label.custom_minimum_size = Vector2(164, 24)
+	maintenance_feedback_label.custom_minimum_size = Vector2(178, 22)
 	maintenance_feedback_label.clip_text = true
 	maintenance_feedback_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	maintenance_feedback_label.add_theme_font_size_override("font_size", 10)
-	maintenance_feedback_label.add_theme_color_override("font_color", Color(0.68, 0.88, 0.84))
+	maintenance_feedback_label.add_theme_font_size_override("font_size", 9)
+	maintenance_feedback_label.add_theme_color_override("font_color", Color(0.66, 0.80, 0.78))
 	bar_row.add_child(maintenance_feedback_label)
 
 
@@ -351,11 +351,11 @@ func _add_device_controls(device_row: HBoxContainer) -> void:
 	device_button_base_texts.clear()
 
 	var title_label: Label = Label.new()
-	title_label.text = "设备控制"
-	title_label.custom_minimum_size = Vector2(54, 24)
+	title_label.text = "设备"
+	title_label.custom_minimum_size = Vector2(36, 22)
 	title_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	title_label.add_theme_font_size_override("font_size", 11)
-	title_label.add_theme_color_override("font_color", Color(0.74, 0.86, 0.88))
+	title_label.add_theme_font_size_override("font_size", 10)
+	title_label.add_theme_color_override("font_color", Color(0.70, 0.78, 0.80))
 	device_row.add_child(title_label)
 
 	var device_order: Array[String] = ["return_pump", "wave_pump", "main_light", "reserve"]
@@ -367,8 +367,8 @@ func _add_device_controls(device_row: HBoxContainer) -> void:
 		var device_info: Dictionary = raw_device if raw_device is Dictionary else {}
 		var display_name: String = String(device_info.get("display_name", device_id))
 		var button: Button = Button.new()
-		button.custom_minimum_size = Vector2(78, 26)
-		button.add_theme_font_size_override("font_size", 11)
+		button.custom_minimum_size = Vector2(72, 24)
+		button.add_theme_font_size_override("font_size", 10)
 		button.tooltip_text = "切换%s（prototype运行时状态，不写入存档）" % display_name
 		button.pressed.connect(_on_device_pressed.bind(device_id))
 		device_row.add_child(button)
@@ -457,11 +457,11 @@ func _update_device_button_states() -> void:
 		var display_name: String = String(device_button_base_texts.get(device_id, device_info.get("display_name", device_id)))
 		var enabled: bool = bool(device_info.get("enabled", false))
 		button.disabled = false
-		button.text = "%s:%s" % [display_name, "ON" if enabled else "OFF"]
+		button.text = "%s %s" % [display_name, "ON" if enabled else "OFF"]
 		if enabled:
-			button.add_theme_color_override("font_color", Color(0.78, 0.92, 0.86))
+			button.add_theme_color_override("font_color", Color(0.78, 0.88, 0.84))
 		else:
-			button.add_theme_color_override("font_color", Color(0.72, 0.72, 0.72))
+			button.add_theme_color_override("font_color", Color(0.64, 0.66, 0.66))
 
 
 func _update_status_labels() -> void:
