@@ -1,8 +1,8 @@
 class_name ActionTimeline
 extends RefCounted
 
-const MAX_ENTRIES: int = 80
-const DISPLAY_COUNT: int = 8
+const MAX_ENTRIES: int = 120
+const DISPLAY_COUNT: int = 13
 
 # Color constants for timeline entries
 const COLOR_PLAYER: Color = Color(0.80, 0.86, 0.84)       # gray-white

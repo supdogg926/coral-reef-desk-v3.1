@@ -106,10 +106,11 @@ func update_water_chemistry_debug(water_debug: Dictionary) -> void:
 	_set_water_delta_tag("water", "ph", ph, WATER_DEVIATION_TARGETS.get("ph", 8.2), 2, "", 0.15, 0.35)
 	_set_water_delta_tag("water", "alkalinity", alkalinity, WATER_DEVIATION_TARGETS.get("alkalinity", 8.3), 1, "", 0.5, 1.0)
 	_set_water_delta_tag("water", "calcium", calcium, WATER_DEVIATION_TARGETS.get("calcium", 430.0), 0, "", 30.0, 60.0)
+	_set_water_delta_tag("water", "salinity", salinity, WATER_DEVIATION_TARGETS.get("salinity", 35.0), 1, "", 1.0, 3.0)
 	_set_range_tag("water", "nitrate", nitrate, 2, 1.0, 10.0, 20.0)
 	_set_range_tag("water", "phosphate", phosphate, 3, 0.010, 0.100, 0.200)
 	if maintenance_runtime_summary.is_empty() or maintenance_runtime_summary == "未维护":
-		_set_status_line("operations", "maintenance", "无" if maintenance_label == "无" else maintenance_label, STATUS_IDLE_COLOR if maintenance_label == "无" else STATUS_OK_COLOR)
+		_set_status_line("operations", "maintenance", "\u2014" if maintenance_label == "无" else maintenance_label, STATUS_IDLE_COLOR if maintenance_label == "无" else STATUS_OK_COLOR)
 	else:
 		_set_status_line("operations", "maintenance", _compact_text(maintenance_runtime_summary, 8), STATUS_OK_COLOR)
 	_set_line("status", "time_tick", _format_game_time(elapsed_game_minutes))
@@ -296,7 +297,7 @@ func _build_status_layout() -> void:
 
 func _create_timeline_section(parent: Control) -> void:
 	timeline_labels.clear()
-	var box: VBoxContainer = _create_card(parent, "timeline", "时间线", 1.30)
+	var box: VBoxContainer = _create_card(parent, "timeline", "时间线", 1.80)
 	_add_title_label(box, "时间线")
 	var scroll: ScrollContainer = ScrollContainer.new()
 	scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -308,8 +309,8 @@ func _create_timeline_section(parent: Control) -> void:
 	scroll_vbox.add_theme_constant_override("separation", 1)
 	scroll_vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	scroll.add_child(scroll_vbox)
-	for i in range(8):
-		var label: Label = _make_label("", 7, false)
+	for i in range(13):
+		var label: Label = _make_label("", 8, false)
 		label.add_theme_color_override("font_color", Color(0.60, 0.66, 0.66))
 		scroll_vbox.add_child(label)
 		timeline_labels.append(label)
@@ -365,13 +366,8 @@ func _create_entry_system_section(parent: Control) -> void:
 	var box: VBoxContainer = _create_card(parent, "entry_system", "系统", 1.05)
 	_add_title_label(box, "系统")
 
-	# RP display - moved from core_status
-	rp_display_label = _make_label("RP 0  +0.00/h", 11, false, true)
-	rp_display_label.add_theme_color_override("font_color", Color(0.82, 0.88, 0.86))
-	box.add_child(rp_display_label)
-
 	var entry_grid: GridContainer = GridContainer.new()
-	entry_grid.columns = 3
+	entry_grid.columns = 2
 	entry_grid.add_theme_constant_override("h_separation", 4)
 	entry_grid.add_theme_constant_override("v_separation", 3)
 	entry_grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -430,6 +426,7 @@ func _create_core_status_section(parent: Control) -> void:
 	water_lines["ph"] = _create_secondary_tile(secondary_grid, "pH")
 	water_lines["alkalinity"] = _create_secondary_tile(secondary_grid, "KH")
 	water_lines["calcium"] = _create_secondary_tile(secondary_grid, "Ca")
+	water_lines["salinity"] = _create_secondary_tile(secondary_grid, "盐度")
 	water_lines["nitrate"] = _create_secondary_tile(secondary_grid, "NO3")
 	water_lines["phosphate"] = _create_secondary_tile(secondary_grid, "PO4")
 	livestock_lines["fish_count"] = _create_secondary_tile(secondary_grid, "鱼")
@@ -467,7 +464,7 @@ func _create_operations_section(parent: Control) -> void:
 	ops_lines["device_summary"] = _create_secondary_tile(ops_info_grid, "稳定")
 	ops_lines["device_filter"] = _create_secondary_tile(ops_info_grid, "过滤")
 	ops_lines["device_comfort"] = _create_secondary_tile(ops_info_grid, "水流")
-	ops_lines["maintenance"] = _create_secondary_tile(ops_info_grid, "维护")
+	ops_lines["maintenance"] = _create_secondary_tile(ops_info_grid, "预留")
 	section_labels["operations"] = ops_lines
 
 
@@ -499,10 +496,6 @@ func configure_dock_controls(maintenance_actions: Array, feeding_actions: Array,
 		entry_parent.add_child(livestock_button)
 		result["livestock_btn"] = livestock_button
 
-		var maintenance_entry: Button = _make_dock_button("维护")
-		maintenance_entry.tooltip_text = "维护操作已集中在底部 Dock 中"
-		maintenance_entry.pressed.connect(_show_maintenance_hint)
-		entry_parent.add_child(maintenance_entry)
 
 	var system_parent: Control = dock_control_slots.get("system", null)
 	if system_parent != null:
@@ -525,6 +518,14 @@ func configure_dock_controls(maintenance_actions: Array, feeding_actions: Array,
 		var status_label: Label = _create_secondary_tile(system_parent, "tick")
 		status_label.text = "0"
 		result["panel_status_label"] = status_label
+
+		rp_display_label = Label.new()
+		rp_display_label.text = "RP 0  +0.00/h"
+		rp_display_label.clip_text = false
+		rp_display_label.add_theme_font_size_override("font_size", 9)
+		rp_display_label.add_theme_color_override("font_color", Color(0.82, 0.88, 0.86))
+		rp_display_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		system_parent.add_child(rp_display_label)
 
 	var maintenance_parent: Control = dock_control_slots.get("maintenance", null)
 	var maintenance_buttons: Dictionary = {}
@@ -834,13 +835,14 @@ func _set_default_text() -> void:
 	_set_line("status", "time_tick", "第1天 00:00")
 	_set_line("status", "simulation", "模拟运行｜1秒=10分钟")
 	_set_line("status", "data", "仓库 暂无｜锁定")
-	_set_line("status", "validation", "维护稳定")
+	_set_line("status", "validation", "\u2014")
 	_set_line("status", "save_offline", "离线 无")
 	_set_status_line("water", "water_primary", "正常 100", STATUS_OK_COLOR)
 	_set_status_line("water", "temperature", "25.1° +0.1", STATUS_OK_COLOR)
 	_set_status_line("water", "ph", "8.20 OK", STATUS_OK_COLOR)
 	_set_status_line("water", "alkalinity", "8.3 OK", STATUS_OK_COLOR)
 	_set_status_line("water", "calcium", "430 OK", STATUS_OK_COLOR)
+	_set_status_line("water", "salinity", "35.0 OK", STATUS_OK_COLOR)
 	_set_status_line("water", "nitrate", "2.60 OK", STATUS_OK_COLOR)
 	_set_status_line("water", "phosphate", "0.030 OK", STATUS_OK_COLOR)
 	_set_line("water", "deviation_minerals", "矿物偏差：KH +0.0｜Ca +0｜全部正常")
@@ -855,7 +857,7 @@ func _set_default_text() -> void:
 	_set_status_line("operations", "device_filter", "100%", STATUS_OK_COLOR)
 	_set_status_line("operations", "device_comfort", "100%", STATUS_OK_COLOR)
 	_set_status_line("operations", "device_summary", "92", STATUS_OK_COLOR)
-	_set_status_line("operations", "maintenance", "无", STATUS_IDLE_COLOR)
+	_set_status_line("operations", "maintenance", "\u2014", STATUS_IDLE_COLOR)
 	_set_status_line("operations", "bio_feedback", "无", STATUS_IDLE_COLOR)
 
 

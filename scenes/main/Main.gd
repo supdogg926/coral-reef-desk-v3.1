@@ -528,3 +528,6 @@ func _update_status_labels() -> void:
 		game_state.offline_summary,
 	)
 	status_panel.update_timeline(game_state.get_timeline_entries())
+	# Seed timeline with test events for scroll verification (once)
+	if game_state.action_timeline != null and game_state.action_timeline.size() == 0:
+		game_state.seed_timeline_for_test()

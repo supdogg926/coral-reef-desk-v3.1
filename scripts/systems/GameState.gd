@@ -1167,6 +1167,9 @@ func _format_maintenance_timeline_text(action_id: String, _result: Dictionary) -
 		"dose_buffer":
 			return {"text": "补KH KH\u2191 pH稳", "color": ActionTimeline.COLOR_POSITIVE}
 		"top_off":
+			var sal_delta: float = float(_result.get("delta_salinity", 0.0))
+			if abs(sal_delta) > 0.001:
+				return {"text": "补水 盐度%+.1f 回稳" % sal_delta, "color": ActionTimeline.COLOR_POSITIVE}
 			return {"text": "补水 盐度回稳", "color": ActionTimeline.COLOR_POSITIVE}
 		"travel_prep":
 			return {"text": "出门 托管维护", "color": ActionTimeline.COLOR_POSITIVE}
@@ -1295,7 +1298,44 @@ func _check_timeline_system_events() -> void:
 			_timeline_log_system("PO4恢复安全范围", ActionTimeline.COLOR_POSITIVE)
 
 
-func get_timeline_entries(count: int = 8) -> Array:
+
+func seed_timeline_for_test() -> void:
+	if action_timeline == null:
+		return
+	var test_events: Array[Dictionary] = [
+		{"text": "D1 08:00 系统启动", "color": ActionTimeline.COLOR_PLAYER},
+		{"text": "D1 08:05 水泵ON 水流\u2191", "color": ActionTimeline.COLOR_POSITIVE},
+		{"text": "D1 08:10 造浪ON", "color": ActionTimeline.COLOR_POSITIVE},
+		{"text": "D1 08:15 主灯ON", "color": ActionTimeline.COLOR_POSITIVE},
+		{"text": "D1 09:20 喂鱼粮 NO3+0.55 PO4+0.010", "color": ActionTimeline.COLOR_PLAYER},
+		{"text": "D1 12:00 换水 降NO3/PO4", "color": ActionTimeline.COLOR_POSITIVE},
+		{"text": "D1 14:30 清滤 过滤\u2191", "color": ActionTimeline.COLOR_POSITIVE},
+		{"text": "D1 16:00 补KH KH\u2191 pH稳", "color": ActionTimeline.COLOR_POSITIVE},
+		{"text": "D1 18:30 喂珊瑚粮 NO3+0.22 PO4+0.022", "color": ActionTimeline.COLOR_PLAYER},
+		{"text": "D2 08:00 水质\u2192警告", "color": ActionTimeline.COLOR_CAUTION},
+		{"text": "D2 08:05 NO3偏高 25.0 超出安全范围", "color": ActionTimeline.COLOR_CAUTION},
+		{"text": "D2 09:00 水泵OFF 水流\u2193 过滤\u2193", "color": ActionTimeline.COLOR_CAUTION},
+		{"text": "D2 09:05 水流=0 过滤\u2193 循环停止", "color": ActionTimeline.COLOR_CRITICAL},
+		{"text": "D2 10:00 水质\u2192危险", "color": ActionTimeline.COLOR_CRITICAL},
+		{"text": "D2 10:01 未维护 水质恶化", "color": ActionTimeline.COLOR_CRITICAL},
+		{"text": "D2 10:30 舒适度\u2192偏低", "color": ActionTimeline.COLOR_CAUTION},
+		{"text": "D2 11:00 收益倍率\u21920.75x", "color": ActionTimeline.COLOR_CAUTION},
+		{"text": "D2 12:00 水泵ON 水流\u2191", "color": ActionTimeline.COLOR_POSITIVE},
+		{"text": "D2 12:05 水流恢复", "color": ActionTimeline.COLOR_POSITIVE},
+		{"text": "D2 13:00 清滤 过滤\u2191", "color": ActionTimeline.COLOR_POSITIVE},
+		{"text": "D2 14:00 补水 盐度-0.2 回稳", "color": ActionTimeline.COLOR_POSITIVE},
+		{"text": "D2 15:00 换水 降NO3/PO4", "color": ActionTimeline.COLOR_POSITIVE},
+		{"text": "D2 16:00 NO3恢复安全范围", "color": ActionTimeline.COLOR_POSITIVE},
+		{"text": "D2 17:00 水质\u2192正常", "color": ActionTimeline.COLOR_POSITIVE},
+		{"text": "D2 18:00 PO4偏高 0.250 超出安全范围", "color": ActionTimeline.COLOR_CAUTION},
+		{"text": "D3 08:00 喂鱼粮 NO3+0.60 PO4+0.012", "color": ActionTimeline.COLOR_PLAYER},
+	]
+	for ev in test_events:
+		action_timeline.entries.append(ev)
+	while action_timeline.entries.size() > ActionTimeline.MAX_ENTRIES:
+		action_timeline.entries.pop_front()
+
+func get_timeline_entries(count: int = 13) -> Array:
 	if action_timeline == null:
 		return []
 	return action_timeline.get_recent(count)
