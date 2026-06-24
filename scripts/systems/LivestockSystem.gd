@@ -47,21 +47,11 @@ const NAME_MAP: Dictionary = {
 const VALID_RARITIES: Array[String] = ["普通", "精品", "稀有", "大师", "传奇"]
 
 const CATEGORY_MAP: Dictionary = {
-# Fish
-"fish": "fish", "鱼": "fish", "海水鱼": "fish", "小丑鱼": "fish",
-"倒吊": "fish", "marine_fish": "fish",
-# Coral
-"coral": "coral", "珊瑚": "coral", "软体珊瑚": "coral",
-"lps": "coral", "sps": "coral", "lps硬骨珊瑚": "coral",
-"sps硬骨珊瑚": "coral", "hard_coral": "coral",
-# Crustacean
-"crustacean": "crustacean", "甲壳": "crustacean", "甲壳类": "crustacean",
-"shrimp": "crustacean", "crab": "crustacean", "虾": "crustacean", "蟹": "crustacean",
-# Algae
-"algae": "algae", "macroalgae": "algae", "藻": "algae",
-"藻类": "algae", "海藻": "algae",
-# Invertebrate
-"invertebrate": "invertebrate", "无脊椎": "invertebrate",
+	"fish": "fish", "鱼": "fish", "海水鱼": "fish",
+	"coral": "coral", "珊瑚": "coral", "软体珊瑚": "coral", "lps": "coral", "sps": "coral", "lps硬骨珊瑚": "coral",
+	"crustacean": "crustacean", "甲壳": "crustacean", "shrimp": "crustacean", "crab": "crustacean", "虾": "crustacean", "蟹": "crustacean",
+	"algae": "algae", "藻": "algae", "藻类": "algae",
+	"invertebrate": "invertebrate", "无脊椎": "invertebrate",
 }
 
 const WATER_QUALITY_MULTIPLIER_TABLE: Array[Dictionary] = [
@@ -87,7 +77,6 @@ func initialize() -> void:
 	crustacean_count = 0
 	other_livestock_count = 0
 	algae_count = 0
-	invertebrate_count = 0
 	bio_load = 0.0
 	system_capacity = DEFAULT_MAX_CAPACITY
 	bio_load_ratio = 0.0
@@ -436,32 +425,36 @@ func _recount_livestock_categories() -> void:
 	other_livestock_count = 0
 	algae_count = 0
 	invertebrate_count = 0
-	algae_count = 0
-	algae_count = 0
 	for entry in owned_livestock:
 		if bool(entry.get("locked", false)):
 			continue
 		var category: String = _normalize_livestock_category(String(entry.get("category", "")))
+		var qty: int = _get_entry_quantity(entry)
 		if category == "fish":
-			fish_count += 1
+			fish_count += qty
 		elif category == "coral":
-			coral_count += 1
+			coral_count += qty
 		elif category == "crustacean" or category == "shrimp" or category == "crab":
-			crustacean_count += 1
+			crustacean_count += qty
 		elif category == "algae":
-			algae_count += 1
+			algae_count += qty
 		elif category == "invertebrate":
-			invertebrate_count += 1
+			invertebrate_count += qty
 		else:
-			other_livestock_count += 1
-
-
+			other_livestock_count += qty
 
 func _normalize_livestock_category(raw_category: String) -> String:
 	var key: String = raw_category.to_lower().strip_edges()
 	if CATEGORY_MAP.has(key):
 		return String(CATEGORY_MAP[key])
 	return "other"
+
+
+func _get_entry_quantity(entry: Dictionary) -> int:
+	var name_str: String = (String(entry.get("species_name", "")) + String(entry.get("id", ""))).to_lower()
+	if "pair" in name_str or "一对" in name_str or "双" in name_str:
+		return 2
+	return 1
 
 func _get_maintenance_relief(action_id: String) -> float:
 	match action_id:

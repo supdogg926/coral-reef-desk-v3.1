@@ -1035,13 +1035,14 @@ func buy_livestock_from_shop(shop_id: String) -> Dictionary:
 	_purchase_save_timer = 0.0
 	if action_timeline != null:
 		var bname: String = String(purchase_entry.get("species_name", ""))
-		var bcat: String = String(purchase_entry.get("category", ""))
+		var bcat: String = livestock_system._normalize_livestock_category(String(purchase_entry.get("category", ""))) if livestock_system != null else "other"
 		if not bname.is_empty():
+			var bqty: int = livestock_system._get_entry_quantity(purchase_entry) if livestock_system != null else 1
 			var label: String = "购买 " + bname
 			if bcat == "fish":
-				label += " 鱼 +1"
+				label += " 鱼 +%d" % bqty
 			elif bcat == "coral":
-				label += " 珊瑚 +1"
+				label += " 珊瑚 +%d" % bqty
 			_timeline_log_player(label, ActionTimeline.COLOR_POSITIVE)
 	print("[BUY] gs.buy about to return success")
 	return {
@@ -1078,7 +1079,7 @@ func release_owned_livestock(livestock_id: String) -> Dictionary:
 	if action_timeline != null:
 		var rname: String = String(result.get("species_name", ""))
 		if not rname.is_empty():
-			var rcat: String = String(result.get("category", ""))
+			var rcat: String = livestock_system._normalize_livestock_category(String(result.get("category", ""))) if livestock_system != null else "other"
 			var rlabel: String = "放归 " + rname
 			if rcat == "fish":
 				rlabel += " 鱼 -1"
