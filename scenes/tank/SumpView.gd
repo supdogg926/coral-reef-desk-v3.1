@@ -7,33 +7,49 @@ func _ready() -> void:
 
 func _draw() -> void:
 	var font: Font = get_theme_default_font()
-	var outer_rect: Rect2 = Rect2(Vector2(10, 12), size - Vector2(20, 20))
-	var title_pos: Vector2 = outer_rect.position + Vector2(16, 23)
-	var sump_rect: Rect2 = Rect2(outer_rect.position + Vector2(24, 46), outer_rect.size - Vector2(220, 64))
-	var ato_rect: Rect2 = Rect2(Vector2(outer_rect.position.x + outer_rect.size.x - 170.0, sump_rect.position.y), Vector2(120, sump_rect.size.y))
+	var outer_rect: Rect2 = Rect2(Vector2(10, 8), size - Vector2(20, 14))
+	var title_pos: Vector2 = outer_rect.position + Vector2(16, 21)
+	var sump_rect: Rect2 = Rect2(outer_rect.position + Vector2(22, 34), outer_rect.size - Vector2(44, 44))
 
 	draw_rect(outer_rect, Color(0.11, 0.10, 0.09), true)
 	draw_rect(outer_rect, Color(0.34, 0.32, 0.28), false, 2.0)
-	draw_string(font, title_pos, "底缸 / 柏林系统", HORIZONTAL_ALIGNMENT_LEFT, -1, 14, Color(0.86, 0.91, 0.92))
-	draw_rect(sump_rect, Color(0.04, 0.12, 0.17), true)
-	draw_rect(sump_rect, Color(0.55, 0.72, 0.78), false, 2.0)
+	draw_string(font, title_pos, "底缸 / 柏林系统", HORIZONTAL_ALIGNMENT_LEFT, -1, 13, Color(0.86, 0.91, 0.92))
+	draw_rect(sump_rect, Color(0.04, 0.11, 0.15), true)
+	draw_rect(sump_rect, Color(0.55, 0.72, 0.78), false, 1.6)
 
-	var chamber_width: float = sump_rect.size.x / 4.0
-	for i in range(1, 4):
-		var x: float = sump_rect.position.x + chamber_width * float(i)
-		draw_line(Vector2(x, sump_rect.position.y + 8.0), Vector2(x, sump_rect.position.y + sump_rect.size.y - 8.0), Color(0.48, 0.65, 0.7), 2.0)
+	var modules: Array[Dictionary] = [
+		{"name": "滤袋区", "sub": "入水 / 机械过滤", "ratio": 0.12},
+		{"name": "蛋分区", "sub": "Protein Skimmer", "ratio": 0.16},
+		{"name": "藻缸 / 滤材", "sub": "Refugium", "ratio": 0.18},
+		{"name": "活石区", "sub": "Live Rock", "ratio": 0.15},
+		{"name": "陶瓷环区", "sub": "Bio Media", "ratio": 0.17},
+		{"name": "预留设备", "sub": "Future Slot", "ratio": 0.10},
+		{"name": "ATO 补水仓", "sub": "储水 / 补水", "ratio": 0.12},
+	]
+	var x: float = sump_rect.position.x
+	for i in range(modules.size()):
+		var module: Dictionary = modules[i]
+		var width: float = sump_rect.size.x * float(module.get("ratio", 0.12))
+		if i == modules.size() - 1:
+			width = sump_rect.end.x - x
+		var chamber: Rect2 = Rect2(Vector2(x, sump_rect.position.y), Vector2(width, sump_rect.size.y))
+		_draw_chamber_outline(font, chamber, String(module.get("name", "")), String(module.get("sub", "")), i)
+		if i < modules.size() - 1:
+			draw_line(Vector2(chamber.end.x, chamber.position.y + 5.0), Vector2(chamber.end.x, chamber.end.y - 5.0), Color(0.50, 0.68, 0.72), 1.4)
+		x += width
 
-	_draw_slot_badges(font, sump_rect, chamber_width)
-	_draw_filter_sock(sump_rect.position + Vector2(chamber_width * 0.50, 34))
-	_draw_skimmer(sump_rect.position + Vector2(chamber_width * 1.48, 34))
-	_draw_refugium(Rect2(sump_rect.position + Vector2(chamber_width * 2.10, 30), Vector2(chamber_width * 0.72, max(sump_rect.size.y - 38.0, 18.0))))
-	_draw_heater(sump_rect.position + Vector2(chamber_width * 3.07, sump_rect.size.y - 15))
-	_draw_return_pump(sump_rect.position + Vector2(chamber_width * 3.48, sump_rect.size.y - 28))
+	var flow_y: float = sump_rect.position.y + sump_rect.size.y - 12.0
+	draw_line(Vector2(sump_rect.position.x + 10.0, flow_y), Vector2(sump_rect.end.x - 10.0, flow_y), Color(0.35, 0.55, 0.62, 0.75), 1.2)
+	draw_string(font, Vector2(sump_rect.position.x + 12.0, flow_y - 4.0), "水流路径  →", HORIZONTAL_ALIGNMENT_LEFT, -1, 9, Color(0.62, 0.76, 0.78))
 
-	draw_rect(ato_rect, Color(0.08, 0.16, 0.18), true)
-	draw_rect(ato_rect, Color(0.5, 0.72, 0.76), false, 2.0)
-	draw_string(font, ato_rect.position + Vector2(12, 22), "ATO 补水仓", HORIZONTAL_ALIGNMENT_LEFT, -1, 13, Color(0.82, 0.92, 0.94))
-	draw_string(font, ato_rect.position + Vector2(12, 43), "储水", HORIZONTAL_ALIGNMENT_LEFT, -1, 11, Color(0.68, 0.78, 0.8))
+
+func _draw_chamber_outline(font: Font, rect: Rect2, title: String, subtitle: String, index: int) -> void:
+	var inset: Rect2 = rect.grow(-5.0)
+	var fill_alpha: float = 0.18 + float(index % 2) * 0.06
+	draw_rect(inset, Color(0.08, 0.18, 0.22, fill_alpha), true)
+	draw_rect(inset, Color(0.40, 0.60, 0.64, 0.72), false, 1.0)
+	draw_string(font, inset.position + Vector2(7, 18), title, HORIZONTAL_ALIGNMENT_LEFT, -1, 11, Color(0.84, 0.93, 0.92))
+	draw_string(font, inset.position + Vector2(7, 34), subtitle, HORIZONTAL_ALIGNMENT_LEFT, -1, 8, Color(0.57, 0.70, 0.70))
 
 
 func _draw_slot_badges(font: Font, sump_rect: Rect2, chamber_width: float) -> void:

@@ -6,11 +6,11 @@ var dock_control_slots: Dictionary = {}
 var dock_body: Control = null
 var collapsed_bar: Control = null
 
-const TITLE_FONT_SIZE: int = 10
-const BODY_FONT_SIZE: int = 8
-const KEY_FONT_SIZE: int = 10
-const PRIMARY_FONT_SIZE: int = 13
-const DOCK_HEIGHT: int = 154
+const TITLE_FONT_SIZE: int = 9
+const BODY_FONT_SIZE: int = 7
+const KEY_FONT_SIZE: int = 9
+const PRIMARY_FONT_SIZE: int = 11
+const DOCK_HEIGHT: int = 108
 const COLLAPSED_DOCK_HEIGHT: int = 26
 const PANEL_BG_COLOR: Color = Color(0.105, 0.115, 0.125)
 const PANEL_BORDER_COLOR: Color = Color(0.24, 0.28, 0.30)
@@ -77,10 +77,10 @@ func update_equipment_debug(game_state_debug: Dictionary) -> void:
 	if device_risk.is_empty():
 		device_risk = "无"
 
-	_set_line("realtime", "device_summary", "设备 %d/%d｜稳定 %.1f｜承载 %.1f" % [tier1_enabled_count, tier1_total_count, stability_score, carrying_capacity_score])
-	_set_line("realtime", "device_filter", device_filter_line)
-	_set_line("realtime", "device_comfort", device_comfort_line)
-	_set_line("realtime", "device_risk", "风险 %s｜预留 %d/%d｜仓 %d｜锁 %d" % [device_risk, tier2_reserved_count, tier3_reserved_count, warehouse_count, locked_count])
+	_set_line("status", "device_summary", "设备 %d/%d｜稳定 %.0f｜承载 %.0f" % [tier1_enabled_count, tier1_total_count, stability_score, carrying_capacity_score])
+	_set_line("operations", "device_filter", _compact_text(device_filter_line, 30))
+	_set_line("operations", "device_comfort", _compact_text(device_comfort_line, 30))
+	_set_line("status", "validation", "风险 %s｜预留 %d/%d｜仓 %d｜锁 %d" % [device_risk, tier2_reserved_count, tier3_reserved_count, warehouse_count, locked_count])
 
 
 func update_water_chemistry_debug(water_debug: Dictionary) -> void:
@@ -101,13 +101,13 @@ func update_water_chemistry_debug(water_debug: Dictionary) -> void:
 	var maintenance_runtime_summary: String = String(water_debug.get("last_maintenance_runtime_summary", ""))
 
 	_set_line("water", "water_primary", "%s  %.0f" % [localized_status, water_quality_score])
-	_set_line("water", "readings_core", "温 %.1f℃   盐 %.1f   pH %.2f" % [temperature, salinity, ph])
-	_set_line("water", "readings_chemistry", "NO3 %.2f   PO4 %.3f   KH %.1f   Ca %.0f" % [nitrate, phosphate, alkalinity, calcium])
+	_set_line("water", "readings_core", "%.1f℃   pH %.2f" % [temperature, ph])
+	_set_line("water", "readings_chemistry", "NO3 %.2f   PO4 %.3f" % [nitrate, phosphate])
 	_update_water_deviation_summary(water_debug)
 	if maintenance_runtime_summary.is_empty() or maintenance_runtime_summary == "未维护":
-		_set_line("realtime", "maintenance", "维护 %s｜%s" % [maintenance_label, _compact_text(maintenance_delta, 32)])
+		_set_line("operations", "maintenance", "维护 %s｜%s" % [maintenance_label, _compact_text(maintenance_delta, 22)])
 	else:
-		_set_line("realtime", "maintenance", "维护 " + _compact_text(maintenance_runtime_summary, 36))
+		_set_line("operations", "maintenance", "维护 " + _compact_text(maintenance_runtime_summary, 26))
 	_set_line("status", "time_tick", "%s｜更新 %d" % [_format_game_time(elapsed_game_minutes), chemistry_tick_count])
 	_set_line("status", "simulation", "模拟运行｜1秒=10分钟")
 
@@ -138,10 +138,9 @@ func update_livestock_economy_debug(livestock_debug: Dictionary, economy_debug: 
 	_set_line("livestock", "comfort_primary", "%.0f %s" % [comfort_score, comfort_status])
 	_set_line("livestock", "load_primary", "%.1f / %.1f" % [bio_load, system_capacity])
 	_set_line("livestock", "revenue_primary", "%.2fx" % revenue_multiplier)
-	_set_line("livestock", "rp_primary", "RP %.0f   +%.2f/h" % [reef_points, income_rate])
-	_set_line("livestock", "rp_tick", "+%.5f / tick" % current_rp_per_tick)
-	_set_line("livestock", "count", "生物 %d｜鱼 %d｜珊瑚 %d｜槽位 %.1f/%.1f" % [livestock_count, fish_count, coral_count, capacity_used, max_capacity])
-	_set_line("livestock", "secondary", "水质 %.2fx｜健康 %.2f｜基础 %.2f/h｜修正 %.2f/h" % [water_quality_mult, health_modifier, base_income, effective_income])
+	_set_line("livestock", "rp_tick", "+%.5f/tick   +%.2f/h" % [current_rp_per_tick, income_rate])
+	_set_line("livestock", "count", "生物%d｜鱼%d｜珊瑚%d｜槽位%.1f/%.1f" % [livestock_count, fish_count, coral_count, capacity_used, max_capacity])
+	_set_line("livestock", "secondary", "水质%.2fx｜健康%.2f｜修正%.2f/h" % [water_quality_mult, health_modifier, effective_income])
 	_set_line("livestock", "value", "缸价值 %.1f｜状态 %s" % [reef_value, capacity_status])
 
 
@@ -164,8 +163,8 @@ func update_unlock_debug(unlock_debug: Dictionary) -> void:
 	var t2_unlocked: bool = bool(unlock_debug.get("unlocked_states", {}).get("tier2_equipment_preview", false))
 	var wh_status: String = "预览" if t2_unlocked else "锁定"
 	_set_line("status", "phase", "%s｜进度 %.0f%%" % [current_stage, progress])
-	_set_line("realtime", "stage", "目标 " + _compact_text(next_target, 18))
-	_set_line("realtime", "warehouse", "仓库 %s｜%s" % [warehouse_text, wh_status])
+	_set_line("status", "validation", "目标 " + _compact_text(next_target, 18))
+	_set_line("status", "data", "仓库 %s｜%s" % [warehouse_text, wh_status])
 
 
 func update_delta_debug(water_debug: Dictionary, delta_debug: Dictionary, economy_debug: Dictionary, livestock_debug: Dictionary) -> void:
@@ -209,10 +208,10 @@ func update_delta_debug(water_debug: Dictionary, delta_debug: Dictionary, econom
 	var econ_line_a: String = "结算 +%.5f/tick｜+%.2f/h" % [current_rp_per_tick, income_rate]
 	var econ_line_b: String = "倍率 水质%.2f｜舒适%.2f｜健康%.2f" % [water_mult, revenue_mult, health_mod]
 
-	_set_line("realtime", "log_water", _compact_text(water_min_line, 34))
-	_set_line("realtime", "log_income", econ_line_a)
-	_set_line("realtime", "log_mod", econ_line_b)
-	_set_line("realtime", "bio_feedback", _compact_text(bio_feedback, 30))
+	_set_line("water", "deviation_nutrients", _compact_text(water_min_line, 34))
+	_set_line("status", "income_short", econ_line_a)
+	_set_line("livestock", "secondary", econ_line_b)
+	_set_line("operations", "bio_feedback", _compact_text(bio_feedback, 30))
 
 
 func update_save_debug(save_debug: Dictionary, save_loaded: bool, offline_summary: Dictionary) -> void:
@@ -252,10 +251,10 @@ func _build_status_layout() -> void:
 		child.queue_free()
 
 	var margin: MarginContainer = MarginContainer.new()
-	margin.add_theme_constant_override("margin_left", 8)
-	margin.add_theme_constant_override("margin_top", 5)
-	margin.add_theme_constant_override("margin_right", 8)
-	margin.add_theme_constant_override("margin_bottom", 5)
+	margin.add_theme_constant_override("margin_left", 6)
+	margin.add_theme_constant_override("margin_top", 4)
+	margin.add_theme_constant_override("margin_right", 6)
+	margin.add_theme_constant_override("margin_bottom", 4)
 	add_child(margin)
 
 	var stack: VBoxContainer = VBoxContainer.new()
@@ -265,7 +264,7 @@ func _build_status_layout() -> void:
 	margin.add_child(stack)
 
 	dock_body = HBoxContainer.new()
-	dock_body.add_theme_constant_override("separation", 6)
+	dock_body.add_theme_constant_override("separation", 5)
 	dock_body.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	dock_body.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	stack.add_child(dock_body)
@@ -280,16 +279,14 @@ func _build_status_layout() -> void:
 	var restore_spacer: Control = Control.new()
 	restore_spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	collapsed_bar.add_child(restore_spacer)
-	var restore_button: Button = _make_dock_button("控制", Vector2(62, 20))
+	var restore_button: Button = _make_dock_button("控制", Vector2(58, 18))
 	restore_button.tooltip_text = "恢复底部控制 Dock"
 	restore_button.pressed.connect(_set_observation_mode.bind(false))
 	collapsed_bar.add_child(restore_button)
 
 	_create_entry_system_section(dock_body)
 	_create_core_status_section(dock_body)
-	_create_maintenance_section(dock_body)
-	_create_device_control_section(dock_body)
-	_create_realtime_section(dock_body)
+	_create_operations_section(dock_body)
 
 
 func _create_section(parent: Control, section_id: String, title_text: String, stretch_ratio: float, line_ids: Array[String]) -> void:
@@ -321,7 +318,7 @@ func _create_status_section(parent: Control) -> void:
 
 
 func _create_entry_system_section(parent: Control) -> void:
-	var box: VBoxContainer = _create_card(parent, "entry_system", "入口系统", 0.95)
+	var box: VBoxContainer = _create_card(parent, "entry_system", "入口系统", 1.05)
 	_add_title_label(box, "入口系统")
 
 	var entry_grid: GridContainer = GridContainer.new()
@@ -342,22 +339,23 @@ func _create_entry_system_section(parent: Control) -> void:
 
 	var status_lines: Dictionary = {}
 	status_lines["phase"] = _add_line(box, "", BODY_FONT_SIZE, false)
-	status_lines["save_status"] = _add_line(box, "", BODY_FONT_SIZE, false)
 	status_lines["time_tick"] = _add_line(box, "", BODY_FONT_SIZE, false)
-	status_lines["data"] = _add_line(box, "", BODY_FONT_SIZE, false)
+	status_lines["save_status"] = _add_line(box, "", BODY_FONT_SIZE, false)
+	status_lines["device_summary"] = _add_line(box, "", BODY_FONT_SIZE, false)
 	status_lines["validation"] = _add_line(box, "", BODY_FONT_SIZE, false)
 	status_lines["save_offline"] = _add_line(box, "", BODY_FONT_SIZE, false)
+	status_lines["data"] = _add_line(box, "", BODY_FONT_SIZE, false)
 	section_labels["status"] = status_lines
 
 
 func _create_core_status_section(parent: Control) -> void:
-	var box: VBoxContainer = _create_card(parent, "core_status", "核心状态", 1.95)
+	var box: VBoxContainer = _create_card(parent, "core_status", "核心状态", 2.45)
 	_add_title_label(box, "核心状态")
 
 	var metric_grid: GridContainer = GridContainer.new()
-	metric_grid.columns = 3
+	metric_grid.columns = 5
 	metric_grid.add_theme_constant_override("h_separation", 4)
-	metric_grid.add_theme_constant_override("v_separation", 3)
+	metric_grid.add_theme_constant_override("v_separation", 2)
 	metric_grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	box.add_child(metric_grid)
 
@@ -369,79 +367,60 @@ func _create_core_status_section(parent: Control) -> void:
 	livestock_lines["comfort_primary"] = _create_metric_tile(metric_grid, "舒适度")
 	livestock_lines["load_primary"] = _create_metric_tile(metric_grid, "生物负载")
 	livestock_lines["revenue_primary"] = _create_metric_tile(metric_grid, "收益倍率")
-	livestock_lines["rp_tick"] = _create_metric_tile(metric_grid, "RP产出")
 
-	status_lines["income_short"] = _add_line(box, "", KEY_FONT_SIZE, true)
+	var secondary_grid: GridContainer = GridContainer.new()
+	secondary_grid.columns = 3
+	secondary_grid.add_theme_constant_override("h_separation", 4)
+	secondary_grid.add_theme_constant_override("v_separation", 2)
+	secondary_grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	box.add_child(secondary_grid)
+
+	water_lines["readings_core"] = _create_secondary_tile(secondary_grid, "水温 / pH")
+	water_lines["readings_chemistry"] = _create_secondary_tile(secondary_grid, "NO3 / PO4")
+	livestock_lines["rp_tick"] = _create_secondary_tile(secondary_grid, "RP产出")
+
+	status_lines["income_short"] = _add_line(box, "", BODY_FONT_SIZE, true)
 	section_labels["status"] = status_lines
 
-	water_lines["readings_core"] = _add_line(box, "", BODY_FONT_SIZE, false)
-	water_lines["readings_chemistry"] = _add_line(box, "", BODY_FONT_SIZE, false)
 	water_lines["deviation_core"] = _add_line(box, "", BODY_FONT_SIZE, false)
 	water_lines["deviation_nutrients"] = _add_line(box, "", BODY_FONT_SIZE, false)
-	water_lines["deviation_minerals"] = _add_line(box, "", BODY_FONT_SIZE, false)
 	section_labels["water"] = water_lines
 
-	livestock_lines["rp_primary"] = _add_line(box, "", PRIMARY_FONT_SIZE, true)
 	livestock_lines["count"] = _add_line(box, "", BODY_FONT_SIZE, false)
 	livestock_lines["secondary"] = _add_line(box, "", BODY_FONT_SIZE, false)
-	livestock_lines["value"] = _add_line(box, "", BODY_FONT_SIZE, false)
 	section_labels["livestock"] = livestock_lines
 
 
-func _create_maintenance_section(parent: Control) -> void:
-	var box: VBoxContainer = _create_card(parent, "maintenance_ops", "维护操作", 1.28)
-	_add_title_label(box, "维护操作")
+func _create_operations_section(parent: Control) -> void:
+	var box: VBoxContainer = _create_card(parent, "operations", "操作控制", 1.55)
+	_add_title_label(box, "操作控制")
+
 	var balance_line: HBoxContainer = HBoxContainer.new()
-	balance_line.add_theme_constant_override("separation", 4)
+	balance_line.add_theme_constant_override("separation", 3)
 	balance_line.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	box.add_child(balance_line)
 	var balance_title: Label = _make_label("余额", BODY_FONT_SIZE, false)
-	balance_title.custom_minimum_size = Vector2(28, 14)
+	balance_title.custom_minimum_size = Vector2(24, 12)
 	balance_line.add_child(balance_title)
 	dock_control_slots["maintenance_balance"] = balance_line
 
-	var grid: GridContainer = GridContainer.new()
-	grid.columns = 2
-	grid.add_theme_constant_override("h_separation", 4)
-	grid.add_theme_constant_override("v_separation", 3)
-	grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	box.add_child(grid)
-	dock_control_slots["maintenance"] = grid
+	var ops_grid: GridContainer = GridContainer.new()
+	ops_grid.columns = 5
+	ops_grid.add_theme_constant_override("h_separation", 4)
+	ops_grid.add_theme_constant_override("v_separation", 3)
+	ops_grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	box.add_child(ops_grid)
+	dock_control_slots["maintenance"] = ops_grid
 
 	dock_control_slots["maintenance_feedback_parent"] = box
+	dock_control_slots["devices"] = ops_grid
 
-
-func _create_device_control_section(parent: Control) -> void:
-	var box: VBoxContainer = _create_card(parent, "device_ops", "设备控制", 1.10)
-	_add_title_label(box, "设备控制")
-	var grid: GridContainer = GridContainer.new()
-	grid.columns = 2
-	grid.add_theme_constant_override("h_separation", 4)
-	grid.add_theme_constant_override("v_separation", 3)
-	grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	box.add_child(grid)
-	dock_control_slots["devices"] = grid
-
-	var hint: Label = _make_label("未来设备｜预留仓位", BODY_FONT_SIZE, false)
-	box.add_child(hint)
-
-
-func _create_realtime_section(parent: Control) -> void:
-	var box: VBoxContainer = _create_card(parent, "realtime", "系统实时", 1.25)
-	var lines: Dictionary = {}
-	_add_title_label(box, "系统实时")
-	lines["device_summary"] = _add_line(box, "", KEY_FONT_SIZE, true)
-	lines["maintenance"] = _add_line(box, "", BODY_FONT_SIZE, false)
-	lines["bio_feedback"] = _add_line(box, "", KEY_FONT_SIZE, true)
-	lines["log_income"] = _add_line(box, "", BODY_FONT_SIZE, false)
-	lines["log_mod"] = _add_line(box, "", BODY_FONT_SIZE, false)
-	lines["stage"] = _add_line(box, "", BODY_FONT_SIZE, false)
-	lines["device_filter"] = _add_line(box, "", BODY_FONT_SIZE, false)
-	lines["device_comfort"] = _add_line(box, "", BODY_FONT_SIZE, false)
-	lines["device_risk"] = _add_line(box, "", BODY_FONT_SIZE, false)
-	lines["warehouse"] = _add_line(box, "", BODY_FONT_SIZE, false)
-	lines["log_water"] = _add_line(box, "", BODY_FONT_SIZE, false)
-	section_labels["realtime"] = lines
+	var ops_lines: Dictionary = {}
+	ops_lines["maintenance"] = _add_line(box, "", BODY_FONT_SIZE, false)
+	ops_lines["bio_feedback"] = _add_line(box, "", BODY_FONT_SIZE, true)
+	ops_lines["device_filter"] = _add_line(box, "", BODY_FONT_SIZE, false)
+	ops_lines["device_comfort"] = _add_line(box, "", BODY_FONT_SIZE, false)
+	section_labels["operations"] = ops_lines
 
 
 func configure_dock_controls(maintenance_actions: Array, device_state: Dictionary, callbacks: Dictionary, show_debug_controls: bool) -> Dictionary:
@@ -517,7 +496,7 @@ func configure_dock_controls(maintenance_actions: Array, device_state: Dictionar
 			var action_id: String = String(action.get("id", ""))
 			var action_cost: float = float(action.get("cost", 0.0))
 			var base_text: String = "%s %.0fRP" % [String(action.get("short_label", action.get("label", action_id))), action_cost]
-			var button: Button = _make_dock_button(base_text, Vector2(86, 20))
+			var button: Button = _make_dock_button(base_text, Vector2(72, 17))
 			button.tooltip_text = String(action.get("description", ""))
 			_connect_button(button, callbacks.get("maintenance", Callable()).bind(action_id))
 			maintenance_parent.add_child(button)
@@ -545,7 +524,7 @@ func configure_dock_controls(maintenance_actions: Array, device_state: Dictionar
 			var raw_device: Variant = devices.get(device_id, {})
 			var device_info: Dictionary = raw_device if raw_device is Dictionary else {}
 			var display_name: String = String(device_info.get("display_name", device_id))
-			var button: Button = _make_dock_button(display_name, Vector2(80, 20))
+			var button: Button = _make_dock_button(display_name, Vector2(72, 17))
 			button.tooltip_text = "切换%s（prototype运行时状态，不写入存档）" % display_name
 			_connect_button(button, callbacks.get("device", Callable()).bind(device_id))
 			device_parent.add_child(button)
@@ -561,12 +540,12 @@ func _connect_button(button: Button, callback: Callable) -> void:
 		button.pressed.connect(callback)
 
 
-func _make_dock_button(text: String, min_size: Vector2 = Vector2(58, 20)) -> Button:
+func _make_dock_button(text: String, min_size: Vector2 = Vector2(54, 17)) -> Button:
 	var button: Button = Button.new()
 	button.text = text
 	button.custom_minimum_size = min_size
 	button.clip_text = true
-	button.add_theme_font_size_override("font_size", 9)
+	button.add_theme_font_size_override("font_size", 8)
 	button.add_theme_color_override("font_color", Color(0.80, 0.86, 0.84))
 	button.add_theme_stylebox_override("normal", _make_button_style(Color(0.18, 0.20, 0.21), Color(0.32, 0.36, 0.37)))
 	button.add_theme_stylebox_override("hover", _make_button_style(Color(0.22, 0.245, 0.255), Color(0.42, 0.48, 0.49)))
@@ -581,10 +560,10 @@ func _make_button_style(bg_color: Color, border_color: Color) -> StyleBoxFlat:
 	style.border_color = border_color
 	style.set_border_width_all(1)
 	style.set_corner_radius_all(4)
-	style.content_margin_left = 5
-	style.content_margin_right = 5
-	style.content_margin_top = 2
-	style.content_margin_bottom = 2
+	style.content_margin_left = 4
+	style.content_margin_right = 4
+	style.content_margin_top = 1
+	style.content_margin_bottom = 1
 	return style
 
 
@@ -597,7 +576,7 @@ func _set_observation_mode(enabled: bool) -> void:
 
 
 func _show_maintenance_hint() -> void:
-	_set_line("realtime", "maintenance", "维护操作集中在底部 Dock 中")
+	_set_line("operations", "maintenance", "维护操作集中在底部 Dock 中")
 
 
 func _create_card(parent: Control, section_id: String, title_text: String, stretch_ratio: float) -> VBoxContainer:
@@ -606,18 +585,18 @@ func _create_card(parent: Control, section_id: String, title_text: String, stret
 	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	panel.size_flags_stretch_ratio = stretch_ratio
-	panel.add_theme_stylebox_override("panel", _make_panel_style(CARD_BG_COLOR, CARD_BORDER_COLOR, 4))
+	panel.add_theme_stylebox_override("panel", _make_panel_style(CARD_BG_COLOR, CARD_BORDER_COLOR, 3))
 	parent.add_child(panel)
 
 	var margin: MarginContainer = MarginContainer.new()
-	margin.add_theme_constant_override("margin_left", 8)
-	margin.add_theme_constant_override("margin_top", 5)
-	margin.add_theme_constant_override("margin_right", 8)
-	margin.add_theme_constant_override("margin_bottom", 5)
+	margin.add_theme_constant_override("margin_left", 6)
+	margin.add_theme_constant_override("margin_top", 3)
+	margin.add_theme_constant_override("margin_right", 6)
+	margin.add_theme_constant_override("margin_bottom", 3)
 	panel.add_child(margin)
 
 	var box: VBoxContainer = VBoxContainer.new()
-	box.add_theme_constant_override("separation", 2)
+	box.add_theme_constant_override("separation", 1)
 	box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	box.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	margin.add_child(box)
@@ -641,14 +620,14 @@ func _create_metric_tile(parent: Control, title_text: String) -> Label:
 	var panel: PanelContainer = PanelContainer.new()
 	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	panel.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	panel.add_theme_stylebox_override("panel", _make_panel_style(METRIC_BG_COLOR, Color(0.18, 0.22, 0.23), 4))
+	panel.add_theme_stylebox_override("panel", _make_panel_style(METRIC_BG_COLOR, Color(0.18, 0.22, 0.23), 3))
 	parent.add_child(panel)
 
 	var margin: MarginContainer = MarginContainer.new()
-	margin.add_theme_constant_override("margin_left", 5)
-	margin.add_theme_constant_override("margin_top", 3)
-	margin.add_theme_constant_override("margin_right", 5)
-	margin.add_theme_constant_override("margin_bottom", 3)
+	margin.add_theme_constant_override("margin_left", 4)
+	margin.add_theme_constant_override("margin_top", 2)
+	margin.add_theme_constant_override("margin_right", 4)
+	margin.add_theme_constant_override("margin_bottom", 2)
 	panel.add_child(margin)
 
 	var box: VBoxContainer = VBoxContainer.new()
@@ -660,6 +639,34 @@ func _create_metric_tile(parent: Control, title_text: String) -> Label:
 	box.add_child(title)
 
 	var value: Label = _make_label("", PRIMARY_FONT_SIZE, false, true)
+	value.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
+	box.add_child(value)
+	return value
+
+
+func _create_secondary_tile(parent: Control, title_text: String) -> Label:
+	var panel: PanelContainer = PanelContainer.new()
+	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	panel.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	panel.add_theme_stylebox_override("panel", _make_panel_style(Color(0.11, 0.123, 0.132), Color(0.18, 0.21, 0.22), 3))
+	parent.add_child(panel)
+
+	var margin: MarginContainer = MarginContainer.new()
+	margin.add_theme_constant_override("margin_left", 4)
+	margin.add_theme_constant_override("margin_top", 2)
+	margin.add_theme_constant_override("margin_right", 4)
+	margin.add_theme_constant_override("margin_bottom", 2)
+	panel.add_child(margin)
+
+	var box: VBoxContainer = VBoxContainer.new()
+	box.add_theme_constant_override("separation", 0)
+	margin.add_child(box)
+
+	var title: Label = _make_label(title_text, 6, false)
+	title.add_theme_color_override("font_color", MUTED_TEXT_COLOR)
+	box.add_child(title)
+
+	var value: Label = _make_label("", BODY_FONT_SIZE, false, true)
 	value.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
 	box.add_child(value)
 	return value
@@ -777,34 +784,28 @@ func _set_default_text() -> void:
 	_set_line("status", "save_status", "存档 新游戏｜自动 开启")
 	_set_line("status", "time_tick", "第1天 00:00｜更新 0")
 	_set_line("status", "simulation", "模拟运行｜1秒=10分钟")
-	_set_line("status", "data", "物种 161｜设备 28｜任务 10｜事件 7")
+	_set_line("status", "device_summary", "设备 7/7｜稳定 92｜承载 27")
+	_set_line("status", "data", "仓库 暂无｜锁定")
 	_set_line("status", "validation", "Load OK｜Errors 0")
 	_set_line("status", "save_offline", "离线 无")
 	_set_line("water", "water_primary", "正常  100")
-	_set_line("water", "readings_core", "温 25.1℃｜盐 35.0｜pH 8.20")
-	_set_line("water", "readings_chemistry", "NO3 2.60｜PO4 0.030｜KH 8.3｜Ca 430")
+	_set_line("water", "readings_core", "25.1℃   pH 8.20")
+	_set_line("water", "readings_chemistry", "NO3 2.60   PO4 0.030")
 	_set_line("water", "deviation_core", "偏差：温 +0.1｜盐 +0.0｜pH +0.00")
-	_set_line("water", "deviation_nutrients", "营养偏差：NO3 +0.60｜PO4 +0.000")
+	_set_line("water", "deviation_nutrients", "水变 等待首次更新")
 	_set_line("water", "deviation_minerals", "矿物偏差：KH +0.0｜Ca +0｜全部正常")
 	_set_line("livestock", "comfort_primary", "100 优秀")
 	_set_line("livestock", "load_primary", "23.4 / 39.2")
 	_set_line("livestock", "revenue_primary", "1.10x")
 	_set_line("livestock", "rp_primary", "RP 0   +0.00/h")
-	_set_line("livestock", "rp_tick", "+0.00000 / tick")
-	_set_line("livestock", "count", "生物 6｜鱼 2｜珊瑚 3｜槽位 18.0/30.0")
-	_set_line("livestock", "secondary", "水质 1.00x｜健康 1.00｜基础 2.36/h｜修正 2.60/h")
+	_set_line("livestock", "rp_tick", "+0.00000/tick   +0.00/h")
+	_set_line("livestock", "count", "生物6｜鱼2｜珊瑚3｜槽位18.0/30.0")
+	_set_line("livestock", "secondary", "倍率 水质1.00｜舒适1.10｜健康1.00")
 	_set_line("livestock", "value", "缸价值 59.0｜状态 正常")
-	_set_line("realtime", "device_summary", "设备 7/7｜稳定 92.0｜承载 27.0")
-	_set_line("realtime", "device_filter", "过滤 100%｜NO3 +0.00/d｜PO4 +0.000/d")
-	_set_line("realtime", "device_comfort", "造浪ON｜水流 100｜健康 1.00")
-	_set_line("realtime", "maintenance", "维护 无")
-	_set_line("realtime", "bio_feedback", "舒适度良好，收益维持正常")
-	_set_line("realtime", "log_income", "结算 +0.00000/tick｜+0.00/h")
-	_set_line("realtime", "log_mod", "倍率 水质1.00｜舒适1.10｜健康1.00")
-	_set_line("realtime", "log_water", "水变 等待首次更新")
-	_set_line("realtime", "stage", "目标 解锁中级设备预览")
-	_set_line("realtime", "warehouse", "仓库 暂无｜锁定")
-	_set_line("realtime", "device_risk", "风险 无")
+	_set_line("operations", "device_filter", "过滤 100%｜NO3 +0.00/d｜PO4 +0.000/d")
+	_set_line("operations", "device_comfort", "造浪ON｜水流 100｜健康 1.00")
+	_set_line("operations", "maintenance", "维护 无")
+	_set_line("operations", "bio_feedback", "舒适度良好，收益维持正常")
 
 
 func _set_line(section_id: String, line_id: String, text: String) -> void:

@@ -22,8 +22,8 @@ const LIVESTOCK_REFRESH_INTERVAL: float = 0.5
 const MAINTENANCE_BUTTON_REFRESH_INTERVAL: float = 0.5
 const SAFE_LEFT_MARGIN: int = 40
 const SAFE_RIGHT_MARGIN: int = 18
-const SAFE_TOP_MARGIN: int = 36
-const SAFE_BOTTOM_MARGIN: int = 24
+const SAFE_TOP_MARGIN: int = 28
+const SAFE_BOTTOM_MARGIN: int = 18
 var _alive_tick: int = 0
 var _alive_timer: float = 0.0
 
@@ -137,25 +137,25 @@ func _stabilize_main_layout(layout: VBoxContainer) -> void:
 	for child in layout.get_children():
 		if child.name == "TitleBar" and child is Control:
 			var title_bar: Control = child
-			title_bar.custom_minimum_size = Vector2(0, 24)
+			title_bar.custom_minimum_size = Vector2(0, 20)
 			for title_child in title_bar.get_children():
 				if title_child is Label:
 					var title_label: Label = title_child
 					title_label.text = "CoralReefIdleV3 · 柏林系统静态布局"
-					title_label.add_theme_font_size_override("font_size", 12)
+					title_label.add_theme_font_size_override("font_size", 11)
 					title_label.add_theme_color_override("font_color", Color(0.84, 0.88, 0.88))
 		elif child.name == "DisplayTankView" and child is Control:
 			var display: Control = child
-			display.custom_minimum_size = Vector2(0, 330)
+			display.custom_minimum_size = Vector2(0, 360)
 			display.size_flags_vertical = Control.SIZE_EXPAND_FILL
-			display.size_flags_stretch_ratio = 5.20
+			display.size_flags_stretch_ratio = 5.60
 		elif child.name == "SumpView" and child is Control:
 			var sump: Control = child
-			sump.custom_minimum_size = Vector2(0, 84)
+			sump.custom_minimum_size = Vector2(0, 112)
 			sump.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 			sump.size_flags_stretch_ratio = 0.0
 		elif child == status_panel:
-			status_panel.custom_minimum_size = Vector2(0, 154)
+			status_panel.custom_minimum_size = Vector2(0, 108)
 			status_panel.size_flags_vertical = Control.SIZE_SHRINK_END
 			status_panel.size_flags_stretch_ratio = 0.0
 
@@ -415,7 +415,7 @@ func _update_maintenance_balance_label() -> void:
 	var balance: float = 0.0
 	if game_state.economy_system != null:
 		balance = game_state.economy_system.get_reef_points()
-	maintenance_balance_label.text = "%.0f" % balance
+	maintenance_balance_label.text = "%.0f RP" % balance
 
 
 func _on_device_pressed(device_id: String) -> void:
