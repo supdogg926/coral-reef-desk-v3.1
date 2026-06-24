@@ -100,7 +100,7 @@ func update_water_chemistry_debug(water_debug: Dictionary) -> void:
 	var maintenance_delta: String = String(water_debug.get("last_maintenance_delta_summary", "维护：无"))
 	var maintenance_runtime_summary: String = String(water_debug.get("last_maintenance_runtime_summary", ""))
 
-	_set_status_line("water", "water_primary", "%s %.0f" % [localized_status, water_quality_score], _water_status_color(water_status, water_quality_score))
+	_set_status_line("water", "water_primary", "%.0f" % water_quality_score, _water_status_color(water_status, water_quality_score))
 	_set_water_delta_tag("water", "temperature", temperature, WATER_DEVIATION_TARGETS.get("temperature", 25.0), 1, "°", 0.5, 1.5)
 	_set_water_delta_tag("water", "ph", ph, WATER_DEVIATION_TARGETS.get("ph", 8.2), 2, "", 0.15, 0.35)
 	_set_water_delta_tag("water", "alkalinity", alkalinity, WATER_DEVIATION_TARGETS.get("alkalinity", 8.3), 1, "", 0.5, 1.0)
@@ -137,7 +137,7 @@ func update_livestock_economy_debug(livestock_debug: Dictionary, economy_debug: 
 	if rp_display_label != null:
 		rp_display_label.text = "%.0f  +%.2f/h" % [reef_points, income_rate]
 		rp_display_label.add_theme_color_override("font_color", Color(0.82, 0.88, 0.86))
-	_set_status_line("livestock", "comfort_primary", "%.0f %s" % [comfort_score, comfort_status], _score_color(comfort_score, 80.0, 55.0))
+	_set_status_line("livestock", "comfort_primary", "%.0f" % comfort_score, _score_color(comfort_score, 80.0, 55.0))
 	_set_status_line("livestock", "load_primary", "%.1f/%.1f" % [bio_load, system_capacity], _load_color(bio_load, system_capacity))
 	_set_status_line("livestock", "revenue_primary", "%.2fx" % revenue_multiplier, _multiplier_color(revenue_multiplier))
 	_set_status_line("livestock", "fish_count", "%d" % fish_count, KEY_TEXT_COLOR)
@@ -318,28 +318,27 @@ func _create_timeline_section(parent: Control) -> void:
 		label.add_theme_color_override("font_color", Color(0.60, 0.66, 0.66))
 		scroll_vbox.add_child(label)
 		timeline_labels.append(label)
-	# spacer to fill remaining scroll space
-	var spacer: Control = Control.new()
-	spacer.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	scroll_vbox.add_child(spacer)
+
 
 
 func update_timeline(entries: Array) -> void:
-	var count: int = min(entries.size(), timeline_labels.size())
-	for i in range(count):
-		var raw_entry: Variant = entries[entries.size() - count + i]
-		if raw_entry is Dictionary:
-			timeline_labels[i].text = String(raw_entry.get("text", ""))
-			var entry_color: Color = raw_entry.get("color", Color(0.60, 0.66, 0.66))
-			timeline_labels[i].add_theme_color_override("font_color", entry_color)
+	if timeline_labels.is_empty():
+		return
+	var total: int = min(entries.size(), timeline_labels.size())
+	for i in range(timeline_labels.size()):
+		if i < total:
+			var raw_entry: Variant = entries[entries.size() - total + i]
+			if raw_entry is Dictionary:
+				timeline_labels[i].text = String(raw_entry.get("text", ""))
+				var entry_color: Color = raw_entry.get("color", Color(0.60, 0.66, 0.66))
+				timeline_labels[i].add_theme_color_override("font_color", entry_color)
 			timeline_labels[i].visible = true
 		else:
-			timeline_labels[i].visible = false
-	for i in range(count, timeline_labels.size()):
-		timeline_labels[i].visible = false
+			timeline_labels[i].text = ""
+			timeline_labels[i].visible = true
 	# Auto-scroll to latest entries
-	if count > 0:
-		var scroll_parent: Variant = timeline_labels[count - 1].get_parent()
+	if total > 0:
+		var scroll_parent: Variant = timeline_labels[total - 1].get_parent()
 		if scroll_parent != null and scroll_parent is Control:
 			var grandparent: Variant = scroll_parent.get_parent()
 			if grandparent is ScrollContainer:
@@ -469,8 +468,9 @@ func _create_core_status_section(parent: Control) -> void:
 	water_lines["filter_efficiency"] = _create_secondary_tile(secondary_grid, "过滤")
 	livestock_lines["reserve_2"] = _create_secondary_tile(secondary_grid, "预留")
 	livestock_lines["reserve_3"] = _create_secondary_tile(secondary_grid, "预留")
-	livestock_lines["fish_count"] = _create_secondary_tile(secondary_grid, "鱼")
+	livestock_lines["reserve_4"] = _create_secondary_tile(secondary_grid, "预留")
 	livestock_lines["coral_count"] = _create_secondary_tile(secondary_grid, "珊瑚")
+	livestock_lines["fish_count"] = _create_secondary_tile(secondary_grid, "鱼")
 	livestock_lines["crustacean_count"] = _create_secondary_tile(secondary_grid, "甲壳")
 	livestock_lines["algae_count"] = _create_secondary_tile(secondary_grid, "藻类")
 	livestock_lines["reserve_4"] = _create_secondary_tile(secondary_grid, "预留")
@@ -918,7 +918,7 @@ func _set_default_text() -> void:
 	_set_line("status", "data", "仓库 暂无｜锁定")
 	_set_line("status", "validation", "\u2014")
 	_set_line("status", "save_offline", "离线 无")
-	_set_status_line("water", "water_primary", "正常 100", STATUS_OK_COLOR)
+	_set_status_line("water", "water_primary", "100", STATUS_OK_COLOR)
 	_set_status_line("water", "temperature", "25.1° +0.1", STATUS_OK_COLOR)
 	_set_status_line("water", "ph", "8.20 OK", STATUS_OK_COLOR)
 	_set_status_line("water", "alkalinity", "8.3 OK", STATUS_OK_COLOR)
@@ -929,7 +929,7 @@ func _set_default_text() -> void:
 	_set_status_line("water", "nitrate", "2.60 OK", STATUS_OK_COLOR)
 	_set_status_line("water", "phosphate", "0.030 OK", STATUS_OK_COLOR)
 	_set_line("water", "deviation_minerals", "矿物偏差：KH +0.0｜Ca +0｜全部正常")
-	_set_status_line("livestock", "comfort_primary", "100 优秀", STATUS_OK_COLOR)
+	_set_status_line("livestock", "comfort_primary", "100", STATUS_OK_COLOR)
 	_set_status_line("livestock", "load_primary", "23.4/39.2", STATUS_OK_COLOR)
 	_set_status_line("livestock", "revenue_primary", "1.10x", STATUS_OK_COLOR)
 	_set_status_line("livestock", "fish_count", "0", KEY_TEXT_COLOR)
