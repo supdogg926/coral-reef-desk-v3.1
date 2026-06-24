@@ -152,11 +152,11 @@ func _stabilize_main_layout(layout: VBoxContainer) -> void:
 			display.size_flags_stretch_ratio = 5.60
 		elif child.name == "SumpView" and child is Control:
 			var sump: Control = child
-			sump.custom_minimum_size = Vector2(0, 136)
+			sump.custom_minimum_size = Vector2(0, 142)
 			sump.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 			sump.size_flags_stretch_ratio = 0.0
 		elif child == status_panel:
-			status_panel.custom_minimum_size = Vector2(0, 108)
+			status_panel.custom_minimum_size = Vector2(0, 104)
 			status_panel.size_flags_vertical = Control.SIZE_SHRINK_END
 			status_panel.size_flags_stretch_ratio = 0.0
 

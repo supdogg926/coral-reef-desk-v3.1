@@ -10,7 +10,7 @@ const TITLE_FONT_SIZE: int = 10
 const BODY_FONT_SIZE: int = 8
 const KEY_FONT_SIZE: int = 10
 const PRIMARY_FONT_SIZE: int = 12
-const DOCK_HEIGHT: int = 108
+const DOCK_HEIGHT: int = 104
 const COLLAPSED_DOCK_HEIGHT: int = 26
 const PANEL_BG_COLOR: Color = Color(0.105, 0.115, 0.125)
 const PANEL_BORDER_COLOR: Color = Color(0.24, 0.28, 0.30)
@@ -48,8 +48,8 @@ func _ready() -> void:
 
 
 func update_counts(species_count: int, equipment_count: int, task_count: int, event_count: int, load_status: String, error_count: int) -> void:
-	_set_line("status", "data", "物种 %d｜设备 %d｜任务 %d｜事件 %d" % [species_count, equipment_count, task_count, event_count])
-	_set_line("status", "validation", "Load %s｜Errors %d" % [load_status, error_count])
+	_set_line("status", "data", "物种%d  设备%d" % [species_count, equipment_count])
+	_set_line("status", "validation", "%s  E%d" % [load_status, error_count])
 
 
 func update_equipment_debug(game_state_debug: Dictionary) -> void:
@@ -77,10 +77,8 @@ func update_equipment_debug(game_state_debug: Dictionary) -> void:
 	if device_risk.is_empty():
 		device_risk = "无"
 
-	_set_line("operations", "device_summary", "设备 %d/%d｜稳定 %.0f｜承载 %.0f" % [tier1_enabled_count, tier1_total_count, stability_score, carrying_capacity_score])
-	_set_line("operations", "device_filter", _compact_text(device_filter_line, 30))
-	_set_line("operations", "device_comfort", _compact_text(device_comfort_line, 30))
-	_set_line("operations", "bio_feedback", "风险 %s｜预留 %d/%d｜仓 %d｜锁 %d" % [device_risk, tier2_reserved_count, tier3_reserved_count, warehouse_count, locked_count])
+	_set_line("operations", "device_summary", "%d/%d  稳%.0f  承%.0f" % [tier1_enabled_count, tier1_total_count, stability_score, carrying_capacity_score])
+	_set_line("operations", "device_comfort", _compact_text(device_comfort_line, 22))
 
 
 func update_water_chemistry_debug(water_debug: Dictionary) -> void:
@@ -105,9 +103,9 @@ func update_water_chemistry_debug(water_debug: Dictionary) -> void:
 	_set_line("water", "readings_chemistry", "NO3 %.2f   PO4 %.3f" % [nitrate, phosphate])
 	_update_water_deviation_summary(water_debug)
 	if maintenance_runtime_summary.is_empty() or maintenance_runtime_summary == "未维护":
-		_set_line("operations", "maintenance", "维护 %s｜%s" % [maintenance_label, _compact_text(maintenance_delta, 22)])
+		_set_line("operations", "maintenance", "%s｜%s" % [maintenance_label, _compact_text(maintenance_delta, 16)])
 	else:
-		_set_line("operations", "maintenance", "维护 " + _compact_text(maintenance_runtime_summary, 26))
+		_set_line("operations", "maintenance", _compact_text(maintenance_runtime_summary, 20))
 	_set_line("status", "time_tick", "%s｜更新 %d" % [_format_game_time(elapsed_game_minutes), chemistry_tick_count])
 	_set_line("status", "simulation", "模拟运行｜1秒=10分钟")
 
@@ -134,13 +132,12 @@ func update_livestock_economy_debug(livestock_debug: Dictionary, economy_debug: 
 	var income_rate: float = float(economy_debug.get("income_rate_per_game_hour", livestock_debug.get("income_rate_per_game_hour", 0.0)))
 
 	_set_line("status", "rp_primary", "RP %.0f" % reef_points)
-	_set_line("status", "income_short", "+%.2f /h" % income_rate)
 	_set_line("livestock", "comfort_primary", "%.0f %s" % [comfort_score, comfort_status])
 	_set_line("livestock", "load_primary", "%.1f / %.1f" % [bio_load, system_capacity])
 	_set_line("livestock", "revenue_primary", "%.2fx" % revenue_multiplier)
-	_set_line("livestock", "rp_tick", "+%.5f/tick   +%.2f/h" % [current_rp_per_tick, income_rate])
-	_set_line("livestock", "count", "生物%d｜鱼%d｜珊瑚%d｜槽位%.1f/%.1f" % [livestock_count, fish_count, coral_count, capacity_used, max_capacity])
-	_set_line("livestock", "secondary", "水质%.2fx｜健康%.2f｜修正%.2f/h" % [water_quality_mult, health_modifier, effective_income])
+	_set_line("livestock", "rp_tick", "+%.5f/t  +%.2f/h" % [current_rp_per_tick, income_rate])
+	_set_line("livestock", "count", "生物%d  鱼%d  珊瑚%d" % [livestock_count, fish_count, coral_count])
+	_set_line("livestock", "secondary", "水%.2f  舒%.2f  健%.2f" % [water_quality_mult, revenue_multiplier, health_modifier])
 	_set_line("livestock", "value", "缸价值 %.1f｜状态 %s" % [reef_value, capacity_status])
 
 
@@ -163,8 +160,8 @@ func update_unlock_debug(unlock_debug: Dictionary) -> void:
 	var t2_unlocked: bool = bool(unlock_debug.get("unlocked_states", {}).get("tier2_equipment_preview", false))
 	var wh_status: String = "预览" if t2_unlocked else "锁定"
 	_set_line("status", "phase", "%s｜进度 %.0f%%" % [current_stage, progress])
-	_set_line("status", "validation", "目标 " + _compact_text(next_target, 18))
-	_set_line("status", "data", "仓库 %s｜%s" % [warehouse_text, wh_status])
+	_set_line("status", "validation", _compact_text(next_target, 12))
+	_set_line("status", "data", "%s｜%s" % [_compact_text(warehouse_text, 8), wh_status])
 
 
 func update_delta_debug(water_debug: Dictionary, delta_debug: Dictionary, economy_debug: Dictionary, livestock_debug: Dictionary) -> void:
@@ -208,10 +205,9 @@ func update_delta_debug(water_debug: Dictionary, delta_debug: Dictionary, econom
 	var econ_line_a: String = "结算 +%.5f/tick｜+%.2f/h" % [current_rp_per_tick, income_rate]
 	var econ_line_b: String = "倍率 水质%.2f｜舒适%.2f｜健康%.2f" % [water_mult, revenue_mult, health_mod]
 
-	_set_line("water", "deviation_nutrients", _compact_text(water_min_line, 34))
-	_set_line("status", "income_short", econ_line_a)
+	_set_line("water", "deviation_nutrients", _compact_text(water_min_line, 18))
 	_set_line("livestock", "secondary", econ_line_b)
-	_set_line("operations", "bio_feedback", _compact_text(bio_feedback, 30))
+	_set_line("livestock", "feedback", _compact_text(bio_feedback, 22))
 
 
 func update_save_debug(save_debug: Dictionary, save_loaded: bool, offline_summary: Dictionary) -> void:
@@ -347,8 +343,7 @@ func _create_entry_system_section(parent: Control) -> void:
 	status_lines["phase"] = _create_secondary_tile(info_grid, "阶段")
 	status_lines["time_tick"] = _create_secondary_tile(info_grid, "时间")
 	status_lines["save_status"] = _create_secondary_tile(info_grid, "存档")
-	status_lines["data"] = _create_secondary_tile(info_grid, "扩展")
-	status_lines["validation"] = _add_line(box, "", BODY_FONT_SIZE, false)
+	status_lines["validation"] = _create_secondary_tile(info_grid, "目标")
 	section_labels["status"] = status_lines
 
 
@@ -373,7 +368,7 @@ func _create_core_status_section(parent: Control) -> void:
 	livestock_lines["revenue_primary"] = _create_metric_tile(metric_grid, "收益倍率")
 
 	var secondary_grid: GridContainer = GridContainer.new()
-	secondary_grid.columns = 3
+	secondary_grid.columns = 4
 	secondary_grid.add_theme_constant_override("h_separation", 4)
 	secondary_grid.add_theme_constant_override("v_separation", 2)
 	secondary_grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -383,30 +378,21 @@ func _create_core_status_section(parent: Control) -> void:
 	water_lines["readings_chemistry"] = _create_secondary_tile(secondary_grid, "NO3 / PO4")
 	livestock_lines["rp_tick"] = _create_secondary_tile(secondary_grid, "RP产出")
 
-	status_lines["income_short"] = _add_line(box, "", BODY_FONT_SIZE, true)
 	section_labels["status"] = status_lines
 
-	water_lines["deviation_core"] = _add_line(box, "", BODY_FONT_SIZE, false)
-	water_lines["deviation_nutrients"] = _add_line(box, "", BODY_FONT_SIZE, false)
+	water_lines["deviation_core"] = _create_secondary_tile(secondary_grid, "水质偏差")
+	water_lines["deviation_nutrients"] = _create_secondary_tile(secondary_grid, "水质变化")
 	section_labels["water"] = water_lines
 
-	livestock_lines["count"] = _add_line(box, "", BODY_FONT_SIZE, false)
-	livestock_lines["secondary"] = _add_line(box, "", BODY_FONT_SIZE, false)
+	livestock_lines["count"] = _create_secondary_tile(secondary_grid, "生物组成")
+	livestock_lines["secondary"] = _create_secondary_tile(secondary_grid, "修正因子")
+	livestock_lines["feedback"] = _create_secondary_tile(secondary_grid, "收益反馈")
 	section_labels["livestock"] = livestock_lines
 
 
 func _create_operations_section(parent: Control) -> void:
 	var box: VBoxContainer = _create_card(parent, "operations", "操作控制", 1.55)
 	_add_title_label(box, "操作控制")
-
-	var balance_line: HBoxContainer = HBoxContainer.new()
-	balance_line.add_theme_constant_override("separation", 3)
-	balance_line.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	box.add_child(balance_line)
-	var balance_title: Label = _make_label("余额", BODY_FONT_SIZE, false)
-	balance_title.custom_minimum_size = Vector2(24, 12)
-	balance_line.add_child(balance_title)
-	dock_control_slots["maintenance_balance"] = balance_line
 
 	var ops_grid: GridContainer = GridContainer.new()
 	ops_grid.columns = 5
@@ -430,7 +416,7 @@ func _create_operations_section(parent: Control) -> void:
 	ops_lines["device_filter"] = _create_secondary_tile(ops_info_grid, "过滤修正")
 	ops_lines["device_comfort"] = _create_secondary_tile(ops_info_grid, "水流健康")
 	ops_lines["maintenance"] = _create_secondary_tile(ops_info_grid, "维护反馈")
-	ops_lines["bio_feedback"] = _add_line(box, "", BODY_FONT_SIZE, true)
+	ops_lines["bio_feedback"] = _create_secondary_tile(ops_info_grid, "设备风险")
 	section_labels["operations"] = ops_lines
 
 
@@ -483,17 +469,9 @@ func configure_dock_controls(maintenance_actions: Array, device_state: Dictionar
 			_connect_button(reset_button, callbacks.get("reset", Callable()))
 			system_parent.add_child(reset_button)
 
-		var status_label: Label = _make_label("tick=0", BODY_FONT_SIZE, false, true)
-		status_label.custom_minimum_size = Vector2(0, 16)
-		system_parent.add_child(status_label)
+		var status_label: Label = _create_secondary_tile(system_parent, "tick")
+		status_label.text = "0"
 		result["panel_status_label"] = status_label
-
-	var balance_parent: Control = dock_control_slots.get("maintenance_balance", null)
-	if balance_parent != null:
-		var balance_label: Label = _make_label("0 RP", KEY_FONT_SIZE, false, true)
-		balance_label.custom_minimum_size = Vector2(72, 14)
-		balance_parent.add_child(balance_label)
-		result["maintenance_balance_label"] = balance_label
 
 	var maintenance_parent: Control = dock_control_slots.get("maintenance", null)
 	var maintenance_buttons: Dictionary = {}
@@ -518,12 +496,9 @@ func configure_dock_controls(maintenance_actions: Array, device_state: Dictionar
 	result["maintenance_button_base_texts"] = maintenance_base_texts
 	result["maintenance_button_costs"] = maintenance_costs
 
-	var feedback_parent: Control = dock_control_slots.get("maintenance_feedback_parent", null)
-	if feedback_parent != null:
-		var feedback_label: Label = _make_label("未维护", BODY_FONT_SIZE, false)
-		feedback_label.custom_minimum_size = Vector2(0, 15)
-		feedback_parent.add_child(feedback_label)
-		result["maintenance_feedback_label"] = feedback_label
+	var raw_ops_section: Variant = section_labels.get("operations", {})
+	if raw_ops_section is Dictionary:
+		result["maintenance_feedback_label"] = raw_ops_section.get("maintenance", null)
 
 	var device_parent: Control = dock_control_slots.get("devices", null)
 	var device_buttons_result: Dictionary = {}
@@ -673,11 +648,11 @@ func _create_secondary_tile(parent: Control, title_text: String) -> Label:
 	box.add_theme_constant_override("separation", 0)
 	margin.add_child(box)
 
-	var title: Label = _make_label(title_text, 6, false)
+	var title: Label = _make_label(title_text, 7, false)
 	title.add_theme_color_override("font_color", MUTED_TEXT_COLOR)
 	box.add_child(title)
 
-	var value: Label = _make_label("", BODY_FONT_SIZE, false, true)
+	var value: Label = _make_label("", KEY_FONT_SIZE, false, true)
 	value.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
 	box.add_child(value)
 	return value
@@ -739,13 +714,9 @@ func _format_device_state_line(device_state: Dictionary, device_effect: Dictiona
 
 func _format_device_filter_line(device_effect: Dictionary) -> String:
 	var filter_efficiency: float = float(device_effect.get("filter_efficiency_percent", 100.0))
-	var nitrate_drift: float = float(device_effect.get("device_nitrate_drift_per_day", 0.0))
-	var phosphate_drift: float = float(device_effect.get("device_phosphate_drift_per_day", 0.0))
 	var water_quality_effect: float = float(device_effect.get("water_quality_effect", 0.0))
-	return "过滤 %.0f%%｜NO3 %+.2f/d｜PO4 %+.3f/d｜水质 %+.0f" % [
+	return "过滤 %.0f%%  水质 %+.0f" % [
 		filter_efficiency,
-		nitrate_drift,
-		phosphate_drift,
 		water_quality_effect,
 	]
 
@@ -812,7 +783,7 @@ func _set_default_text() -> void:
 	_set_line("livestock", "count", "生物6｜鱼2｜珊瑚3｜槽位18.0/30.0")
 	_set_line("livestock", "secondary", "倍率 水质1.00｜舒适1.10｜健康1.00")
 	_set_line("livestock", "value", "缸价值 59.0｜状态 正常")
-	_set_line("operations", "device_filter", "过滤 100%｜NO3 +0.00/d｜PO4 +0.000/d")
+	_set_line("operations", "device_filter", "过滤 100%  水质 +0")
 	_set_line("operations", "device_comfort", "造浪ON｜水流 100｜健康 1.00")
 	_set_line("operations", "device_summary", "设备 7/7｜稳定 92｜承载 27")
 	_set_line("operations", "maintenance", "维护 无")
