@@ -4,6 +4,7 @@ extends PanelContainer
 var section_labels: Dictionary = {}
 var dock_control_slots: Dictionary = {}
 var timeline_labels: Array[Label] = []
+var rp_display_label: Label = null
 var dock_body: Control = null
 var collapsed_bar: Control = null
 
@@ -136,7 +137,9 @@ func update_livestock_economy_debug(livestock_debug: Dictionary, economy_debug: 
 	var reef_points: float = float(economy_debug.get("reef_points", 0.0))
 	var income_rate: float = float(economy_debug.get("income_rate_per_game_hour", livestock_debug.get("income_rate_per_game_hour", 0.0)))
 
-	_set_status_line("status", "rp_primary", "RP %.0f  +%.2f/h" % [reef_points, income_rate], KEY_TEXT_COLOR)
+	if rp_display_label != null:
+		rp_display_label.text = "RP %.0f  +%.2f/h" % [reef_points, income_rate]
+		rp_display_label.add_theme_color_override("font_color", Color(0.82, 0.88, 0.86))
 	_set_status_line("livestock", "comfort_primary", "%.0f %s" % [comfort_score, comfort_status], _score_color(comfort_score, 80.0, 55.0))
 	_set_status_line("livestock", "load_primary", "%.1f/%.1f" % [bio_load, system_capacity], _load_color(bio_load, system_capacity))
 	_set_status_line("livestock", "revenue_primary", "%.2fx" % revenue_multiplier, _multiplier_color(revenue_multiplier))
@@ -293,17 +296,27 @@ func _build_status_layout() -> void:
 
 func _create_timeline_section(parent: Control) -> void:
 	timeline_labels.clear()
-	var box: VBoxContainer = _create_card(parent, "timeline", "时间线", 0.95)
+	var box: VBoxContainer = _create_card(parent, "timeline", "时间线", 1.30)
 	_add_title_label(box, "时间线")
-	for i in range(4):
+	var scroll: ScrollContainer = ScrollContainer.new()
+	scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_SHOW_ALWAYS
+	box.add_child(scroll)
+	var scroll_vbox: VBoxContainer = VBoxContainer.new()
+	scroll_vbox.add_theme_constant_override("separation", 1)
+	scroll_vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	scroll.add_child(scroll_vbox)
+	for i in range(8):
 		var label: Label = _make_label("", 7, false)
 		label.add_theme_color_override("font_color", Color(0.60, 0.66, 0.66))
-		box.add_child(label)
+		scroll_vbox.add_child(label)
 		timeline_labels.append(label)
-	# spacer to fill remaining space
+	# spacer to fill remaining scroll space
 	var spacer: Control = Control.new()
 	spacer.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	box.add_child(spacer)
+	scroll_vbox.add_child(spacer)
 
 
 func update_timeline(entries: Array) -> void:
@@ -312,6 +325,8 @@ func update_timeline(entries: Array) -> void:
 		var raw_entry: Variant = entries[entries.size() - count + i]
 		if raw_entry is Dictionary:
 			timeline_labels[i].text = String(raw_entry.get("text", ""))
+			var entry_color: Color = raw_entry.get("color", Color(0.60, 0.66, 0.66))
+			timeline_labels[i].add_theme_color_override("font_color", entry_color)
 			timeline_labels[i].visible = true
 		else:
 			timeline_labels[i].visible = false
@@ -347,8 +362,13 @@ func _create_status_section(parent: Control) -> void:
 
 
 func _create_entry_system_section(parent: Control) -> void:
-	var box: VBoxContainer = _create_card(parent, "entry_system", "入口系统", 1.05)
-	_add_title_label(box, "入口系统")
+	var box: VBoxContainer = _create_card(parent, "entry_system", "系统", 1.05)
+	_add_title_label(box, "系统")
+
+	# RP display - moved from core_status
+	rp_display_label = _make_label("RP 0  +0.00/h", 11, false, true)
+	rp_display_label.add_theme_color_override("font_color", Color(0.82, 0.88, 0.86))
+	box.add_child(rp_display_label)
 
 	var entry_grid: GridContainer = GridContainer.new()
 	entry_grid.columns = 3
@@ -385,14 +405,13 @@ func _create_core_status_section(parent: Control) -> void:
 	_add_title_label(box, "核心状态")
 
 	var metric_grid: GridContainer = GridContainer.new()
-	metric_grid.columns = 5
+	metric_grid.columns = 4
 	metric_grid.add_theme_constant_override("h_separation", 4)
 	metric_grid.add_theme_constant_override("v_separation", 2)
 	metric_grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	box.add_child(metric_grid)
 
 	var status_lines: Dictionary = section_labels.get("status", {})
-	status_lines["rp_primary"] = _create_metric_tile(metric_grid, "RP")
 	var water_lines: Dictionary = {}
 	water_lines["water_primary"] = _create_metric_tile(metric_grid, "水质")
 	var livestock_lines: Dictionary = {}
@@ -530,9 +549,8 @@ func configure_dock_controls(maintenance_actions: Array, feeding_actions: Array,
 	result["maintenance_button_base_texts"] = maintenance_base_texts
 	result["maintenance_button_costs"] = maintenance_costs
 
-	var raw_ops_section: Variant = section_labels.get("operations", {})
-	if raw_ops_section is Dictionary:
-		result["maintenance_feedback_label"] = raw_ops_section.get("maintenance", null)
+	# maintenance_feedback_label moved to timeline; operations keeps only short tags
+	result["maintenance_feedback_label"] = null
 
 	var device_parent: Control = dock_control_slots.get("devices", null)
 	var device_buttons_result: Dictionary = {}
@@ -810,7 +828,6 @@ func _join_short_parts(parts: Array[String]) -> String:
 
 
 func _set_default_text() -> void:
-	_set_line("status", "rp_primary", "RP 0")
 	_set_line("status", "income_short", "+0.00 /h")
 	_set_line("status", "phase", "Lv1 0%")
 	_set_line("status", "save_status", "未保存")

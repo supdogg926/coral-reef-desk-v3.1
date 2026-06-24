@@ -1,8 +1,15 @@
 class_name ActionTimeline
 extends RefCounted
 
-const MAX_ENTRIES: int = 40
-const DISPLAY_COUNT: int = 4
+const MAX_ENTRIES: int = 80
+const DISPLAY_COUNT: int = 8
+
+# Color constants for timeline entries
+const COLOR_PLAYER: Color = Color(0.80, 0.86, 0.84)       # gray-white
+const COLOR_POSITIVE: Color = Color(0.58, 0.82, 0.68)      # green
+const COLOR_CAUTION: Color = Color(0.88, 0.76, 0.44)       # yellow
+const COLOR_CRITICAL: Color = Color(0.92, 0.45, 0.40)      # red
+const COLOR_NEUTRAL: Color = Color(0.60, 0.66, 0.66)       # muted gray
 
 var entries: Array[Dictionary] = []
 
@@ -17,12 +24,12 @@ var _last_po4_unsafe: bool = false
 var _neglect_logged: bool = false
 
 
-func add_player_action(text: String) -> void:
-	_append({"text": text})
+func add_player_action(text: String, color: Color = COLOR_PLAYER) -> void:
+	_append({"text": text, "color": color})
 
 
-func add_system_event(text: String) -> void:
-	_append({"text": text})
+func add_system_event(text: String, color: Color = COLOR_CAUTION) -> void:
+	_append({"text": text, "color": color})
 
 
 func get_recent(count: int = DISPLAY_COUNT) -> Array[Dictionary]:
@@ -35,6 +42,10 @@ func get_recent(count: int = DISPLAY_COUNT) -> Array[Dictionary]:
 
 func get_all() -> Array[Dictionary]:
 	return entries.duplicate()
+
+
+func size() -> int:
+	return entries.size()
 
 
 func _append(entry: Dictionary) -> void:

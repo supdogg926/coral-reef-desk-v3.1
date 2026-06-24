@@ -290,7 +290,8 @@ func set_device_enabled(device_id: String, enabled: bool) -> Dictionary:
 		summary += "｜风险：" + risk_message
 	summary += "｜" + _format_bio_load_runtime_summary("设备开启后系统压力下降" if enabled else "设备关闭后系统压力上升")
 	last_device_runtime_summary = summary
-	_timeline_log_player(_format_device_timeline_text(device_id, enabled))
+	var dev_tl: Dictionary = _format_device_timeline_text(device_id, enabled)
+	_timeline_log_player(String(dev_tl.get("text", "")), dev_tl.get("color", ActionTimeline.COLOR_PLAYER))
 	var result: Dictionary = _build_device_result(device_id, true, enabled, summary, "ok")
 	result["risk_message"] = risk_message
 	result["income_multiplier"] = float(effect_summary.get("income_multiplier", 1.0))
@@ -453,7 +454,8 @@ func apply_water_maintenance_action(action_id: String) -> Dictionary:
 	print("[M11 PROTOTYPE] water maintenance success label=", result.get("label", ""), " delta=", result.get("delta_summary", ""))
 	if action_timeline != null:
 		action_timeline.reset_neglect()
-		_timeline_log_player(_format_maintenance_timeline_text(action_id, result))
+		var maint_tl: Dictionary = _format_maintenance_timeline_text(action_id, result)
+		_timeline_log_player(String(maint_tl.get("text", "")), maint_tl.get("color", ActionTimeline.COLOR_PLAYER))
 	return result
 
 
@@ -490,7 +492,7 @@ func apply_feeding_action(feed_id: String) -> Dictionary:
 	var feed_label: String = "喂魚糧" if feed_id == "fish_food" else "喂珊瑚糧"
 	var d_no3: float = float(result.get("delta_nitrate", 0.0))
 	var d_po4: float = float(result.get("delta_phosphate", 0.0))
-	_timeline_log_player("%s NO3%+.2f PO4%+.3f" % [feed_label, d_no3, d_po4])
+	_timeline_log_player("%s NO3%+.2f PO4%+.3f" % [feed_label, d_no3, d_po4], ActionTimeline.COLOR_PLAYER)
 	return result
 
 
@@ -1142,57 +1144,57 @@ func _format_timeline_time() -> String:
 	return "D%d %02d:%02d" % [day, h, m]
 
 
-func _timeline_log_player(text: String) -> void:
+func _timeline_log_player(text: String, color: Color = ActionTimeline.COLOR_PLAYER) -> void:
 	if action_timeline == null:
 		return
 	var time_text: String = _format_timeline_time()
-	action_timeline.add_player_action(time_text + " " + text)
+	action_timeline.add_player_action(time_text + " " + text, color)
 
 
-func _timeline_log_system(text: String) -> void:
+func _timeline_log_system(text: String, color: Color = ActionTimeline.COLOR_CAUTION) -> void:
 	if action_timeline == null:
 		return
 	var time_text: String = _format_timeline_time()
-	action_timeline.add_system_event(time_text + " " + text)
+	action_timeline.add_system_event(time_text + " " + text, color)
 
 
-func _format_maintenance_timeline_text(action_id: String, _result: Dictionary) -> String:
+func _format_maintenance_timeline_text(action_id: String, _result: Dictionary) -> Dictionary:
 	match action_id:
 		"water_change_10":
-			return "换水 降NO3/PO4"
+			return {"text": "换水 降NO3/PO4", "color": ActionTimeline.COLOR_POSITIVE}
 		"clean_filter":
-			return "清滤 过滤\u2191"
+			return {"text": "清滤 过滤\u2191", "color": ActionTimeline.COLOR_POSITIVE}
 		"dose_buffer":
-			return "补KH KH\u2191 pH稳"
+			return {"text": "补KH KH\u2191 pH稳", "color": ActionTimeline.COLOR_POSITIVE}
 		"top_off":
-			return "补水 盐度稳"
+			return {"text": "补水 盐度回稳", "color": ActionTimeline.COLOR_POSITIVE}
 		"travel_prep":
-			return "出门 托管维护"
+			return {"text": "出门 托管维护", "color": ActionTimeline.COLOR_POSITIVE}
 		_:
-			return String(_result.get("label", action_id))
+			return {"text": String(_result.get("label", action_id)), "color": ActionTimeline.COLOR_PLAYER}
 
 
-func _format_device_timeline_text(device_id: String, enabled: bool) -> String:
+func _format_device_timeline_text(device_id: String, enabled: bool) -> Dictionary:
 	var display: String = _get_device_display_name(device_id)
 	var state: String = "ON" if enabled else "OFF"
 	match device_id:
 		"return_pump":
 			if enabled:
-				return "水泵ON 水流\u2191"
+				return {"text": "水泵ON 水流\u2191", "color": ActionTimeline.COLOR_POSITIVE}
 			else:
-				return "水泵OFF 水流\u2193 过滤\u2193"
+				return {"text": "水泵OFF 水流\u2193 过滤\u2193", "color": ActionTimeline.COLOR_CAUTION}
 		"wave_pump":
 			if enabled:
-				return "造浪ON"
+				return {"text": "造浪ON", "color": ActionTimeline.COLOR_POSITIVE}
 			else:
-				return "造浪OFF 舒适度\u2193"
+				return {"text": "造浪OFF 舒适度\u2193", "color": ActionTimeline.COLOR_CAUTION}
 		"main_light":
 			if enabled:
-				return "主灯ON"
+				return {"text": "主灯ON", "color": ActionTimeline.COLOR_POSITIVE}
 			else:
-				return "主灯OFF 收益\u2193"
+				return {"text": "主灯OFF 收益\u2193", "color": ActionTimeline.COLOR_CAUTION}
 		_:
-			return "%s%s" % [display, state]
+			return {"text": "%s%s" % [display, state], "color": ActionTimeline.COLOR_PLAYER}
 
 
 func _check_timeline_system_events() -> void:
@@ -1214,13 +1216,13 @@ func _check_timeline_system_events() -> void:
 	# Water quality tier change
 	if action_timeline.should_log_water_status(water_status):
 		if water_status == "CRITICAL":
-			_timeline_log_system("水质\u2192危险")
+			_timeline_log_system("水质\u2192危险", ActionTimeline.COLOR_CRITICAL)
 			if maintenance_relief_remaining_game_seconds <= 0.0 and action_timeline.should_log_neglect():
-				_timeline_log_system("未维护 水质恶化")
+				_timeline_log_system("未维护 水质恶化", ActionTimeline.COLOR_CRITICAL)
 		elif water_status == "WARNING":
-			_timeline_log_system("水质\u2192警告")
+			_timeline_log_system("水质\u2192警告", ActionTimeline.COLOR_CAUTION)
 		elif water_status == "OK":
-			_timeline_log_system("水质\u2192正常")
+			_timeline_log_system("水质\u2192正常", ActionTimeline.COLOR_POSITIVE)
 
 	# Comfort tier change
 	var comfort_tier: String
@@ -1235,7 +1237,8 @@ func _check_timeline_system_events() -> void:
 	else:
 		comfort_tier = "危险"
 	if action_timeline.should_log_comfort_tier(comfort_tier):
-		_timeline_log_system("舒适度\u2192" + comfort_tier)
+		var comfort_color: Color = ActionTimeline.COLOR_POSITIVE if comfort_score >= 75.0 else (ActionTimeline.COLOR_CAUTION if comfort_score >= 40.0 else ActionTimeline.COLOR_CRITICAL)
+		_timeline_log_system("舒适度\u2192" + comfort_tier, comfort_color)
 
 	# Revenue multiplier tier change
 	var revenue_tier: String
@@ -1250,7 +1253,8 @@ func _check_timeline_system_events() -> void:
 	else:
 		revenue_tier = "min"
 	if action_timeline.should_log_revenue_tier(revenue_tier):
-		_timeline_log_system("收益倍率\u2192%.2fx" % revenue_mult)
+		var revenue_color: Color = ActionTimeline.COLOR_POSITIVE if revenue_mult >= 1.00 else (ActionTimeline.COLOR_CAUTION if revenue_mult >= 0.75 else ActionTimeline.COLOR_CRITICAL)
+		_timeline_log_system("收益倍率\u2192%.2fx" % revenue_mult, revenue_color)
 
 	# Filter significant drop
 	var filter_tier: String
@@ -1262,36 +1266,36 @@ func _check_timeline_system_events() -> void:
 		filter_tier = "critical"
 	if action_timeline.should_log_filter_tier(filter_tier):
 		if filter_tier == "critical":
-			_timeline_log_system("过滤\u2193 %.0f%% 需清滤" % filter_pct)
+			_timeline_log_system("过滤\u2193 %.0f%% 需清滤" % filter_pct, ActionTimeline.COLOR_CRITICAL)
 		elif filter_tier == "low":
-			_timeline_log_system("过滤\u2193 %.0f%%" % filter_pct)
+			_timeline_log_system("过滤\u2193 %.0f%%" % filter_pct, ActionTimeline.COLOR_CAUTION)
 
 	# Flow zero
 	var flow_zero: bool = flow_pct <= 0.0
 	if action_timeline.should_log_flow_zero(flow_zero):
 		if flow_zero:
-			_timeline_log_system("水流=0 过滤\u2193 循环停止")
+			_timeline_log_system("水流=0 过滤\u2193 循环停止", ActionTimeline.COLOR_CRITICAL)
 		else:
-			_timeline_log_system("水流恢复")
+			_timeline_log_system("水流恢复", ActionTimeline.COLOR_POSITIVE)
 
 	# NO3 unsafe
 	var no3_unsafe: bool = no3 > 20.0
 	if action_timeline.should_log_no3_unsafe(no3_unsafe):
 		if no3_unsafe:
-			_timeline_log_system("NO3偏高 %.1f 超出安全范围" % no3)
+			_timeline_log_system("NO3偏高 %.1f 超出安全范围" % no3, ActionTimeline.COLOR_CAUTION)
 		else:
-			_timeline_log_system("NO3恢复安全范围")
+			_timeline_log_system("NO3恢复安全范围", ActionTimeline.COLOR_POSITIVE)
 
 	# PO4 unsafe
 	var po4_unsafe: bool = po4 > 0.20
 	if action_timeline.should_log_po4_unsafe(po4_unsafe):
 		if po4_unsafe:
-			_timeline_log_system("PO4偏高 %.3f 超出安全范围" % po4)
+			_timeline_log_system("PO4偏高 %.3f 超出安全范围" % po4, ActionTimeline.COLOR_CAUTION)
 		else:
-			_timeline_log_system("PO4恢复安全范围")
+			_timeline_log_system("PO4恢复安全范围", ActionTimeline.COLOR_POSITIVE)
 
 
-func get_timeline_entries(count: int = 4) -> Array:
+func get_timeline_entries(count: int = 8) -> Array:
 	if action_timeline == null:
 		return []
 	return action_timeline.get_recent(count)

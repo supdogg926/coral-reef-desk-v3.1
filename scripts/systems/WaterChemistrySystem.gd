@@ -304,6 +304,7 @@ func apply_maintenance_action(action_id: String) -> Dictionary:
 		"delta_water_quality_score": delta_water_quality_score,
 		"water_status": water_status,
 		"delta_summary": last_maintenance_delta_summary,
+		"delta_salinity": delta_salinity,
 		"maintenance_action_count": maintenance_action_count,
 	}
 
