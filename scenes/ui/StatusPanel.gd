@@ -320,33 +320,29 @@ func update_timeline(entries: Array) -> void:
 	var scroll_vbox: Control = dock_control_slots.get("timeline_scroll_vbox", null)
 	if scroll_vbox == null:
 		return
-	# Sync label count with entries (up to 50 entries visible)
-	var target_count: int = clampi(entries.size(), 0, 50)
-	if target_count == 0:
-		target_count = 1
-	while timeline_labels.size() < target_count:
-		var label: Label = _make_label("", 8, false)
-		label.add_theme_color_override("font_color", Color(0.60, 0.66, 0.66))
-		scroll_vbox.add_child(label)
-		timeline_labels.append(label)
-	while timeline_labels.size() > target_count:
-		var last: Label = timeline_labels.pop_back()
-		scroll_vbox.remove_child(last)
-		last.queue_free()
-	# Fill labels
-	if entries.is_empty():
-		timeline_labels[0].text = "暂无事件"
-		timeline_labels[0].add_theme_color_override("font_color", Color(0.50, 0.56, 0.56))
+	# Clear all existing labels
+	for child in scroll_vbox.get_children():
+		scroll_vbox.remove_child(child)
+		child.queue_free()
+	timeline_labels.clear()
+	# Render up to 50 entries as real labels
+	var total: int = entries.size()
+	var show_count: int = clampi(total, 0, 50)
+	if show_count == 0:
+		var placeholder: Label = _make_label("暂无事件", 8, false)
+		placeholder.add_theme_color_override("font_color", Color(0.50, 0.56, 0.56))
+		scroll_vbox.add_child(placeholder)
+		timeline_labels.append(placeholder)
 		return
-	var start_idx: int = max(entries.size() - timeline_labels.size(), 0)
-	for i in range(timeline_labels.size()):
-		var entry_idx: int = start_idx + i
-		if entry_idx >= 0 and entry_idx < entries.size():
-			var raw_entry: Variant = entries[entry_idx]
-			if raw_entry is Dictionary:
-				timeline_labels[i].text = String(raw_entry.get("text", ""))
-				var entry_color: Color = raw_entry.get("color", Color(0.60, 0.66, 0.66))
-				timeline_labels[i].add_theme_color_override("font_color", entry_color)
+	var start_idx: int = max(total - show_count, 0)
+	for i in range(show_count):
+		var raw_entry: Variant = entries[start_idx + i]
+		if raw_entry is Dictionary:
+			var label: Label = _make_label(String(raw_entry.get("text", "")), 8, false)
+			var entry_color: Color = raw_entry.get("color", Color(0.60, 0.66, 0.66))
+			label.add_theme_color_override("font_color", entry_color)
+			scroll_vbox.add_child(label)
+			timeline_labels.append(label)
 
 func _create_section(parent: Control, section_id: String, title_text: String, stretch_ratio: float, line_ids: Array[String]) -> void:
 	var box: VBoxContainer = _create_card(parent, section_id, title_text, stretch_ratio)
