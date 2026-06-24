@@ -1035,8 +1035,14 @@ func buy_livestock_from_shop(shop_id: String) -> Dictionary:
 	_purchase_save_timer = 0.0
 	if action_timeline != null:
 		var bname: String = String(purchase_entry.get("species_name", ""))
+		var bcat: String = String(purchase_entry.get("category", ""))
 		if not bname.is_empty():
-			_timeline_log_player("购买 " + bname, ActionTimeline.COLOR_PLAYER)
+			var label: String = "购买 " + bname
+			if bcat == "fish":
+				label += " 鱼 +1"
+			elif bcat == "coral":
+				label += " 珊瑚 +1"
+			_timeline_log_player(label, ActionTimeline.COLOR_POSITIVE)
 	print("[BUY] gs.buy about to return success")
 	return {
 		"success": true,
@@ -1072,7 +1078,13 @@ func release_owned_livestock(livestock_id: String) -> Dictionary:
 	if action_timeline != null:
 		var rname: String = String(result.get("species_name", ""))
 		if not rname.is_empty():
-			_timeline_log_player("带回家 " + rname, ActionTimeline.COLOR_PLAYER)
+			var rcat: String = String(result.get("category", ""))
+			var rlabel: String = "放归 " + rname
+			if rcat == "fish":
+				rlabel += " 鱼 -1"
+			elif rcat == "coral":
+				rlabel += " 珊瑚 -1"
+			_timeline_log_player(rlabel, ActionTimeline.COLOR_CAUTION)
 	print("[M11 PROTOTYPE] release success name=", result.get("species_name", ""), " count=", result.get("new_count", 0))
 	return result
 

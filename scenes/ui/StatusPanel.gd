@@ -143,8 +143,12 @@ func update_livestock_economy_debug(livestock_debug: Dictionary, economy_debug: 
 	_set_status_line("livestock", "fish_count", "%d" % fish_count, KEY_TEXT_COLOR)
 	_set_status_line("livestock", "coral_count", "%d" % coral_count, KEY_TEXT_COLOR)
 	_set_status_line("livestock", "crustacean_count", "%d" % crustacean_count, STATUS_IDLE_COLOR if crustacean_count <= 0 else KEY_TEXT_COLOR)
+	_set_status_line("livestock", "reserve_2", "—", STATUS_IDLE_COLOR)
+	_set_status_line("livestock", "reserve_3", "—", STATUS_IDLE_COLOR)
+	_set_status_line("livestock", "reserve_4", "—", STATUS_IDLE_COLOR)
 	_set_status_line("livestock", "reserve_metric", "\u2014", STATUS_IDLE_COLOR)
-	_set_status_line("livestock", "algae_count", "0", STATUS_IDLE_COLOR)
+	var algae_count_display: int = int(livestock_debug.get("algae_count", 0))
+	_set_status_line("livestock", "algae_count", "%d" % algae_count_display, STATUS_IDLE_COLOR if algae_count_display <= 0 else KEY_TEXT_COLOR)
 	_set_status_line("livestock", "reserve_2", "\u2014", STATUS_IDLE_COLOR)
 
 
@@ -313,31 +317,31 @@ func _create_timeline_section(parent: Control) -> void:
 
 
 func update_timeline(entries: Array) -> void:
-		var scroll_vbox: Control = dock_control_slots.get("timeline_scroll_vbox", null)
-		if scroll_vbox == null:
-			return
-		# Sync label count with entries (up to 50)
-		var target_count: int = clampi(entries.size(), 0, 50)
-		if target_count == 0:
-			target_count = 1  # placeholder label
-		# Add or remove labels to match target_count
-		while timeline_labels.size() < target_count:
-			var label: Label = _make_label("", 8, false)
-			label.add_theme_color_override("font_color", Color(0.60, 0.66, 0.66))
-			scroll_vbox.add_child(label)
-			timeline_labels.append(label)
-		while timeline_labels.size() > target_count:
-			var last: Label = timeline_labels.pop_back()
-			scroll_vbox.remove_child(last)
-			last.queue_free()
-		# Fill labels with entry data
-		if entries.is_empty():
-			timeline_labels[0].text = "暂无事件"
-			timeline_labels[0].add_theme_color_override("font_color", Color(0.50, 0.56, 0.56))
-			return
-		var start_idx: int = max(entries.size() - timeline_labels.size(), 0)
-		for i in range(timeline_labels.size()):
-			var entry_idx: int = start_idx + i
+	var scroll_vbox: Control = dock_control_slots.get("timeline_scroll_vbox", null)
+	if scroll_vbox == null:
+		return
+	# Sync label count with entries (up to 50 entries visible)
+	var target_count: int = clampi(entries.size(), 0, 50)
+	if target_count == 0:
+		target_count = 1
+	while timeline_labels.size() < target_count:
+		var label: Label = _make_label("", 8, false)
+		label.add_theme_color_override("font_color", Color(0.60, 0.66, 0.66))
+		scroll_vbox.add_child(label)
+		timeline_labels.append(label)
+	while timeline_labels.size() > target_count:
+		var last: Label = timeline_labels.pop_back()
+		scroll_vbox.remove_child(last)
+		last.queue_free()
+	# Fill labels
+	if entries.is_empty():
+		timeline_labels[0].text = "暂无事件"
+		timeline_labels[0].add_theme_color_override("font_color", Color(0.50, 0.56, 0.56))
+		return
+	var start_idx: int = max(entries.size() - timeline_labels.size(), 0)
+	for i in range(timeline_labels.size()):
+		var entry_idx: int = start_idx + i
+		if entry_idx >= 0 and entry_idx < entries.size():
 			var raw_entry: Variant = entries[entry_idx]
 			if raw_entry is Dictionary:
 				timeline_labels[i].text = String(raw_entry.get("text", ""))
@@ -932,7 +936,7 @@ func _set_default_text() -> void:
 	_set_status_line("livestock", "coral_count", "0", KEY_TEXT_COLOR)
 	_set_status_line("livestock", "crustacean_count", "0", STATUS_IDLE_COLOR)
 	_set_status_line("livestock", "reserve_metric", "\u2014", STATUS_IDLE_COLOR)
-	_set_status_line("livestock", "algae_count", "0", STATUS_IDLE_COLOR)
+	_set_status_line("livestock", "algae_count", "\u2014", STATUS_IDLE_COLOR)
 	_set_line("livestock", "secondary", "倍率 水质1.00｜舒适1.10｜健康1.00")
 	_set_line("livestock", "value", "缸价值 59.0｜状态 正常")
 	_set_status_line("operations", "device_filter", "100%", STATUS_OK_COLOR)

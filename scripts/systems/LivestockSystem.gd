@@ -20,6 +20,7 @@ var fish_count: int = 0
 var coral_count: int = 0
 var crustacean_count: int = 0
 var other_livestock_count: int = 0
+var algae_count: int = 0
 var bio_load: float = 0.0
 var system_capacity: float = DEFAULT_MAX_CAPACITY
 var bio_load_ratio: float = 0.0
@@ -66,6 +67,7 @@ func initialize() -> void:
 	coral_count = 0
 	crustacean_count = 0
 	other_livestock_count = 0
+	algae_count = 0
 	bio_load = 0.0
 	system_capacity = DEFAULT_MAX_CAPACITY
 	bio_load_ratio = 0.0
@@ -157,6 +159,7 @@ func release_livestock(livestock_id: String) -> Dictionary:
 		"rarity": String(released_entry.get("rarity", "普通")),
 		"released_capacity": float(released_entry.get("tank_slot_cost", 0.0)),
 		"released_base_income_per_hour": float(released_entry.get("base_income_per_hour", 0.0)),
+			"category": String(released_entry.get("category", "")),
 		"old_count": before_count,
 		"new_count": get_livestock_count(),
 		"old_capacity_used": before_capacity,
@@ -380,6 +383,7 @@ func get_debug_state() -> Dictionary:
 		"coral_count": coral_count,
 		"crustacean_count": crustacean_count,
 		"other_livestock_count": other_livestock_count,
+		"algae_count": algae_count,
 		"capacity_used": current_capacity_used,
 		"max_capacity": max_capacity,
 		"capacity_status": capacity_status,
@@ -408,6 +412,7 @@ func _recount_livestock_categories() -> void:
 	coral_count = 0
 	crustacean_count = 0
 	other_livestock_count = 0
+	algae_count = 0
 	for entry in owned_livestock:
 		if bool(entry.get("locked", false)):
 			continue
@@ -418,6 +423,8 @@ func _recount_livestock_categories() -> void:
 			coral_count += 1
 		elif category == "crustacean" or category == "shrimp" or category == "crab":
 			crustacean_count += 1
+		elif category == "algae":
+			algae_count += 1
 		else:
 			other_livestock_count += 1
 
