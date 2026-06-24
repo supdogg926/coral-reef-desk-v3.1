@@ -10,10 +10,13 @@ func _draw() -> void:
 	var tank_rect: Rect2 = Rect2(Vector2(10, 18), size_rect - Vector2(20, 30))
 	var water_rect: Rect2 = Rect2(tank_rect.position + Vector2(10, 36), tank_rect.size - Vector2(20, 48))
 	var sand_rect: Rect2 = Rect2(water_rect.position + Vector2(0, water_rect.size.y - 34), Vector2(water_rect.size.x, 34))
-	var overflow_rect: Rect2 = Rect2(water_rect.position + Vector2(12, 0), Vector2(70, water_rect.size.y))
+	var overflow_width: float = 46.0
+	var overflow_rect: Rect2 = Rect2(Vector2(water_rect.end.x - overflow_width - 10.0, water_rect.position.y), Vector2(overflow_width, water_rect.size.y))
+	var font: Font = get_theme_default_font()
 
 	draw_rect(tank_rect, Color(0.08, 0.11, 0.13), true)
 	draw_rect(tank_rect, Color(0.64, 0.78, 0.86), false, 3.0)
+	draw_string(font, tank_rect.position + Vector2(tank_rect.size.x - 312.0, 22.0), "CoralReefIdleV3 · 柏林系统静态布局", HORIZONTAL_ALIGNMENT_RIGHT, 292.0, 12, Color(0.78, 0.84, 0.84))
 	draw_rect(water_rect, Color(0.05, 0.28, 0.42), true)
 	draw_rect(Rect2(water_rect.position, Vector2(water_rect.size.x, 10)), Color(0.28, 0.63, 0.78), true)
 	draw_rect(sand_rect, Color(0.58, 0.49, 0.34), true)
@@ -22,7 +25,7 @@ func _draw() -> void:
 	draw_rect(overflow_rect, Color(0.3, 0.45, 0.5), false, 2.0)
 	for i in range(5):
 		var slot_y: float = overflow_rect.position.y + 16.0 + float(i) * 22.0
-		draw_line(Vector2(overflow_rect.position.x + 14.0, slot_y), Vector2(overflow_rect.position.x + overflow_rect.size.x - 14.0, slot_y), Color(0.38, 0.65, 0.75), 2.0)
+		draw_line(Vector2(overflow_rect.position.x + 9.0, slot_y), Vector2(overflow_rect.position.x + overflow_rect.size.x - 9.0, slot_y), Color(0.38, 0.65, 0.75), 2.0)
 
 	var rock_base: Vector2 = sand_rect.position + Vector2(water_rect.size.x * 0.45, 8)
 	draw_circle(rock_base + Vector2(-70, -18), 34.0, Color(0.29, 0.28, 0.24))

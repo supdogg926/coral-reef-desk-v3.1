@@ -13,18 +13,18 @@ func _draw() -> void:
 
 	draw_rect(outer_rect, Color(0.11, 0.10, 0.09), true)
 	draw_rect(outer_rect, Color(0.34, 0.32, 0.28), false, 2.0)
-	draw_string(font, title_pos, "底缸 / 柏林系统", HORIZONTAL_ALIGNMENT_LEFT, -1, 13, Color(0.86, 0.91, 0.92))
+	draw_string(font, title_pos, "底缸", HORIZONTAL_ALIGNMENT_LEFT, -1, 13, Color(0.86, 0.91, 0.92))
 	draw_rect(sump_rect, Color(0.04, 0.11, 0.15), true)
 	draw_rect(sump_rect, Color(0.55, 0.72, 0.78), false, 1.6)
 
 	var modules: Array[Dictionary] = [
-		{"name": "滤袋区", "sub": "入水 / 机械过滤", "ratio": 0.12},
-		{"name": "蛋分区", "sub": "Protein Skimmer", "ratio": 0.16},
-		{"name": "藻缸 / 滤材", "sub": "Refugium", "ratio": 0.18},
-		{"name": "活石区", "sub": "Live Rock", "ratio": 0.15},
-		{"name": "陶瓷环区", "sub": "Bio Media", "ratio": 0.17},
-		{"name": "预留设备", "sub": "Future Slot", "ratio": 0.10},
-		{"name": "ATO 补水仓", "sub": "储水 / 补水", "ratio": 0.12},
+		{"name": "滤袋区", "sub": "入水过滤", "ratio": 0.10},
+		{"name": "蛋分区", "sub": "Skimmer", "ratio": 0.16},
+		{"name": "藻缸区", "sub": "Refugium", "ratio": 0.15},
+		{"name": "活石区", "sub": "Live Rock", "ratio": 0.13},
+		{"name": "陶瓷环区", "sub": "Bio Media", "ratio": 0.16},
+		{"name": "设备预留", "sub": "Future Slot", "ratio": 0.16},
+		{"name": "ATO 补水仓", "sub": "储水 / 补水", "ratio": 0.14},
 	]
 	var x: float = sump_rect.position.x
 	for i in range(modules.size()):

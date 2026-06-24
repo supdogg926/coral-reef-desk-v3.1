@@ -6,10 +6,10 @@ var dock_control_slots: Dictionary = {}
 var dock_body: Control = null
 var collapsed_bar: Control = null
 
-const TITLE_FONT_SIZE: int = 9
-const BODY_FONT_SIZE: int = 7
-const KEY_FONT_SIZE: int = 9
-const PRIMARY_FONT_SIZE: int = 11
+const TITLE_FONT_SIZE: int = 10
+const BODY_FONT_SIZE: int = 8
+const KEY_FONT_SIZE: int = 10
+const PRIMARY_FONT_SIZE: int = 12
 const DOCK_HEIGHT: int = 108
 const COLLAPSED_DOCK_HEIGHT: int = 26
 const PANEL_BG_COLOR: Color = Color(0.105, 0.115, 0.125)
@@ -77,10 +77,10 @@ func update_equipment_debug(game_state_debug: Dictionary) -> void:
 	if device_risk.is_empty():
 		device_risk = "无"
 
-	_set_line("status", "device_summary", "设备 %d/%d｜稳定 %.0f｜承载 %.0f" % [tier1_enabled_count, tier1_total_count, stability_score, carrying_capacity_score])
+	_set_line("operations", "device_summary", "设备 %d/%d｜稳定 %.0f｜承载 %.0f" % [tier1_enabled_count, tier1_total_count, stability_score, carrying_capacity_score])
 	_set_line("operations", "device_filter", _compact_text(device_filter_line, 30))
 	_set_line("operations", "device_comfort", _compact_text(device_comfort_line, 30))
-	_set_line("status", "validation", "风险 %s｜预留 %d/%d｜仓 %d｜锁 %d" % [device_risk, tier2_reserved_count, tier3_reserved_count, warehouse_count, locked_count])
+	_set_line("operations", "bio_feedback", "风险 %s｜预留 %d/%d｜仓 %d｜锁 %d" % [device_risk, tier2_reserved_count, tier3_reserved_count, warehouse_count, locked_count])
 
 
 func update_water_chemistry_debug(water_debug: Dictionary) -> void:
@@ -338,13 +338,17 @@ func _create_entry_system_section(parent: Control) -> void:
 	dock_control_slots["system"] = system_grid
 
 	var status_lines: Dictionary = {}
-	status_lines["phase"] = _add_line(box, "", BODY_FONT_SIZE, false)
-	status_lines["time_tick"] = _add_line(box, "", BODY_FONT_SIZE, false)
-	status_lines["save_status"] = _add_line(box, "", BODY_FONT_SIZE, false)
-	status_lines["device_summary"] = _add_line(box, "", BODY_FONT_SIZE, false)
+	var info_grid: GridContainer = GridContainer.new()
+	info_grid.columns = 2
+	info_grid.add_theme_constant_override("h_separation", 4)
+	info_grid.add_theme_constant_override("v_separation", 2)
+	info_grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	box.add_child(info_grid)
+	status_lines["phase"] = _create_secondary_tile(info_grid, "阶段")
+	status_lines["time_tick"] = _create_secondary_tile(info_grid, "时间")
+	status_lines["save_status"] = _create_secondary_tile(info_grid, "存档")
+	status_lines["data"] = _create_secondary_tile(info_grid, "扩展")
 	status_lines["validation"] = _add_line(box, "", BODY_FONT_SIZE, false)
-	status_lines["save_offline"] = _add_line(box, "", BODY_FONT_SIZE, false)
-	status_lines["data"] = _add_line(box, "", BODY_FONT_SIZE, false)
 	section_labels["status"] = status_lines
 
 
@@ -416,10 +420,17 @@ func _create_operations_section(parent: Control) -> void:
 	dock_control_slots["devices"] = ops_grid
 
 	var ops_lines: Dictionary = {}
-	ops_lines["maintenance"] = _add_line(box, "", BODY_FONT_SIZE, false)
+	var ops_info_grid: GridContainer = GridContainer.new()
+	ops_info_grid.columns = 2
+	ops_info_grid.add_theme_constant_override("h_separation", 4)
+	ops_info_grid.add_theme_constant_override("v_separation", 2)
+	ops_info_grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	box.add_child(ops_info_grid)
+	ops_lines["device_summary"] = _create_secondary_tile(ops_info_grid, "设备状态")
+	ops_lines["device_filter"] = _create_secondary_tile(ops_info_grid, "过滤修正")
+	ops_lines["device_comfort"] = _create_secondary_tile(ops_info_grid, "水流健康")
+	ops_lines["maintenance"] = _create_secondary_tile(ops_info_grid, "维护反馈")
 	ops_lines["bio_feedback"] = _add_line(box, "", BODY_FONT_SIZE, true)
-	ops_lines["device_filter"] = _add_line(box, "", BODY_FONT_SIZE, false)
-	ops_lines["device_comfort"] = _add_line(box, "", BODY_FONT_SIZE, false)
 	section_labels["operations"] = ops_lines
 
 
@@ -496,7 +507,7 @@ func configure_dock_controls(maintenance_actions: Array, device_state: Dictionar
 			var action_id: String = String(action.get("id", ""))
 			var action_cost: float = float(action.get("cost", 0.0))
 			var base_text: String = "%s %.0fRP" % [String(action.get("short_label", action.get("label", action_id))), action_cost]
-			var button: Button = _make_dock_button(base_text, Vector2(72, 17))
+			var button: Button = _make_dock_button(base_text, Vector2(74, 18))
 			button.tooltip_text = String(action.get("description", ""))
 			_connect_button(button, callbacks.get("maintenance", Callable()).bind(action_id))
 			maintenance_parent.add_child(button)
@@ -524,7 +535,7 @@ func configure_dock_controls(maintenance_actions: Array, device_state: Dictionar
 			var raw_device: Variant = devices.get(device_id, {})
 			var device_info: Dictionary = raw_device if raw_device is Dictionary else {}
 			var display_name: String = String(device_info.get("display_name", device_id))
-			var button: Button = _make_dock_button(display_name, Vector2(72, 17))
+			var button: Button = _make_dock_button(display_name, Vector2(74, 18))
 			button.tooltip_text = "切换%s（prototype运行时状态，不写入存档）" % display_name
 			_connect_button(button, callbacks.get("device", Callable()).bind(device_id))
 			device_parent.add_child(button)
@@ -540,12 +551,12 @@ func _connect_button(button: Button, callback: Callable) -> void:
 		button.pressed.connect(callback)
 
 
-func _make_dock_button(text: String, min_size: Vector2 = Vector2(54, 17)) -> Button:
+func _make_dock_button(text: String, min_size: Vector2 = Vector2(54, 18)) -> Button:
 	var button: Button = Button.new()
 	button.text = text
 	button.custom_minimum_size = min_size
 	button.clip_text = true
-	button.add_theme_font_size_override("font_size", 8)
+	button.add_theme_font_size_override("font_size", 9)
 	button.add_theme_color_override("font_color", Color(0.80, 0.86, 0.84))
 	button.add_theme_stylebox_override("normal", _make_button_style(Color(0.18, 0.20, 0.21), Color(0.32, 0.36, 0.37)))
 	button.add_theme_stylebox_override("hover", _make_button_style(Color(0.22, 0.245, 0.255), Color(0.42, 0.48, 0.49)))
@@ -784,7 +795,6 @@ func _set_default_text() -> void:
 	_set_line("status", "save_status", "存档 新游戏｜自动 开启")
 	_set_line("status", "time_tick", "第1天 00:00｜更新 0")
 	_set_line("status", "simulation", "模拟运行｜1秒=10分钟")
-	_set_line("status", "device_summary", "设备 7/7｜稳定 92｜承载 27")
 	_set_line("status", "data", "仓库 暂无｜锁定")
 	_set_line("status", "validation", "Load OK｜Errors 0")
 	_set_line("status", "save_offline", "离线 无")
@@ -804,6 +814,7 @@ func _set_default_text() -> void:
 	_set_line("livestock", "value", "缸价值 59.0｜状态 正常")
 	_set_line("operations", "device_filter", "过滤 100%｜NO3 +0.00/d｜PO4 +0.000/d")
 	_set_line("operations", "device_comfort", "造浪ON｜水流 100｜健康 1.00")
+	_set_line("operations", "device_summary", "设备 7/7｜稳定 92｜承载 27")
 	_set_line("operations", "maintenance", "维护 无")
 	_set_line("operations", "bio_feedback", "舒适度良好，收益维持正常")
 
