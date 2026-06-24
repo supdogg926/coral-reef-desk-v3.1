@@ -3,14 +3,19 @@ extends PanelContainer
 
 var section_labels: Dictionary = {}
 
-const TITLE_FONT_SIZE: int = 8
+const TITLE_FONT_SIZE: int = 10
 const BODY_FONT_SIZE: int = 8
-const KEY_FONT_SIZE: int = 9
+const KEY_FONT_SIZE: int = 10
+const PRIMARY_FONT_SIZE: int = 13
 const PANEL_BG_COLOR: Color = Color(0.105, 0.115, 0.125)
 const PANEL_BORDER_COLOR: Color = Color(0.24, 0.28, 0.30)
+const CARD_BG_COLOR: Color = Color(0.135, 0.148, 0.158)
+const CARD_BORDER_COLOR: Color = Color(0.25, 0.29, 0.31)
+const METRIC_BG_COLOR: Color = Color(0.095, 0.108, 0.118)
 const TITLE_TEXT_COLOR: Color = Color(0.86, 0.90, 0.90)
 const BODY_TEXT_COLOR: Color = Color(0.66, 0.72, 0.72)
 const KEY_TEXT_COLOR: Color = Color(0.82, 0.88, 0.86)
+const MUTED_TEXT_COLOR: Color = Color(0.50, 0.56, 0.56)
 
 const WATER_DEVIATION_TARGETS: Dictionary = {
 	"temperature": 25.0,
@@ -24,7 +29,7 @@ const WATER_DEVIATION_TARGETS: Dictionary = {
 
 
 func _ready() -> void:
-	custom_minimum_size = Vector2(0, 148)
+	custom_minimum_size = Vector2(0, 142)
 	size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	size_flags_vertical = Control.SIZE_EXPAND_FILL
 	var style: StyleBoxFlat = StyleBoxFlat.new()
@@ -38,9 +43,8 @@ func _ready() -> void:
 
 
 func update_counts(species_count: int, equipment_count: int, task_count: int, event_count: int, load_status: String, error_count: int) -> void:
-	_set_line("data", "data", "物种 %d｜设备 %d｜任务 %d｜事件 %d" % [species_count, equipment_count, task_count, event_count])
-	_set_line("data", "validation", "Load %s｜Errors %d" % [load_status, error_count])
-	_set_line("data", "milestone", "阶段 M10/M11 原型")
+	_set_line("status", "data", "物种 %d｜设备 %d｜任务 %d｜事件 %d" % [species_count, equipment_count, task_count, event_count])
+	_set_line("status", "validation", "Load %s｜Errors %d" % [load_status, error_count])
 
 
 func update_equipment_debug(game_state_debug: Dictionary) -> void:
@@ -68,11 +72,10 @@ func update_equipment_debug(game_state_debug: Dictionary) -> void:
 	if device_risk.is_empty():
 		device_risk = "无"
 
-	_set_line("system", "tier", "初级设备 %d/%d｜稳定 %.1f" % [tier1_enabled_count, tier1_total_count, stability_score])
-	_set_line("system", "capacity", "承载 %.1f｜维护负担 %.1f" % [carrying_capacity_score, maintenance_load])
-	_set_line("system", "plumbing", device_filter_line)
-	_set_line("system", "comfort", device_comfort_line)
-	_set_line("system", "reserved", "%s｜风险：%s｜预留T2 %d/T3 %d｜仓%d｜锁%d" % [device_light_line, device_risk, tier2_reserved_count, tier3_reserved_count, warehouse_count, locked_count])
+	_set_line("realtime", "device_summary", "设备 %d/%d｜稳定 %.1f｜承载 %.1f" % [tier1_enabled_count, tier1_total_count, stability_score, carrying_capacity_score])
+	_set_line("realtime", "device_filter", device_filter_line)
+	_set_line("realtime", "device_comfort", device_comfort_line)
+	_set_line("realtime", "device_risk", "风险 %s｜预留 %d/%d｜仓 %d｜锁 %d" % [device_risk, tier2_reserved_count, tier3_reserved_count, warehouse_count, locked_count])
 
 
 func update_water_chemistry_debug(water_debug: Dictionary) -> void:
@@ -92,16 +95,16 @@ func update_water_chemistry_debug(water_debug: Dictionary) -> void:
 	var maintenance_delta: String = String(water_debug.get("last_maintenance_delta_summary", "维护：无"))
 	var maintenance_runtime_summary: String = String(water_debug.get("last_maintenance_runtime_summary", ""))
 
-	_set_line("water", "summary", "水质 %s｜评分 %.1f" % [localized_status, water_quality_score])
-	_set_line("water", "readings_core", "温 %.1f℃｜盐 %.1f｜pH %.2f" % [temperature, salinity, ph])
-	_set_line("water", "readings_chemistry", "NO3 %.2f｜PO4 %.3f｜KH %.1f｜Ca %.0f" % [nitrate, phosphate, alkalinity, calcium])
+	_set_line("water", "water_primary", "%s  %.0f" % [localized_status, water_quality_score])
+	_set_line("water", "readings_core", "温 %.1f℃   盐 %.1f   pH %.2f" % [temperature, salinity, ph])
+	_set_line("water", "readings_chemistry", "NO3 %.2f   PO4 %.3f   KH %.1f   Ca %.0f" % [nitrate, phosphate, alkalinity, calcium])
 	_update_water_deviation_summary(water_debug)
 	if maintenance_runtime_summary.is_empty() or maintenance_runtime_summary == "未维护":
-		_set_line("water", "maintenance", "维护 %s｜%s" % [maintenance_label, maintenance_delta])
+		_set_line("realtime", "maintenance", "维护 %s｜%s" % [maintenance_label, _compact_text(maintenance_delta, 32)])
 	else:
-		_set_line("water", "maintenance", "维护 " + maintenance_runtime_summary)
-	_set_line("dynamic", "simulation", "模拟运行｜1秒=10分钟")
-	_set_line("dynamic", "time_tick", "%s｜更新 %d" % [_format_game_time(elapsed_game_minutes), chemistry_tick_count])
+		_set_line("realtime", "maintenance", "维护 " + _compact_text(maintenance_runtime_summary, 36))
+	_set_line("status", "time_tick", "%s｜更新 %d" % [_format_game_time(elapsed_game_minutes), chemistry_tick_count])
+	_set_line("status", "simulation", "模拟运行｜1秒=10分钟")
 
 
 func update_livestock_economy_debug(livestock_debug: Dictionary, economy_debug: Dictionary) -> void:
@@ -125,12 +128,16 @@ func update_livestock_economy_debug(livestock_debug: Dictionary, economy_debug: 
 	var reef_points: float = float(economy_debug.get("reef_points", 0.0))
 	var income_rate: float = float(economy_debug.get("income_rate_per_game_hour", livestock_debug.get("income_rate_per_game_hour", 0.0)))
 
+	_set_line("status", "rp_primary", "RP %.0f" % reef_points)
+	_set_line("status", "income_short", "+%.2f /h" % income_rate)
+	_set_line("livestock", "comfort_primary", "%.0f %s" % [comfort_score, comfort_status])
+	_set_line("livestock", "load_primary", "%.1f / %.1f" % [bio_load, system_capacity])
+	_set_line("livestock", "revenue_primary", "%.2fx" % revenue_multiplier)
+	_set_line("livestock", "rp_primary", "RP %.0f   +%.2f/h" % [reef_points, income_rate])
+	_set_line("livestock", "rp_tick", "+%.5f / tick" % current_rp_per_tick)
 	_set_line("livestock", "count", "生物 %d｜鱼 %d｜珊瑚 %d｜槽位 %.1f/%.1f" % [livestock_count, fish_count, coral_count, capacity_used, max_capacity])
-	_set_line("livestock", "capacity", "负载 %.1f/%.1f  →  舒适 %.0f %s" % [bio_load, system_capacity, comfort_score, comfort_status])
-	_set_line("livestock", "value", "缸价值 %.1f｜基础 %.2f/h" % [reef_value, base_income])
-	_set_line("livestock", "points", "RP %.0f｜+%.5f/tick｜+%.2f/h" % [reef_points, current_rp_per_tick, income_rate])
-	_set_line("livestock", "income", "收益倍率 %.2fx｜水质 %.2fx｜修正 %.2f/h" % [revenue_multiplier, water_quality_mult, effective_income])
-	_set_line("livestock", "modifiers", "状态 %s｜健康 %.2f" % [capacity_status, health_modifier])
+	_set_line("livestock", "secondary", "水质 %.2fx｜健康 %.2f｜基础 %.2f/h｜修正 %.2f/h" % [water_quality_mult, health_modifier, base_income, effective_income])
+	_set_line("livestock", "value", "缸价值 %.1f｜状态 %s" % [reef_value, capacity_status])
 
 
 func update_unlock_debug(unlock_debug: Dictionary) -> void:
@@ -151,11 +158,9 @@ func update_unlock_debug(unlock_debug: Dictionary) -> void:
 			warehouse_text = _join_preview_items(locked_items, "/") + "(锁)"
 	var t2_unlocked: bool = bool(unlock_debug.get("unlocked_states", {}).get("tier2_equipment_preview", false))
 	var wh_status: String = "预览" if t2_unlocked else "锁定"
-	_set_line("dynamic", "stage", "阶段 %s" % [current_stage])
-	_set_line("dynamic", "target", "目标 %s" % [next_target])
-	_set_line("dynamic", "progress", "进度 %.0f%%" % [progress])
-	_set_line("dynamic", "warehouse", "仓库 %s｜%s" % [warehouse_text, wh_status])
-	_set_line("dynamic", "advanced", "高级 未解锁")
+	_set_line("status", "phase", "%s｜进度 %.0f%%" % [current_stage, progress])
+	_set_line("realtime", "stage", "目标 " + _compact_text(next_target, 18))
+	_set_line("realtime", "warehouse", "仓库 %s｜%s" % [warehouse_text, wh_status])
 
 
 func update_delta_debug(water_debug: Dictionary, delta_debug: Dictionary, economy_debug: Dictionary, livestock_debug: Dictionary) -> void:
@@ -196,14 +201,13 @@ func update_delta_debug(water_debug: Dictionary, delta_debug: Dictionary, econom
 		water_min_line = "水变：稳定｜等待首次水质更新"
 		water_hour_line = "水变：稳定｜%d次更新后显示" % tick_count
 
-	var econ_line_a: String = "结算 +%.5f/tick｜+%.5f/s｜+%.2f/h" % [current_rp_per_tick, rp_per_sec, income_rate]
-	var econ_line_b: String = "收益 基础%.2f｜修正%.2f｜水质%.2f｜舒适%.2f｜健康%.2f" % [base_income, effective_income, water_mult, revenue_mult, health_mod]
+	var econ_line_a: String = "结算 +%.5f/tick｜+%.2f/h" % [current_rp_per_tick, income_rate]
+	var econ_line_b: String = "倍率 水质%.2f｜舒适%.2f｜健康%.2f" % [water_mult, revenue_mult, health_mod]
 
-	_set_line("dynamic", "water_delta_a", water_min_line)
-	_set_line("dynamic", "water_delta_b", water_hour_line)
-	_set_line("dynamic", "economy_delta_a", econ_line_a)
-	_set_line("dynamic", "economy_delta_b", econ_line_b)
-	_set_line("dynamic", "bio_feedback", bio_feedback)
+	_set_line("realtime", "log_water", _compact_text(water_min_line, 34))
+	_set_line("realtime", "log_income", econ_line_a)
+	_set_line("realtime", "log_mod", econ_line_b)
+	_set_line("realtime", "bio_feedback", _compact_text(bio_feedback, 30))
 
 
 func update_save_debug(save_debug: Dictionary, save_loaded: bool, offline_summary: Dictionary) -> void:
@@ -216,7 +220,7 @@ func update_save_debug(save_debug: Dictionary, save_loaded: bool, offline_summar
 		var time_dict: Dictionary = Time.get_datetime_dict_from_unix_time(float(last_save_time))
 		last_save_text = "%02d:%02d:%02d" % [time_dict.get("hour", 0), time_dict.get("minute", 0), time_dict.get("second", 0)]
 	var save_line: String = "存档 %s｜自动 %s｜%s" % [load_status, auto_status, last_save_text]
-	_set_line("dynamic", "save_status", save_line)
+	_set_line("status", "save_status", save_line)
 
 	var offline_applied: bool = bool(offline_summary.get("applied", false))
 	if offline_applied:
@@ -228,9 +232,9 @@ func update_save_debug(save_debug: Dictionary, save_loaded: bool, offline_summar
 		else:
 			offline_text = "离线时长：%d分钟" % int(offline_sec / 60.0)
 		offline_text += "｜离线 +%.1f RP" % offline_income
-		_set_line("dynamic", "save_offline", offline_text)
+		_set_line("status", "save_offline", offline_text)
 	else:
-		_set_line("dynamic", "save_offline", "离线 无")
+		_set_line("status", "save_offline", "离线 无")
 
 
 func _build_status_layout() -> void:
@@ -246,55 +250,20 @@ func _build_status_layout() -> void:
 	margin.add_theme_constant_override("margin_bottom", 5)
 	add_child(margin)
 
-	var scroll: ScrollContainer = ScrollContainer.new()
-	scroll.name = "StatusScroll"
-	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-	scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
-	scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	margin.add_child(scroll)
-
-	var root: VBoxContainer = VBoxContainer.new()
-	root.add_theme_constant_override("separation", 1)
-	root.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	root.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	scroll.add_child(root)
-
-	var title: Label = _make_label("状态总览", 10, true)
-	root.add_child(title)
-
 	var row: HBoxContainer = HBoxContainer.new()
-	row.add_theme_constant_override("separation", 8)
+	row.add_theme_constant_override("separation", 7)
 	row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	row.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	root.add_child(row)
+	margin.add_child(row)
 
-	_create_section(row, "data", "DATA", 14, ["data", "validation", "milestone"])
-	_create_section(row, "water", "WATER", 22, [
-		"summary",
-		"readings_core", "readings_chemistry",
-		"deviation_core", "deviation_nutrients", "deviation_minerals",
-		"maintenance",
-	])
-	_create_section(row, "system", "SYSTEM", 18, ["tier", "capacity", "plumbing", "comfort", "reserved"])
-	_create_section(row, "livestock", "BIO / REVENUE", 24, ["count", "capacity", "value", "points", "income", "modifiers"])
-	_create_section(row, "dynamic", "LIVE", 28, [
-		"simulation", "time_tick",
-		"water_delta_a", "water_delta_b",
-		"economy_delta_a", "economy_delta_b", "bio_feedback",
-		"save_status", "save_offline",
-		"stage", "target", "progress",
-		"warehouse", "advanced",
-	])
+	_create_status_section(row)
+	_create_water_section(row)
+	_create_livestock_revenue_section(row)
+	_create_realtime_section(row)
 
 
 func _create_section(parent: Control, section_id: String, title_text: String, stretch_ratio: float, line_ids: Array[String]) -> void:
-	var box: VBoxContainer = VBoxContainer.new()
-	box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	box.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	box.size_flags_stretch_ratio = stretch_ratio
-	box.add_theme_constant_override("separation", 1)
-	parent.add_child(box)
+	var box: VBoxContainer = _create_card(parent, section_id, title_text, stretch_ratio)
 
 	var title: Label = _make_label(title_text, TITLE_FONT_SIZE, true)
 	box.add_child(title)
@@ -305,6 +274,140 @@ func _create_section(parent: Control, section_id: String, title_text: String, st
 		box.add_child(label)
 		lines[line_id] = label
 	section_labels[section_id] = lines
+
+
+func _create_status_section(parent: Control) -> void:
+	var box: VBoxContainer = _create_card(parent, "status", "状态", 1.0)
+	var lines: Dictionary = {}
+	_add_title_label(box, "状态")
+	lines["rp_primary"] = _add_line(box, "", PRIMARY_FONT_SIZE, true)
+	lines["income_short"] = _add_line(box, "", KEY_FONT_SIZE, true)
+	lines["phase"] = _add_line(box, "", BODY_FONT_SIZE, false)
+	lines["save_status"] = _add_line(box, "", BODY_FONT_SIZE, false)
+	lines["time_tick"] = _add_line(box, "", BODY_FONT_SIZE, false)
+	lines["simulation"] = _add_line(box, "", BODY_FONT_SIZE, false)
+	lines["data"] = _add_line(box, "", BODY_FONT_SIZE, false)
+	section_labels["status"] = lines
+
+
+func _create_water_section(parent: Control) -> void:
+	var box: VBoxContainer = _create_card(parent, "water", "水质", 1.25)
+	var lines: Dictionary = {}
+	_add_title_label(box, "水质")
+	lines["water_primary"] = _add_line(box, "", PRIMARY_FONT_SIZE, true)
+	lines["readings_core"] = _add_line(box, "", KEY_FONT_SIZE, true)
+	lines["readings_chemistry"] = _add_line(box, "", KEY_FONT_SIZE, true)
+	lines["deviation_nutrients"] = _add_line(box, "", BODY_FONT_SIZE, false)
+	section_labels["water"] = lines
+
+
+func _create_livestock_revenue_section(parent: Control) -> void:
+	var box: VBoxContainer = _create_card(parent, "livestock", "生物收益", 1.62)
+	var lines: Dictionary = {}
+	_add_title_label(box, "生物收益")
+
+	var metric_row: HBoxContainer = HBoxContainer.new()
+	metric_row.add_theme_constant_override("separation", 4)
+	metric_row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	box.add_child(metric_row)
+	lines["comfort_primary"] = _create_metric_tile(metric_row, "舒适度")
+	lines["load_primary"] = _create_metric_tile(metric_row, "生物负载")
+	lines["revenue_primary"] = _create_metric_tile(metric_row, "收益倍率")
+
+	lines["rp_primary"] = _add_line(box, "", PRIMARY_FONT_SIZE, true)
+	lines["rp_tick"] = _add_line(box, "", KEY_FONT_SIZE, true)
+	lines["count"] = _add_line(box, "", BODY_FONT_SIZE, false)
+	lines["secondary"] = _add_line(box, "", BODY_FONT_SIZE, false)
+	lines["value"] = _add_line(box, "", BODY_FONT_SIZE, false)
+	section_labels["livestock"] = lines
+
+
+func _create_realtime_section(parent: Control) -> void:
+	var box: VBoxContainer = _create_card(parent, "realtime", "系统实时", 1.28)
+	var lines: Dictionary = {}
+	_add_title_label(box, "系统实时")
+	lines["device_summary"] = _add_line(box, "", KEY_FONT_SIZE, true)
+	lines["device_filter"] = _add_line(box, "", BODY_FONT_SIZE, false)
+	lines["device_comfort"] = _add_line(box, "", BODY_FONT_SIZE, false)
+	lines["maintenance"] = _add_line(box, "", BODY_FONT_SIZE, false)
+	lines["bio_feedback"] = _add_line(box, "", KEY_FONT_SIZE, true)
+	lines["log_income"] = _add_line(box, "", BODY_FONT_SIZE, false)
+	lines["stage"] = _add_line(box, "", BODY_FONT_SIZE, false)
+	section_labels["realtime"] = lines
+
+
+func _create_card(parent: Control, section_id: String, title_text: String, stretch_ratio: float) -> VBoxContainer:
+	var panel: PanelContainer = PanelContainer.new()
+	panel.name = section_id + "_Card"
+	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	panel.size_flags_stretch_ratio = stretch_ratio
+	panel.add_theme_stylebox_override("panel", _make_panel_style(CARD_BG_COLOR, CARD_BORDER_COLOR, 4))
+	parent.add_child(panel)
+
+	var margin: MarginContainer = MarginContainer.new()
+	margin.add_theme_constant_override("margin_left", 8)
+	margin.add_theme_constant_override("margin_top", 5)
+	margin.add_theme_constant_override("margin_right", 8)
+	margin.add_theme_constant_override("margin_bottom", 5)
+	panel.add_child(margin)
+
+	var box: VBoxContainer = VBoxContainer.new()
+	box.add_theme_constant_override("separation", 2)
+	box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	box.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	margin.add_child(box)
+	return box
+
+
+func _add_title_label(parent: Control, text: String) -> Label:
+	var label: Label = _make_label(text, TITLE_FONT_SIZE, true)
+	label.add_theme_color_override("font_color", TITLE_TEXT_COLOR)
+	parent.add_child(label)
+	return label
+
+
+func _add_line(parent: Control, text: String, font_size: int, is_key: bool) -> Label:
+	var label: Label = _make_label(text, font_size, false, is_key)
+	parent.add_child(label)
+	return label
+
+
+func _create_metric_tile(parent: Control, title_text: String) -> Label:
+	var panel: PanelContainer = PanelContainer.new()
+	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	panel.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	panel.add_theme_stylebox_override("panel", _make_panel_style(METRIC_BG_COLOR, Color(0.18, 0.22, 0.23), 4))
+	parent.add_child(panel)
+
+	var margin: MarginContainer = MarginContainer.new()
+	margin.add_theme_constant_override("margin_left", 5)
+	margin.add_theme_constant_override("margin_top", 3)
+	margin.add_theme_constant_override("margin_right", 5)
+	margin.add_theme_constant_override("margin_bottom", 3)
+	panel.add_child(margin)
+
+	var box: VBoxContainer = VBoxContainer.new()
+	box.add_theme_constant_override("separation", 0)
+	margin.add_child(box)
+
+	var title: Label = _make_label(title_text, 7, false)
+	title.add_theme_color_override("font_color", MUTED_TEXT_COLOR)
+	box.add_child(title)
+
+	var value: Label = _make_label("", PRIMARY_FONT_SIZE, false, true)
+	value.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
+	box.add_child(value)
+	return value
+
+
+func _make_panel_style(bg_color: Color, border_color: Color, radius: int) -> StyleBoxFlat:
+	var style: StyleBoxFlat = StyleBoxFlat.new()
+	style.bg_color = bg_color
+	style.border_color = border_color
+	style.set_border_width_all(1)
+	style.set_corner_radius_all(radius)
+	return style
 
 
 func _make_label(text: String, font_size: int, is_title: bool, is_key: bool = false) -> Label:
@@ -404,41 +507,40 @@ func _join_short_parts(parts: Array[String]) -> String:
 
 
 func _set_default_text() -> void:
-	_set_line("data", "data", "物种 161｜设备 28｜任务 10｜事件 7")
-	_set_line("data", "validation", "Load OK｜Errors 0")
-	_set_line("data", "milestone", "阶段 M10/M11 原型")
-	_set_line("water", "summary", "水质 正常｜评分 100.0")
+	_set_line("status", "rp_primary", "RP 0")
+	_set_line("status", "income_short", "+0.00 /h")
+	_set_line("status", "phase", "初级玩家｜进度 0%")
+	_set_line("status", "save_status", "存档 新游戏｜自动 开启")
+	_set_line("status", "time_tick", "第1天 00:00｜更新 0")
+	_set_line("status", "simulation", "模拟运行｜1秒=10分钟")
+	_set_line("status", "data", "物种 161｜设备 28｜任务 10｜事件 7")
+	_set_line("status", "validation", "Load OK｜Errors 0")
+	_set_line("status", "save_offline", "离线 无")
+	_set_line("water", "water_primary", "正常  100")
 	_set_line("water", "readings_core", "温 25.1℃｜盐 35.0｜pH 8.20")
 	_set_line("water", "readings_chemistry", "NO3 2.60｜PO4 0.030｜KH 8.3｜Ca 430")
 	_set_line("water", "deviation_core", "偏差：温 +0.1｜盐 +0.0｜pH +0.00")
 	_set_line("water", "deviation_nutrients", "营养偏差：NO3 +0.60｜PO4 +0.000")
 	_set_line("water", "deviation_minerals", "矿物偏差：KH +0.0｜Ca +0｜全部正常")
-	_set_line("water", "maintenance", "维护 无｜维护：无")
-	_set_line("system", "tier", "初级设备 7/7｜稳定 92.0")
-	_set_line("system", "capacity", "承载 27.0｜维护负担 12.0")
-	_set_line("system", "plumbing", "过滤 100%｜NO3 +0.00/d｜PO4 +0.000/d｜水质 +0")
-	_set_line("system", "comfort", "造浪ON｜水流 100｜健康 1.00｜造浪 +0.00")
-	_set_line("system", "reserved", "光照 100%｜收益 x1.00｜稳定 +0｜风险：无｜预留T2 4/T3 5")
+	_set_line("livestock", "comfort_primary", "100 优秀")
+	_set_line("livestock", "load_primary", "23.4 / 39.2")
+	_set_line("livestock", "revenue_primary", "1.10x")
+	_set_line("livestock", "rp_primary", "RP 0   +0.00/h")
+	_set_line("livestock", "rp_tick", "+0.00000 / tick")
 	_set_line("livestock", "count", "生物 6｜鱼 2｜珊瑚 3｜槽位 18.0/30.0")
-	_set_line("livestock", "capacity", "负载 23.4/39.2  →  舒适 100 优秀")
-	_set_line("livestock", "value", "缸价值 59.0｜基础 2.36/h")
-	_set_line("livestock", "points", "RP 0｜+0.00000/tick｜+0.00/h")
-	_set_line("livestock", "income", "收益倍率 1.10x｜水质 1.00x｜修正 2.60/h")
-	_set_line("livestock", "modifiers", "状态 正常｜健康 1.00")
-	_set_line("dynamic", "simulation", "模拟运行｜1秒=10分钟")
-	_set_line("dynamic", "time_tick", "第1天 00:00｜更新 0")
-	_set_line("dynamic", "water_delta_a", "水变/min：等待首次更新...")
-	_set_line("dynamic", "water_delta_b", "水变/h：等待首次更新...")
-	_set_line("dynamic", "economy_delta_a", "结算 +0.00000/tick｜+0.00000/s｜+0.00/h")
-	_set_line("dynamic", "economy_delta_b", "收益 基础0.00｜修正0.00｜水质1.00｜舒适1.00｜健康1.00")
-	_set_line("dynamic", "bio_feedback", "舒适度良好，收益维持正常")
-	_set_line("dynamic", "save_status", "存档 新游戏｜自动 开启｜--:--:--")
-	_set_line("dynamic", "save_offline", "离线 无")
-	_set_line("dynamic", "stage", "阶段 初级玩家")
-	_set_line("dynamic", "target", "目标 解锁中级设备预览")
-	_set_line("dynamic", "progress", "进度 0%")
-	_set_line("dynamic", "warehouse", "仓库 暂无｜锁定")
-	_set_line("dynamic", "advanced", "高级 未解锁")
+	_set_line("livestock", "secondary", "水质 1.00x｜健康 1.00｜基础 2.36/h｜修正 2.60/h")
+	_set_line("livestock", "value", "缸价值 59.0｜状态 正常")
+	_set_line("realtime", "device_summary", "设备 7/7｜稳定 92.0｜承载 27.0")
+	_set_line("realtime", "device_filter", "过滤 100%｜NO3 +0.00/d｜PO4 +0.000/d")
+	_set_line("realtime", "device_comfort", "造浪ON｜水流 100｜健康 1.00")
+	_set_line("realtime", "maintenance", "维护 无")
+	_set_line("realtime", "bio_feedback", "舒适度良好，收益维持正常")
+	_set_line("realtime", "log_income", "结算 +0.00000/tick｜+0.00/h")
+	_set_line("realtime", "log_mod", "倍率 水质1.00｜舒适1.10｜健康1.00")
+	_set_line("realtime", "log_water", "水变 等待首次更新")
+	_set_line("realtime", "stage", "目标 解锁中级设备预览")
+	_set_line("realtime", "warehouse", "仓库 暂无｜锁定")
+	_set_line("realtime", "device_risk", "风险 无")
 
 
 func _set_line(section_id: String, line_id: String, text: String) -> void:
@@ -450,6 +552,12 @@ func _set_line(section_id: String, line_id: String, text: String) -> void:
 	if raw_label is Label:
 		var label: Label = raw_label
 		label.text = text
+
+
+func _compact_text(text: String, max_chars: int) -> String:
+	if text.length() <= max_chars:
+		return text
+	return text.substr(0, max(max_chars - 1, 0)) + "…"
 
 
 func _string_array_from(raw_value: Variant) -> Array:
