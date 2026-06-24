@@ -19,10 +19,10 @@ func _draw() -> void:
 
 	var modules: Array[Dictionary] = [
 		{"name": "滤袋区", "sub": "入水过滤", "ratio": 0.10},
-		{"name": "蛋分区", "sub": "Skimmer", "ratio": 0.16},
+		{"name": "滤材区", "sub": "Bio Media", "ratio": 0.16},
 		{"name": "藻缸区", "sub": "Refugium", "ratio": 0.15},
 		{"name": "活石区", "sub": "Live Rock", "ratio": 0.13},
-		{"name": "陶瓷环区", "sub": "Bio Media", "ratio": 0.16},
+		{"name": "蛋分区", "sub": "Skimmer", "ratio": 0.16},
 		{"name": "设备预留", "sub": "Future Slot", "ratio": 0.16},
 		{"name": "ATO 补水仓", "sub": "储水 / 补水", "ratio": 0.14},
 	]

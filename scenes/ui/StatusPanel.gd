@@ -75,10 +75,10 @@ func update_equipment_debug(game_state_debug: Dictionary) -> void:
 	var raw_device_effect: Variant = game_state_debug.get("device_effect", {})
 	var device_effect: Dictionary = raw_device_effect if raw_device_effect is Dictionary else {}
 	var filter_efficiency: float = float(device_effect.get("filter_efficiency_percent", 100.0))
-	var flow_comfort: float = float(device_effect.get("flow_comfort_score", device_effect.get("comfort_score", 100.0)))
+	var water_flow: float = float(device_effect.get("water_flow_percent", device_effect.get("flow_comfort_score", 100.0)))
 
 	_set_status_line("operations", "device_filter", "%.0f%%" % filter_efficiency, _score_color(filter_efficiency, 80.0, 50.0))
-	_set_status_line("operations", "device_comfort", "%.0f%%" % flow_comfort, _score_color(flow_comfort, 80.0, 50.0))
+	_set_status_line("operations", "device_comfort", "%.0f%%" % water_flow, _score_color(water_flow, 80.0, 50.0))
 	_set_status_line("operations", "device_summary", "%.0f" % stability_score, _score_color(stability_score, 80.0, 55.0))
 
 
@@ -117,6 +117,7 @@ func update_livestock_economy_debug(livestock_debug: Dictionary, economy_debug: 
 	var livestock_count: int = int(livestock_debug.get("livestock_count", 0))
 	var fish_count: int = int(livestock_debug.get("fish_count", 0))
 	var coral_count: int = int(livestock_debug.get("coral_count", 0))
+	var crustacean_count: int = int(livestock_debug.get("crustacean_count", livestock_debug.get("other_livestock_count", 0)))
 	var capacity_used: float = float(livestock_debug.get("capacity_used", 0.0))
 	var max_capacity: float = float(livestock_debug.get("max_capacity", 30.0))
 	var capacity_status: String = _localize_capacity_status(String(livestock_debug.get("capacity_status", "normal")))
@@ -134,18 +135,22 @@ func update_livestock_economy_debug(livestock_debug: Dictionary, economy_debug: 
 	var reef_points: float = float(economy_debug.get("reef_points", 0.0))
 	var income_rate: float = float(economy_debug.get("income_rate_per_game_hour", livestock_debug.get("income_rate_per_game_hour", 0.0)))
 
-	_set_status_line("status", "rp_primary", "RP %.0f" % reef_points, KEY_TEXT_COLOR)
+	_set_status_line("status", "rp_primary", "RP %.0f  +%.2f/h" % [reef_points, income_rate], KEY_TEXT_COLOR)
 	_set_status_line("livestock", "comfort_primary", "%.0f %s" % [comfort_score, comfort_status], _score_color(comfort_score, 80.0, 55.0))
 	_set_status_line("livestock", "load_primary", "%.1f/%.1f" % [bio_load, system_capacity], _load_color(bio_load, system_capacity))
 	_set_status_line("livestock", "revenue_primary", "%.2fx" % revenue_multiplier, _multiplier_color(revenue_multiplier))
-	_set_status_line("livestock", "rp_tick", "+%.2f/h" % income_rate, _multiplier_color(revenue_multiplier))
-	_set_status_line("livestock", "count", "%d / 鱼%d 珊瑚%d" % [livestock_count, fish_count, coral_count], KEY_TEXT_COLOR)
+	_set_status_line("livestock", "fish_count", "%d" % fish_count, KEY_TEXT_COLOR)
+	_set_status_line("livestock", "coral_count", "%d" % coral_count, KEY_TEXT_COLOR)
+	_set_status_line("livestock", "crustacean_count", "%d" % crustacean_count, STATUS_IDLE_COLOR if crustacean_count <= 0 else KEY_TEXT_COLOR)
 
 
 func update_unlock_debug(unlock_debug: Dictionary) -> void:
 	var current_stage: String = String(unlock_debug.get("current_stage", "初级玩家"))
 	var next_target: String = String(unlock_debug.get("next_unlock_target", "解锁中级设备预览"))
 	var progress: float = float(unlock_debug.get("unlock_progress", 0.0)) * 100.0
+	var player_level: int = int(unlock_debug.get("player_level", 1))
+	var level_progress: float = float(unlock_debug.get("player_level_progress", 0.0)) * 100.0
+	var goal_label: String = String(unlock_debug.get("current_goal_label", "维护稳定"))
 	var unlocked_items: Array = _string_array_from(unlock_debug.get("unlocked_preview_items", []))
 	var locked_items: Array = _string_array_from(unlock_debug.get("locked_preview_items", []))
 	var warehouse_text: String = "暂无"
@@ -160,8 +165,8 @@ func update_unlock_debug(unlock_debug: Dictionary) -> void:
 			warehouse_text = _join_preview_items(locked_items, "/") + "(锁)"
 	var t2_unlocked: bool = bool(unlock_debug.get("unlocked_states", {}).get("tier2_equipment_preview", false))
 	var wh_status: String = "预览" if t2_unlocked else "锁定"
-	_set_line("status", "phase", "%s %.0f%%" % [_compact_text(current_stage, 6), progress])
-	_set_line("status", "validation", wh_status)
+	_set_line("status", "phase", "Lv%d %.0f%%" % [player_level, level_progress])
+	_set_line("status", "validation", goal_label)
 
 
 func update_delta_debug(water_debug: Dictionary, delta_debug: Dictionary, economy_debug: Dictionary, livestock_debug: Dictionary) -> void:
@@ -217,7 +222,7 @@ func update_save_debug(save_debug: Dictionary, save_loaded: bool, offline_summar
 	if last_save_time > 0:
 		var time_dict: Dictionary = Time.get_datetime_dict_from_unix_time(float(last_save_time))
 		last_save_text = "%02d:%02d:%02d" % [time_dict.get("hour", 0), time_dict.get("minute", 0), time_dict.get("second", 0)]
-	var save_line: String = "%s %s" % [load_status, last_save_text]
+	var save_line: String = "已保存" if last_save_time > 0 else ("自动" if save_loaded else "未保存")
 	_set_line("status", "save_status", save_line)
 
 	var offline_applied: bool = bool(offline_summary.get("applied", false))
@@ -338,7 +343,7 @@ func _create_entry_system_section(parent: Control) -> void:
 	info_grid.add_theme_constant_override("v_separation", 2)
 	info_grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	box.add_child(info_grid)
-	status_lines["phase"] = _create_secondary_tile(info_grid, "阶段")
+	status_lines["phase"] = _create_secondary_tile(info_grid, "等级")
 	status_lines["time_tick"] = _create_secondary_tile(info_grid, "时间")
 	status_lines["save_status"] = _create_secondary_tile(info_grid, "存档")
 	status_lines["validation"] = _create_secondary_tile(info_grid, "目标")
@@ -378,13 +383,13 @@ func _create_core_status_section(parent: Control) -> void:
 	water_lines["calcium"] = _create_secondary_tile(secondary_grid, "Ca")
 	water_lines["nitrate"] = _create_secondary_tile(secondary_grid, "NO3")
 	water_lines["phosphate"] = _create_secondary_tile(secondary_grid, "PO4")
-	livestock_lines["rp_tick"] = _create_secondary_tile(secondary_grid, "RP产出")
+	livestock_lines["fish_count"] = _create_secondary_tile(secondary_grid, "鱼")
+	livestock_lines["coral_count"] = _create_secondary_tile(secondary_grid, "珊瑚")
+	livestock_lines["crustacean_count"] = _create_secondary_tile(secondary_grid, "甲壳")
 
 	section_labels["status"] = status_lines
 
 	section_labels["water"] = water_lines
-
-	livestock_lines["count"] = _create_secondary_tile(secondary_grid, "生物")
 	section_labels["livestock"] = livestock_lines
 
 
@@ -417,7 +422,7 @@ func _create_operations_section(parent: Control) -> void:
 	section_labels["operations"] = ops_lines
 
 
-func configure_dock_controls(maintenance_actions: Array, device_state: Dictionary, callbacks: Dictionary, show_debug_controls: bool) -> Dictionary:
+func configure_dock_controls(maintenance_actions: Array, feeding_actions: Array, device_state: Dictionary, callbacks: Dictionary, show_debug_controls: bool) -> Dictionary:
 	var result: Dictionary = {
 		"shop_btn": null,
 		"livestock_btn": null,
@@ -427,6 +432,8 @@ func configure_dock_controls(maintenance_actions: Array, device_state: Dictionar
 		"maintenance_buttons": {},
 		"maintenance_button_base_texts": {},
 		"maintenance_button_costs": {},
+		"feeding_buttons": {},
+		"feeding_button_base_texts": {},
 		"device_buttons": {},
 		"device_button_base_texts": {},
 	}
@@ -500,10 +507,12 @@ func configure_dock_controls(maintenance_actions: Array, device_state: Dictionar
 	var device_parent: Control = dock_control_slots.get("devices", null)
 	var device_buttons_result: Dictionary = {}
 	var device_base_texts: Dictionary = {}
+	var feeding_buttons_result: Dictionary = {}
+	var feeding_base_texts: Dictionary = {}
 	if device_parent != null:
 		var raw_devices: Variant = device_state.get("devices", {})
 		var devices: Dictionary = raw_devices if raw_devices is Dictionary else {}
-		for device_id in ["return_pump", "wave_pump", "main_light", "reserve"]:
+		for device_id in ["return_pump", "wave_pump", "main_light"]:
 			var raw_device: Variant = devices.get(device_id, {})
 			var device_info: Dictionary = raw_device if raw_device is Dictionary else {}
 			var display_name: String = String(device_info.get("display_name", device_id))
@@ -513,8 +522,22 @@ func configure_dock_controls(maintenance_actions: Array, device_state: Dictionar
 			device_parent.add_child(button)
 			device_buttons_result[device_id] = button
 			device_base_texts[device_id] = display_name
+		for raw_feed in feeding_actions:
+			if not raw_feed is Dictionary:
+				continue
+			var feed: Dictionary = raw_feed
+			var feed_id: String = String(feed.get("id", ""))
+			var base_text: String = String(feed.get("short_label", feed.get("label", feed_id)))
+			var feed_button: Button = _make_dock_button(base_text, Vector2(74, 18))
+			feed_button.tooltip_text = "%s 主动喂食，增加 NO3/PO4" % String(feed.get("label", base_text))
+			_connect_button(feed_button, callbacks.get("feed", Callable()).bind(feed_id))
+			device_parent.add_child(feed_button)
+			feeding_buttons_result[feed_id] = feed_button
+			feeding_base_texts[feed_id] = base_text
 	result["device_buttons"] = device_buttons_result
 	result["device_button_base_texts"] = device_base_texts
+	result["feeding_buttons"] = feeding_buttons_result
+	result["feeding_button_base_texts"] = feeding_base_texts
 	return result
 
 
@@ -759,12 +782,12 @@ func _join_short_parts(parts: Array[String]) -> String:
 func _set_default_text() -> void:
 	_set_line("status", "rp_primary", "RP 0")
 	_set_line("status", "income_short", "+0.00 /h")
-	_set_line("status", "phase", "初级 0%")
-	_set_line("status", "save_status", "新游戏 --:--")
+	_set_line("status", "phase", "Lv1 0%")
+	_set_line("status", "save_status", "未保存")
 	_set_line("status", "time_tick", "第1天 00:00")
 	_set_line("status", "simulation", "模拟运行｜1秒=10分钟")
 	_set_line("status", "data", "仓库 暂无｜锁定")
-	_set_line("status", "validation", "锁定")
+	_set_line("status", "validation", "维护稳定")
 	_set_line("status", "save_offline", "离线 无")
 	_set_status_line("water", "water_primary", "正常 100", STATUS_OK_COLOR)
 	_set_status_line("water", "temperature", "25.1° +0.1", STATUS_OK_COLOR)
@@ -777,9 +800,9 @@ func _set_default_text() -> void:
 	_set_status_line("livestock", "comfort_primary", "100 优秀", STATUS_OK_COLOR)
 	_set_status_line("livestock", "load_primary", "23.4/39.2", STATUS_OK_COLOR)
 	_set_status_line("livestock", "revenue_primary", "1.10x", STATUS_OK_COLOR)
-	_set_line("livestock", "rp_primary", "RP 0   +0.00/h")
-	_set_status_line("livestock", "rp_tick", "+0.00/h", STATUS_OK_COLOR)
-	_set_line("livestock", "count", "6 / 鱼2 珊瑚3")
+	_set_status_line("livestock", "fish_count", "0", KEY_TEXT_COLOR)
+	_set_status_line("livestock", "coral_count", "0", KEY_TEXT_COLOR)
+	_set_status_line("livestock", "crustacean_count", "0", STATUS_IDLE_COLOR)
 	_set_line("livestock", "secondary", "倍率 水质1.00｜舒适1.10｜健康1.00")
 	_set_line("livestock", "value", "缸价值 59.0｜状态 正常")
 	_set_status_line("operations", "device_filter", "100%", STATUS_OK_COLOR)

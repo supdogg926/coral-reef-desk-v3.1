@@ -115,8 +115,8 @@ func apply_natural_drift(delta_seconds: float) -> void:
 	temperature += 0.08 * days
 	salinity += 0.015 * days
 	ph -= 0.010 * days
-	nitrate += 0.22 * days
-	phosphate += 0.003 * days
+	nitrate += 0.32 * days
+	phosphate += 0.0045 * days
 	alkalinity -= 0.030 * days
 	calcium -= 0.40 * days
 
@@ -131,14 +131,19 @@ func apply_equipment_stabilization(equipment_effects_summary: Dictionary, delta_
 	var oxygenation: float = float(equipment_effects_summary.get("oxygenation", 0.0))
 	var device_nitrate_drift: float = float(equipment_effects_summary.get("device_nitrate_drift_per_day", 0.0))
 	var device_phosphate_drift: float = float(equipment_effects_summary.get("device_phosphate_drift_per_day", 0.0))
+	var bio_nitrate_drift: float = float(equipment_effects_summary.get("bio_load_nitrate_drift_per_day", 0.0))
+	var bio_phosphate_drift: float = float(equipment_effects_summary.get("bio_load_phosphate_drift_per_day", 0.0))
+	var maintenance_relief: float = float(equipment_effects_summary.get("maintenance_relief", 0.0))
 	var ph_support: float = min((flow + oxygenation + nutrient_export) * 0.002, 0.04)
 
 	system_stability = 50.0 + stability_bonus
 	device_water_quality_penalty = float(equipment_effects_summary.get("device_water_quality_penalty", 0.0))
-	nitrate -= (nutrient_export * 0.030 + bio_filtration * 0.020) * days
-	phosphate -= nutrient_export * 0.0007 * days
+	nitrate -= (nutrient_export * 0.030 + bio_filtration * 0.020 + maintenance_relief * 0.010) * days
+	phosphate -= (nutrient_export * 0.0007 + maintenance_relief * 0.00025) * days
 	nitrate += device_nitrate_drift * days
 	phosphate += device_phosphate_drift * days
+	nitrate += bio_nitrate_drift * days
+	phosphate += bio_phosphate_drift * days
 	ph += ph_support * days
 	alkalinity += min(stability_bonus * 0.001, 0.04) * days
 	calcium += min(stability_bonus * 0.010, 0.30) * days
@@ -192,31 +197,31 @@ func get_maintenance_actions() -> Array:
 			"id": "water_change_10",
 			"label": "换水10%",
 			"short_label": "换水",
-			"description": "降低NO3/PO4，并把核心参数拉回目标值。",
+			"description": "换水 降 NO3/PO4",
 		},
 		{
 			"id": "clean_filter",
 			"label": "清理滤材",
 			"short_label": "清滤",
-			"description": "快速降低营养盐，轻微提升稳定度。",
+			"description": "清滤 恢复过滤",
 		},
 		{
 			"id": "dose_buffer",
 			"label": "补充KH缓冲",
 			"short_label": "补KH",
-			"description": "提高KH、pH和钙，适合矿物偏低时使用。",
+			"description": "补KH 稳 pH",
 		},
 		{
 			"id": "top_off",
 			"label": "补淡水",
 			"short_label": "补水",
-			"description": "把盐度向目标值拉回，顺手稳定温度。",
+			"description": "补水 稳盐度",
 		},
 		{
 			"id": "travel_prep",
 			"label": "出门维护",
-			"short_label": "出门维护",
-			"description": "高成本维护，显著把水质参数拉回目标值。",
+			"short_label": "出门",
+			"description": "出门 托管",
 		},
 	]
 
@@ -300,6 +305,42 @@ func apply_maintenance_action(action_id: String) -> Dictionary:
 		"water_status": water_status,
 		"delta_summary": last_maintenance_delta_summary,
 		"maintenance_action_count": maintenance_action_count,
+	}
+
+
+func apply_feeding(feed_id: String, fish_count: int, coral_count: int) -> Dictionary:
+	var before_state: Dictionary = _snapshot_parameters()
+	var before_quality: float = water_quality_score
+	var label: String = ""
+	match feed_id:
+		"fish_food":
+			label = "喂鱼粮"
+			nitrate += 0.55 + float(max(fish_count, 0)) * 0.08
+			phosphate += 0.010 + float(max(fish_count, 0)) * 0.0015
+		"coral_food":
+			label = "喂珊瑚粮"
+			nitrate += 0.22 + float(max(coral_count, 0)) * 0.025
+			phosphate += 0.022 + float(max(coral_count, 0)) * 0.0025
+		_:
+			return {"success": false, "error": "unknown_feed", "feed_id": feed_id}
+	_clamp_debug_ranges()
+	parameter_status = calculate_parameter_status()
+	water_quality_score = calculate_water_quality_score()
+	water_status = get_water_status()
+	_update_delta_from_snapshot(before_state, before_quality)
+	last_parameter_delta_summary = _format_delta_summary(delta_nitrate, delta_phosphate, delta_ph)
+	last_maintenance_action_label = "喂食"
+	last_maintenance_result_text = label
+	last_maintenance_delta_summary = "%s｜NO3%+.2f｜PO4%+.3f" % [label, delta_nitrate, delta_phosphate]
+	return {
+		"success": true,
+		"feed_id": feed_id,
+		"label": label,
+		"summary": last_maintenance_delta_summary,
+		"delta_nitrate": delta_nitrate,
+		"delta_phosphate": delta_phosphate,
+		"water_quality_after": water_quality_score,
+		"water_status": water_status,
 	}
 
 
@@ -440,8 +481,16 @@ func import_state(state: Dictionary) -> void:
 
 func apply_offline_drift(offline_game_hours: float, equipment_effects_summary: Dictionary) -> void:
 	var days: float = max(offline_game_hours, 0.0) / 24.0
-	nitrate += 0.04 * days
-	phosphate += 0.0008 * days
+	var device_nitrate_drift: float = float(equipment_effects_summary.get("device_nitrate_drift_per_day", 0.0))
+	var device_phosphate_drift: float = float(equipment_effects_summary.get("device_phosphate_drift_per_day", 0.0))
+	var bio_nitrate_drift: float = float(equipment_effects_summary.get("bio_load_nitrate_drift_per_day", 0.0))
+	var bio_phosphate_drift: float = float(equipment_effects_summary.get("bio_load_phosphate_drift_per_day", 0.0))
+	var nutrient_export: float = float(equipment_effects_summary.get("nutrient_export", 0.0))
+	var bio_filtration: float = float(equipment_effects_summary.get("bio_filtration", 0.0))
+	nitrate += (0.24 + device_nitrate_drift + bio_nitrate_drift) * days
+	phosphate += (0.0035 + device_phosphate_drift + bio_phosphate_drift) * days
+	nitrate -= (nutrient_export * 0.010 + bio_filtration * 0.006) * days
+	phosphate -= nutrient_export * 0.00025 * days
 	salinity += 0.005 * days
 	ph -= 0.002 * days
 	alkalinity -= 0.005 * days

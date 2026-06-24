@@ -15,6 +15,8 @@ var maintenance_button_base_texts: Dictionary = {}
 var maintenance_button_costs: Dictionary = {}
 var device_buttons: Dictionary = {}
 var device_button_base_texts: Dictionary = {}
+var feeding_buttons: Dictionary = {}
+var feeding_button_base_texts: Dictionary = {}
 var _panels_setup_done: bool = false
 var _livestock_refresh_timer: float = 0.0
 var _maintenance_button_refresh_timer: float = 0.0
@@ -58,6 +60,7 @@ func _process(delta: float) -> void:
 		_maintenance_button_refresh_timer = 0.0
 		_update_maintenance_button_states()
 		_update_device_button_states()
+		_update_feeding_button_states()
 
 
 func _setup_panels() -> void:
@@ -92,6 +95,7 @@ func _setup_panels() -> void:
 	_panels_setup_done = true
 	_update_maintenance_button_states()
 	_update_device_button_states()
+	_update_feeding_button_states()
 
 
 func _setup_bottom_dock_controls() -> void:
@@ -102,6 +106,8 @@ func _setup_bottom_dock_controls() -> void:
 	maintenance_button_costs.clear()
 	device_buttons.clear()
 	device_button_base_texts.clear()
+	feeding_buttons.clear()
+	feeding_button_base_texts.clear()
 	maintenance_feedback_label = null
 	maintenance_balance_label = null
 	panel_status_label = null
@@ -111,11 +117,13 @@ func _setup_bottom_dock_controls() -> void:
 		"livestock": Callable(self, "_toggle_livestock"),
 		"maintenance": Callable(self, "_on_water_maintenance_pressed"),
 		"device": Callable(self, "_on_device_pressed"),
+		"feed": Callable(self, "_on_feeding_pressed"),
 		"save": Callable(self, "_manual_save_test"),
 		"reset": Callable(self, "_reset_test_save"),
 	}
 	var controls: Dictionary = status_panel.configure_dock_controls(
 		game_state.get_water_maintenance_actions(),
+		game_state.get_feeding_actions(),
 		game_state.get_device_state(),
 		callbacks,
 		_is_dev_debug_ui_enabled(),
@@ -130,6 +138,8 @@ func _setup_bottom_dock_controls() -> void:
 	maintenance_button_costs = controls.get("maintenance_button_costs", {})
 	device_buttons = controls.get("device_buttons", {})
 	device_button_base_texts = controls.get("device_button_base_texts", {})
+	feeding_buttons = controls.get("feeding_buttons", {})
+	feeding_button_base_texts = controls.get("feeding_button_base_texts", {})
 
 
 func _stabilize_main_layout(layout: VBoxContainer) -> void:
@@ -429,6 +439,19 @@ func _on_device_pressed(device_id: String) -> void:
 		panel_status_label.text = String(result.get("summary", "设备状态已更新"))
 
 
+func _on_feeding_pressed(feed_id: String) -> void:
+	if game_state == null:
+		return
+	var result: Dictionary = game_state.apply_feeding_action(feed_id)
+	_update_status_labels()
+	_update_feeding_button_states()
+	var text: String = String(result.get("summary", "喂食 完成" if bool(result.get("success", false)) else "喂食 失败"))
+	if maintenance_feedback_label != null:
+		maintenance_feedback_label.text = text
+	if panel_status_label != null:
+		panel_status_label.text = text
+
+
 func _update_device_button_states() -> void:
 	if game_state == null:
 		return
@@ -452,13 +475,33 @@ func _update_device_button_states() -> void:
 			button.add_theme_color_override("font_color", Color(0.64, 0.66, 0.66))
 
 
+func _update_feeding_button_states() -> void:
+	if game_state == null:
+		return
+	for feed_id in feeding_buttons.keys():
+		var raw_button: Variant = feeding_buttons.get(feed_id, null)
+		if not raw_button is Button:
+			continue
+		var button: Button = raw_button
+		var base_text: String = String(feeding_button_base_texts.get(feed_id, feed_id))
+		var state: Dictionary = game_state.get_feeding_action_state(String(feed_id))
+		var remaining: float = float(state.get("remaining_cooldown", 0.0))
+		if remaining > 0.0:
+			button.disabled = true
+			button.text = "%s %ds" % [base_text, int(ceil(remaining))]
+		else:
+			button.disabled = false
+			button.text = base_text
+
+
 func _update_status_labels() -> void:
-	var species_count: int = DataRegistry.get_species_count()
-	var equipment_count: int = DataRegistry.get_equipment_count()
-	var task_count: int = DataRegistry.get_task_count()
-	var event_count: int = DataRegistry.get_event_count()
-	var errors: Array[String] = DataRegistry.get_load_errors()
-	var load_status: String = "OK" if DataRegistry.is_loaded_ok() else "ERROR"
+	var data_registry: Node = get_node_or_null("/root/DataRegistry")
+	var species_count: int = int(data_registry.call("get_species_count")) if data_registry != null else 0
+	var equipment_count: int = int(data_registry.call("get_equipment_count")) if data_registry != null else 0
+	var task_count: int = int(data_registry.call("get_task_count")) if data_registry != null else 0
+	var event_count: int = int(data_registry.call("get_event_count")) if data_registry != null else 0
+	var errors: Array = data_registry.call("get_load_errors") if data_registry != null else []
+	var load_status: String = "OK" if data_registry != null and bool(data_registry.call("is_loaded_ok")) else "ERROR"
 
 	status_panel.update_counts(
 		species_count,

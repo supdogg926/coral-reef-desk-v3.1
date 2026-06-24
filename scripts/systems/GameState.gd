@@ -39,7 +39,15 @@ var _maintenance_save_timer: float = 0.0
 const MAINTENANCE_SAVE_DELAY: float = 2.0
 var _save_in_progress: bool = false
 var _maintenance_cooldown_until_msec: Dictionary = {}
+var _feeding_cooldown_until_msec: Dictionary = {}
 var last_maintenance_runtime_summary: String = "未维护"
+var last_feeding_runtime_summary: String = "喂食 无"
+var filter_condition_percent: float = 100.0
+var maintenance_relief_remaining_game_seconds: float = 0.0
+var player_experience: float = 0.0
+var player_level: int = 1
+var successful_maintenance_count: int = 0
+var feeding_action_count: int = 0
 var device_states: Dictionary = {
 	"return_pump": true,
 	"wave_pump": true,
@@ -54,11 +62,15 @@ const MAINTENANCE_ACTION_RULES: Dictionary = {
 	"top_off": {"cost": 8.0, "cooldown_sec": 6.0, "risk_message": "无"},
 	"travel_prep": {"cost": 60.0, "cooldown_sec": 30.0, "risk_message": "无"},
 }
+const FEEDING_ACTION_RULES: Dictionary = {
+	"coral_food": {"label": "喂珊瑚粮", "short_label": "喂珊瑚粮", "cooldown_sec": 8.0},
+	"fish_food": {"label": "喂鱼粮", "short_label": "喂鱼粮", "cooldown_sec": 8.0},
+}
 const DEVICE_DEFINITIONS: Dictionary = {
 	"return_pump": {"display_name": "水泵", "default_enabled": true},
 	"wave_pump": {"display_name": "造浪", "default_enabled": true},
 	"main_light": {"display_name": "主灯", "default_enabled": true},
-	"reserve": {"display_name": "预留", "default_enabled": false},
+	"reserve": {"display_name": "未来设备", "default_enabled": false},
 }
 
 
@@ -102,11 +114,13 @@ func update(delta_seconds: float) -> void:
 	if time_system == null or equipment_system == null or water_chemistry_system == null:
 		return
 	var simulation_delta_seconds: float = time_system.update_time(delta_seconds)
+	_update_runtime_operation_state(simulation_delta_seconds)
 	var effects_summary: Dictionary = equipment_system.get_equipment_effects_summary()
 	_apply_device_effects_to_equipment_summary(effects_summary)
 	water_chemistry_system.simulate_tick(simulation_delta_seconds, effects_summary)
 	_recalculate_debug_scores()
 	_update_livestock_and_economy(simulation_delta_seconds)
+	_update_player_progress(simulation_delta_seconds)
 	_update_unlocks()
 	_autosave_timer += delta_seconds
 	if _autosave_timer >= AUTOSAVE_INTERVAL:
@@ -179,6 +193,22 @@ func get_water_maintenance_actions() -> Array:
 	return actions
 
 
+func get_feeding_actions() -> Array:
+	var actions: Array = []
+	for feed_id in ["coral_food", "fish_food"]:
+		var raw_rule: Variant = FEEDING_ACTION_RULES.get(feed_id, {})
+		if not raw_rule is Dictionary:
+			continue
+		var rule: Dictionary = raw_rule
+		actions.append({
+			"id": feed_id,
+			"label": String(rule.get("label", feed_id)),
+			"short_label": String(rule.get("short_label", feed_id)),
+			"cooldown_sec": float(rule.get("cooldown_sec", 0.0)),
+		})
+	return actions
+
+
 func get_maintenance_action_state(action_id: String) -> Dictionary:
 	var rule: Dictionary = _get_maintenance_rule(action_id)
 	var cost: float = float(rule.get("cost", 0.0))
@@ -216,6 +246,24 @@ func get_maintenance_cost(action_id: String) -> float:
 	return float(rule.get("cost", 0.0))
 
 
+func get_feeding_action_state(feed_id: String) -> Dictionary:
+	var raw_rule: Variant = FEEDING_ACTION_RULES.get(feed_id, {})
+	var rule: Dictionary = raw_rule if raw_rule is Dictionary else {}
+	var remaining_cooldown: float = _get_feeding_remaining_cooldown(feed_id)
+	var reason: String = "ok"
+	if rule.is_empty():
+		reason = "unknown_feed"
+	elif remaining_cooldown > 0.0:
+		reason = "cooldown"
+	return {
+		"feed_id": feed_id,
+		"cooldown_sec": float(rule.get("cooldown_sec", 0.0)),
+		"remaining_cooldown": remaining_cooldown,
+		"can_execute": not rule.is_empty() and remaining_cooldown <= 0.0,
+		"reason": reason,
+	}
+
+
 func toggle_device(device_id: String) -> Dictionary:
 	if not DEVICE_DEFINITIONS.has(device_id):
 		return _build_device_result(device_id, false, false, "未知设备", "unknown_device")
@@ -247,6 +295,7 @@ func set_device_enabled(device_id: String, enabled: bool) -> Dictionary:
 	result["device_nitrate_drift_per_day"] = float(effect_summary.get("device_nitrate_drift_per_day", 0.0))
 	result["device_phosphate_drift_per_day"] = float(effect_summary.get("device_phosphate_drift_per_day", 0.0))
 	result["filter_efficiency_percent"] = float(effect_summary.get("filter_efficiency_percent", 100.0))
+	result["water_flow_percent"] = float(effect_summary.get("water_flow_percent", 100.0))
 	result["flow_comfort_score"] = float(effect_summary.get("flow_comfort_score", 100.0))
 	result["comfort_score"] = float(effect_summary.get("comfort_score", 100.0))
 	result["comfort_health_modifier"] = float(effect_summary.get("comfort_health_modifier", 1.0))
@@ -272,44 +321,67 @@ func get_device_state() -> Dictionary:
 
 func get_device_effect_summary() -> Dictionary:
 	_ensure_device_state_defaults()
+	var return_pump_on: bool = bool(device_states.get("return_pump", true))
+	var wave_pump_on: bool = bool(device_states.get("wave_pump", true))
+	var main_light_on: bool = bool(device_states.get("main_light", true))
 	var income_multiplier: float = 1.0
 	var stability_effect: float = 0.0
 	var water_quality_effect: float = 0.0
 	var device_water_quality_penalty: float = 0.0
 	var nitrate_drift_per_day: float = 0.0
 	var phosphate_drift_per_day: float = 0.0
-	var filter_efficiency_percent: float = 100.0
-	var comfort_score: float = 100.0
+	var water_flow_percent: float = _calculate_water_flow_percent(return_pump_on, wave_pump_on)
+	var filter_efficiency_percent: float = _calculate_filter_efficiency_percent(return_pump_on, water_flow_percent)
+	var comfort_score: float = clamp(45.0 + water_flow_percent * 0.55, 0.0, 100.0)
 	var comfort_health_modifier: float = 1.0
 	var wave_comfort_effect: float = 0.0
 	var light_income_percent: float = 100.0
 	var risks: Array[String] = []
 
-	if not bool(device_states.get("return_pump", true)):
+	if not return_pump_on:
 		income_multiplier *= 0.85
 		stability_effect -= 8.0
 		water_quality_effect -= 10.0
 		device_water_quality_penalty += 10.0
 		nitrate_drift_per_day += 0.35
 		phosphate_drift_per_day += 0.006
-		filter_efficiency_percent = 50.0
 		comfort_score -= 5.0
 		comfort_health_modifier -= 0.03
 		risks.append("水泵关闭，过滤循环不足")
-	if not bool(device_states.get("wave_pump", true)):
+	if not wave_pump_on:
 		income_multiplier *= 0.90
 		stability_effect -= 5.0
 		water_quality_effect -= 3.0
 		device_water_quality_penalty += 3.0
-		comfort_score -= 15.0
 		comfort_health_modifier -= 0.12
 		wave_comfort_effect = -0.12
 		risks.append("造浪不足，生物舒适度下降")
-	if not bool(device_states.get("main_light", true)):
+	if water_flow_percent <= 0.0:
+		income_multiplier *= 0.65
+		stability_effect -= 18.0
+		device_water_quality_penalty += 16.0
+		nitrate_drift_per_day += 0.65
+		phosphate_drift_per_day += 0.012
+		comfort_score = 0.0
+		comfort_health_modifier -= 0.18
+		risks.append("水流为0，系统循环停止")
+	if not main_light_on:
 		income_multiplier *= 0.65
 		stability_effect -= 2.0
 		light_income_percent = 65.0
 		risks.append("主灯关闭，光照不足，收益降低")
+	if filter_efficiency_percent < 55.0:
+		device_water_quality_penalty += 8.0
+		nitrate_drift_per_day += 0.45
+		phosphate_drift_per_day += 0.007
+		risks.append("过滤低，建议清滤")
+	elif filter_efficiency_percent < 80.0:
+		device_water_quality_penalty += 3.0
+		nitrate_drift_per_day += 0.18
+		phosphate_drift_per_day += 0.003
+	var livestock_pressure: Dictionary = _get_livestock_pollution_pressure()
+	nitrate_drift_per_day += float(livestock_pressure.get("nitrate", 0.0))
+	phosphate_drift_per_day += float(livestock_pressure.get("phosphate", 0.0))
 
 	var risk_message: String = "无"
 	if not risks.is_empty():
@@ -325,12 +397,17 @@ func get_device_effect_summary() -> Dictionary:
 		"device_water_quality_penalty": device_water_quality_penalty,
 		"device_nitrate_drift_per_day": nitrate_drift_per_day,
 		"device_phosphate_drift_per_day": phosphate_drift_per_day,
+		"bio_load_nitrate_drift_per_day": float(livestock_pressure.get("nitrate", 0.0)),
+		"bio_load_phosphate_drift_per_day": float(livestock_pressure.get("phosphate", 0.0)),
 		"filter_efficiency_percent": filter_efficiency_percent,
-		"flow_comfort_score": clamped_comfort_score,
+		"water_flow_percent": water_flow_percent,
+		"flow_comfort_score": water_flow_percent,
 		"comfort_score": clamped_comfort_score,
 		"comfort_health_modifier": clamped_comfort_health_modifier,
 		"wave_comfort_effect": wave_comfort_effect,
 		"light_income_percent": light_income_percent,
+		"filter_condition_percent": filter_condition_percent,
+		"maintenance_relief": _get_maintenance_relief_power(),
 		"risk_message": risk_message,
 		"risk_messages": risks.duplicate(),
 		"summary": _format_device_effect_summary(
@@ -340,7 +417,7 @@ func get_device_effect_summary() -> Dictionary:
 			nitrate_drift_per_day,
 			phosphate_drift_per_day,
 			filter_efficiency_percent,
-			clamped_comfort_score,
+			water_flow_percent,
 			clamped_comfort_health_modifier,
 			wave_comfort_effect,
 			light_income_percent
@@ -358,6 +435,7 @@ func apply_water_maintenance_action(action_id: String) -> Dictionary:
 		return result
 	_recalculate_debug_scores()
 	_update_livestock_and_economy(0.0)
+	_add_maintenance_progress(action_id)
 	_update_unlocks()
 	var comfort_summary: String = _format_bio_load_runtime_summary("维护后舒适度恢复")
 	last_maintenance_runtime_summary += "｜" + comfort_summary
@@ -368,6 +446,39 @@ func apply_water_maintenance_action(action_id: String) -> Dictionary:
 	_pending_save_after_maintenance = true
 	_maintenance_save_timer = 0.0
 	print("[M11 PROTOTYPE] water maintenance success label=", result.get("label", ""), " delta=", result.get("delta_summary", ""))
+	return result
+
+
+func apply_feeding_action(feed_id: String) -> Dictionary:
+	if water_chemistry_system == null:
+		return {"success": false, "error": "system_unavailable", "feed_id": feed_id, "summary": "喂食 不可用"}
+	var raw_rule: Variant = FEEDING_ACTION_RULES.get(feed_id, {})
+	var rule: Dictionary = raw_rule if raw_rule is Dictionary else {}
+	if rule.is_empty():
+		return {"success": false, "error": "unknown_feed", "feed_id": feed_id, "summary": "喂食 未知"}
+	var remaining: float = _get_feeding_remaining_cooldown(feed_id)
+	if remaining > 0.0:
+		last_feeding_runtime_summary = "喂食 冷却"
+		return {"success": false, "error": "cooldown", "feed_id": feed_id, "remaining_cooldown": remaining, "summary": "喂食 冷却"}
+	var fish_count: int = int(livestock_system.get_debug_state().get("fish_count", 0)) if livestock_system != null else 0
+	var coral_count: int = int(livestock_system.get_debug_state().get("coral_count", 0)) if livestock_system != null else 0
+	var result: Dictionary = water_chemistry_system.apply_feeding(feed_id, fish_count, coral_count)
+	if not bool(result.get("success", false)):
+		return result
+	_feeding_cooldown_until_msec[feed_id] = Time.get_ticks_msec() + int(float(rule.get("cooldown_sec", 8.0)) * 1000.0)
+	feeding_action_count += 1
+	filter_condition_percent = max(filter_condition_percent - 3.0, 25.0)
+	if feed_id == "fish_food":
+		last_feeding_runtime_summary = "鱼粮 +NO3/+PO4"
+	else:
+		last_feeding_runtime_summary = "珊瑚粮 +PO4/+NO3"
+	last_maintenance_runtime_summary = last_feeding_runtime_summary
+	_recalculate_debug_scores()
+	_update_livestock_and_economy(0.0)
+	_add_player_experience(6.0)
+	_update_unlocks()
+	result["summary"] = last_feeding_runtime_summary
+	result["filter_condition_percent"] = filter_condition_percent
 	return result
 
 
@@ -407,6 +518,7 @@ func _try_perform_maintenance(action_id: String) -> Dictionary:
 		return _build_maintenance_failure(action_id, String(result.get("error", "unknown")), "维护失败", cost, cooldown_sec, 0.0)
 
 	_maintenance_cooldown_until_msec[action_id] = Time.get_ticks_msec() + int(cooldown_sec * 1000.0)
+	_apply_runtime_maintenance_effect(action_id)
 	var current_balance: float = economy_system.get_reef_points()
 	var summary: String = "%s｜消耗 %.0fRP｜余额%.0fRP｜冷却 %.0fs｜%s" % [
 		String(result.get("result_text", result.get("label", action_id))),
@@ -464,6 +576,12 @@ func _get_maintenance_remaining_cooldown(action_id: String) -> float:
 	return max(float(cooldown_until - now_msec) / 1000.0, 0.0)
 
 
+func _get_feeding_remaining_cooldown(feed_id: String) -> float:
+	var cooldown_until: int = int(_feeding_cooldown_until_msec.get(feed_id, 0))
+	var now_msec: int = Time.get_ticks_msec()
+	return max(float(cooldown_until - now_msec) / 1000.0, 0.0)
+
+
 func _get_maintenance_action_name(action_id: String) -> String:
 	if water_chemistry_system != null:
 		for raw_action in water_chemistry_system.get_maintenance_actions():
@@ -498,6 +616,7 @@ func _build_device_result(device_id: String, success: bool, enabled: bool, summa
 		"water_quality_effect": 0.0,
 		"stability_effect": 0.0,
 		"filter_efficiency_percent": 100.0,
+		"water_flow_percent": 100.0,
 		"flow_comfort_score": 100.0,
 		"comfort_score": 100.0,
 		"comfort_health_modifier": 1.0,
@@ -511,6 +630,126 @@ func _apply_device_effects_to_equipment_summary(effects_summary: Dictionary) -> 
 	effects_summary["device_water_quality_penalty"] = float(device_effects.get("device_water_quality_penalty", 0.0))
 	effects_summary["device_nitrate_drift_per_day"] = float(device_effects.get("device_nitrate_drift_per_day", 0.0))
 	effects_summary["device_phosphate_drift_per_day"] = float(device_effects.get("device_phosphate_drift_per_day", 0.0))
+	effects_summary["bio_load_nitrate_drift_per_day"] = float(device_effects.get("bio_load_nitrate_drift_per_day", 0.0))
+	effects_summary["bio_load_phosphate_drift_per_day"] = float(device_effects.get("bio_load_phosphate_drift_per_day", 0.0))
+	effects_summary["maintenance_relief"] = float(device_effects.get("maintenance_relief", 0.0))
+	effects_summary["flow"] = float(effects_summary.get("flow", 0.0)) * float(device_effects.get("water_flow_percent", 100.0)) / 100.0
+	effects_summary["oxygenation"] = float(effects_summary.get("oxygenation", 0.0)) * float(device_effects.get("water_flow_percent", 100.0)) / 100.0
+	effects_summary["nutrient_export"] = float(effects_summary.get("nutrient_export", 0.0)) * float(device_effects.get("filter_efficiency_percent", 100.0)) / 100.0
+	effects_summary["bio_filtration"] = float(effects_summary.get("bio_filtration", 0.0)) * float(device_effects.get("filter_efficiency_percent", 100.0)) / 100.0
+
+
+func _calculate_water_flow_percent(return_pump_on: bool, wave_pump_on: bool) -> float:
+	if return_pump_on and wave_pump_on:
+		return 100.0
+	if return_pump_on:
+		return 65.0
+	if wave_pump_on:
+		return 45.0
+	return 0.0
+
+
+func _calculate_filter_efficiency_percent(return_pump_on: bool, water_flow_percent: float) -> float:
+	var pump_factor: float = 1.0 if return_pump_on else 0.25
+	var flow_factor: float = clamp(water_flow_percent / 100.0, 0.0, 1.0)
+	return clamp(filter_condition_percent * pump_factor * (0.55 + flow_factor * 0.45), 0.0, 100.0)
+
+
+func _get_livestock_pollution_pressure() -> Dictionary:
+	if livestock_system == null:
+		return {"nitrate": 0.0, "phosphate": 0.0}
+	var ls_debug: Dictionary = livestock_system.get_debug_state()
+	var fish_count_value: int = int(ls_debug.get("fish_count", 0))
+	var coral_count_value: int = int(ls_debug.get("coral_count", 0))
+	var bio_load_ratio_value: float = float(ls_debug.get("bio_load_ratio", 0.0))
+	return {
+		"nitrate": float(fish_count_value) * 0.10 + max(bio_load_ratio_value - 0.45, 0.0) * 0.70,
+		"phosphate": float(coral_count_value) * 0.0012 + max(bio_load_ratio_value - 0.45, 0.0) * 0.010,
+	}
+
+
+func _get_maintenance_relief_power() -> float:
+	if maintenance_relief_remaining_game_seconds <= 0.0:
+		return 0.0
+	return clamp(maintenance_relief_remaining_game_seconds / 86400.0, 0.0, 3.0) * 10.0
+
+
+func _update_runtime_operation_state(simulation_delta_seconds: float) -> void:
+	var days: float = max(simulation_delta_seconds, 0.0) / 86400.0
+	if days <= 0.0:
+		return
+	var load_ratio: float = 0.0
+	if livestock_system != null:
+		load_ratio = float(livestock_system.get_debug_state().get("bio_load_ratio", 0.0))
+	var feed_pressure: float = min(float(feeding_action_count) * 0.02, 0.20)
+	var decay_per_day: float = 1.4 + load_ratio * 1.5 + feed_pressure
+	filter_condition_percent = clamp(filter_condition_percent - decay_per_day * days, 20.0, 100.0)
+	maintenance_relief_remaining_game_seconds = max(maintenance_relief_remaining_game_seconds - max(simulation_delta_seconds, 0.0), 0.0)
+
+
+func _apply_runtime_maintenance_effect(action_id: String) -> void:
+	match action_id:
+		"water_change_10":
+			filter_condition_percent = min(filter_condition_percent + 8.0, 100.0)
+			maintenance_relief_remaining_game_seconds = max(maintenance_relief_remaining_game_seconds, 21600.0)
+		"clean_filter":
+			filter_condition_percent = 100.0
+			maintenance_relief_remaining_game_seconds = max(maintenance_relief_remaining_game_seconds, 28800.0)
+		"dose_buffer":
+			maintenance_relief_remaining_game_seconds = max(maintenance_relief_remaining_game_seconds, 14400.0)
+		"top_off":
+			maintenance_relief_remaining_game_seconds = max(maintenance_relief_remaining_game_seconds, 10800.0)
+		"travel_prep":
+			filter_condition_percent = 100.0
+			maintenance_relief_remaining_game_seconds = max(maintenance_relief_remaining_game_seconds, 259200.0)
+
+
+func _add_maintenance_progress(action_id: String) -> void:
+	successful_maintenance_count += 1
+	match action_id:
+		"travel_prep":
+			_add_player_experience(30.0)
+		"clean_filter":
+			_add_player_experience(18.0)
+		_:
+			_add_player_experience(14.0)
+
+
+func _update_player_progress(simulation_delta_seconds: float) -> void:
+	if simulation_delta_seconds <= 0.0 or water_chemistry_system == null or livestock_system == null or economy_system == null:
+		return
+	var water_debug: Dictionary = water_chemistry_system.get_debug_state()
+	var water_quality: float = float(water_debug.get("water_quality_score", 100.0))
+	var income_rate: float = float(economy_system.get_debug_state().get("income_rate_per_game_hour", 0.0))
+	var livestock_count: int = int(livestock_system.get_debug_state().get("livestock_count", 0))
+	var devices_running: bool = bool(device_states.get("return_pump", true)) and bool(device_states.get("wave_pump", true)) and bool(device_states.get("main_light", true))
+	if water_quality >= 85.0 and stability_score >= 80.0 and income_rate > 0.0 and livestock_count > 0 and devices_running:
+		_add_player_experience((simulation_delta_seconds / 3600.0) * 0.15)
+
+
+func _add_player_experience(amount: float) -> void:
+	player_experience = max(player_experience + max(amount, 0.0), 0.0)
+	player_level = clamp(int(floor(player_experience / 120.0)) + 1, 1, 10)
+
+
+func _get_player_level_progress() -> float:
+	if player_level >= 10:
+		return 1.0
+	var level_start: float = float(player_level - 1) * 120.0
+	return clamp((player_experience - level_start) / 120.0, 0.0, 1.0)
+
+
+func _get_current_goal_label() -> String:
+	if water_chemistry_system != null:
+		var water_debug: Dictionary = water_chemistry_system.get_debug_state()
+		var status: String = String(water_debug.get("water_status", "OK"))
+		if status != "OK":
+			return "维护稳定"
+	if player_level < 3:
+		return "维护稳定"
+	if unlock_system != null and not bool(unlock_system.get_debug_state().get("unlocked_states", {}).get("tier2_equipment_preview", false)):
+		return "解锁中"
+	return "未解锁"
 
 
 func _join_device_risks(risks: Array[String]) -> String:
@@ -523,7 +762,7 @@ func _join_device_risks(risks: Array[String]) -> String:
 
 
 func _format_device_effect_summary(income_multiplier: float, stability_effect: float, water_quality_effect: float, nitrate_drift_per_day: float, phosphate_drift_per_day: float, filter_efficiency_percent: float, comfort_score: float, comfort_health_modifier: float, wave_comfort_effect: float, light_income_percent: float) -> String:
-	return "过滤效率 %.0f%%｜NO3 %+.2f/日｜PO4 %+.3f/日｜水质评分 %+.0f｜水流舒适度 %.0f/100｜健康系数 %.2f｜造浪影响 %+.2f｜光照收益 %.0f%%｜收益倍率 x%.2f｜稳定 %+.0f" % [
+	return "过滤 %.0f%%｜NO3 %+.2f/日｜PO4 %+.3f/日｜水质评分 %+.0f｜水流舒适度 %.0f%%｜健康系数 %.2f｜造浪 %+.2f｜光照 %.0f%%｜收益倍率 x%.2f｜稳定 %+.0f" % [
 		filter_efficiency_percent,
 		nitrate_drift_per_day,
 		phosphate_drift_per_day,
@@ -540,16 +779,17 @@ func _format_device_effect_summary(income_multiplier: float, stability_effect: f
 func _format_device_toggle_summary(device_id: String, enabled: bool, device_effect: Dictionary) -> String:
 	var state_text: String = "ON" if enabled else "OFF"
 	if device_id == "wave_pump":
-		return "造浪%s：水流舒适度 %.0f/100｜健康系数 %.2f｜造浪影响 %+.2f" % [
+		return "造浪%s：水流舒适度 %.0f%%｜健康系数 %.2f｜造浪 %+.2f" % [
 			state_text,
-			float(device_effect.get("flow_comfort_score", 100.0)),
+			float(device_effect.get("water_flow_percent", 100.0)),
 			float(device_effect.get("comfort_health_modifier", 1.0)),
 			float(device_effect.get("wave_comfort_effect", 0.0)),
 		]
 	if device_id == "return_pump":
-		return "水泵%s：过滤效率 %.0f%%｜NO3/PO4将更快上升｜NO3 %+.2f/日｜PO4 %+.3f/日" % [
+		return "水泵%s：过滤 %.0f%%｜水流舒适度 %.0f%%｜NO3 %+.2f/日｜PO4 %+.3f/日" % [
 			state_text,
 			float(device_effect.get("filter_efficiency_percent", 100.0)),
+			float(device_effect.get("water_flow_percent", 100.0)),
 			float(device_effect.get("device_nitrate_drift_per_day", 0.0)),
 			float(device_effect.get("device_phosphate_drift_per_day", 0.0)),
 		]
@@ -592,7 +832,12 @@ func get_economy_debug_state() -> Dictionary:
 func get_unlock_debug_state() -> Dictionary:
 	if unlock_system == null:
 		return {}
-	return unlock_system.get_debug_state()
+	var debug_state: Dictionary = unlock_system.get_debug_state()
+	debug_state["player_level"] = player_level
+	debug_state["player_level_progress"] = _get_player_level_progress()
+	debug_state["player_experience"] = player_experience
+	debug_state["current_goal_label"] = _get_current_goal_label()
+	return debug_state
 
 
 func get_debug_state() -> Dictionary:
@@ -664,7 +909,29 @@ func _recalculate_debug_scores() -> void:
 		return
 	var effects_summary: Dictionary = equipment_system.get_equipment_effects_summary()
 	var device_effects: Dictionary = get_device_effect_summary()
-	stability_score = clamp(50.0 + float(effects_summary.get("stability_bonus", 0.0)) + float(device_effects.get("stability_effect", 0.0)), 0.0, 100.0)
+	var water_score: float = 100.0
+	var ph_value: float = 8.2
+	var kh_value: float = 8.3
+	if water_chemistry_system != null:
+		var water_debug: Dictionary = water_chemistry_system.get_debug_state()
+		water_score = float(water_debug.get("water_quality_score", 100.0))
+		ph_value = float(water_debug.get("ph", 8.2))
+		kh_value = float(water_debug.get("alkalinity", 8.3))
+	var filter_efficiency: float = float(device_effects.get("filter_efficiency_percent", 100.0))
+	var flow_percent: float = float(device_effects.get("water_flow_percent", 100.0))
+	var chemistry_penalty: float = abs(ph_value - 8.2) * 18.0 + abs(kh_value - 8.3) * 3.0
+	stability_score = clamp(
+		42.0
+		+ float(effects_summary.get("stability_bonus", 0.0))
+		+ float(device_effects.get("stability_effect", 0.0))
+		+ (water_score - 70.0) * 0.24
+		+ (filter_efficiency - 70.0) * 0.16
+		+ (flow_percent - 70.0) * 0.18
+		+ _get_maintenance_relief_power() * 0.25
+		- chemistry_penalty,
+		0.0,
+		100.0
+	)
 	carrying_capacity_score = 10.0 + float(effects_summary.get("carrying_capacity_bonus", 0.0))
 	maintenance_load = float(effects_summary.get("maintenance_load", 0.0))
 
@@ -833,6 +1100,8 @@ func _apply_offline_progression(offline_seconds: float) -> void:
 	if economy_system != null:
 		economy_system.apply_offline_income(offline_income)
 	var effects_summary: Dictionary = equipment_system.get_equipment_effects_summary() if equipment_system != null else {}
+	_update_runtime_operation_state(offline_game_seconds)
+	_apply_device_effects_to_equipment_summary(effects_summary)
 	if water_chemistry_system != null:
 		water_chemistry_system.apply_offline_drift(offline_game_hours, effects_summary)
 	if time_system != null:

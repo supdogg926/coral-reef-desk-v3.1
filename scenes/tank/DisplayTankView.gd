@@ -11,7 +11,7 @@ func _draw() -> void:
 	var water_rect: Rect2 = Rect2(tank_rect.position + Vector2(10, 36), tank_rect.size - Vector2(20, 48))
 	var sand_rect: Rect2 = Rect2(water_rect.position + Vector2(0, water_rect.size.y - 34), Vector2(water_rect.size.x, 34))
 	var overflow_width: float = 46.0
-	var overflow_rect: Rect2 = Rect2(Vector2(water_rect.end.x - overflow_width - 10.0, water_rect.position.y), Vector2(overflow_width, water_rect.size.y))
+	var overflow_rect: Rect2 = Rect2(Vector2(water_rect.end.x - overflow_width, water_rect.position.y), Vector2(overflow_width, water_rect.size.y))
 	var font: Font = get_theme_default_font()
 
 	draw_rect(tank_rect, Color(0.08, 0.11, 0.13), true)

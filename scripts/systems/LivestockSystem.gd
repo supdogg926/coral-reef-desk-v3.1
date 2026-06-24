@@ -18,6 +18,7 @@ var water_quality_multiplier: float = 1.0
 var health_modifier: float = 1.0
 var fish_count: int = 0
 var coral_count: int = 0
+var crustacean_count: int = 0
 var other_livestock_count: int = 0
 var bio_load: float = 0.0
 var system_capacity: float = DEFAULT_MAX_CAPACITY
@@ -63,6 +64,7 @@ func initialize() -> void:
 	health_modifier = 1.0
 	fish_count = 0
 	coral_count = 0
+	crustacean_count = 0
 	other_livestock_count = 0
 	bio_load = 0.0
 	system_capacity = DEFAULT_MAX_CAPACITY
@@ -263,7 +265,7 @@ func update_bio_load_metrics(context: Dictionary) -> void:
 	var flow_comfort: float = float(device_effects.get("flow_comfort_score", 100.0))
 	var maintenance_relief: float = _get_maintenance_relief(String(context.get("last_maintenance_action_id", "")))
 
-	bio_load = current_capacity_used + float(fish_count) * 1.5 + float(coral_count) * 0.8 + float(other_livestock_count)
+	bio_load = current_capacity_used + float(fish_count) * 1.5 + float(coral_count) * 0.8 + float(crustacean_count) * 1.0 + float(other_livestock_count)
 	system_capacity = max(max_capacity, carrying_capacity_score) + max(carrying_capacity_score - 10.0, 0.0) * 0.25
 	system_capacity += clamp(filter_efficiency, 0.0, 120.0) * 0.03
 	system_capacity += clamp(flow_comfort, 0.0, 120.0) * 0.02
@@ -271,7 +273,7 @@ func update_bio_load_metrics(context: Dictionary) -> void:
 	bio_load_ratio = bio_load / system_capacity
 
 	var load_pressure: float = bio_load_ratio * 12.0 + max(bio_load_ratio - 0.65, 0.0) * 75.0
-	var water_pressure: float = max(100.0 - water_quality_score, 0.0) * 0.35
+	var water_pressure: float = max(100.0 - water_quality_score, 0.0) * 0.95
 	var device_relief: float = clamp(filter_efficiency, 0.0, 120.0) * 0.10 + clamp(flow_comfort, 0.0, 120.0) * 0.05
 	var stability_relief: float = max(stability_score - 50.0, 0.0) * 0.20
 	var water_quality_relief: float = max(water_quality_score - 85.0, 0.0) * 0.20
@@ -376,6 +378,7 @@ func get_debug_state() -> Dictionary:
 		"livestock_count": get_livestock_count(),
 		"fish_count": fish_count,
 		"coral_count": coral_count,
+		"crustacean_count": crustacean_count,
 		"other_livestock_count": other_livestock_count,
 		"capacity_used": current_capacity_used,
 		"max_capacity": max_capacity,
@@ -403,6 +406,7 @@ func get_debug_state() -> Dictionary:
 func _recount_livestock_categories() -> void:
 	fish_count = 0
 	coral_count = 0
+	crustacean_count = 0
 	other_livestock_count = 0
 	for entry in owned_livestock:
 		if bool(entry.get("locked", false)):
@@ -412,6 +416,8 @@ func _recount_livestock_categories() -> void:
 			fish_count += 1
 		elif category == "coral":
 			coral_count += 1
+		elif category == "crustacean" or category == "shrimp" or category == "crab":
+			crustacean_count += 1
 		else:
 			other_livestock_count += 1
 
