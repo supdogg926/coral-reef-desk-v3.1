@@ -527,3 +527,4 @@ func _update_status_labels() -> void:
 		game_state.save_loaded,
 		game_state.offline_summary,
 	)
+	status_panel.update_timeline(game_state.get_timeline_entries())

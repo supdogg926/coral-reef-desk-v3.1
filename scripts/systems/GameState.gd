@@ -13,6 +13,7 @@ var water_chemistry_system: WaterChemistrySystem = null
 var livestock_system: LivestockSystem = null
 var unlock_system: UnlockSystem = null
 var save_system: SaveSystem = null
+var action_timeline: ActionTimeline = null
 var stability_score: float = 50.0
 var carrying_capacity_score: float = 10.0
 var maintenance_load: float = 0.0
@@ -99,6 +100,8 @@ func initialize() -> void:
 	save_system = SaveSystem.new()
 	save_system.initialize()
 
+	action_timeline = ActionTimeline.new()
+
 	_try_load_game()
 
 	_recalculate_debug_scores()
@@ -120,6 +123,7 @@ func update(delta_seconds: float) -> void:
 	water_chemistry_system.simulate_tick(simulation_delta_seconds, effects_summary)
 	_recalculate_debug_scores()
 	_update_livestock_and_economy(simulation_delta_seconds)
+	_check_timeline_system_events()
 	_update_player_progress(simulation_delta_seconds)
 	_update_unlocks()
 	_autosave_timer += delta_seconds
@@ -286,6 +290,7 @@ func set_device_enabled(device_id: String, enabled: bool) -> Dictionary:
 		summary += "｜风险：" + risk_message
 	summary += "｜" + _format_bio_load_runtime_summary("设备开启后系统压力下降" if enabled else "设备关闭后系统压力上升")
 	last_device_runtime_summary = summary
+	_timeline_log_player(_format_device_timeline_text(device_id, enabled))
 	var result: Dictionary = _build_device_result(device_id, true, enabled, summary, "ok")
 	result["risk_message"] = risk_message
 	result["income_multiplier"] = float(effect_summary.get("income_multiplier", 1.0))
@@ -446,6 +451,9 @@ func apply_water_maintenance_action(action_id: String) -> Dictionary:
 	_pending_save_after_maintenance = true
 	_maintenance_save_timer = 0.0
 	print("[M11 PROTOTYPE] water maintenance success label=", result.get("label", ""), " delta=", result.get("delta_summary", ""))
+	if action_timeline != null:
+		action_timeline.reset_neglect()
+		_timeline_log_player(_format_maintenance_timeline_text(action_id, result))
 	return result
 
 
@@ -479,6 +487,10 @@ func apply_feeding_action(feed_id: String) -> Dictionary:
 	_update_unlocks()
 	result["summary"] = last_feeding_runtime_summary
 	result["filter_condition_percent"] = filter_condition_percent
+	var feed_label: String = "喂魚糧" if feed_id == "fish_food" else "喂珊瑚糧"
+	var d_no3: float = float(result.get("delta_nitrate", 0.0))
+	var d_po4: float = float(result.get("delta_phosphate", 0.0))
+	_timeline_log_player("%s NO3%+.2f PO4%+.3f" % [feed_label, d_no3, d_po4])
 	return result
 
 
@@ -1116,6 +1128,173 @@ func _apply_offline_progression(offline_seconds: float) -> void:
 		"applied": true,
 	}
 
+
+
+
+func _format_timeline_time() -> String:
+	if time_system == null:
+		return "D1 00:00"
+	var elapsed: int = int(time_system.get_debug_state().get("elapsed_game_minutes", 0))
+	var day: int = int(floor(float(elapsed) / 1440.0)) + 1
+	var mins: int = elapsed % 1440
+	var h: int = int(floor(float(mins) / 60.0))
+	var m: int = mins % 60
+	return "D%d %02d:%02d" % [day, h, m]
+
+
+func _timeline_log_player(text: String) -> void:
+	if action_timeline == null:
+		return
+	var time_text: String = _format_timeline_time()
+	action_timeline.add_player_action(time_text + " " + text)
+
+
+func _timeline_log_system(text: String) -> void:
+	if action_timeline == null:
+		return
+	var time_text: String = _format_timeline_time()
+	action_timeline.add_system_event(time_text + " " + text)
+
+
+func _format_maintenance_timeline_text(action_id: String, _result: Dictionary) -> String:
+	match action_id:
+		"water_change_10":
+			return "换水 降NO3/PO4"
+		"clean_filter":
+			return "清滤 过滤\u2191"
+		"dose_buffer":
+			return "补KH KH\u2191 pH稳"
+		"top_off":
+			return "补水 盐度稳"
+		"travel_prep":
+			return "出门 托管维护"
+		_:
+			return String(_result.get("label", action_id))
+
+
+func _format_device_timeline_text(device_id: String, enabled: bool) -> String:
+	var display: String = _get_device_display_name(device_id)
+	var state: String = "ON" if enabled else "OFF"
+	match device_id:
+		"return_pump":
+			if enabled:
+				return "水泵ON 水流\u2191"
+			else:
+				return "水泵OFF 水流\u2193 过滤\u2193"
+		"wave_pump":
+			if enabled:
+				return "造浪ON"
+			else:
+				return "造浪OFF 舒适度\u2193"
+		"main_light":
+			if enabled:
+				return "主灯ON"
+			else:
+				return "主灯OFF 收益\u2193"
+		_:
+			return "%s%s" % [display, state]
+
+
+func _check_timeline_system_events() -> void:
+	if action_timeline == null:
+		return
+	var wcs: WaterChemistrySystem = water_chemistry_system
+	var ls: LivestockSystem = livestock_system
+	if wcs == null or ls == null:
+		return
+	var water_status: String = String(wcs.get_debug_state().get("water_status", "OK"))
+	var comfort_score: float = float(ls.get_debug_state().get("comfort_score", 100.0))
+	var revenue_mult: float = float(ls.get_debug_state().get("revenue_multiplier", 1.0))
+	var device_effects: Dictionary = get_device_effect_summary()
+	var filter_pct: float = float(device_effects.get("filter_efficiency_percent", 100.0))
+	var flow_pct: float = float(device_effects.get("water_flow_percent", 100.0))
+	var no3: float = float(wcs.get_debug_state().get("nitrate", 0.0))
+	var po4: float = float(wcs.get_debug_state().get("phosphate", 0.0))
+
+	# Water quality tier change
+	if action_timeline.should_log_water_status(water_status):
+		if water_status == "CRITICAL":
+			_timeline_log_system("水质\u2192危险")
+			if maintenance_relief_remaining_game_seconds <= 0.0 and action_timeline.should_log_neglect():
+				_timeline_log_system("未维护 水质恶化")
+		elif water_status == "WARNING":
+			_timeline_log_system("水质\u2192警告")
+		elif water_status == "OK":
+			_timeline_log_system("水质\u2192正常")
+
+	# Comfort tier change
+	var comfort_tier: String
+	if comfort_score >= 90.0:
+		comfort_tier = "优秀"
+	elif comfort_score >= 75.0:
+		comfort_tier = "良好"
+	elif comfort_score >= 60.0:
+		comfort_tier = "中等"
+	elif comfort_score >= 40.0:
+		comfort_tier = "偏低"
+	else:
+		comfort_tier = "危险"
+	if action_timeline.should_log_comfort_tier(comfort_tier):
+		_timeline_log_system("舒适度\u2192" + comfort_tier)
+
+	# Revenue multiplier tier change
+	var revenue_tier: String
+	if revenue_mult >= 1.10:
+		revenue_tier = "max"
+	elif revenue_mult >= 1.00:
+		revenue_tier = "normal"
+	elif revenue_mult >= 0.90:
+		revenue_tier = "reduced"
+	elif revenue_mult >= 0.75:
+		revenue_tier = "low"
+	else:
+		revenue_tier = "min"
+	if action_timeline.should_log_revenue_tier(revenue_tier):
+		_timeline_log_system("收益倍率\u2192%.2fx" % revenue_mult)
+
+	# Filter significant drop
+	var filter_tier: String
+	if filter_pct >= 80.0:
+		filter_tier = "ok"
+	elif filter_pct >= 55.0:
+		filter_tier = "low"
+	else:
+		filter_tier = "critical"
+	if action_timeline.should_log_filter_tier(filter_tier):
+		if filter_tier == "critical":
+			_timeline_log_system("过滤\u2193 %.0f%% 需清滤" % filter_pct)
+		elif filter_tier == "low":
+			_timeline_log_system("过滤\u2193 %.0f%%" % filter_pct)
+
+	# Flow zero
+	var flow_zero: bool = flow_pct <= 0.0
+	if action_timeline.should_log_flow_zero(flow_zero):
+		if flow_zero:
+			_timeline_log_system("水流=0 过滤\u2193 循环停止")
+		else:
+			_timeline_log_system("水流恢复")
+
+	# NO3 unsafe
+	var no3_unsafe: bool = no3 > 20.0
+	if action_timeline.should_log_no3_unsafe(no3_unsafe):
+		if no3_unsafe:
+			_timeline_log_system("NO3偏高 %.1f 超出安全范围" % no3)
+		else:
+			_timeline_log_system("NO3恢复安全范围")
+
+	# PO4 unsafe
+	var po4_unsafe: bool = po4 > 0.20
+	if action_timeline.should_log_po4_unsafe(po4_unsafe):
+		if po4_unsafe:
+			_timeline_log_system("PO4偏高 %.3f 超出安全范围" % po4)
+		else:
+			_timeline_log_system("PO4恢复安全范围")
+
+
+func get_timeline_entries(count: int = 4) -> Array:
+	if action_timeline == null:
+		return []
+	return action_timeline.get_recent(count)
 
 func _perform_autosave() -> void:
 	if save_system == null:

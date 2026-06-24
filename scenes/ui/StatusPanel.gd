@@ -3,6 +3,7 @@ extends PanelContainer
 
 var section_labels: Dictionary = {}
 var dock_control_slots: Dictionary = {}
+var timeline_labels: Array[Label] = []
 var dock_body: Control = null
 var collapsed_bar: Control = null
 
@@ -286,7 +287,36 @@ func _build_status_layout() -> void:
 	_create_entry_system_section(dock_body)
 	_create_core_status_section(dock_body)
 	_create_operations_section(dock_body)
+	_create_timeline_section(dock_body)
 
+
+
+func _create_timeline_section(parent: Control) -> void:
+	timeline_labels.clear()
+	var box: VBoxContainer = _create_card(parent, "timeline", "时间线", 0.95)
+	_add_title_label(box, "时间线")
+	for i in range(4):
+		var label: Label = _make_label("", 7, false)
+		label.add_theme_color_override("font_color", Color(0.60, 0.66, 0.66))
+		box.add_child(label)
+		timeline_labels.append(label)
+	# spacer to fill remaining space
+	var spacer: Control = Control.new()
+	spacer.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	box.add_child(spacer)
+
+
+func update_timeline(entries: Array) -> void:
+	var count: int = min(entries.size(), timeline_labels.size())
+	for i in range(count):
+		var raw_entry: Variant = entries[entries.size() - count + i]
+		if raw_entry is Dictionary:
+			timeline_labels[i].text = String(raw_entry.get("text", ""))
+			timeline_labels[i].visible = true
+		else:
+			timeline_labels[i].visible = false
+	for i in range(count, timeline_labels.size()):
+		timeline_labels[i].visible = false
 
 func _create_section(parent: Control, section_id: String, title_text: String, stretch_ratio: float, line_ids: Array[String]) -> void:
 	var box: VBoxContainer = _create_card(parent, section_id, title_text, stretch_ratio)
