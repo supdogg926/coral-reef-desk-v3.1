@@ -20,6 +20,7 @@ var fish_count: int = 0
 var coral_count: int = 0
 var crustacean_count: int = 0
 var other_livestock_count: int = 0
+var invertebrate_count: int = 0
 var algae_count: int = 0
 var bio_load: float = 0.0
 var system_capacity: float = DEFAULT_MAX_CAPACITY
@@ -45,6 +46,24 @@ const NAME_MAP: Dictionary = {
 
 const VALID_RARITIES: Array[String] = ["普通", "精品", "稀有", "大师", "传奇"]
 
+const CATEGORY_MAP: Dictionary = {
+# Fish
+"fish": "fish", "鱼": "fish", "海水鱼": "fish", "小丑鱼": "fish",
+"倒吊": "fish", "marine_fish": "fish",
+# Coral
+"coral": "coral", "珊瑚": "coral", "软体珊瑚": "coral",
+"lps": "coral", "sps": "coral", "lps硬骨珊瑚": "coral",
+"sps硬骨珊瑚": "coral", "hard_coral": "coral",
+# Crustacean
+"crustacean": "crustacean", "甲壳": "crustacean", "甲壳类": "crustacean",
+"shrimp": "crustacean", "crab": "crustacean", "虾": "crustacean", "蟹": "crustacean",
+# Algae
+"algae": "algae", "macroalgae": "algae", "藻": "algae",
+"藻类": "algae", "海藻": "algae",
+# Invertebrate
+"invertebrate": "invertebrate", "无脊椎": "invertebrate",
+}
+
 const WATER_QUALITY_MULTIPLIER_TABLE: Array[Dictionary] = [
 	{"min_score": 80.0, "multiplier": 1.0},
 	{"min_score": 60.0, "multiplier": 0.85},
@@ -68,6 +87,7 @@ func initialize() -> void:
 	crustacean_count = 0
 	other_livestock_count = 0
 	algae_count = 0
+	invertebrate_count = 0
 	bio_load = 0.0
 	system_capacity = DEFAULT_MAX_CAPACITY
 	bio_load_ratio = 0.0
@@ -98,7 +118,7 @@ func _load_starter_livestock() -> void:
 		var livestock_entry: Dictionary = {
 			"id": String(record.get("id", "")),
 			"species_name": _map_name(String(record.get("display_name_cn", ""))),
-			"category": String(record.get("category", "coral")),
+			"category": _normalize_livestock_category(String(record.get("category", "coral"))),
 			"rarity": _normalize_rarity(String(record.get("rarity", "普通"))),
 			"size_cm": float(record.get("size_cm", 3.0)),
 			"maturity_percent": 100.0,
@@ -119,7 +139,7 @@ func add_livestock(entry: Dictionary) -> bool:
 	var new_entry: Dictionary = {
 		"id": String(entry.get("id", "livestock_%d" % owned_livestock.size())),
 		"species_name": _map_name(String(entry.get("species_name", ""))),
-		"category": String(entry.get("category", "coral")),
+		"category": _normalize_livestock_category(String(entry.get("category", "coral"))),
 		"rarity": rarity,
 		"size_cm": float(entry.get("size_cm", 3.0)),
 		"maturity_percent": 0.0,
@@ -367,6 +387,7 @@ func import_state(state: Dictionary) -> void:
 				var entry: Dictionary = item
 				entry["rarity"] = _normalize_rarity(String(entry.get("rarity", "普通")))
 				entry["species_name"] = _map_name(String(entry.get("species_name", "")))
+				entry["category"] = _normalize_livestock_category(String(entry.get("category", "")))
 				owned_livestock.append(entry)
 	tank_level = int(state.get("tank_level", 1))
 	max_capacity = float(state.get("max_capacity", DEFAULT_MAX_CAPACITY))
@@ -384,6 +405,7 @@ func get_debug_state() -> Dictionary:
 		"crustacean_count": crustacean_count,
 		"other_livestock_count": other_livestock_count,
 		"algae_count": algae_count,
+		"invertebrate_count": invertebrate_count,
 		"capacity_used": current_capacity_used,
 		"max_capacity": max_capacity,
 		"capacity_status": capacity_status,
@@ -413,10 +435,13 @@ func _recount_livestock_categories() -> void:
 	crustacean_count = 0
 	other_livestock_count = 0
 	algae_count = 0
+	invertebrate_count = 0
+	algae_count = 0
+	algae_count = 0
 	for entry in owned_livestock:
 		if bool(entry.get("locked", false)):
 			continue
-		var category: String = String(entry.get("category", "")).to_lower()
+		var category: String = _normalize_livestock_category(String(entry.get("category", "")))
 		if category == "fish":
 			fish_count += 1
 		elif category == "coral":
@@ -425,9 +450,18 @@ func _recount_livestock_categories() -> void:
 			crustacean_count += 1
 		elif category == "algae":
 			algae_count += 1
+		elif category == "invertebrate":
+			invertebrate_count += 1
 		else:
 			other_livestock_count += 1
 
+
+
+func _normalize_livestock_category(raw_category: String) -> String:
+	var key: String = raw_category.to_lower().strip_edges()
+	if CATEGORY_MAP.has(key):
+		return String(CATEGORY_MAP[key])
+	return "other"
 
 func _get_maintenance_relief(action_id: String) -> float:
 	match action_id:
