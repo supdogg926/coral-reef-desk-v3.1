@@ -77,96 +77,7 @@ func _setup_panels() -> void:
 	_apply_safe_screen_margins(root_margin)
 	_stabilize_main_layout(layout)
 
-	var btn_bar: PanelContainer = PanelContainer.new()
-	btn_bar.name = "M11PrototypeEntryBar"
-	btn_bar.custom_minimum_size = Vector2(0, 52)
-	btn_bar.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	btn_bar.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	var bar_style: StyleBoxFlat = StyleBoxFlat.new()
-	bar_style.bg_color = Color(0.105, 0.115, 0.125, 1.0)
-	bar_style.set_border_width_all(0)
-	bar_style.set_corner_radius_all(4)
-	btn_bar.add_theme_stylebox_override("panel", bar_style)
-	var bar_margin: MarginContainer = MarginContainer.new()
-	bar_margin.add_theme_constant_override("margin_left", 8)
-	bar_margin.add_theme_constant_override("margin_top", 3)
-	bar_margin.add_theme_constant_override("margin_right", 8)
-	bar_margin.add_theme_constant_override("margin_bottom", 3)
-	btn_bar.add_child(bar_margin)
-	var bar_column: VBoxContainer = VBoxContainer.new()
-	bar_column.add_theme_constant_override("separation", 2)
-	bar_margin.add_child(bar_column)
-	var bar_row: HBoxContainer = HBoxContainer.new()
-	bar_row.add_theme_constant_override("separation", 6)
-	bar_column.add_child(bar_row)
-	var device_row: HBoxContainer = HBoxContainer.new()
-	device_row.add_theme_constant_override("separation", 5)
-	bar_column.add_child(device_row)
-
-	var entry_group: HBoxContainer = _make_toolbar_group(0.95)
-	var maintenance_group: HBoxContainer = _make_toolbar_group(2.40)
-	var system_group: HBoxContainer = _make_toolbar_group(1.10)
-	bar_row.add_child(entry_group)
-	bar_row.add_child(maintenance_group)
-	bar_row.add_child(system_group)
-
-	shop_btn = Button.new()
-	shop_btn.text = "商店"
-	shop_btn.custom_minimum_size = Vector2(58, 24)
-	shop_btn.add_theme_font_size_override("font_size", 10)
-	shop_btn.pressed.connect(_toggle_shop)
-	entry_group.add_child(shop_btn)
-
-	livestock_btn = Button.new()
-	livestock_btn.text = "生物"
-	livestock_btn.custom_minimum_size = Vector2(58, 24)
-	livestock_btn.add_theme_font_size_override("font_size", 10)
-	livestock_btn.pressed.connect(_toggle_livestock)
-	entry_group.add_child(livestock_btn)
-
-	var maintenance_entry: Label = _make_toolbar_label("维护")
-	maintenance_entry.custom_minimum_size = Vector2(32, 22)
-	entry_group.add_child(maintenance_entry)
-
-	_add_water_maintenance_controls(maintenance_group)
-
-	if _is_dev_debug_ui_enabled():
-		var reset_btn: Button = Button.new()
-		reset_btn.text = "重置"
-		reset_btn.custom_minimum_size = Vector2(54, 24)
-		reset_btn.add_theme_font_size_override("font_size", 9)
-		reset_btn.add_theme_color_override("font_color", Color(0.78, 0.68, 0.58))
-		reset_btn.pressed.connect(_reset_test_save)
-		system_group.add_child(reset_btn)
-
-		var manual_save_btn: Button = Button.new()
-		manual_save_btn.text = "保存"
-		manual_save_btn.custom_minimum_size = Vector2(54, 24)
-		manual_save_btn.add_theme_font_size_override("font_size", 9)
-		manual_save_btn.add_theme_color_override("font_color", Color(0.74, 0.76, 0.62))
-		manual_save_btn.pressed.connect(_manual_save_test)
-		system_group.add_child(manual_save_btn)
-
-		panel_status_label = Label.new()
-		panel_status_label.text = ""
-		panel_status_label.custom_minimum_size = Vector2(54, 22)
-		panel_status_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-		panel_status_label.clip_text = true
-		panel_status_label.add_theme_font_size_override("font_size", 9)
-		panel_status_label.add_theme_color_override("font_color", Color(0.58, 0.70, 0.66))
-		system_group.add_child(panel_status_label)
-
-	_add_device_controls(device_row)
-	layout.add_child(btn_bar)
-
-	var title_index: int = -1
-	for i in range(layout.get_child_count()):
-		var child: Node = layout.get_child(i)
-		if child.name == "TitleBar":
-			title_index = i
-			break
-	if title_index >= 0:
-		layout.move_child(btn_bar, min(title_index + 1, layout.get_child_count() - 1))
+	_setup_bottom_dock_controls()
 
 	shop_panel = ShopPanel.new()
 	shop_panel.hide()
@@ -183,29 +94,68 @@ func _setup_panels() -> void:
 	_update_device_button_states()
 
 
+func _setup_bottom_dock_controls() -> void:
+	if status_panel == null or game_state == null:
+		return
+	maintenance_buttons.clear()
+	maintenance_button_base_texts.clear()
+	maintenance_button_costs.clear()
+	device_buttons.clear()
+	device_button_base_texts.clear()
+	maintenance_feedback_label = null
+	maintenance_balance_label = null
+	panel_status_label = null
+
+	var callbacks: Dictionary = {
+		"shop": Callable(self, "_toggle_shop"),
+		"livestock": Callable(self, "_toggle_livestock"),
+		"maintenance": Callable(self, "_on_water_maintenance_pressed"),
+		"device": Callable(self, "_on_device_pressed"),
+		"save": Callable(self, "_manual_save_test"),
+		"reset": Callable(self, "_reset_test_save"),
+	}
+	var controls: Dictionary = status_panel.configure_dock_controls(
+		game_state.get_water_maintenance_actions(),
+		game_state.get_device_state(),
+		callbacks,
+		_is_dev_debug_ui_enabled(),
+	)
+	shop_btn = controls.get("shop_btn", null)
+	livestock_btn = controls.get("livestock_btn", null)
+	panel_status_label = controls.get("panel_status_label", null)
+	maintenance_feedback_label = controls.get("maintenance_feedback_label", null)
+	maintenance_balance_label = controls.get("maintenance_balance_label", null)
+	maintenance_buttons = controls.get("maintenance_buttons", {})
+	maintenance_button_base_texts = controls.get("maintenance_button_base_texts", {})
+	maintenance_button_costs = controls.get("maintenance_button_costs", {})
+	device_buttons = controls.get("device_buttons", {})
+	device_button_base_texts = controls.get("device_button_base_texts", {})
+
+
 func _stabilize_main_layout(layout: VBoxContainer) -> void:
 	layout.add_theme_constant_override("separation", 2)
 	for child in layout.get_children():
 		if child.name == "TitleBar" and child is Control:
 			var title_bar: Control = child
-			title_bar.custom_minimum_size = Vector2(0, 28)
+			title_bar.custom_minimum_size = Vector2(0, 24)
 			for title_child in title_bar.get_children():
 				if title_child is Label:
 					var title_label: Label = title_child
-					title_label.add_theme_font_size_override("font_size", 13)
+					title_label.text = "CoralReefIdleV3 · 柏林系统静态布局"
+					title_label.add_theme_font_size_override("font_size", 12)
 					title_label.add_theme_color_override("font_color", Color(0.84, 0.88, 0.88))
 		elif child.name == "DisplayTankView" and child is Control:
 			var display: Control = child
-			display.custom_minimum_size = Vector2(0, 292)
+			display.custom_minimum_size = Vector2(0, 330)
 			display.size_flags_vertical = Control.SIZE_EXPAND_FILL
-			display.size_flags_stretch_ratio = 4.20
+			display.size_flags_stretch_ratio = 5.20
 		elif child.name == "SumpView" and child is Control:
 			var sump: Control = child
-			sump.custom_minimum_size = Vector2(0, 88)
+			sump.custom_minimum_size = Vector2(0, 84)
 			sump.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 			sump.size_flags_stretch_ratio = 0.0
 		elif child == status_panel:
-			status_panel.custom_minimum_size = Vector2(0, 142)
+			status_panel.custom_minimum_size = Vector2(0, 154)
 			status_panel.size_flags_vertical = Control.SIZE_SHRINK_END
 			status_panel.size_flags_stretch_ratio = 0.0
 
