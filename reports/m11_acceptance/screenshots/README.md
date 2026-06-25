@@ -1,7 +1,7 @@
 M11 Acceptance Screenshots (headless)
 =====================================
-Generated: 2026-06-26 02:08:08
-Git HEAD: 5f66129d7c3e9e8b0cd51afa09d085358b42ea13
+Generated: 2026-06-26 02:46:23
+Git HEAD: 2a0fe0c5adf943c5077d455ff769873c8d37402f
 Result: PASS
 
 Note: In headless mode, actual screenshots require a GPU/renderer.
