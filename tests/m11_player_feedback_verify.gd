@@ -138,12 +138,13 @@ func _run() -> void:
 	_check_timeline_contains(tl, "容量", "[4j] timeline shows '容量'")
 	_check_timeline_contains(tl, "珊瑚", "[4k] timeline shows category")
 
-	# Verify NO RP mention in release timeline (release doesn't cost RP)
+	# Release should show RP+ (reward), NOT RP- (deduction)
 	for entry in tl:
 		if entry is Dictionary:
 			var t: String = String(entry.get("text", ""))
 			if "放归" in t:
-				_assert("RP-" not in t and "RP+" not in t, "[4l] release timeline has no RP change")
+				_assert("RP+" in t, "[4l] release timeline shows RP+")
+				_assert("RP-" not in t, "[4m] release timeline has no RP- deduction")
 				break
 
 	# ═══════════════════════════════════════════

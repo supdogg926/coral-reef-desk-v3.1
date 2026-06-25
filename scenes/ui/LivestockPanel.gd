@@ -295,9 +295,11 @@ func _on_release_confirmed() -> void:
 			elif rcat == "crustacean": cat_display = "甲壳"
 			elif rcat == "algae": cat_display = "藻类"
 			var released_cap: float = float(result.get("released_capacity", 0.0))
-			status_label.text = "放归成功：%s %s -1 释放%.0f 容量 %.0f/%.0f" % [
+			var release_rp: int = int(result.get("release_rp", 0))
+			status_label.text = "放归成功：%s %s -1 RP+%d 释放%.0f 容量 %.0f/%.0f" % [
 				released_name,
 				cat_display,
+				release_rp,
 				released_cap,
 				float(result.get("capacity_used", 0.0)),
 				float(result.get("max_capacity", 30.0)),

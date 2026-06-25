@@ -1015,6 +1015,7 @@ func buy_livestock_from_shop(shop_id: String) -> Dictionary:
 		"id": "%s_%d" % [shop_id, Time.get_unix_time_from_system()],
 		"species_name": String(shop_entry.get("species_name", "")),
 		"category": String(shop_entry.get("category", "")),
+		"purchase_price": price,
 		"rarity": String(shop_entry.get("rarity", "普通")),
 		"size_cm": float(shop_entry.get("size_min", 3.0)),
 		"maturity_percent": 0.0,
@@ -1067,6 +1068,10 @@ func release_owned_livestock(livestock_id: String) -> Dictionary:
 	if livestock_system == null or economy_system == null:
 		return {"success": false, "error": "system_unavailable", "livestock_id": livestock_id}
 	var before_effective_income: float = float(livestock_system.get_debug_state().get("total_effective_income_per_hour", 0.0))
+	# Read purchase_price from entry before release for RP reward calc
+	var entry_snapshot: Dictionary = livestock_system.get_livestock_snapshot(livestock_id)
+	var stored_purchase_price: float = float(entry_snapshot.get("purchase_price", 0.0))
+
 	var result: Dictionary = livestock_system.release_livestock(livestock_id)
 	if not bool(result.get("success", false)):
 		print("[M11 PROTOTYPE] release failed error=", result.get("error", "unknown"))
@@ -1080,6 +1085,13 @@ func release_owned_livestock(livestock_id: String) -> Dictionary:
 	reef_points = economy_system.get_reef_points()
 	_pending_save_after_livestock_change = true
 	_livestock_change_save_timer = 0.0
+	# Release RP reward: 25% of purchase price, min 1 RP
+	var release_rp: int = max(1, int(floor(max(stored_purchase_price, 4.0) * 0.25)))
+	if release_rp > 0 and economy_system != null:
+		economy_system.add_reef_points(release_rp)
+	reef_points = economy_system.get_reef_points() if economy_system != null else reef_points
+	result["release_rp"] = release_rp
+
 	if action_timeline != null:
 		var rname: String = String(result.get("species_name", ""))
 		if not rname.is_empty():
@@ -1093,10 +1105,12 @@ func release_owned_livestock(livestock_id: String) -> Dictionary:
 				rlabel += " 鱼 -1"
 			elif rcat == "coral":
 				rlabel += " 珊瑚 -1"
-			rlabel += " 释放%.0f 容量 %s" % [released_cap, cap_display]
+			rlabel += " RP+%d 释放%.0f 容量 %s" % [release_rp, released_cap, cap_display]
 			_timeline_log_player(rlabel, ActionTimeline.COLOR_CAUTION)
 	print("[M11 PROTOTYPE] release success name=", result.get("species_name", ""), " count=", result.get("new_count", 0))
 	return result
+
+
 
 
 func _try_load_game() -> void:

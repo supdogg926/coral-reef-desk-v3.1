@@ -137,6 +137,7 @@ func add_livestock(entry: Dictionary) -> bool:
 		"tank_slot_cost": slot_cost,
 		"locked": false,
 		"water_sensitivity": float(entry.get("water_sensitivity", 0.4)),
+		"purchase_price": float(entry.get("purchase_price", 0.0)),
 	}
 	owned_livestock.append(new_entry)
 	_recalculate_capacity_and_income()

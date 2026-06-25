@@ -31,7 +31,60 @@ func setup(gs: GameState) -> void:
 	if not _built:
 		_build_ui()
 		_built = true
-	set_process(true)
+
+var _shop_refresh_timer: float = 0.0
+const SHOP_REFRESH_INTERVAL: float = 1.0
+
+func _process(delta: float) -> void:
+	if not visible:
+		return
+	_shop_refresh_timer += delta
+	if _shop_refresh_timer >= SHOP_REFRESH_INTERVAL:
+		_shop_refresh_timer = 0.0
+		_refresh_button_tooltips()
+
+func _refresh_button_tooltips() -> void:
+	if game_state == null or item_list == null:
+		return
+	var current_rp: float = 0.0
+	var capacity_used: float = 0.0
+	var capacity_max: float = 30.0
+	if game_state.economy_system != null:
+		current_rp = game_state.economy_system.get_reef_points()
+	if game_state.livestock_system != null:
+		capacity_used = game_state.livestock_system.get_capacity_used()
+		capacity_max = game_state.livestock_system.get_max_capacity()
+	var ls: LivestockSystem = game_state.livestock_system
+	if ls == null:
+		return
+	var shop_items: Array[Dictionary] = ls.get_shop_items()
+	var idx: int = 0
+	for row_child in item_list.get_children():
+		if idx >= shop_items.size():
+			break
+		var item: Dictionary = shop_items[idx]
+		var price: float = float(item.get("price", 0))
+		var slot: float = float(item.get("tank_slot_cost", 1))
+		var can_afford: bool = current_rp >= price
+		var can_fit: bool = (capacity_used + slot) <= capacity_max
+		# Find the buy button in this row
+		for child in row_child.get_children():
+			if child is Button and child.text in ["带回家", "RP不足", "容量满"]:
+				var btn: Button = child
+				if not can_afford:
+					btn.disabled = true
+					btn.text = "RP不足"
+					btn.tooltip_text = "RP不足：需要 %d，当前 %d" % [int(price), int(current_rp)]
+				elif not can_fit:
+					btn.disabled = true
+					btn.text = "容量满"
+					var remaining: float = capacity_max - capacity_used
+					btn.tooltip_text = "容量不足：需要 %.0f，剩余 %.0f" % [slot, max(0.0, remaining)]
+				else:
+					btn.disabled = false
+					btn.text = "带回家"
+				break
+		idx += 1
 
 
 func update_display() -> void:
