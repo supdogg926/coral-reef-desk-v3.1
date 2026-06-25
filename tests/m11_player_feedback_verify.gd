@@ -36,6 +36,7 @@ func _run() -> void:
 	print("── 1. Purchase-to-tank feedback ──")
 	var gs: GameState = GameState.new()
 	gs.initialize()
+	gs.economy_system.add_reef_points(99999.0)
 	var init_rp: float = gs.economy_system.get_reef_points()
 	var init_count: int = gs.livestock_system.get_livestock_count()
 	var init_cap: float = gs.livestock_system.get_capacity_used()
