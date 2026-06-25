@@ -55,6 +55,17 @@ func update_display() -> void:
 			status_label.text = "错误：商店数据为空"
 			status_label.add_theme_color_override("font_color", Color(0.95, 0.50, 0.40))
 		return
+
+	var current_rp: float = 0.0
+	var capacity_used: float = 0.0
+	var capacity_max: float = 30.0
+	if game_state != null:
+		if game_state.economy_system != null:
+			current_rp = game_state.economy_system.get_reef_points()
+		if game_state.livestock_system != null:
+			capacity_used = game_state.livestock_system.get_capacity_used()
+			capacity_max = game_state.livestock_system.get_max_capacity()
+
 	for item in shop_items:
 		var row: HBoxContainer = HBoxContainer.new()
 		row.add_theme_constant_override("separation", 4)
@@ -82,6 +93,18 @@ func update_display() -> void:
 		buy_btn.set_meta("shop_id", String(item.get("id", "")))
 		buy_btn.pressed.connect(_on_any_buy_pressed.bind(buy_btn))
 		row.add_child(buy_btn)
+
+		# Disable button if player cannot afford or has no capacity
+		var can_afford: bool = current_rp >= price
+		var can_fit: bool = (capacity_used + slot) <= capacity_max
+		if not can_afford:
+			buy_btn.disabled = true
+			buy_btn.text = "RP不足"
+			buy_btn.tooltip_text = "需要 RP%.0f｜当前 RP%.0f" % [price, current_rp]
+		elif not can_fit:
+			buy_btn.disabled = true
+			buy_btn.text = "容量满"
+			buy_btn.tooltip_text = "需要 %.1f 格｜已用 %.1f/%.1f" % [slot, capacity_used, capacity_max]
 
 
 func _build_ui() -> void:
@@ -155,8 +178,25 @@ func _on_any_buy_pressed(btn: Button) -> void:
 	if _purchase_in_progress:
 		print("[BUY] already in progress")
 		return
+	# Pre-check: refuse early if RP insufficient or capacity full
+	var shop_id: String = String(btn.get_meta("shop_id", ""))
+	var ls: LivestockSystem = game_state.livestock_system
+	var es = game_state.economy_system
+	if ls != null and es != null:
+		var shop_entry: Dictionary = ls.get_shop_entry(shop_id)
+		if not shop_entry.is_empty():
+			var price: float = float(shop_entry.get("price", 0))
+			var slot: float = float(shop_entry.get("tank_slot_cost", 1))
+			if es.get_reef_points() < price:
+				status_label.text = "RP不足，需要 RP%.0f｜当前 RP%.0f" % [price, es.get_reef_points()]
+				status_label.add_theme_color_override("font_color", Color(0.95, 0.50, 0.40))
+				return
+			if ls.get_capacity_used() + slot > ls.get_max_capacity():
+				status_label.text = "容量不足，需要 %.1f 格｜已用 %.1f/%.1f" % [slot, ls.get_capacity_used(), ls.get_max_capacity()]
+				status_label.add_theme_color_override("font_color", Color(0.95, 0.50, 0.40))
+				return
 	_purchase_in_progress = true
-	_pending_shop_id = String(btn.get_meta("shop_id", ""))
+	_pending_shop_id = shop_id
 	status_label.text = "购买处理中..."
 	print("[BUY] pressed shop_id=", _pending_shop_id, " starting timer")
 	_buy_timer.start()
@@ -182,6 +222,8 @@ func _on_buy_timer_timeout() -> void:
 		]
 		status_label.add_theme_color_override("font_color", Color(0.50, 0.90, 0.55))
 		purchase_completed.emit()
+		# Refresh display to update button states after purchase
+		update_display.call_deferred()
 		print("[BUY] status updated, success")
 	else:
 		var err: String = String(result.get("error", "unknown"))

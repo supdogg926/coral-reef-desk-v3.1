@@ -496,7 +496,7 @@ func apply_feeding_action(feed_id: String) -> Dictionary:
 	var feed_label: String = "喂魚糧" if feed_id == "fish_food" else "喂珊瑚糧"
 	var d_no3: float = float(result.get("delta_nitrate", 0.0))
 	var d_po4: float = float(result.get("delta_phosphate", 0.0))
-	_timeline_log_player("%s NO3%+.2f PO4%+.3f" % [feed_label, d_no3, d_po4], ActionTimeline.COLOR_PLAYER)
+	_timeline_log_player("%s" % feed_label, ActionTimeline.COLOR_PLAYER)
 	return result
 
 
@@ -1186,9 +1186,9 @@ func _timeline_log_system(text: String, color: Color = ActionTimeline.COLOR_CAUT
 func _format_maintenance_timeline_text(action_id: String, _result: Dictionary) -> Dictionary:
 	match action_id:
 		"water_change_10":
-			return {"text": "换水 降NO3/PO4", "color": ActionTimeline.COLOR_POSITIVE}
+			return {"text": "换水完成 NO3 PO4下降", "color": ActionTimeline.COLOR_POSITIVE}
 		"clean_filter":
-			return {"text": "清滤 过滤\u2191", "color": ActionTimeline.COLOR_POSITIVE}
+			return {"text": "清理过滤完成 效率恢复", "color": ActionTimeline.COLOR_POSITIVE}
 		"dose_buffer":
 			return {"text": "补KH KH\u2191 pH稳", "color": ActionTimeline.COLOR_POSITIVE}
 		"top_off":
@@ -1208,19 +1208,19 @@ func _format_device_timeline_text(device_id: String, enabled: bool) -> Dictionar
 	match device_id:
 		"return_pump":
 			if enabled:
-				return {"text": "水泵ON 水流\u2191", "color": ActionTimeline.COLOR_POSITIVE}
+				return {"text": "循环泵开启 水流恢复", "color": ActionTimeline.COLOR_POSITIVE}
 			else:
-				return {"text": "水泵OFF 水流\u2193 过滤\u2193", "color": ActionTimeline.COLOR_CAUTION}
+				return {"text": "循环泵关闭 水流过滤减弱", "color": ActionTimeline.COLOR_CAUTION}
 		"wave_pump":
 			if enabled:
-				return {"text": "造浪ON", "color": ActionTimeline.COLOR_POSITIVE}
+				return {"text": "造浪泵开启", "color": ActionTimeline.COLOR_POSITIVE}
 			else:
-				return {"text": "造浪OFF 舒适度\u2193", "color": ActionTimeline.COLOR_CAUTION}
+				return {"text": "造浪泵关闭 舒适度降低", "color": ActionTimeline.COLOR_CAUTION}
 		"main_light":
 			if enabled:
-				return {"text": "主灯ON", "color": ActionTimeline.COLOR_POSITIVE}
+				return {"text": "主灯开启", "color": ActionTimeline.COLOR_POSITIVE}
 			else:
-				return {"text": "主灯OFF 收益\u2193", "color": ActionTimeline.COLOR_CAUTION}
+				return {"text": "主灯关闭 收益降低", "color": ActionTimeline.COLOR_CAUTION}
 		_:
 			return {"text": "%s%s" % [display, state], "color": ActionTimeline.COLOR_PLAYER}
 
@@ -1244,13 +1244,13 @@ func _check_timeline_system_events() -> void:
 	# Water quality tier change
 	if action_timeline.should_log_water_status(water_status):
 		if water_status == "CRITICAL":
-			_timeline_log_system("水质\u2192危险", ActionTimeline.COLOR_CRITICAL)
+			_timeline_log_system("水质恶化 危险", ActionTimeline.COLOR_CRITICAL)
 			if maintenance_relief_remaining_game_seconds <= 0.0 and action_timeline.should_log_neglect():
-				_timeline_log_system("未维护 水质恶化", ActionTimeline.COLOR_CRITICAL)
+				_timeline_log_system("长期未维护 水质恶化", ActionTimeline.COLOR_CRITICAL)
 		elif water_status == "WARNING":
-			_timeline_log_system("水质\u2192警告", ActionTimeline.COLOR_CAUTION)
+			_timeline_log_system("水质下降 警告", ActionTimeline.COLOR_CAUTION)
 		elif water_status == "OK":
-			_timeline_log_system("水质\u2192正常", ActionTimeline.COLOR_POSITIVE)
+			_timeline_log_system("水质恢复 正常", ActionTimeline.COLOR_POSITIVE)
 
 	# Comfort tier change
 	var comfort_tier: String
@@ -1266,7 +1266,7 @@ func _check_timeline_system_events() -> void:
 		comfort_tier = "危险"
 	if action_timeline.should_log_comfort_tier(comfort_tier):
 		var comfort_color: Color = ActionTimeline.COLOR_POSITIVE if comfort_score >= 75.0 else (ActionTimeline.COLOR_CAUTION if comfort_score >= 40.0 else ActionTimeline.COLOR_CRITICAL)
-		_timeline_log_system("舒适度\u2192" + comfort_tier, comfort_color)
+		_timeline_log_system("舒适度 " + comfort_tier, comfort_color)
 
 	# Revenue multiplier tier change
 	var revenue_tier: String
@@ -1282,7 +1282,7 @@ func _check_timeline_system_events() -> void:
 		revenue_tier = "min"
 	if action_timeline.should_log_revenue_tier(revenue_tier):
 		var revenue_color: Color = ActionTimeline.COLOR_POSITIVE if revenue_mult >= 1.00 else (ActionTimeline.COLOR_CAUTION if revenue_mult >= 0.75 else ActionTimeline.COLOR_CRITICAL)
-		_timeline_log_system("收益倍率\u2192%.2fx" % revenue_mult, revenue_color)
+		_timeline_log_system("收益倍率 %.2fx" % revenue_mult, revenue_color)
 
 	# Filter significant drop
 	var filter_tier: String
@@ -1294,17 +1294,17 @@ func _check_timeline_system_events() -> void:
 		filter_tier = "critical"
 	if action_timeline.should_log_filter_tier(filter_tier):
 		if filter_tier == "critical":
-			_timeline_log_system("过滤\u2193 %.0f%% 需清滤" % filter_pct, ActionTimeline.COLOR_CRITICAL)
+			_timeline_log_system("过滤效率低 %.0f%% 需清理" % filter_pct, ActionTimeline.COLOR_CRITICAL)
 		elif filter_tier == "low":
-			_timeline_log_system("过滤\u2193 %.0f%%" % filter_pct, ActionTimeline.COLOR_CAUTION)
+			_timeline_log_system("过滤效率下降 %.0f%%" % filter_pct, ActionTimeline.COLOR_CAUTION)
 
 	# Flow zero
 	var flow_zero: bool = flow_pct <= 0.0
 	if action_timeline.should_log_flow_zero(flow_zero):
 		if flow_zero:
-			_timeline_log_system("水流=0 过滤\u2193 循环停止", ActionTimeline.COLOR_CRITICAL)
+			_timeline_log_system("水流中断 循环停止", ActionTimeline.COLOR_CRITICAL)
 		else:
-			_timeline_log_system("水流恢复", ActionTimeline.COLOR_POSITIVE)
+			_timeline_log_system("水流恢复 循环正常", ActionTimeline.COLOR_POSITIVE)
 
 	# NO3 unsafe
 	var no3_unsafe: bool = no3 > 20.0
@@ -1337,21 +1337,21 @@ func seed_timeline_for_test() -> void:
 		{"text": "D1 14:30 清滤 过滤\u2191", "color": ActionTimeline.COLOR_POSITIVE},
 		{"text": "D1 16:00 补KH KH\u2191 pH稳", "color": ActionTimeline.COLOR_POSITIVE},
 		{"text": "D1 18:30 喂珊瑚粮 NO3+0.22 PO4+0.022", "color": ActionTimeline.COLOR_PLAYER},
-		{"text": "D2 08:00 水质\u2192警告", "color": ActionTimeline.COLOR_CAUTION},
+		{"text": "D2 08:00 水质下降 警告", "color": ActionTimeline.COLOR_CAUTION},
 		{"text": "D2 08:05 NO3偏高 25.0 超出安全范围", "color": ActionTimeline.COLOR_CAUTION},
 		{"text": "D2 09:00 水泵OFF 水流\u2193 过滤\u2193", "color": ActionTimeline.COLOR_CAUTION},
-		{"text": "D2 09:05 水流=0 过滤\u2193 循环停止", "color": ActionTimeline.COLOR_CRITICAL},
-		{"text": "D2 10:00 水质\u2192危险", "color": ActionTimeline.COLOR_CRITICAL},
+		{"text": "D2 09:05 水流中断 循环停止", "color": ActionTimeline.COLOR_CRITICAL},
+		{"text": "D2 10:00 水质恶化 危险", "color": ActionTimeline.COLOR_CRITICAL},
 		{"text": "D2 10:01 未维护 水质恶化", "color": ActionTimeline.COLOR_CRITICAL},
-		{"text": "D2 10:30 舒适度\u2192偏低", "color": ActionTimeline.COLOR_CAUTION},
-		{"text": "D2 11:00 收益倍率\u21920.75x", "color": ActionTimeline.COLOR_CAUTION},
+		{"text": "D2 10:30 舒适度 偏低", "color": ActionTimeline.COLOR_CAUTION},
+		{"text": "D2 11:00 收益倍率 0.75x", "color": ActionTimeline.COLOR_CAUTION},
 		{"text": "D2 12:00 水泵ON 水流\u2191", "color": ActionTimeline.COLOR_POSITIVE},
 		{"text": "D2 12:05 水流恢复", "color": ActionTimeline.COLOR_POSITIVE},
 		{"text": "D2 13:00 清滤 过滤\u2191", "color": ActionTimeline.COLOR_POSITIVE},
 		{"text": "D2 14:00 补水 盐度-0.2 回稳", "color": ActionTimeline.COLOR_POSITIVE},
 		{"text": "D2 15:00 换水 降NO3/PO4", "color": ActionTimeline.COLOR_POSITIVE},
 		{"text": "D2 16:00 NO3恢复安全范围", "color": ActionTimeline.COLOR_POSITIVE},
-		{"text": "D2 17:00 水质\u2192正常", "color": ActionTimeline.COLOR_POSITIVE},
+		{"text": "D2 17:00 水质恢复 正常", "color": ActionTimeline.COLOR_POSITIVE},
 		{"text": "D2 18:00 PO4偏高 0.250 超出安全范围", "color": ActionTimeline.COLOR_CAUTION},
 		{"text": "D3 08:00 喂鱼粮 NO3+0.60 PO4+0.012", "color": ActionTimeline.COLOR_PLAYER},
 	]
