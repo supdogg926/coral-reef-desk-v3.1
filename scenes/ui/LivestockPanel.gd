@@ -66,7 +66,7 @@ func update_display() -> void:
 
 			var livestock_id: String = String(d.get("id", ""))
 			var name_str: String = String(d.get("species_name", "?"))
-			var cat_str: String = String(d.get("category", "?"))
+			var cat_str: String = _category_display_name(String(d.get("category", "?")))
 			var rarity_str: String = String(d.get("rarity", "?"))
 			var size_val: float = float(d.get("size_cm", 0))
 			var mat_val: float = float(d.get("maturity_percent", 0))
@@ -86,7 +86,7 @@ func update_display() -> void:
 			row.add_child(info)
 
 			var select_btn: Button = Button.new()
-			select_btn.text = "选择"
+			select_btn.text = "详情"
 			select_btn.custom_minimum_size = Vector2(48, 22)
 			select_btn.add_theme_font_size_override("font_size", 9)
 			select_btn.disabled = is_locked or livestock_id.is_empty()
@@ -217,6 +217,16 @@ func _build_ui() -> void:
 
 	if game_state != null:
 		update_display()
+
+
+func _category_display_name(raw: String) -> String:
+	match raw:
+		"coral": return "珊瑚"
+		"fish": return "鱼"
+		"crustacean": return "甲壳"
+		"algae": return "藻类"
+		"invertebrate": return "无脊椎"
+		_: return raw
 
 
 func _on_close() -> void:

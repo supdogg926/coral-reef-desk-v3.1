@@ -145,13 +145,8 @@ func update_livestock_economy_debug(livestock_debug: Dictionary, economy_debug: 
 	_set_status_line("livestock", "fish_count", "%d" % fish_count, KEY_TEXT_COLOR)
 	_set_status_line("livestock", "coral_count", "%d" % coral_count, KEY_TEXT_COLOR)
 	_set_status_line("livestock", "crustacean_count", "%d" % crustacean_count, STATUS_IDLE_COLOR if crustacean_count <= 0 else KEY_TEXT_COLOR)
-	_set_status_line("livestock", "reserve_2", "—", STATUS_IDLE_COLOR)
-	_set_status_line("livestock", "reserve_3", "—", STATUS_IDLE_COLOR)
-	_set_status_line("livestock", "reserve_4", "—", STATUS_IDLE_COLOR)
-	_set_status_line("livestock", "reserve_metric", "\u2014", STATUS_IDLE_COLOR)
 	var algae_count_display: int = int(livestock_debug.get("algae_count", 0))
 	_set_status_line("livestock", "algae_count", "%d" % algae_count_display, STATUS_IDLE_COLOR if algae_count_display <= 0 else KEY_TEXT_COLOR)
-	_set_status_line("livestock", "reserve_2", "\u2014", STATUS_IDLE_COLOR)
 
 
 func update_unlock_debug(unlock_debug: Dictionary) -> void:

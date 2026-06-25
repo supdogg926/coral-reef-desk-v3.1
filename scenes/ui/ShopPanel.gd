@@ -46,8 +46,10 @@ func update_display() -> void:
 		return
 	var shop_items: Array[Dictionary] = ls.get_shop_items()
 	var debug_label: Label = get_node_or_null("MarginContainer/VBoxContainer/DebugCount") as Label
-	if debug_label != null:
+	if debug_label != null and OS.is_debug_build():
 		debug_label.text = "商店商品数：%d" % shop_items.size()
+	elif debug_label != null:
+		debug_label.hide()
 	if shop_items.is_empty():
 		if status_label != null:
 			status_label.text = "错误：商店数据为空"
