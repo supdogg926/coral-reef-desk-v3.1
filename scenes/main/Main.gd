@@ -231,6 +231,12 @@ func _reset_test_save() -> void:
 	game_state = null
 	game_state = GameState.new()
 	game_state.initialize()
+	# Re-setup panels so they reference the new GameState
+	if shop_panel != null:
+		shop_panel.setup(game_state)
+	if livestock_panel != null:
+		livestock_panel.setup(game_state)
+	_setup_bottom_dock_controls()
 	_update_status_labels()
 	if panel_status_label != null:
 		panel_status_label.text = "存档已重置，已恢复6个初始生物"

@@ -31,6 +31,7 @@ func setup(gs: GameState) -> void:
 	if not _built:
 		_build_ui()
 		_built = true
+		set_process(true)
 
 var _shop_refresh_timer: float = 0.0
 const SHOP_REFRESH_INTERVAL: float = 1.0
