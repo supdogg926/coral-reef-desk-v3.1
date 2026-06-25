@@ -1360,7 +1360,7 @@ func seed_timeline_for_test() -> void:
 	while action_timeline.entries.size() > ActionTimeline.MAX_ENTRIES:
 		action_timeline.entries.pop_front()
 
-func get_timeline_entries(count: int = 13) -> Array:
+func get_timeline_entries(count: int = 200) -> Array:
 	if action_timeline == null:
 		return []
 	return action_timeline.get_recent(count)

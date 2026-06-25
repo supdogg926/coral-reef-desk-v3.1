@@ -7,6 +7,8 @@ var timeline_labels: Array[Label] = []
 var rp_display_label: Label = null
 var dock_body: Control = null
 var collapsed_bar: Control = null
+var _last_timeline_count: int = -1
+var _last_timeline_text: String = ""
 
 const TITLE_FONT_SIZE: int = 10
 const BODY_FONT_SIZE: int = 8
@@ -313,6 +315,7 @@ func _create_timeline_section(parent: Control) -> void:
 	scroll_vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	scroll.add_child(scroll_vbox)
 	dock_control_slots["timeline_scroll_vbox"] = scroll_vbox
+	dock_control_slots["timeline_scroll"] = scroll
 
 
 
@@ -320,14 +323,29 @@ func update_timeline(entries: Array) -> void:
 	var scroll_vbox: Control = dock_control_slots.get("timeline_scroll_vbox", null)
 	if scroll_vbox == null:
 		return
+
+	var total: int = entries.size()
+	var last_text: String = ""
+	if total > 0:
+		var last_entry: Variant = entries[total - 1]
+		if last_entry is Dictionary:
+			last_text = String(last_entry.get("text", ""))
+
+	# Skip rebuild if nothing changed (entries are append-only, immutable once added)
+	if total == _last_timeline_count and last_text == _last_timeline_text:
+		return
+
+	_last_timeline_count = total
+	_last_timeline_text = last_text
+
 	# Clear all existing labels
 	for child in scroll_vbox.get_children():
 		scroll_vbox.remove_child(child)
 		child.queue_free()
 	timeline_labels.clear()
-	# Render up to 50 entries as real labels
-	var total: int = entries.size()
-	var show_count: int = clampi(total, 0, 50)
+
+	# Render up to ActionTimeline.MAX_ENTRIES (200) as real labels
+	var show_count: int = clampi(total, 0, 200)
 	if show_count == 0:
 		var placeholder: Label = _make_label("暂无事件", 8, false)
 		placeholder.add_theme_color_override("font_color", Color(0.50, 0.56, 0.56))
@@ -343,6 +361,11 @@ func update_timeline(entries: Array) -> void:
 			label.add_theme_color_override("font_color", entry_color)
 			scroll_vbox.add_child(label)
 			timeline_labels.append(label)
+
+	# Scroll to bottom so latest entry is visible; user can scroll up for history
+	var scroll: ScrollContainer = dock_control_slots.get("timeline_scroll", null) as ScrollContainer
+	if scroll != null:
+		scroll.set_deferred("scroll_vertical", scroll.get_v_scroll_bar().max_value)
 
 func _create_section(parent: Control, section_id: String, title_text: String, stretch_ratio: float, line_ids: Array[String]) -> void:
 	var box: VBoxContainer = _create_card(parent, section_id, title_text, stretch_ratio)
