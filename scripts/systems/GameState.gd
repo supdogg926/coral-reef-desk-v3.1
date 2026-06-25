@@ -1038,11 +1038,15 @@ func buy_livestock_from_shop(shop_id: String) -> Dictionary:
 		var bcat: String = livestock_system._normalize_livestock_category(String(purchase_entry.get("category", ""))) if livestock_system != null else "other"
 		if not bname.is_empty():
 			var bqty: int = livestock_system._get_entry_quantity(purchase_entry) if livestock_system != null else 1
-			var label: String = "购买 " + bname
+			var cap_used: float = livestock_system.get_capacity_used()
+			var cap_max: float = livestock_system.get_max_capacity()
+			var cap_display: String = "%.0f/%.0f" % [cap_used, cap_max]
+			var label: String = "购买入缸 " + bname
 			if bcat == "fish":
 				label += " 鱼 +%d" % bqty
 			elif bcat == "coral":
 				label += " 珊瑚 +%d" % bqty
+			label += " RP-%d 容量 %s" % [int(price), cap_display]
 			_timeline_log_player(label, ActionTimeline.COLOR_POSITIVE)
 	print("[BUY] gs.buy about to return success")
 	return {
@@ -1080,11 +1084,16 @@ func release_owned_livestock(livestock_id: String) -> Dictionary:
 		var rname: String = String(result.get("species_name", ""))
 		if not rname.is_empty():
 			var rcat: String = livestock_system._normalize_livestock_category(String(result.get("category", ""))) if livestock_system != null else "other"
+			var released_cap: float = float(result.get("released_capacity", 0.0))
+			var cap_used: float = float(result.get("capacity_used", livestock_system.get_capacity_used()))
+			var cap_max: float = float(result.get("max_capacity", livestock_system.get_max_capacity()))
+			var cap_display: String = "%.0f/%.0f" % [cap_used, cap_max]
 			var rlabel: String = "放归 " + rname
 			if rcat == "fish":
 				rlabel += " 鱼 -1"
 			elif rcat == "coral":
 				rlabel += " 珊瑚 -1"
+			rlabel += " 释放%.0f 容量 %s" % [released_cap, cap_display]
 			_timeline_log_player(rlabel, ActionTimeline.COLOR_CAUTION)
 	print("[M11 PROTOTYPE] release success name=", result.get("species_name", ""), " count=", result.get("new_count", 0))
 	return result

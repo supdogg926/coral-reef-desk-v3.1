@@ -100,11 +100,12 @@ func update_display() -> void:
 		if not can_afford:
 			buy_btn.disabled = true
 			buy_btn.text = "RP不足"
-			buy_btn.tooltip_text = "需要 RP%.0f｜当前 RP%.0f" % [price, current_rp]
+			buy_btn.tooltip_text = "RP不足：需要 %d，当前 %d" % [int(price), int(current_rp)]
 		elif not can_fit:
 			buy_btn.disabled = true
 			buy_btn.text = "容量满"
-			buy_btn.tooltip_text = "需要 %.1f 格｜已用 %.1f/%.1f" % [slot, capacity_used, capacity_max]
+			var remaining: float = capacity_max - capacity_used
+			buy_btn.tooltip_text = "容量不足：需要 %.0f，剩余 %.0f" % [slot, max(0.0, remaining)]
 
 
 func _build_ui() -> void:

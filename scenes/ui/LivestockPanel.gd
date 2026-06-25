@@ -288,12 +288,19 @@ func _on_release_confirmed() -> void:
 		_hide_confirm()
 		update_display()
 		if status_label != null:
-			status_label.text = "已放归 %s｜数量：%d｜容量：%.1f/%.1f｜基础收益：%.2f/h" % [
+			var rcat: String = String(result.get("category", ""))
+			var cat_display: String = ""
+			if rcat == "fish": cat_display = "鱼"
+			elif rcat == "coral": cat_display = "珊瑚"
+			elif rcat == "crustacean": cat_display = "甲壳"
+			elif rcat == "algae": cat_display = "藻类"
+			var released_cap: float = float(result.get("released_capacity", 0.0))
+			status_label.text = "放归成功：%s %s -1 释放%.0f 容量 %.0f/%.0f" % [
 				released_name,
-				int(result.get("new_count", 0)),
+				cat_display,
+				released_cap,
 				float(result.get("capacity_used", 0.0)),
 				float(result.get("max_capacity", 30.0)),
-				float(result.get("base_income_per_hour", 0.0)),
 			]
 			status_label.add_theme_color_override("font_color", Color(0.56, 0.95, 0.68))
 			_pulse_status()
