@@ -14,3 +14,4 @@ dist/
 .cache/
 .DS_Store
 Thumbs.db
+*.uid
