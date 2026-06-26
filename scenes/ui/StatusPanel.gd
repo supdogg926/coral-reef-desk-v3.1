@@ -314,6 +314,21 @@ func _create_timeline_section(parent: Control) -> void:
 
 
 
+
+func update_stage_objectives(stage_obj_debug: Dictionary) -> void:
+	if stage_obj_debug.is_empty():
+		return
+	var completed: int = int(stage_obj_debug.get("completed_count", 0))
+	var total: int = int(stage_obj_debug.get("total_count", 6))
+	var all_done: bool = bool(stage_obj_debug.get("all_completed", false))
+	var active_obj: Dictionary = stage_obj_debug.get("active_objective", {})
+	if all_done:
+		_set_line("status", "validation", "✓ 所有目标完成 %d/%d" % [completed, total])
+	elif not active_obj.is_empty():
+		_set_line("status", "validation", "目标 %d/%d: %s" % [completed + 1, total, String(active_obj.get("title", ""))])
+	else:
+		_set_line("status", "validation", "目标 %d/%d" % [completed, total])
+
 func update_timeline(entries: Array) -> void:
 	var scroll_vbox: Control = dock_control_slots.get("timeline_scroll_vbox", null)
 	if scroll_vbox == null:

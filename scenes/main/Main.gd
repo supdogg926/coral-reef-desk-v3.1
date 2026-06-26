@@ -551,6 +551,7 @@ func _update_status_labels() -> void:
 		game_state.offline_summary,
 	)
 	status_panel.update_timeline(game_state.get_timeline_entries())
+	status_panel.update_stage_objectives(game_state.get_stage_objective_debug_state())
 
 
 func _on_light_intensity_changed(value: float) -> void:

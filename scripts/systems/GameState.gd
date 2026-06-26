@@ -14,6 +14,7 @@ var livestock_system: LivestockSystem = null
 var unlock_system: UnlockSystem = null
 var save_system: SaveSystem = null
 var action_timeline: ActionTimeline = null
+var stage_objective_system: RefCounted = null  # StageObjectiveSystem loaded via script
 var stability_score: float = 50.0
 var carrying_capacity_score: float = 10.0
 var maintenance_load: float = 0.0
@@ -45,6 +46,7 @@ var last_maintenance_runtime_summary: String = "未维护"
 var last_feeding_runtime_summary: String = "喂食 无"
 var filter_condition_percent: float = 100.0
 var maintenance_relief_remaining_game_seconds: float = 0.0
+var _last_status_summary_day: int = 0
 var player_experience: float = 0.0
 var player_level: int = 1
 var successful_maintenance_count: int = 0
@@ -106,6 +108,9 @@ func initialize() -> void:
 
 	action_timeline = ActionTimeline.new()
 
+	stage_objective_system = load("res://scripts/systems/StageObjectiveSystem.gd").new()
+	stage_objective_system.initialize()
+
 	_try_load_game()
 
 	_recalculate_debug_scores()
@@ -114,6 +119,14 @@ func initialize() -> void:
 	_autosave_timer = 0.0
 	_prev_reef_value = float(economy_system.reef_value)
 	_prev_income_rate = float(economy_system.income_rate_per_game_hour)
+
+	# M12: Set initial RP/comfort for stage objectives
+	if stage_objective_system != null and economy_system != null:
+		stage_objective_system.set_initial_rp(economy_system.total_reef_points_earned)
+	if stage_objective_system != null and livestock_system != null:
+		var ls_debug: Dictionary = livestock_system.get_debug_state()
+		stage_objective_system.set_initial_comfort(float(ls_debug.get("comfort_score", 100.0)))
+
 	initialized = true
 
 
@@ -130,6 +143,7 @@ func update(delta_seconds: float) -> void:
 	_check_timeline_system_events()
 	_update_player_progress(simulation_delta_seconds)
 	_update_unlocks()
+	_check_stage_objectives()
 	_autosave_timer += delta_seconds
 	if _autosave_timer >= AUTOSAVE_INTERVAL:
 		print("[SAVE] regular autosave firing")
@@ -858,6 +872,51 @@ func get_unlock_debug_state() -> Dictionary:
 	return debug_state
 
 
+func get_stage_objective_debug_state() -> Dictionary:
+	if stage_objective_system == null:
+		return {}
+	return stage_objective_system.get_debug_state()
+
+
+func _check_stage_objectives() -> void:
+	if stage_objective_system == null:
+		return
+	var livestock_count: int = 0
+	var comfort_score: float = 100.0
+	var water_quality: float = 100.0
+	var devices_running: bool = true
+	var maintenance_count: int = successful_maintenance_count
+	var total_rp: float = 0.0
+	if livestock_system != null:
+		var ls_debug: Dictionary = livestock_system.get_debug_state()
+		livestock_count = int(ls_debug.get("livestock_count", 0))
+		comfort_score = float(ls_debug.get("comfort_score", 100.0))
+	if water_chemistry_system != null:
+		var wc_debug: Dictionary = water_chemistry_system.get_debug_state()
+		water_quality = float(wc_debug.get("water_quality_score", 100.0))
+	if economy_system != null:
+		total_rp = economy_system.total_reef_points_earned
+	devices_running = bool(device_states.get("return_pump", true)) and bool(device_states.get("main_light", true))
+
+	var prev_completed: int = stage_objective_system.get_completed_count()
+	stage_objective_system.check_progress({
+		"livestock_count": livestock_count,
+		"comfort_score": comfort_score,
+		"devices_running": devices_running,
+		"maintenance_count": maintenance_count,
+		"water_quality_score": water_quality,
+		"total_rp_earned": total_rp,
+		"current_rp": economy_system.get_reef_points() if economy_system != null else 0.0,
+	})
+	var new_completed: int = stage_objective_system.get_completed_count()
+	if new_completed > prev_completed:
+		var active_obj: Dictionary = stage_objective_system.get_active_objective()
+		if not active_obj.is_empty():
+			_timeline_log_player("目标完成: " + String(active_obj.get("title", "")), ActionTimeline.COLOR_POSITIVE)
+		if stage_objective_system.get_completed_count() >= stage_objective_system.get_total_count():
+			_timeline_log_player("所有新手目标完成！继续自由经营吧", ActionTimeline.COLOR_POSITIVE)
+
+
 func get_debug_state() -> Dictionary:
 	var time_debug: Dictionary = {}
 	var economy_debug: Dictionary = {}
@@ -866,6 +925,7 @@ func get_debug_state() -> Dictionary:
 	var chemistry_debug: Dictionary = {}
 	var livestock_debug: Dictionary = {}
 	var unlock_debug: Dictionary = {}
+	var stage_obj_debug: Dictionary = {}
 	if time_system != null:
 		time_debug = time_system.get_debug_state()
 	if economy_system != null:
@@ -880,6 +940,8 @@ func get_debug_state() -> Dictionary:
 		livestock_debug = livestock_system.get_debug_state()
 	if unlock_system != null:
 		unlock_debug = unlock_system.get_debug_state()
+	if stage_objective_system != null:
+		stage_obj_debug = stage_objective_system.get_debug_state()
 
 	var economy_delta_debug: Dictionary = {}
 	if economy_system != null:
@@ -909,6 +971,7 @@ func get_debug_state() -> Dictionary:
 		"water_chemistry": chemistry_debug,
 		"livestock": livestock_debug,
 		"unlock": unlock_debug,
+		"stage_objective": stage_obj_debug,
 		"save": save_debug,
 		"save_loaded": save_loaded,
 		"offline_summary": offline_summary.duplicate(),
@@ -1048,6 +1111,8 @@ func buy_livestock_from_shop(shop_id: String) -> Dictionary:
 			elif bcat == "coral":
 				label += " 珊瑚 +%d" % bqty
 			label += " RP-%d 容量 %s" % [int(price), cap_display]
+			var comfort_now: float = float(livestock_system.get_debug_state().get("comfort_score", 100.0)) if livestock_system != null else 100.0
+			label += " 舒适度 %.0f" % comfort_now
 			_timeline_log_player(label, ActionTimeline.COLOR_POSITIVE)
 	print("[BUY] gs.buy about to return success")
 	return {
@@ -1151,6 +1216,9 @@ func _apply_save_state(save_data: Dictionary) -> void:
 	if raw_livestock is Dictionary and livestock_system != null:
 		if raw_livestock.has("owned_livestock"):
 			livestock_system.import_state(raw_livestock)
+	var raw_stage_obj: Variant = save_data.get("stage_objective", {})
+	if raw_stage_obj is Dictionary and stage_objective_system != null:
+		stage_objective_system.import_state(raw_stage_obj)
 	reef_points = economy_system.reef_points if economy_system != null else 0.0
 
 
@@ -1251,6 +1319,7 @@ func _format_device_timeline_text(device_id: String, enabled: bool) -> Dictionar
 func _check_timeline_system_events() -> void:
 	if action_timeline == null:
 		return
+	_emit_periodic_status_summary()
 	var wcs: WaterChemistrySystem = water_chemistry_system
 	var ls: LivestockSystem = livestock_system
 	if wcs == null or ls == null:
@@ -1346,6 +1415,27 @@ func _check_timeline_system_events() -> void:
 			_timeline_log_system("PO4恢复安全范围", ActionTimeline.COLOR_POSITIVE)
 
 
+
+
+func _emit_periodic_status_summary() -> void:
+	if time_system == null or livestock_system == null or water_chemistry_system == null:
+		return
+	var elapsed: int = int(time_system.get_debug_state().get("elapsed_game_minutes", 0))
+	var current_day: int = int(floor(float(elapsed) / 1440.0))
+	if current_day <= _last_status_summary_day:
+		return
+	_last_status_summary_day = current_day
+	if current_day == 0:
+		return
+	var ls_debug: Dictionary = livestock_system.get_debug_state()
+	var wc_debug: Dictionary = water_chemistry_system.get_debug_state()
+	var comfort: float = float(ls_debug.get("comfort_score", 100.0))
+	var water_q: float = float(wc_debug.get("water_quality_score", 100.0))
+	var revenue: float = float(ls_debug.get("revenue_multiplier", 1.0))
+	var income: float = float(economy_system.income_rate_per_game_hour) if economy_system != null else 0.0
+	var rp: float = economy_system.get_reef_points() if economy_system != null else 0.0
+	var text: String = "状态速报 水质%.0f 舒适度%.0f 收益x%.2f RP%.0f +%.1f/h" % [water_q, comfort, revenue, rp, income]
+	_timeline_log_system(text, ActionTimeline.COLOR_NEUTRAL)
 
 func seed_timeline_for_test() -> void:
 	if action_timeline == null:
@@ -1446,6 +1536,7 @@ func _perform_autosave() -> void:
 		"unlocks": unlock_state,
 		"livestock": livestock_state,
 		"equipment": equipment_state,
+		"stage_objective": stage_objective_system.export_state() if stage_objective_system != null else {},
 	}
 	print("[SAVE] calling save_game with keys=", save_dict.keys())
 	var ok: bool = save_system.save_game(save_dict)
