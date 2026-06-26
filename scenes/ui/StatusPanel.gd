@@ -663,8 +663,19 @@ func configure_dock_controls(maintenance_actions: Array, feeding_actions: Array,
 	result["maintenance_button_base_texts"] = maintenance_base_texts
 	result["maintenance_button_costs"] = maintenance_costs
 
-	# maintenance_feedback_label moved to timeline; operations keeps only short tags
-	result["maintenance_feedback_label"] = null
+	# M12 fix: create real feedback label in operations card
+	var feedback_parent: Control = dock_control_slots.get("maintenance_feedback_parent", null)
+	if feedback_parent != null:
+		var fb_label: Label = Label.new()
+		fb_label.text = "就绪"
+		fb_label.add_theme_font_size_override("font_size", 9)
+		fb_label.add_theme_color_override("font_color", Color(0.66, 0.80, 0.78))
+		fb_label.clip_text = true
+		fb_label.custom_minimum_size = Vector2(0, 18)
+		feedback_parent.add_child(fb_label)
+		result["maintenance_feedback_label"] = fb_label
+	else:
+		result["maintenance_feedback_label"] = null
 
 	var device_parent: Control = dock_control_slots.get("devices", null)
 	var device_buttons_result: Dictionary = {}

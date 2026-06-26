@@ -104,12 +104,50 @@ Write-Host "  [$IStatus] integration_smoke" -ForegroundColor $IColor
 Write-Host ""
 
 # =============================================================================
+# Phase 5: Screenshot File Verification
+# =============================================================================
+Write-Host "--- PHASE 5: Screenshot Files ---" -ForegroundColor Yellow
+$ScreenshotDir = "$Project\reports\m12_rendered_visual_qa"
+$RequiredScreenshots = @(
+    "01_initial_state.png",
+    "02_stage_objective_1.png",
+    "03_shop_open.png",
+    "04_buy_livestock_result.png",
+    "05_livestock_panel.png",
+    "06_device_toggle_result.png",
+    "07_maintenance_before.png",
+    "08_maintenance_after.png",
+    "09_timeline_result.png",
+    "10_reset_after.png",
+    "11_save_load_after.png"
+)
+$ScreenshotsPass = $true
+foreach ($file in $RequiredScreenshots) {
+    $path = Join-Path $ScreenshotDir $file
+    if (Test-Path $path) {
+        $size = (Get-Item $path).Length
+        if ($size -gt 0) {
+            Write-Host "  [OK] $file ($size bytes)" -ForegroundColor Green
+        } else {
+            Write-Host "  [FAIL] $file (0 bytes)" -ForegroundColor Red
+            $ScreenshotsPass = $false
+        }
+    } else {
+        Write-Host "  [FAIL] $file (missing)" -ForegroundColor Red
+        $ScreenshotsPass = $false
+    }
+}
+Write-Host ""
+
+# =============================================================================
 # Final Result
 # =============================================================================
-$OverallPass = $M11Pass -and $M12Pass -and $VisualPass -and $IntPass
+$OverallPass = $M11Pass -and $M12Pass -and $VisualPass -and $IntPass -and $ScreenshotsPass
 
 Write-Host "========================================" -ForegroundColor Cyan
 Write-Host " M12_RESET_VISUAL_RESULT=$($(if ($VisualPass) { "PASS" } else { "FAIL" }))" -ForegroundColor $(if ($VisualPass) { "Green" } else { "Red" })
+Write-Host " M12_SCREENSHOT_FILES=" -NoNewline -ForegroundColor Cyan
+Write-Host "$(if ($ScreenshotsPass) { "PASS (11/11)" } else { "FAIL" })" -ForegroundColor $(if ($ScreenshotsPass) { "Green" } else { "Red" })
 Write-Host " M12_ACCEPTANCE_RESULT=$($(if ($M12Pass) { "PASS" } else { "FAIL" }))" -ForegroundColor $(if ($M12Pass) { "Green" } else { "Red" })
 Write-Host " M11_ACCEPTANCE_RESULT=$($(if ($M11Pass) { "PASS" } else { "FAIL" }))" -ForegroundColor $(if ($M11Pass) { "Green" } else { "Red" })
 Write-Host " OVERALL=$($(if ($OverallPass) { "PASS" } else { "FAIL" }))" -ForegroundColor $(if ($OverallPass) { "Green" } else { "Red" })
