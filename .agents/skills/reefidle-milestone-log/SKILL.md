@@ -21,7 +21,12 @@ description: ReefIdle / CoralReefDesk milestone and daily closeout logging workf
 - 是否 push。
 - 工作区是否 clean。
 - 下一次开工第一条只读核验命令。
-- 明确禁止项，例如不合并 `main`、不打 tag、不改 M10 tag。
+- 明确禁止项，例如不合并 `main`、不打 tag、不改 M11 tag。
+
+## 当前基线
+
+- Tag: `v3.1-m11-acceptance-harness`
+- 验收: `M11_ACCEPTANCE_RESULT=PASS`
 
 ## 输出风格
 
@@ -30,3 +35,4 @@ description: ReefIdle / CoralReefDesk milestone and daily closeout logging workf
 - 以事实为准。
 - 不夸大。
 - 不把未验收内容写成已完成。
+- 自治执行任务使用 `docs/tech/FINAL_REPORT_TEMPLATE.md` 格式。

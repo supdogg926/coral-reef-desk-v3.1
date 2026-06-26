@@ -1,6 +1,6 @@
 ---
 name: reefidle-godot-acceptance
-description: ReefIdle / CoralReefDesk Godot prototype acceptance workflow. Use when validating visual UI behavior, Godot runtime behavior, screenshots, Output, Debugger evidence, or M11 acceptance criteria.
+description: ReefIdle / CoralReefDesk Godot prototype acceptance workflow. Use when validating visual UI behavior, Godot runtime behavior, screenshots, Output, Debugger evidence, or M11/M12 acceptance criteria.
 ---
 
 # reefidle-godot-acceptance
@@ -25,6 +25,14 @@ description: ReefIdle / CoralReefDesk Godot prototype acceptance workflow. Use w
 - RP 增长是否能体现收益倍率影响。
 - 动态确认日志是否显示关键因果反馈。
 
+## M12 视觉 QA 规则
+
+- 每轮至少聚合 10 个可见问题。
+- 批量提交，禁止单个问题逐个确认。
+- 每问题至少一张截图。
+- 使用严重度分级: BLOCKER / HIGH / MEDIUM / LOW。
+- 详见 `docs/tech/VISUAL_QA_PROTOCOL.md`。
+
 ## 输出格式
 
 完成验收后输出：
@@ -40,6 +48,7 @@ Godot 可见验收：
 
 ## 禁止
 
-- 禁止只写“已修复”。
+- 禁止只写"已修复"。
 - 禁止没有截图或运行依据就宣布通过。
 - 禁止把 Godot 编辑器实际显示问题归咎于用户观察错误。
+- 禁止每发现 1 个问题就提交一次。

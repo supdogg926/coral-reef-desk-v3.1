@@ -18,13 +18,49 @@ These rules apply to Codex, Claude Code, and any other coding assistant working 
 ## Milestone Freeze Rule
 
 - A milestone freeze means the current milestone scope is locked.
-- During M10 freeze, do not enter M11.
+- During M11 freeze, do not enter M12 functional development without user approval.
+- M11 is frozen as a Stable Acceptance Baseline with `v3.1-m11-acceptance-harness` tag.
 - Do not create tags, merge branches, push commits, or commit changes unless the user explicitly requests that action.
-- Audit conclusions must be based on Git evidence, changed files, diff summaries, and runtime validation when runtime validation is required.
+- Audit conclusions must be based on Git evidence, changed files, diff summaries, and runtime validation.
 
-## Systems Forbidden Before M10 Is Sealed
+## M12 Autonomous Execution Rules
 
-Before M10 is sealed, do not add these systems:
+### Autonomy Levels
+
+- **Level 1 (active)**: Standard autonomy — continuous execution within guardrails, no per-operation confirmation needed for file I/O, Godot headless, git read-only, tool scripts.
+- **Level 0 (emergency only)**: Full confirmation — only when save system corruption, detached HEAD, or .godot/ corruption detected.
+
+### Stop Conditions (must wait for user)
+
+- `git commit`, `git push`, `git tag` operations
+- Deleting `.gd` / `.tscn` source files
+- Modifying `SaveSystem` or `project.godot`
+- Cross-branch operations
+
+### No-Ask List (do NOT stop to ask)
+
+- "Can I continue?" — just continue
+- "Can I run tests?" — just run them
+- "Can I read this file?" — just read it
+- "Looks good, proceed?" — just proceed
+- Single tool script execution — aggregate results
+
+### Batch Rules
+
+- Max 15 write operations per autonomous window
+- Max 10 Godot runs per autonomous window
+- Visual QA: minimum 10 issues aggregated per round
+- Report progress when window limit reached
+
+### Failure Rules
+
+- Single test FAIL → stop, report assertion details
+- Acceptance FAIL → stop immediately, no auto-fix
+- Godot launch FAIL → retry once, then stop
+
+## Systems Forbidden Before M12 Is Planned
+
+Before M12 is approved, do not add these systems:
 
 - Release-to-sea system
 - Ocean system
@@ -74,6 +110,15 @@ Every task must end with:
 - Whether the game runtime was started
 - Whether Godot Output / Debugger was checked
 - Whether manual screenshots or runtime confirmation are still required
+- Use `docs/tech/FINAL_REPORT_TEMPLATE.md` for autonomous execution reports
+
+## Visual QA Rules
+
+- Minimum 10 visible issues per review round
+- Batch submit all issues at once, never one at a time
+- Each issue requires screenshot + location + description
+- Use severity: BLOCKER / HIGH / MEDIUM / LOW
+- See `docs/tech/VISUAL_QA_PROTOCOL.md` for full protocol
 
 ## Shared Assistant Rule
 
