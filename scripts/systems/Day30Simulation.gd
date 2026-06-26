@@ -9,9 +9,9 @@ const SIM_DAYS: int = 30
 const GAME_SECONDS_PER_DAY: float = 86400.0
 
 # Auto-pilot thresholds
-const MAINTENANCE_WATER_THRESHOLD: float = 88.0
-const BUY_MIN_RP_RESERVE: float = 150.0
-const BUY_CAPACITY_HEADROOM: float = 5.0
+const MAINTENANCE_WATER_THRESHOLD: float = 92.0
+const BUY_MIN_RP_RESERVE: float = 80.0
+const BUY_CAPACITY_HEADROOM: float = 1.0
 
 var _seed: int = 42
 var _rng: RandomNumberGenerator = RandomNumberGenerator.new()
@@ -76,7 +76,7 @@ func run_simulation(gs: GameState) -> Dictionary:
 func _advance_one_day(gs: GameState, day: int) -> void:
 	# Simulate 1 game-day in chunks for accuracy
 	var seconds_remaining: float = GAME_SECONDS_PER_DAY
-	var chunk_size: float = 600.0  # 10-min chunks (M13 aggressive)
+	var chunk_size: float = 900.0  # 15-min chunks
 
 	while seconds_remaining > 0.0:
 		var delta: float = min(chunk_size, seconds_remaining)
@@ -100,13 +100,14 @@ func _auto_maintain(gs: GameState, day: int) -> void:
 	# Emergency: always maintain if comfort is critically low
 	var ls = gs.get("livestock_system")
 	var comfort_emergency: bool = false
+	var wq_emergency: bool = water_quality < 55.0
 	if ls != null:
 		var ls_debug: Dictionary = ls.get_debug_state()
 		var comfort: float = float(ls_debug.get("comfort_score", 100.0))
 		if comfort < 50.0:
 			comfort_emergency = true
 
-	if water_quality >= MAINTENANCE_WATER_THRESHOLD and not comfort_emergency:
+	if water_quality >= MAINTENANCE_WATER_THRESHOLD and not comfort_emergency and not wq_emergency:
 		return
 
 	# Find best maintenance action (cheapest normally, most effective in emergency)
@@ -165,10 +166,6 @@ func _auto_buy(gs: GameState, day: int) -> void:
 		if es.get_reef_points() < price + BUY_MIN_RP_RESERVE:
 			continue
 		if capacity_used + slot > max_capacity - BUY_CAPACITY_HEADROOM:
-			continue
-		# M13: don't buy when comfort is low — fix water quality first
-		var comfort_now: float = float(ls.get_debug_state().get("comfort_score", 100.0))
-		if comfort_now < 60.0:
 			continue
 
 		var result: Dictionary = gs.buy_livestock_from_shop(String(item.get("id", "")))

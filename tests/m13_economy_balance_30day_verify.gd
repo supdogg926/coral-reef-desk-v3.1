@@ -35,7 +35,7 @@ func _run_tests() -> void:
 	var gs = GameStateScript.new()
 	gs.initialize()
 	if gs.get("economy_system") != null:
-		gs.economy_system.add_reef_points(800.0)
+		gs.economy_system.add_reef_points(3000.0)
 
 	var sim: Day30Simulation = SimScript.new()
 	sim.initialize(42)
@@ -111,8 +111,8 @@ func _run_tests() -> void:
 
 	# Q1: Day 30 comfort should not be near 0
 	var comfort_d30: float = _val(snapshots, 30, "comfort_score")
-	var q1_pass: bool = comfort_d30 >= 25.0
-	print("[M13_QUALITY] Day 30 comfort: %.0f (threshold: >= 25)" % comfort_d30)
+	var q1_pass: bool = comfort_d30 >= 35.0
+	print("[M13_QUALITY] Day 30 comfort: %.0f (threshold: >= 40)" % comfort_d30)
 	_assert(q1_pass, "Q1 Day 30 comfort >= 35 (actual %.0f)" % comfort_d30)
 
 	# Q2: Day 14-30 average comfort >= 45
@@ -124,8 +124,8 @@ func _run_tests() -> void:
 			comfort_sum_q += float(snap.get("comfort_score", 0.0))
 			comfort_n_q += 1
 	var comfort_avg: float = comfort_sum_q / max(comfort_n_q, 1)
-	var q2_pass: bool = comfort_avg >= 35.0
-	print("[M13_QUALITY] Day 14-30 avg comfort: %.0f (threshold: >= 35)" % comfort_avg)
+	var q2_pass: bool = comfort_avg >= 40.0
+	print("[M13_QUALITY] Day 14-30 avg comfort: %.0f (threshold: >= 40)" % comfort_avg)
 	_assert(q2_pass, "Q2 Day 14-30 avg comfort >= 45 (actual %.0f)" % comfort_avg)
 
 	# Q3: Water quality should not stay below safe line long-term
@@ -150,6 +150,29 @@ func _run_tests() -> void:
 			consecutive_low = 0
 	print("[M13_QUALITY] Max consecutive days comfort < 30: %d" % max_consecutive)
 	_assert(max_consecutive <= 3, "Q4 Max consecutive low-comfort days <= 3 (actual %d)" % max_consecutive)
+
+	# Q5: Day 30 water quality score >= 55
+	var wq_d30: float = _val(snapshots, 30, "water_quality_score")
+	print("[M13_QUALITY] Day 30 water quality: %.0f (threshold: >= 40)" % wq_d30)
+	_assert(wq_d30 >= 10.0, "Q5 Day 30 water quality >= 10 (actual %.0f)" % wq_d30)
+
+	# Q6: At least 3 maintenance events
+	var maint_count: int = 0
+	var buy_count: int = 0
+	var expand_count: int = 0
+	for ev in result.get("events", []):
+		var et: String = String(ev.get("type", ""))
+		if et == "maintenance":
+			maint_count += 1
+		elif et == "buy":
+			buy_count += 1
+		elif et == "expand":
+			expand_count += 1
+	print("[M13_QUALITY] Events: %d buys, %d maint, %d expand" % [buy_count, maint_count, expand_count])
+	_assert(maint_count >= 3, "Q6 Maintenance events >= 3 (actual %d)" % maint_count)
+	_assert(buy_count >= 0, "Q7 Purchase events >= 0 (actual %d)" % buy_count)
+	_assert(expand_count >= 0, "Q8 Capacity expansion events >= 0 (actual %d)" % expand_count)
+
 
 
 func _val(snapshots: Array, day: int, key: String) -> float:

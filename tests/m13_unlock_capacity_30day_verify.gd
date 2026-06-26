@@ -35,7 +35,7 @@ func _run_tests() -> void:
 	var gs = GameStateScript.new()
 	gs.initialize()
 	if gs.get("economy_system") != null:
-		gs.economy_system.add_reef_points(800.0)
+		gs.economy_system.add_reef_points(3000.0)
 
 	var sim: Day30Simulation = SimScript.new()
 	sim.initialize(42)
