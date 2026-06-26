@@ -303,7 +303,7 @@ func _create_timeline_section(parent: Control) -> void:
 	scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-	scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_SHOW_ALWAYS
+	scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO  # M12: hide scrollbar when empty
 	box.add_child(scroll)
 	var scroll_vbox: VBoxContainer = VBoxContainer.new()
 	scroll_vbox.add_theme_constant_override("separation", 1)
@@ -718,7 +718,7 @@ func _make_dock_button(text: String, min_size: Vector2 = Vector2(54, 18)) -> But
 	button.add_theme_stylebox_override("normal", _make_button_style(Color(0.18, 0.20, 0.21), Color(0.32, 0.36, 0.37)))
 	button.add_theme_stylebox_override("hover", _make_button_style(Color(0.22, 0.245, 0.255), Color(0.42, 0.48, 0.49)))
 	button.add_theme_stylebox_override("pressed", _make_button_style(Color(0.14, 0.155, 0.165), Color(0.44, 0.52, 0.52)))
-	button.add_theme_stylebox_override("disabled", _make_button_style(Color(0.125, 0.135, 0.142), Color(0.20, 0.22, 0.23)))
+	button.add_theme_stylebox_override("disabled", _make_button_style(Color(0.09, 0.10, 0.11), Color(0.22, 0.18, 0.18)))  # M12: darker + red-tinted border for visibility
 	return button
 
 
