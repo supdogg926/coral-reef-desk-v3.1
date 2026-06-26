@@ -253,7 +253,7 @@ func _on_release_pressed() -> void:
 	_confirm_livestock_id = _selected_livestock_id
 	_selected_livestock_name = String(entry.get("species_name", ""))
 	if confirm_label != null:
-		confirm_label.text = "确认放归 %s？此原型会从当前鱼缸移除它，不发奖励。" % _selected_livestock_name
+		confirm_label.text = "确认放归 %s？确认从鱼缸中移除该生物？移除后不返还RP。" % _selected_livestock_name
 	if confirm_panel != null:
 		confirm_panel.modulate.a = 0.0
 		confirm_panel.scale = Vector2(0.98, 0.98)

@@ -603,6 +603,7 @@ func configure_dock_controls(maintenance_actions: Array, feeding_actions: Array,
 
 	var entry_parent: Control = dock_control_slots.get("entry", null)
 	if entry_parent != null:
+		_clear_container_children(entry_parent)
 		var shop_button: Button = _make_dock_button("商店")
 		_connect_button(shop_button, callbacks.get("shop", Callable()))
 		entry_parent.add_child(shop_button)
@@ -616,6 +617,7 @@ func configure_dock_controls(maintenance_actions: Array, feeding_actions: Array,
 
 	var system_parent: Control = dock_control_slots.get("system", null)
 	if system_parent != null:
+		_clear_container_children(system_parent)
 		var observe_button: Button = _make_dock_button("观赏")
 		observe_button.tooltip_text = "隐藏底部 Dock，进入观赏区"
 		observe_button.pressed.connect(_set_observation_mode.bind(true))
@@ -642,6 +644,7 @@ func configure_dock_controls(maintenance_actions: Array, feeding_actions: Array,
 	var maintenance_base_texts: Dictionary = {}
 	var maintenance_costs: Dictionary = {}
 	if maintenance_parent != null:
+		_clear_container_children(maintenance_parent)
 		for raw_action in maintenance_actions:
 			if not raw_action is Dictionary:
 				continue
@@ -669,6 +672,8 @@ func configure_dock_controls(maintenance_actions: Array, feeding_actions: Array,
 	var feeding_buttons_result: Dictionary = {}
 	var feeding_base_texts: Dictionary = {}
 	if device_parent != null:
+		if device_parent != maintenance_parent:
+			_clear_container_children(device_parent)
 		var raw_devices: Variant = device_state.get("devices", {})
 		var devices: Dictionary = raw_devices if raw_devices is Dictionary else {}
 		for device_id in ["return_pump", "wave_pump", "main_light"]:
@@ -731,6 +736,12 @@ func _make_button_style(bg_color: Color, border_color: Color) -> StyleBoxFlat:
 	style.content_margin_bottom = 1
 	return style
 
+
+
+func _clear_container_children(container: Control) -> void:
+	for child in container.get_children():
+		container.remove_child(child)
+		child.queue_free()
 
 func _set_observation_mode(enabled: bool) -> void:
 	if dock_body != null:

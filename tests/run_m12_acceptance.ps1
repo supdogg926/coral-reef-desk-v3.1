@@ -77,7 +77,8 @@ Write-Host ""
 
 $M12Scripts = @(
     @{Name="M12_stage_objectives"; File="tests/m12_stage_objectives_verify.gd"},
-    @{Name="M12_feedback_timeline"; File="tests/m12_feedback_timeline_verify.gd"}
+    @{Name="M12_feedback_timeline"; File="tests/m12_feedback_timeline_verify.gd"},
+    @{Name="M12_reset_visual"; File="tests/m12_reset_visual_regression_verify.gd"}
 )
 
 $M12Pass = $true

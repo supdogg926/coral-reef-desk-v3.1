@@ -48,7 +48,8 @@ func _process(delta: float) -> void:
 		_alive_timer = 0.0
 		_alive_tick += 1
 		print("[HEARTBEAT] tick=%d" % _alive_tick)
-		if panel_status_label != null:
+		# M12 fix: don't overwrite player-facing panel_status_label
+		if panel_status_label != null and panel_status_label.text.begins_with("tick="):
 			panel_status_label.text = "tick=%d" % _alive_tick
 	if livestock_panel != null and livestock_panel.visible:
 		_livestock_refresh_timer += delta

@@ -507,7 +507,7 @@ func apply_feeding_action(feed_id: String) -> Dictionary:
 	_update_unlocks()
 	result["summary"] = last_feeding_runtime_summary
 	result["filter_condition_percent"] = filter_condition_percent
-	var feed_label: String = "喂魚糧" if feed_id == "fish_food" else "喂珊瑚糧"
+	var feed_label: String = "喂鱼粮" if feed_id == "fish_food" else "喂珊瑚粮"
 	var d_no3: float = float(result.get("delta_nitrate", 0.0))
 	var d_po4: float = float(result.get("delta_phosphate", 0.0))
 	_timeline_log_player("%s" % feed_label, ActionTimeline.COLOR_PLAYER)
@@ -537,7 +537,7 @@ func _try_perform_maintenance(action_id: String) -> Dictionary:
 		return _build_maintenance_failure(
 			action_id,
 			"insufficient_funds",
-			"金币不足，无法执行维护",
+			"RP不足，无法执行维护",
 			cost,
 			cooldown_sec,
 			0.0,
