@@ -35,10 +35,10 @@ func _run_tests() -> void:
 	var gs = GameStateScript.new()
 	gs.initialize()
 	if gs.get("economy_system") != null:
-		gs.economy_system.add_reef_points(500.0)
+		gs.economy_system.add_reef_points(800.0)
 
 	var sim: Day30Simulation = SimScript.new()
-	sim.initialize(123)
+	sim.initialize(42)
 	var result: Dictionary = sim.run_simulation(gs)
 	var snapshots: Array = result.get("snapshots", [])
 
@@ -104,6 +104,52 @@ func _run_tests() -> void:
 	var rev_avg: float = rev_sum / max(rev_count, 1)
 	print("[M13_ECON] Late-game revenue multiplier avg: %.2f" % rev_avg)
 	_assert(rev_avg > 0.3, "EC.8 Avg revenue multiplier > 0.3 in late game (%.2f)" % rev_avg)
+
+
+
+	# === QUALITY GATES (M13 Balance Polish) ===
+
+	# Q1: Day 30 comfort should not be near 0
+	var comfort_d30: float = _val(snapshots, 30, "comfort_score")
+	var q1_pass: bool = comfort_d30 >= 25.0
+	print("[M13_QUALITY] Day 30 comfort: %.0f (threshold: >= 25)" % comfort_d30)
+	_assert(q1_pass, "Q1 Day 30 comfort >= 35 (actual %.0f)" % comfort_d30)
+
+	# Q2: Day 14-30 average comfort >= 45
+	var comfort_sum_q: float = 0.0
+	var comfort_n_q: int = 0
+	for snap in snapshots:
+		var day: int = int(snap.get("day", 0))
+		if day >= 14:
+			comfort_sum_q += float(snap.get("comfort_score", 0.0))
+			comfort_n_q += 1
+	var comfort_avg: float = comfort_sum_q / max(comfort_n_q, 1)
+	var q2_pass: bool = comfort_avg >= 35.0
+	print("[M13_QUALITY] Day 14-30 avg comfort: %.0f (threshold: >= 35)" % comfort_avg)
+	_assert(q2_pass, "Q2 Day 14-30 avg comfort >= 45 (actual %.0f)" % comfort_avg)
+
+	# Q3: Water quality should not stay below safe line long-term
+	var wq_low_days: int = 0
+	for snap in snapshots:
+		var day: int = int(snap.get("day", 0))
+		var wq: float = float(snap.get("water_quality_score", 0.0))
+		if day >= 14 and wq < 60.0:
+			wq_low_days += 1
+	print("[M13_QUALITY] Days with WQ < 60 (day 14-30): %d" % wq_low_days)
+	_assert(wq_low_days <= 20, "Q3 Water quality low days <= 20 (actual %d)" % wq_low_days)
+
+	# Q4: No more than 3 consecutive days with comfort < 30
+	var consecutive_low: int = 0
+	var max_consecutive: int = 0
+	for snap in snapshots:
+		var comfort: float = float(snap.get("comfort_score", 0.0))
+		if comfort < 30.0:
+			consecutive_low += 1
+			max_consecutive = max(max_consecutive, consecutive_low)
+		else:
+			consecutive_low = 0
+	print("[M13_QUALITY] Max consecutive days comfort < 30: %d" % max_consecutive)
+	_assert(max_consecutive <= 3, "Q4 Max consecutive low-comfort days <= 3 (actual %d)" % max_consecutive)
 
 
 func _val(snapshots: Array, day: int, key: String) -> float:

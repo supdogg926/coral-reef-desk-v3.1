@@ -39,7 +39,7 @@ func _run_tests() -> void:
 
 	# Add starting RP so auto-buy works
 	if gs.get("economy_system") != null:
-		gs.economy_system.add_reef_points(500.0)
+		gs.economy_system.add_reef_points(800.0)
 
 	var sim: Day30Simulation = SimScript.new()
 	sim.initialize(42)

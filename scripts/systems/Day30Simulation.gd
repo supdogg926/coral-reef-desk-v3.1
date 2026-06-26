@@ -9,8 +9,8 @@ const SIM_DAYS: int = 30
 const GAME_SECONDS_PER_DAY: float = 86400.0
 
 # Auto-pilot thresholds
-const MAINTENANCE_WATER_THRESHOLD: float = 82.0
-const BUY_MIN_RP_RESERVE: float = 200.0
+const MAINTENANCE_WATER_THRESHOLD: float = 88.0
+const BUY_MIN_RP_RESERVE: float = 150.0
 const BUY_CAPACITY_HEADROOM: float = 5.0
 
 var _seed: int = 42
@@ -76,7 +76,7 @@ func run_simulation(gs: GameState) -> Dictionary:
 func _advance_one_day(gs: GameState, day: int) -> void:
 	# Simulate 1 game-day in chunks for accuracy
 	var seconds_remaining: float = GAME_SECONDS_PER_DAY
-	var chunk_size: float = 1800.0  # 30-min chunks (M13 tuned)
+	var chunk_size: float = 600.0  # 10-min chunks (M13 aggressive)
 
 	while seconds_remaining > 0.0:
 		var delta: float = min(chunk_size, seconds_remaining)
@@ -175,6 +175,11 @@ func _auto_buy(gs: GameState, day: int) -> void:
 		if result.get("success", false):
 			_events.append({"day": day, "type": "buy", "species": String(item.get("species_name", "")), "price": price})
 			break  # One purchase per auto-buy cycle
+
+	# M13: auto-expand capacity when approaching limit
+	var cap_ratio: float = ls.get_capacity_used() / max(ls.get_max_capacity(), 1.0)
+	if cap_ratio > 0.55 and es.get_reef_points() > 100.0:
+		_auto_expand_capacity(gs, day)
 
 
 func _auto_feed(gs: GameState, day: int) -> void:
@@ -307,6 +312,26 @@ func run_simulation_days(gs: GameState, num_days: int) -> Dictionary:
 		"total_days_simulated": _snapshots.size() - 1,
 		"seed": _seed,
 	}
+
+
+
+func _auto_expand_capacity(gs: GameState, day: int) -> void:
+	var ls = gs.get("livestock_system")
+	var es = gs.get("economy_system")
+	if ls == null or es == null:
+		return
+	var cost: float = 100.0
+	if es.get_reef_points() < cost:
+		return
+	# M13: simulate capacity upgrade by increasing max_capacity
+	var current_max: float = ls.get_max_capacity()
+	if current_max >= 100.0:
+		return  # Cap capacity growth
+	es.spend_reef_points(cost)
+	# Increase max_capacity by ~5-8
+	var growth: float = 5.0 + _rng.randf() * 3.0
+	ls.max_capacity = min(current_max + growth, 80.0)
+	_events.append({"day": day, "type": "expand", "cost": cost, "new_capacity": ls.max_capacity})
 
 
 

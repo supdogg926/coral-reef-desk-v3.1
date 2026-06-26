@@ -32,6 +32,7 @@ var revenue_multiplier: float = 1.0
 var current_rp_per_tick: float = 0.0
 var current_rp_per_second: float = 0.0
 var last_bio_load_feedback: String = "舒适度良好，收益维持正常"
+var maintenance_health: float = 50.0  # M13: persistent care bonus (0-100)
 var load_errors: Array[String] = []
 
 const RARITY_MAP: Dictionary = {
@@ -279,20 +280,26 @@ func update_bio_load_metrics(context: Dictionary) -> void:
 	var maintenance_relief: float = _get_maintenance_relief(String(context.get("last_maintenance_action_id", "")))
 
 	bio_load = current_capacity_used + float(fish_count) * 1.5 + float(coral_count) * 0.8 + float(crustacean_count) * 1.0 + float(other_livestock_count)
-	system_capacity = max(max_capacity, carrying_capacity_score) + max(carrying_capacity_score - 10.0, 0.0) * 0.25
+	system_capacity = max(max_capacity, carrying_capacity_score) + max(carrying_capacity_score - 8.0, 0.0) * 0.35  # M13: more capacity from score
 	system_capacity += clamp(filter_efficiency, 0.0, 120.0) * 0.03
 	system_capacity += clamp(flow_comfort, 0.0, 120.0) * 0.02
 	system_capacity = max(system_capacity, 1.0)
 	bio_load_ratio = bio_load / system_capacity
 
-	var load_pressure: float = bio_load_ratio * 12.0 + max(bio_load_ratio - 0.65, 0.0) * 75.0
+	var load_pressure: float = bio_load_ratio * 6.0 + max(bio_load_ratio - 0.85, 0.0) * 18.0  # M13: gentle curve
 	var water_pressure: float = max(100.0 - water_quality_score, 0.0) * 0.95
-	var device_relief: float = clamp(filter_efficiency, 0.0, 120.0) * 0.10 + clamp(flow_comfort, 0.0, 120.0) * 0.05
-	var stability_relief: float = max(stability_score - 50.0, 0.0) * 0.20
-	var water_quality_relief: float = max(water_quality_score - 85.0, 0.0) * 0.20
-	var headroom_relief: float = max(1.0 - bio_load_ratio, 0.0) * 6.0
-	system_pressure = clamp(load_pressure + water_pressure + current_maintenance_load * 0.4 - device_relief - stability_relief - water_quality_relief - headroom_relief - maintenance_relief, 0.0, 100.0)
+	var device_relief: float = clamp(filter_efficiency, 0.0, 120.0) * 0.15 + clamp(flow_comfort, 0.0, 120.0) * 0.10  # M13: stronger device relief
+	var stability_relief: float = max(stability_score - 40.0, 0.0) * 0.25  # M13: lower threshold, stronger effect
+	var water_quality_relief: float = max(water_quality_score - 75.0, 0.0) * 0.30  # M13: further lowered
+	var headroom_relief: float = max(1.0 - bio_load_ratio, 0.0) * 10.0  # M13: stronger headroom reward
+	# M13: maintenance_health provides persistent comfort floor from regular care
+	var health_relief: float = clamp(maintenance_health - 30.0, 0.0, 70.0) * 0.40
+	system_pressure = clamp(load_pressure + water_pressure + current_maintenance_load * 0.4 - device_relief - stability_relief - water_quality_relief - headroom_relief - maintenance_relief - health_relief, 0.0, 100.0)
 	comfort_score = clamp(100.0 - system_pressure, 0.0, 100.0)
+	# M13: maintenance_health decays slowly, recovers from maintenance actions
+	maintenance_health = clamp(maintenance_health - 0.15, 15.0, 100.0)  # slow decay per update
+	if maintenance_relief > 0.1:
+		maintenance_health = clamp(maintenance_health + maintenance_relief * 1.5, 0.0, 100.0)  # recover from maintenance
 	comfort_status = _get_comfort_status(comfort_score)
 	revenue_multiplier = _get_revenue_multiplier_for_comfort(comfort_score)
 	last_bio_load_feedback = _build_bio_load_feedback()
@@ -365,6 +372,7 @@ func export_state() -> Dictionary:
 		"tank_level": tank_level,
 		"max_capacity": max_capacity,
 		"current_capacity_used": current_capacity_used,
+		"maintenance_health": maintenance_health,
 	}
 
 
@@ -414,6 +422,7 @@ func get_debug_state() -> Dictionary:
 		"current_rp_per_tick": current_rp_per_tick,
 		"current_rp_per_second": current_rp_per_second,
 		"last_bio_load_feedback": last_bio_load_feedback,
+		"maintenance_health": maintenance_health,
 		"owned_livestock": owned_livestock.duplicate(true),
 		"load_errors": load_errors.duplicate(),
 	}
