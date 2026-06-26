@@ -672,8 +672,6 @@ func configure_dock_controls(maintenance_actions: Array, feeding_actions: Array,
 	var feeding_buttons_result: Dictionary = {}
 	var feeding_base_texts: Dictionary = {}
 	if device_parent != null:
-		if device_parent != maintenance_parent:
-			_clear_container_children(device_parent)
 		var raw_devices: Variant = device_state.get("devices", {})
 		var devices: Dictionary = raw_devices if raw_devices is Dictionary else {}
 		for device_id in ["return_pump", "wave_pump", "main_light"]:
