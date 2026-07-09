@@ -20,7 +20,7 @@ Overall Status: **PASS**
 - fix1_final_closure_commit = d6a29aac73b963f7d9b21600c2c9b364573e6ad6
 - fix1_tag = v3.2-m14-t03-rescue-ux-pacing-fix1
 - fix1_tag_target_commit = d6a29aac73b963f7d9b21600c2c9b364573e6ad6
-- metadata_alignment_commit = d6a29aac73b963f7d9b21600c2c9b364573e6ad6
+- metadata_alignment_commit = 62ec77ec4e77b1fbc4400981af6f105ec1ff916b
 - fix2_purpose = metadata-only clarification of final closure chain
 - final_candidate_tag = v3.2-m14-t03-rescue-ux-pacing-fix2
 - final_candidate_tag_target must be verified by: git rev-parse v3.2-m14-t03-rescue-ux-pacing-fix2
@@ -78,6 +78,7 @@ M14-T03 screenshot evidence generated as deterministic PNG state captures.
 - reports/m14/M14_T03_CLOUDCODE_TASK_BRIEF.md
 - reports/m14/M14_T03_CODEX_HANDOFF.md
 - reports/m14/M14_T03_EVIDENCE_FIXUP_REPORT.md
+- reports/m14/M14_T03_FINAL_CLOSURE_METADATA_REPORT.md
 - reports/m14/M14_T03_RESCUE_UX_PACING_RECEIPT.json
 - reports/m14/M14_T03_RESCUE_UX_PACING_REPORT.md
 - reports/m14/screenshots/01_dock_entry.png
@@ -102,7 +103,6 @@ M14-T03 screenshot evidence generated as deterministic PNG state captures.
 - tests/m14_t03_capture_screenshots.gd
 - tests/m14_t03_copy_ui_verify.gd
 - tests/run_m14_t03_acceptance.ps1
-- reports/m14/M14_T03_FINAL_CLOSURE_METADATA_REPORT.md
 
 ## Forbidden Files Touched
 

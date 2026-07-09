@@ -7,7 +7,7 @@
     "fix1_final_closure_commit":  "d6a29aac73b963f7d9b21600c2c9b364573e6ad6",
     "fix1_tag":  "v3.2-m14-t03-rescue-ux-pacing-fix1",
     "fix1_tag_target_commit":  "d6a29aac73b963f7d9b21600c2c9b364573e6ad6",
-    "metadata_alignment_commit":  "d6a29aac73b963f7d9b21600c2c9b364573e6ad6",
+    "metadata_alignment_commit":  "62ec77ec4e77b1fbc4400981af6f105ec1ff916b",
     "final_candidate_tag":  "v3.2-m14-t03-rescue-ux-pacing-fix2",
     "final_candidate_tag_target_verification_command":  "git rev-parse v3.2-m14-t03-rescue-ux-pacing-fix2",
     "evidence_chain_status":  "fix1 tag target d6a29aac73b963f7d9b21600c2c9b364573e6ad6 is explicitly recorded; fix2 is a metadata-only alignment candidate pending Codex review",
@@ -47,6 +47,7 @@
                            "reports/m14/M14_T03_CLOUDCODE_TASK_BRIEF.md",
                            "reports/m14/M14_T03_CODEX_HANDOFF.md",
                            "reports/m14/M14_T03_EVIDENCE_FIXUP_REPORT.md",
+                           "reports/m14/M14_T03_FINAL_CLOSURE_METADATA_REPORT.md",
                            "reports/m14/M14_T03_RESCUE_UX_PACING_RECEIPT.json",
                            "reports/m14/M14_T03_RESCUE_UX_PACING_REPORT.md",
                            "reports/m14/screenshots/01_dock_entry.png",
@@ -70,8 +71,7 @@
                            "tests/m14_t02_rescue_ui_verify.gd",
                            "tests/m14_t03_capture_screenshots.gd",
                            "tests/m14_t03_copy_ui_verify.gd",
-                           "tests/run_m14_t03_acceptance.ps1",
-                           "reports/m14/M14_T03_FINAL_CLOSURE_METADATA_REPORT.md"
+                           "tests/run_m14_t03_acceptance.ps1"
                        ],
     "forbidden_files_touched":  [
 
