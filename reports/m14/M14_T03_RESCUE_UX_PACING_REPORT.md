@@ -10,7 +10,7 @@ Overall Status: **PASS**
 - Superseded tag: v3.2-m14-t03-rescue-ux-pacing
 - Closure candidate tag: v3.2-m14-t03-rescue-ux-pacing-fix2
 - First loop duration: 840 seconds
-- Worktree clean at validation: False
+- Worktree clean at validation: True
 - Project: C:\Users\admin\Desktop\桌面海缸v3.0\CoralReefIdleV3_M14_T01
 
 ## Evidence Closure Chain
