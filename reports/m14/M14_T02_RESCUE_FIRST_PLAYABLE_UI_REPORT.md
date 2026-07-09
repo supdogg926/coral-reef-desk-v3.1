@@ -2,11 +2,11 @@
 
 Overall Status: **PASS**
 
-- Branch: m14-t02-rescue-first-playable-ui
+- Branch: m14-t03-rescue-ux-pacing-hardening
 - Base tag: v3.2-m14-t01-rescue-datamodel
-- Commit at validation: d4cb955110e1783d69eeac690567658979505eb9
+- Commit at validation: 05777a9df10cb59d46ef76d38862470ca3bfed5f
 - First loop duration: 840 seconds
-- Worktree clean at validation: True
+- Worktree clean at validation: False
 - Project: C:\Users\admin\Desktop\桌面海缸v3.0\CoralReefIdleV3_M14_T01
 
 ## Scope
@@ -63,6 +63,7 @@ Headless Godot uses the dummy renderer, so screenshot evidence is generated as d
 - tests/m14_t02_capture_screenshots.gd
 - tests/m14_t02_rescue_ui_verify.gd
 - tests/run_m14_t02_acceptance.ps1
+- reports/m14/M14_T03_CLOUDCODE_TASK_BRIEF.md
 
 ## Forbidden Files Touched
 

@@ -130,7 +130,7 @@ func _build_ui() -> void:
 	root.add_child(summary_label)
 
 	rescue_codex_label = Label.new()
-	rescue_codex_label.text = "救助图鉴：暂无"
+	rescue_codex_label.text = "救助图鉴：暂无已救助记录"
 	rescue_codex_label.add_theme_font_size_override("font_size", 10)
 	rescue_codex_label.add_theme_color_override("font_color", Color(0.70, 0.88, 0.78))
 	rescue_codex_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -241,22 +241,22 @@ func _category_display_name(raw: String) -> String:
 
 func _format_rescue_codex_marks() -> String:
 	if game_state == null:
-		return "救助图鉴：暂无"
+		return "救助图鉴：暂无已救助记录"
 	var state: Dictionary = game_state.get_rescue_ui_state()
 	var raw_marks: Variant = state.get("codex_rescue_marks", {})
 	if not raw_marks is Dictionary:
-		return "救助图鉴：暂无"
+		return "救助图鉴：暂无已救助记录"
 	var marks: Dictionary = raw_marks
 	if marks.is_empty():
-		return "救助图鉴：暂无"
+		return "救助图鉴：暂无已救助记录"
 	var parts: PackedStringArray = PackedStringArray()
 	for species_id in marks.keys():
 		var raw_mark: Variant = marks.get(species_id, {})
 		if raw_mark is Dictionary and bool(raw_mark.get("rescued", false)):
 			parts.append(String(species_id) + " 已救助")
 	if parts.is_empty():
-		return "救助图鉴：暂无"
-	return "救助图鉴：" + "｜".join(parts)
+		return "救助图鉴：暂无已救助记录"
+	return "救助图鉴（已救助物种）：" + "｜".join(parts)
 
 
 func _on_close() -> void:

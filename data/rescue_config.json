@@ -27,6 +27,9 @@
     "bring_back_cost_rp": 1.0,
     "target_recovery_seconds": 215.0,
     "first_loop_min_seconds": 600.0,
-    "first_loop_max_seconds": 900.0
+    "first_loop_max_seconds": 900.0,
+    "dock_entry_hint": "码头来了受伤的海洋生物，水质越好恢复越快",
+    "next_arrival_hint": "下一只需要帮助的生物即将到达码头",
+    "release_settlement_hint": "每次放归都在修复海洋生态"
   }
 }

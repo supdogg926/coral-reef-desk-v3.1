@@ -52,53 +52,61 @@ func update_display() -> void:
 	var current_day: int = int(state.get("current_day", 1))
 
 	if title_label != null:
-		title_label.text = "救助码头"
+		title_label.text = "海洋救助站"
 	if reputation_label != null:
-		reputation_label.text = "生态声望 %d｜完成救助 %d" % [int(state.get("ecological_reputation", 0)), int(state.get("completed_rescue_count", 0))]
+		reputation_label.text = "生态声望 %d｜累计救助 %d 只｜每次放归都在修复海洋" % [int(state.get("ecological_reputation", 0)), int(state.get("completed_rescue_count", 0))]
 	if dock_status_label != null:
-		dock_status_label.text = "入口状态：%s" % String(state.get("status_text", "等待"))
+		var st: String = String(state.get("status_text", "等待"))
+		if st == "待救助":
+			dock_status_label.text = "码头来客：有生物等待救助"
+		elif st == "救助中":
+			dock_status_label.text = "救助位：生物正在恢复中"
+		elif st == "可放归":
+			dock_status_label.text = "救助位：生物已康复，可以放归"
+		else:
+			dock_status_label.text = "码头状态：等待下一只需要帮助的生物"
 
 	if has_candidate:
 		candidate_label.text = "待救助：%s" % String(candidate.get("species_name", "未知生物"))
-		candidate_desc_label.text = "被渔网困住，状态虚弱｜带回成本 %.0f RP｜预计 %.0f 分钟内恢复" % [cost, float(state.get("target_recovery_seconds", 720.0)) / 60.0]
+		candidate_desc_label.text = "受伤虚弱，需要照料｜带回成本 %.0f RP｜预计 %.0f 分钟内恢复" % [cost, float(state.get("target_recovery_seconds", 720.0)) / 60.0]
 	elif has_active:
-		candidate_label.text = "码头等待下一只生物"
-		candidate_desc_label.text = "救助位已占用，请先完成当前救助"
+		candidate_label.text = "救助位工作中"
+		candidate_desc_label.text = "当前救助位已占用，请先完成恢复再接收新的救助"
 	else:
 		candidate_label.text = "暂无待救助生物"
 		candidate_desc_label.text = "下一次到达：第%d天（当前第%d天）" % [next_day, current_day]
 
 	if bring_back_btn != null:
 		bring_back_btn.disabled = (not has_candidate) or has_active or current_rp < cost
-		bring_back_btn.text = "带回救助"
+		bring_back_btn.text = "带回照料"
 		if current_rp < cost:
 			bring_back_btn.tooltip_text = "RP不足，需要 %.0f RP" % cost
 		elif has_active:
-			bring_back_btn.tooltip_text = "救助位已占用"
+			bring_back_btn.tooltip_text = "救助位已占用，请先完成当前救助"
 		else:
-			bring_back_btn.tooltip_text = "调用 RescueSystem 接收当前待救助生物"
+			bring_back_btn.tooltip_text = "将受伤生物带回救助位进行照料恢复"
 
 	if has_active:
-		slot_label.text = "唯一救助位：%s｜%s" % [String(active.get("species_name", "未知生物")), "可放归" if ready else "恢复中"]
+		slot_label.text = "救助位：%s｜%s" % [String(active.get("species_name", "未知生物")), "已康复可放归" if ready else "恢复中"]
 		progress_bar.value = progress
-		progress_label.text = "恢复 %.1f%%｜速度 %.2f/ tick｜水质 %.0f 舒适 %.0f" % [
+		progress_label.text = "恢复进度 %.1f%%｜恢复速度 %.2f/ tick｜水质评分 %.0f 舒适度 %.0f" % [
 			progress,
 			float(active.get("last_recovery_delta", 0.0)),
 			float(active.get("last_water_quality_score", 0.0)),
 			float(active.get("last_comfort_score", 0.0)),
 		]
 	else:
-		slot_label.text = "唯一救助位：空"
+		slot_label.text = "救助位：空闲"
 		progress_bar.value = 0.0
-		progress_label.text = "救助生物不产金币，不可出售，不进入普通容量经济"
+		progress_label.text = "救助生物不产金币、不可出售、不占用普通容量｜恢复速度与水质舒适度相关"
 
 	if release_btn != null:
 		release_btn.disabled = not ready
-		release_btn.text = "放归" if ready else "等待恢复"
+		release_btn.text = "放归大海" if ready else "等待恢复"
 
 	var feedback: Dictionary = state.get("last_feedback", {}) if state.get("last_feedback", {}) is Dictionary else {}
 	if feedback_label != null:
-		feedback_label.text = String(feedback.get("summary", "等待玩家操作"))
+		feedback_label.text = String(feedback.get("summary", "欢迎来到海洋救助站"))
 	if codex_label != null:
 		codex_label.text = _format_codex_marks(state.get("codex_rescue_marks", {}))
 
@@ -118,13 +126,13 @@ func _build_ui() -> void:
 	root.add_theme_constant_override("separation", 6)
 	margin.add_child(root)
 
-	title_label = _make_label("救助码头", 16, Color(0.88, 0.96, 0.94))
+	title_label = _make_label("海洋救助站", 16, Color(0.88, 0.96, 0.94))
 	root.add_child(title_label)
 
-	reputation_label = _make_label("生态声望 0", 11, Color(0.72, 0.90, 0.78))
+	reputation_label = _make_label("生态声望 0｜累计救助 0 只", 11, Color(0.72, 0.90, 0.78))
 	root.add_child(reputation_label)
 
-	dock_status_label = _make_label("入口状态：等待", 10, Color(0.76, 0.84, 0.86))
+	dock_status_label = _make_label("码头状态：等待下一只需要帮助的生物", 10, Color(0.76, 0.84, 0.86))
 	root.add_child(dock_status_label)
 
 	candidate_label = _make_label("暂无待救助生物", 12, Color(0.86, 0.90, 0.88))
@@ -136,7 +144,7 @@ func _build_ui() -> void:
 
 	bring_back_btn = Button.new()
 	bring_back_btn.name = "BringBackRescueButton"
-	bring_back_btn.text = "带回救助"
+	bring_back_btn.text = "带回照料"
 	bring_back_btn.custom_minimum_size = Vector2(0, 28)
 	bring_back_btn.add_theme_font_size_override("font_size", 11)
 	bring_back_btn.pressed.connect(_on_bring_back_pressed)
@@ -145,7 +153,7 @@ func _build_ui() -> void:
 	var sep: HSeparator = HSeparator.new()
 	root.add_child(sep)
 
-	slot_label = _make_label("唯一救助位：空", 12, Color(0.86, 0.92, 0.90))
+	slot_label = _make_label("救助位：空闲", 12, Color(0.86, 0.92, 0.90))
 	root.add_child(slot_label)
 
 	progress_bar = ProgressBar.new()
@@ -156,7 +164,7 @@ func _build_ui() -> void:
 	progress_bar.custom_minimum_size = Vector2(0, 18)
 	root.add_child(progress_bar)
 
-	progress_label = _make_label("", 10, Color(0.68, 0.80, 0.82))
+	progress_label = _make_label("救助生物不产金币、不可出售、不占用普通容量", 10, Color(0.68, 0.80, 0.82))
 	root.add_child(progress_label)
 
 	release_btn = Button.new()
@@ -168,11 +176,11 @@ func _build_ui() -> void:
 	release_btn.pressed.connect(_on_release_pressed)
 	root.add_child(release_btn)
 
-	feedback_label = _make_label("等待玩家操作", 10, Color(0.82, 0.88, 0.76))
+	feedback_label = _make_label("欢迎来到海洋救助站", 10, Color(0.82, 0.88, 0.76))
 	feedback_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	root.add_child(feedback_label)
 
-	codex_label = _make_label("图鉴救助标记：暂无", 10, Color(0.72, 0.84, 0.80))
+	codex_label = _make_label("救助图鉴：暂无已救助记录", 10, Color(0.72, 0.84, 0.80))
 	codex_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	root.add_child(codex_label)
 
@@ -205,18 +213,18 @@ func _on_close_pressed() -> void:
 
 func _format_codex_marks(raw_marks: Variant) -> String:
 	if not raw_marks is Dictionary:
-		return "图鉴救助标记：暂无"
+		return "救助图鉴：暂无已救助记录"
 	var marks: Dictionary = raw_marks
 	if marks.is_empty():
-		return "图鉴救助标记：暂无"
+		return "救助图鉴：暂无已救助记录"
 	var parts: PackedStringArray = PackedStringArray()
 	for species_id in marks.keys():
 		var mark: Variant = marks.get(species_id, {})
 		if mark is Dictionary and bool(mark.get("rescued", false)):
 			parts.append(String(species_id) + " 已救助")
 	if parts.is_empty():
-		return "图鉴救助标记：暂无"
-	return "图鉴救助标记：" + "｜".join(parts)
+		return "救助图鉴：暂无已救助记录"
+	return "救助图鉴（已救助物种）：" + "｜".join(parts)
 
 
 func _make_label(text: String, size: int, color: Color) -> Label:

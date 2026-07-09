@@ -160,20 +160,20 @@ func update_rescue_debug(rescue_state: Dictionary) -> void:
 	if rescue_button != null:
 		match status_text:
 			"待救助":
-				rescue_button.text = "码头 *"
-				rescue_button.tooltip_text = "码头有待救助生物"
-				rescue_button.add_theme_color_override("font_color", STATUS_WARN_COLOR)
+				rescue_button.text = "救助!"
+				rescue_button.tooltip_text = "码头有受伤生物等待救助"
+				rescue_button.add_theme_color_override("font_color", Color(0.96, 0.72, 0.36))
 			"救助中":
 				rescue_button.text = "码头"
-				rescue_button.tooltip_text = "救助位占用中"
+				rescue_button.tooltip_text = "救助位恢复中，水质越好恢复越快"
 				rescue_button.add_theme_color_override("font_color", Color(0.70, 0.84, 0.92))
 			"可放归":
-				rescue_button.text = "放归!"
-				rescue_button.tooltip_text = "救助生物已恢复，可放归"
+				rescue_button.text = "可放归!"
+				rescue_button.tooltip_text = "救助生物已康复，点击放归大海"
 				rescue_button.add_theme_color_override("font_color", STATUS_OK_COLOR)
 			_:
 				rescue_button.text = "码头"
-				rescue_button.tooltip_text = "救助码头"
+				rescue_button.tooltip_text = "海洋救助站入口"
 				rescue_button.add_theme_color_override("font_color", Color(0.80, 0.86, 0.84))
 
 

@@ -1,8 +1,8 @@
 ﻿{
     "task_name":  "M14-T02_RescueCore_FirstPlayable_UI_And_15MinLoop",
-    "branch":  "m14-t02-rescue-first-playable-ui",
+    "branch":  "m14-t03-rescue-ux-pacing-hardening",
     "base_tag":  "v3.2-m14-t01-rescue-datamodel",
-    "commit_hash":  "d4cb955110e1783d69eeac690567658979505eb9",
+    "commit_hash":  "05777a9df10cb59d46ef76d38862470ca3bfed5f",
     "result":  "PASS",
     "tests_run":  [
                       "godot_static_editor_check",
@@ -59,7 +59,8 @@
                            "scripts/systems/RescueSystem.gd",
                            "tests/m14_t02_capture_screenshots.gd",
                            "tests/m14_t02_rescue_ui_verify.gd",
-                           "tests/run_m14_t02_acceptance.ps1"
+                           "tests/run_m14_t02_acceptance.ps1",
+                           "reports/m14/M14_T03_CLOUDCODE_TASK_BRIEF.md"
                        ],
     "scene_files_modified":  [
 
@@ -75,7 +76,7 @@
                               "No ocean, multi-slot, injury branching, care actions, breeding, card art, or reputation shop",
                               "Ecological reputation only accumulates"
                           ],
-    "worktree_clean_at_validation":  true,
+    "worktree_clean_at_validation":  false,
     "test_details":  [
                          {
                              "name":  "godot_static_editor_check",

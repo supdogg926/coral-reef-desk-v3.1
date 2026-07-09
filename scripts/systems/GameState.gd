@@ -965,13 +965,13 @@ func bring_back_current_rescue() -> Dictionary:
 	if bool(result.get("success", false)):
 		reef_points = economy_system.get_reef_points() if economy_system != null else reef_points
 		var active: Dictionary = rescue_system.get_debug_state().get("active_rescue", {})
-		result["summary"] = "已带回救助：" + String(active.get("species_name", result.get("species_id", "")))
+		result["summary"] = "已将受伤的" + String(active.get("species_name", result.get("species_id", ""))) + "带回照料，请耐心等待恢复"
 		result["cost"] = cost
 		result["species_name"] = String(active.get("species_name", ""))
 		rescue_last_feedback = result.duplicate(true)
 		_pending_save_after_livestock_change = true
 		_livestock_change_save_timer = 0.0
-		_timeline_log_player("带回救助 " + String(active.get("species_name", "")) + " RP-%d" % int(cost), ActionTimeline.COLOR_PLAYER)
+		_timeline_log_player("带回照料 " + String(active.get("species_name", "")) + " RP-%d" % int(cost), ActionTimeline.COLOR_PLAYER)
 	return result
 
 
@@ -988,7 +988,7 @@ func release_ready_rescue() -> Dictionary:
 			economy_system.add_reef_points(float(rp_reward))
 			reef_points = economy_system.get_reef_points()
 		result["species_name"] = String(before_active.get("species_name", result.get("species_id", "")))
-		result["summary"] = "放归成功：" + String(result.get("species_name", "")) + " 声望+%d RP+%d 图鉴已标记救助" % [int(result.get("reward_reputation", 0)), rp_reward]
+		result["summary"] = "放归成功！" + String(result.get("species_name", "")) + " 已回归大海｜生态声望+%d RP+%d｜图鉴已标记救助" % [int(result.get("reward_reputation", 0)), rp_reward]
 		rescue_last_feedback = result.duplicate(true)
 		_pending_save_after_livestock_change = true
 		_livestock_change_save_timer = 0.0
@@ -1014,7 +1014,7 @@ func _update_rescue_playable(real_delta_seconds: float) -> void:
 	var scale: float = max(real_delta_seconds, 0.0) / target_seconds * (100.0 / base_rate)
 	var event: Dictionary = rescue_system.advance_active_rescue_for_ui(_get_current_rescue_day(), _get_current_water_quality_score(), _get_current_comfort_score(), scale)
 	if String(event.get("type", "")) == "recovery_ready":
-		rescue_last_feedback = {"success": true, "summary": "救助恢复完成，可放归", "type": "recovery_ready"}
+		rescue_last_feedback = {"success": true, "summary": "救助生物已完全康复！请前往码头将其放归大海", "type": "recovery_ready"}
 
 
 func _ensure_rescue_dock_candidate() -> void:

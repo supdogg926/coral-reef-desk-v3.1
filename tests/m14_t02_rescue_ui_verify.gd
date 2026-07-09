@@ -58,7 +58,7 @@ func _test_player_flow(GameStateScript, PanelScript) -> void:
 	_assert(bool(accepted.get("success", false)), "FLOW.4 bring-back calls RescueSystem and succeeds")
 	state = gs.get_rescue_ui_state()
 	_assert(bool(state.get("has_active", false)), "FLOW.5 unique rescue slot occupied")
-	_assert(panel.slot_label.text.find("唯一救助位") >= 0 and panel.slot_label.text.find("恢复中") >= 0, "FLOW.6 rescue slot UI shows recovering")
+	_assert(panel.slot_label.text.find("救助位") >= 0 and panel.slot_label.text.find("恢复中") >= 0, "FLOW.6 rescue slot UI shows recovering")
 
 	var elapsed: float = 0.0
 	var ready: bool = false
@@ -99,11 +99,11 @@ func _test_status_panel_binding(GameStateScript, StatusPanelScript) -> void:
 	status_panel._ready()
 	status_panel.configure_dock_controls([], [], gs.get_device_state(), {"rescue": Callable()}, false)
 	status_panel.update_rescue_debug(gs.get_rescue_ui_state())
-	_assert(status_panel.rescue_button != null and status_panel.rescue_button.text.find("码头") >= 0, "BIND.1 dock entry exists")
-	_assert(status_panel.rescue_button.text.find("*") >= 0, "BIND.2 dock entry shows pending rescue")
+	_assert(status_panel.rescue_button != null and status_panel.rescue_button.text.find("救助") >= 0, "BIND.1 dock entry exists")
+	_assert(status_panel.rescue_button.text.find("!") >= 0, "BIND.2 dock entry shows pending rescue")
 	gs.bring_back_current_rescue()
 	status_panel.update_rescue_debug(gs.get_rescue_ui_state())
-	_assert(status_panel.rescue_button.tooltip_text.find("占用") >= 0, "BIND.3 dock entry shows rescue in progress")
+	_assert(status_panel.rescue_button.tooltip_text.find("恢复") >= 0, "BIND.3 dock entry shows rescue in progress")
 	while not bool(gs.get_rescue_ui_state().get("ready_to_release", false)):
 		gs._update_rescue_playable(30.0)
 	status_panel.update_rescue_debug(gs.get_rescue_ui_state())
