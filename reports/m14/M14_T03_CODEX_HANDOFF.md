@@ -108,6 +108,27 @@
   - `git rev-parse HEAD`
 - `4df1e5...` 是 annotated tag object；`8c0ce8...` 是该 tag 解引用后的 final target / closure commit，且当前 HEAD 等于 `8c0ce8...`。
 
+## Evidence Rule Patch: No Self-Referential Annotated Tag Closure
+
+- `evidence_rule_version`: `no_self_referential_annotated_tag_closure_v1`
+- `current_final_tag`: `v3.2-m14-t03-rescue-ux-pacing-evidence-rule-v1`
+- `current_final_tag_target_verification_command`: `git rev-parse v3.2-m14-t03-rescue-ux-pacing-evidence-rule-v1^{}`
+- `current_final_tag_object_verification_command`: `git rev-parse v3.2-m14-t03-rescue-ux-pacing-evidence-rule-v1`
+- `current_head_commit`: verified externally by `git rev-parse HEAD`
+- `final_tag_target_must_equal_head`: `true`
+- `annotated_tag_object_recorded_in_tag_message`: `true`
+- `annotated_tag_object_not_required_inside_target_commit`: `true`
+
+Codex should not require the current final annotated tag object hash to be written into the commit that the same tag points to. Annotated tag objects are created after the target commit exists; writing the newly created tag object hash into the target commit would change that commit and require a new annotated tag object indefinitely.
+
+Next review should verify:
+1. `git rev-parse v3.2-m14-t03-rescue-ux-pacing-evidence-rule-v1^{}` equals `git rev-parse HEAD`.
+2. `git rev-parse v3.2-m14-t03-rescue-ux-pacing-evidence-rule-v1` returns an annotated tag object.
+3. `git tag -n99 v3.2-m14-t03-rescue-ux-pacing-evidence-rule-v1` records the target commit, evidence rule version, validation command, and no gameplay/UI/test logic changes.
+4. report / receipt record the final tag name and verification commands.
+5. `powershell -ExecutionPolicy Bypass -File tests/run_m14_t03_acceptance.ps1` passes and `git status --short` remains empty.
+6. If these pass, M14-T03 may close; M14-T04 still must not start until closure is accepted.
+
 ---
 
 *本文件由 Cloud Code M14-T03 任务生成，并由 Codex 执行 M14-T03-FIXUP_Evidence_Closure_And_Clean_Rerun 证据闭环修复。*

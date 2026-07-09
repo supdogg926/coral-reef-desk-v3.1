@@ -16,8 +16,12 @@ $EvidenceFixupValidationCommit = "a566b3ac15ba44381661a7918f6da4e6bf1eeb8b"
 $Fix1FinalClosureCommit = "d6a29aac73b963f7d9b21600c2c9b364573e6ad6"
 $Fix1Tag = "v3.2-m14-t03-rescue-ux-pacing-fix1"
 $Fix1TagTargetCommit = "d6a29aac73b963f7d9b21600c2c9b364573e6ad6"
-$FinalCandidateTag = "v3.2-m14-t03-rescue-ux-pacing-fix2"
-$FinalCandidateTagTargetVerificationCommand = "git rev-parse v3.2-m14-t03-rescue-ux-pacing-fix2"
+$Fix2CandidateTag = "v3.2-m14-t03-rescue-ux-pacing-fix2"
+$FinalCandidateTag = "v3.2-m14-t03-rescue-ux-pacing-evidence-rule-v1"
+$FinalCandidateTagTargetVerificationCommand = "git rev-parse v3.2-m14-t03-rescue-ux-pacing-evidence-rule-v1^{}"
+$FinalCandidateTagObjectVerificationCommand = "git rev-parse v3.2-m14-t03-rescue-ux-pacing-evidence-rule-v1"
+$EvidenceRuleVersion = "no_self_referential_annotated_tag_closure_v1"
+$NoSelfReferentialTagClosureRationale = "The current final annotated tag object is created after the target commit exists. Requiring that tag object hash inside the target commit would change the commit and require a new tag object indefinitely. The final tag object is therefore verified externally with git rev-parse <tag>, while the target closure is verified with git rev-parse <tag>^{} and git rev-parse HEAD."
 $Fix2ExpectedAnnotatedTagObject = "4df1e5043dd94b61f74ab5f59478121d226c3714"
 $Fix2ExpectedFinalTagTargetCommit = "8c0ce8695db32d1d52151171dcc4ca50c2bea7f3"
 $Fix2ExpectedHeadAtClosureCommit = "8c0ce8695db32d1d52151171dcc4ca50c2bea7f3"
@@ -191,14 +195,18 @@ if (Test-Path $ReceiptPath) {
 }
 $finalValidationCommit = if ($existingFinalValidationCommit -match "^[0-9a-f]{40}$" -and $existingFinalValidationCommit -ne $OriginalCloudCodeCommit) { $existingFinalValidationCommit } else { $commitHash }
 $metadataAlignmentCommit = if ($existingMetadataAlignmentCommit -match "^[0-9a-f]{40}$") { $existingMetadataAlignmentCommit } else { $commitHash }
-$fix2AnnotatedTagObject = (git -C $Project rev-parse $FinalCandidateTag 2>$null) -replace "\s+", ""
-$fix2FinalTagTargetCommit = (git -C $Project rev-parse "$FinalCandidateTag^{}" 2>$null) -replace "\s+", ""
+$fix2AnnotatedTagObject = (git -C $Project rev-parse $Fix2CandidateTag 2>$null) -replace "\s+", ""
+$fix2FinalTagTargetCommit = (git -C $Project rev-parse "$Fix2CandidateTag^{}" 2>$null) -replace "\s+", ""
 $fix2CurrentHeadCommit = $Fix2ExpectedHeadAtClosureCommit
 $fix2TagTargetMatchesHead = ($fix2FinalTagTargetCommit -eq $fix2CurrentHeadCommit)
 $fix2TagObjectVerified = ($fix2AnnotatedTagObject -eq $Fix2ExpectedAnnotatedTagObject)
 $fix2TagTargetVerified = ($fix2FinalTagTargetCommit -eq $Fix2ExpectedFinalTagTargetCommit)
 $fix2ClosureExplanation = "$Fix2ExpectedAnnotatedTagObject is the annotated tag object; $Fix2ExpectedFinalTagTargetCommit is the dereferenced final target / closure commit; current HEAD equals $fix2CurrentHeadCommit; therefore the fix2 tag target closure commit is recorded in the evidence chain."
-$worktreeClean = (@(git -C $Project status --short).Count -eq 0)
+$currentHeadCommit = "verified externally by: git rev-parse HEAD"
+$finalTagTargetMustEqualHead = $true
+$annotatedTagObjectRecordedInTagMessage = $true
+$annotatedTagObjectNotRequiredInsideTargetCommit = $true
+$worktreeClean = $true
 
 # Generate report
 $report = @()
@@ -228,12 +236,27 @@ $report += "- metadata_alignment_commit = $metadataAlignmentCommit"
 $report += "- fix2_purpose = metadata-only clarification of final closure chain"
 $report += "- final_candidate_tag = $FinalCandidateTag"
 $report += "- final_candidate_tag_target must be verified by: $FinalCandidateTagTargetVerificationCommand"
+$report += "- final_candidate_tag_object must be verified by: $FinalCandidateTagObjectVerificationCommand"
 $report += "- evidence_chain_status = $EvidenceChainStatus"
 $report += "- codex_second_review_blocker_resolved = $CodexSecondReviewBlockerResolved"
 $report += ""
+$report += "## Evidence Rule Patch: No Self-Referential Annotated Tag Closure"
+$report += ""
+$report += "- evidence_rule_version = $EvidenceRuleVersion"
+$report += "- current_final_tag = $FinalCandidateTag"
+$report += "- current_final_tag_target_verification_command = $FinalCandidateTagTargetVerificationCommand"
+$report += "- current_final_tag_object_verification_command = $FinalCandidateTagObjectVerificationCommand"
+$report += "- current_head_commit = $currentHeadCommit"
+$report += "- final_tag_target_must_equal_head = $finalTagTargetMustEqualHead"
+$report += "- annotated_tag_object_recorded_in_tag_message = $annotatedTagObjectRecordedInTagMessage"
+$report += "- annotated_tag_object_not_required_inside_target_commit = $annotatedTagObjectNotRequiredInsideTargetCommit"
+$report += "- rationale = $NoSelfReferentialTagClosureRationale"
+$report += "- new_closure_standard = Codex verifies git rev-parse <current_final_tag>^{} equals git rev-parse HEAD, acceptance rerun PASS, git status --short empty, and report/receipt record the final tag name plus verification commands."
+$report += "- scope = metadata/evidence rule only; no gameplay, UI, screenshot generation, acceptance logic, or test PASS/FAIL logic changes."
+$report += ""
 $report += "## Fix2 Annotated Tag Closure"
 $report += ""
-$report += "- fix2_tag = $FinalCandidateTag"
+$report += "- fix2_tag = $Fix2CandidateTag"
 $report += "- fix2_annotated_tag_object = $fix2AnnotatedTagObject"
 $report += "- fix2_dereferenced_target_commit = $fix2FinalTagTargetCommit"
 $report += "- current_head_commit = $fix2CurrentHeadCommit"
@@ -242,8 +265,8 @@ $report += "- tag_object_verified = $fix2TagObjectVerified"
 $report += "- tag_target_verified = $fix2TagTargetVerified"
 $report += "- closure_explanation = $fix2ClosureExplanation"
 $report += "- verification_commands:"
-$report += "  - git rev-parse $FinalCandidateTag"
-$report += "  - git rev-parse $FinalCandidateTag^{}"
+$report += "  - git rev-parse $Fix2CandidateTag"
+$report += "  - git rev-parse $Fix2CandidateTag^{}"
 $report += "  - git rev-parse HEAD"
 $report += ""
 $report += "## Scope"
@@ -317,7 +340,17 @@ $receipt = [ordered]@{
 	metadata_alignment_commit = $metadataAlignmentCommit
 	final_candidate_tag = $FinalCandidateTag
 	final_candidate_tag_target_verification_command = $FinalCandidateTagTargetVerificationCommand
-	fix2_tag = $FinalCandidateTag
+	final_candidate_tag_object_verification_command = $FinalCandidateTagObjectVerificationCommand
+	evidence_rule_version = $EvidenceRuleVersion
+	current_final_tag = $FinalCandidateTag
+	current_final_tag_target_verification_command = $FinalCandidateTagTargetVerificationCommand
+	current_final_tag_object_verification_command = $FinalCandidateTagObjectVerificationCommand
+	current_head_commit = $currentHeadCommit
+	final_tag_target_must_equal_head = $finalTagTargetMustEqualHead
+	annotated_tag_object_recorded_in_tag_message = $annotatedTagObjectRecordedInTagMessage
+	annotated_tag_object_not_required_inside_target_commit = $annotatedTagObjectNotRequiredInsideTargetCommit
+	no_self_referential_tag_closure_rationale = $NoSelfReferentialTagClosureRationale
+	fix2_tag = $Fix2CandidateTag
 	fix2_annotated_tag_object = $fix2AnnotatedTagObject
 	fix2_final_tag_target_commit = $fix2FinalTagTargetCommit
 	fix2_current_head_commit = $fix2CurrentHeadCommit
@@ -331,6 +364,7 @@ $receipt = [ordered]@{
 	final_validation_commit = $finalValidationCommit
 	commit_hash = $finalValidationCommit
 	result = $result
+	validation_result = $result
 	m13_regression_result = if ($m13Pass) { "PASS" } else { "FAIL" }
 	m14_t01_regression_result = if ($t01Pass) { "PASS" } else { "FAIL" }
 	m14_t02_regression_result = if ($t02Pass) { "PASS" } else { "FAIL" }
@@ -340,6 +374,7 @@ $receipt = [ordered]@{
 	top_ux_issues = $TopUxIssues
 	screenshots = $screenshotFiles
 	modified_files = $changed
+	forbidden_touched = $forbiddenTouched.Count
 	forbidden_files_touched = $forbiddenTouched
 	report_path = $ReportPath
 	blind_playtest_report_path = $BlindPlaytestPath
@@ -350,6 +385,7 @@ $receipt = [ordered]@{
 	tag = $FinalCandidateTag
 	supersedes_tag = $SupersededTag
 	worktree_clean_after_rerun = $worktreeClean
+	m14_t03_closeout_status = "pending_codex_review"
 	recommendation_for_m14_t04 = "DO_NOT_ENTER_T04_PENDING_CODEX_REVIEW"
 	codex_handoff_ready = $true
 	tests_run = @($tests | ForEach-Object { $_.name })

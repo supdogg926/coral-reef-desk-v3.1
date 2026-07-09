@@ -8,8 +8,18 @@
     "fix1_tag":  "v3.2-m14-t03-rescue-ux-pacing-fix1",
     "fix1_tag_target_commit":  "d6a29aac73b963f7d9b21600c2c9b364573e6ad6",
     "metadata_alignment_commit":  "62ec77ec4e77b1fbc4400981af6f105ec1ff916b",
-    "final_candidate_tag":  "v3.2-m14-t03-rescue-ux-pacing-fix2",
-    "final_candidate_tag_target_verification_command":  "git rev-parse v3.2-m14-t03-rescue-ux-pacing-fix2",
+    "final_candidate_tag":  "v3.2-m14-t03-rescue-ux-pacing-evidence-rule-v1",
+    "final_candidate_tag_target_verification_command":  "git rev-parse v3.2-m14-t03-rescue-ux-pacing-evidence-rule-v1^{}",
+    "final_candidate_tag_object_verification_command":  "git rev-parse v3.2-m14-t03-rescue-ux-pacing-evidence-rule-v1",
+    "evidence_rule_version":  "no_self_referential_annotated_tag_closure_v1",
+    "current_final_tag":  "v3.2-m14-t03-rescue-ux-pacing-evidence-rule-v1",
+    "current_final_tag_target_verification_command":  "git rev-parse v3.2-m14-t03-rescue-ux-pacing-evidence-rule-v1^{}",
+    "current_final_tag_object_verification_command":  "git rev-parse v3.2-m14-t03-rescue-ux-pacing-evidence-rule-v1",
+    "current_head_commit":  "verified externally by: git rev-parse HEAD",
+    "final_tag_target_must_equal_head":  true,
+    "annotated_tag_object_recorded_in_tag_message":  true,
+    "annotated_tag_object_not_required_inside_target_commit":  true,
+    "no_self_referential_tag_closure_rationale":  "The current final annotated tag object is created after the target commit exists. Requiring that tag object hash inside the target commit would change the commit and require a new tag object indefinitely. The final tag object is therefore verified externally with git rev-parse \u003ctag\u003e, while the target closure is verified with git rev-parse \u003ctag\u003e^{} and git rev-parse HEAD.",
     "fix2_tag":  "v3.2-m14-t03-rescue-ux-pacing-fix2",
     "fix2_annotated_tag_object":  "4df1e5043dd94b61f74ab5f59478121d226c3714",
     "fix2_final_tag_target_commit":  "8c0ce8695db32d1d52151171dcc4ca50c2bea7f3",
@@ -24,6 +34,7 @@
     "final_validation_commit":  "a566b3ac15ba44381661a7918f6da4e6bf1eeb8b",
     "commit_hash":  "a566b3ac15ba44381661a7918f6da4e6bf1eeb8b",
     "result":  "PASS",
+    "validation_result":  "PASS",
     "m13_regression_result":  "PASS",
     "m14_t01_regression_result":  "PASS",
     "m14_t02_regression_result":  "PASS",
@@ -81,6 +92,7 @@
                            "tests/m14_t03_copy_ui_verify.gd",
                            "tests/run_m14_t03_acceptance.ps1"
                        ],
+    "forbidden_touched":  0,
     "forbidden_files_touched":  [
 
                                 ],
@@ -90,9 +102,10 @@
     "evidence_fixup_report_path":  "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3_M14_T01\\reports\\m14\\M14_T03_EVIDENCE_FIXUP_REPORT.md",
     "final_closure_metadata_report_path":  "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3_M14_T01\\reports\\m14\\M14_T03_FINAL_CLOSURE_METADATA_REPORT.md",
     "receipt_path":  "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3_M14_T01\\reports\\m14\\M14_T03_RESCUE_UX_PACING_RECEIPT.json",
-    "tag":  "v3.2-m14-t03-rescue-ux-pacing-fix2",
+    "tag":  "v3.2-m14-t03-rescue-ux-pacing-evidence-rule-v1",
     "supersedes_tag":  "v3.2-m14-t03-rescue-ux-pacing",
     "worktree_clean_after_rerun":  true,
+    "m14_t03_closeout_status":  "pending_codex_review",
     "recommendation_for_m14_t04":  "DO_NOT_ENTER_T04_PENDING_CODEX_REVIEW",
     "codex_handoff_ready":  true,
     "tests_run":  [
@@ -231,7 +244,7 @@
                              "passed":  true,
                              "pass_pattern":  "M14_T03_SCREENSHOT_CAPTURE_RESULT=PASS",
                              "log_path":  "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3_M14_T01\\reports\\m14\\logs\\m14_t03_screenshot_capture.log",
-                             "summary":  "[M14-T03] screenshot evidence generation start\n[M14-T03] screenshot evidence saved: C:/Users/admin/Desktop/桌面海缸v3.0/CoralReefIdleV3_M14_T01/reports/m14/screenshots/t03_01_dock_entry.png bytes=3664\n[M14-T03] screenshot evidence saved: C:/Users/admin/Desktop/桌面海缸v3.0/CoralReefIdleV3_M14_T01/reports/m14/screenshots/t03_02_dock_candidate.png bytes=3670\n[M14-T03] screenshot evidence saved: C:/Users/admin/Desktop/桌面海缸v3.0/CoralReefIdleV3_M14_T01/reports/m14/screenshots/t03_03_rescue_slot_after_bring.png bytes=3665\n[M14-T03] screenshot evidence saved: C:/Users/admin/Desktop/桌面海缸v3.0/CoralReefIdleV3_M14_T01/reports/m14/screenshots/t03_04_recovering.png bytes=3659\n[M14-T03] screenshot evidence saved: C:/Users/admin/Desktop/桌面海缸v3.0/CoralReefIdleV3_M14_T01/reports/m14/screenshots/t03_05_ready_to_release.png bytes=3671\n[M14-T03] screenshot evidence saved: C:/Users/admin/Desktop/桌面海缸v3.0/CoralReefIdleV3_M14_T01/reports/m14/screenshots/t03_06_release_settlement.png bytes=3665\n[M14-T03] screenshot evidence saved: C:/Users/admin/Desktop/桌面海缸v3.0/CoralReefIdleV3_M14_T01/reports/m14/screenshots/t03_07_reputation_change.png bytes=3663\n[M14-T03] codex screenshot saved: C:/Users/admin/Desktop/桌面海缸v3.0/CoralReefIdleV3_M14_T01/reports/m14/screenshots/t03_08_codex_rescued_mark.png bytes=3556\n[M14-T03] screenshot evidence saved: C:/Users/admin/Desktop/桌面海缸v3.0/CoralReefIdleV3_M14_T01/reports/m14/screenshots/t03_09_next_arrival_waiting.png bytes=3666\n[M14-T03] Screenshot capture complete: 9/9 saved\nM14_T03_SCREENSHOT_CAPTURE_RESULT=PASS"
+                             "summary":  "[M14-T03] screenshot evidence generation start\n[M14-T03] screenshot evidence saved: C:/Users/admin/Desktop/桌面海缸v3.0/CoralReefIdleV3_M14_T01/reports/m14/screenshots/t03_01_dock_entry.png bytes=3664\n[M14-T03] screenshot evidence saved: C:/Users/admin/Desktop/桌面海缸v3.0/CoralReefIdleV3_M14_T01/reports/m14/screenshots/t03_02_dock_candidate.png bytes=3670\n[M14-T03] screenshot evidence saved: C:/Users/admin/Desktop/桌面海缸v3.0/CoralReefIdleV3_M14_T01/reports/m14/screenshots/t03_03_rescue_slot_after_bring.png bytes=3665\n[M14-T03] screenshot evidence saved: C:/Users/admin/Desktop/桌面海缸v3.0/CoralReefIdleV3_M14_T01/reports/m14/screenshots/t03_04_recovering.png bytes=3661\n[M14-T03] screenshot evidence saved: C:/Users/admin/Desktop/桌面海缸v3.0/CoralReefIdleV3_M14_T01/reports/m14/screenshots/t03_05_ready_to_release.png bytes=3671\n[M14-T03] screenshot evidence saved: C:/Users/admin/Desktop/桌面海缸v3.0/CoralReefIdleV3_M14_T01/reports/m14/screenshots/t03_06_release_settlement.png bytes=3665\n[M14-T03] screenshot evidence saved: C:/Users/admin/Desktop/桌面海缸v3.0/CoralReefIdleV3_M14_T01/reports/m14/screenshots/t03_07_reputation_change.png bytes=3663\n[M14-T03] codex screenshot saved: C:/Users/admin/Desktop/桌面海缸v3.0/CoralReefIdleV3_M14_T01/reports/m14/screenshots/t03_08_codex_rescued_mark.png bytes=3556\n[M14-T03] screenshot evidence saved: C:/Users/admin/Desktop/桌面海缸v3.0/CoralReefIdleV3_M14_T01/reports/m14/screenshots/t03_09_next_arrival_waiting.png bytes=3666\n[M14-T03] Screenshot capture complete: 9/9 saved\nM14_T03_SCREENSHOT_CAPTURE_RESULT=PASS"
                          }
                      ]
 }

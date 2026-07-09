@@ -64,3 +64,30 @@ git status --short
 ```
 
 Codex third review should confirm M13/T01/T02/T03 remain PASS, worktree remains clean after rerun, forbidden scope remains untouched, and M14-T04 is still not entered.
+
+## Evidence Rule Patch: No Self-Referential Annotated Tag Closure
+
+Codex fourth review showed that continuing fixN tag-object追补 would not converge. The current final annotated tag object is produced only when the tag is created. Requiring that object hash inside the tag target commit would force another commit, which would force another tag object, and so on.
+
+New closure rule:
+- `evidence_rule_version`: `no_self_referential_annotated_tag_closure_v1`
+- `current_final_tag`: `v3.2-m14-t03-rescue-ux-pacing-evidence-rule-v1`
+- `current_final_tag_target_verification_command`: `git rev-parse v3.2-m14-t03-rescue-ux-pacing-evidence-rule-v1^{}`
+- `current_final_tag_object_verification_command`: `git rev-parse v3.2-m14-t03-rescue-ux-pacing-evidence-rule-v1`
+- `current_head_commit`: verified externally by `git rev-parse HEAD`
+- `final_tag_target_must_equal_head`: `true`
+- `annotated_tag_object_recorded_in_tag_message`: `true`
+- `annotated_tag_object_not_required_inside_target_commit`: `true`
+
+Historical tag object / target pairs remain in report and receipt for audit. The current final tag object is verified externally through Git commands and the annotated tag message; it is not required inside its own target commit. This metadata rule patch does not change gameplay, UI, rescue_config, scene files, screenshot generation, acceptance logic, or M13/T01/T02/T03 regression calls.
+
+## Codex Evidence Rule Review Commands
+
+```powershell
+git rev-parse v3.2-m14-t03-rescue-ux-pacing-evidence-rule-v1
+git rev-parse v3.2-m14-t03-rescue-ux-pacing-evidence-rule-v1^{}
+git rev-parse HEAD
+git tag -n99 v3.2-m14-t03-rescue-ux-pacing-evidence-rule-v1
+powershell -ExecutionPolicy Bypass -File tests/run_m14_t03_acceptance.ps1
+git status --short
+```

@@ -8,7 +8,7 @@ Overall Status: **PASS**
 - Original Cloud Code commit: bfa50f30c7e1f9b79ca5ea38463136482aaf69ed
 - Final validation commit: a566b3ac15ba44381661a7918f6da4e6bf1eeb8b
 - Superseded tag: v3.2-m14-t03-rescue-ux-pacing
-- Closure candidate tag: v3.2-m14-t03-rescue-ux-pacing-fix2
+- Closure candidate tag: v3.2-m14-t03-rescue-ux-pacing-evidence-rule-v1
 - First loop duration: 840 seconds
 - Worktree clean at validation: True
 - Project: C:\Users\admin\Desktop\桌面海缸v3.0\CoralReefIdleV3_M14_T01
@@ -22,10 +22,25 @@ Overall Status: **PASS**
 - fix1_tag_target_commit = d6a29aac73b963f7d9b21600c2c9b364573e6ad6
 - metadata_alignment_commit = 62ec77ec4e77b1fbc4400981af6f105ec1ff916b
 - fix2_purpose = metadata-only clarification of final closure chain
-- final_candidate_tag = v3.2-m14-t03-rescue-ux-pacing-fix2
-- final_candidate_tag_target must be verified by: git rev-parse v3.2-m14-t03-rescue-ux-pacing-fix2
+- final_candidate_tag = v3.2-m14-t03-rescue-ux-pacing-evidence-rule-v1
+- final_candidate_tag_target must be verified by: git rev-parse v3.2-m14-t03-rescue-ux-pacing-evidence-rule-v1^{}
+- final_candidate_tag_object must be verified by: git rev-parse v3.2-m14-t03-rescue-ux-pacing-evidence-rule-v1
 - evidence_chain_status = fix1 tag target d6a29aac73b963f7d9b21600c2c9b364573e6ad6 is explicitly recorded; fix2 annotated tag object and dereferenced final target are recorded; fix2 is a metadata-only alignment candidate pending Codex review
 - codex_second_review_blocker_resolved = pending_codex_review
+
+## Evidence Rule Patch: No Self-Referential Annotated Tag Closure
+
+- evidence_rule_version = no_self_referential_annotated_tag_closure_v1
+- current_final_tag = v3.2-m14-t03-rescue-ux-pacing-evidence-rule-v1
+- current_final_tag_target_verification_command = git rev-parse v3.2-m14-t03-rescue-ux-pacing-evidence-rule-v1^{}
+- current_final_tag_object_verification_command = git rev-parse v3.2-m14-t03-rescue-ux-pacing-evidence-rule-v1
+- current_head_commit = verified externally by: git rev-parse HEAD
+- final_tag_target_must_equal_head = True
+- annotated_tag_object_recorded_in_tag_message = True
+- annotated_tag_object_not_required_inside_target_commit = True
+- rationale = The current final annotated tag object is created after the target commit exists. Requiring that tag object hash inside the target commit would change the commit and require a new tag object indefinitely. The final tag object is therefore verified externally with git rev-parse <tag>, while the target closure is verified with git rev-parse <tag>^{} and git rev-parse HEAD.
+- new_closure_standard = Codex verifies git rev-parse <current_final_tag>^{} equals git rev-parse HEAD, acceptance rerun PASS, git status --short empty, and report/receipt record the final tag name plus verification commands.
+- scope = metadata/evidence rule only; no gameplay, UI, screenshot generation, acceptance logic, or test PASS/FAIL logic changes.
 
 ## Fix2 Annotated Tag Closure
 
@@ -141,4 +156,4 @@ M14-T03 screenshot evidence generated as deterministic PNG state captures.
 - T03 does not add new systems; all changes are cosmetic/feedback within the existing rescue loop
 - v3.2-m14-t03-rescue-ux-pacing: superseded by evidence fix
 - v3.2-m14-t03-rescue-ux-pacing-fix1: superseded by fix2 metadata alignment candidate
-- v3.2-m14-t03-rescue-ux-pacing-fix2: Codex-reviewable metadata alignment candidate
+- v3.2-m14-t03-rescue-ux-pacing-evidence-rule-v1: Codex-reviewable metadata alignment candidate

@@ -115,3 +115,19 @@ This is a metadata-only alignment. It does not change gameplay, UI, data config,
   - `git rev-parse v3.2-m14-t03-rescue-ux-pacing-fix2^{}`
   - `git rev-parse HEAD`
 - `4df1e5...` is the annotated tag object. `8c0ce8...` is the dereferenced final target / closure commit. HEAD equals `8c0ce8...`, so the fix2 final closure target is now explicitly recorded.
+
+## Evidence Rule Patch: No Self-Referential Annotated Tag Closure
+
+Codex fourth review correctly exposed a rule conflict: requiring the current final annotated tag object hash inside the commit targeted by that same tag creates an infinite closure loop. The tag object can only exist after the target commit exists. If a new commit is created to record that tag object, the final tag target changes and a new tag object must be created again.
+
+The patched rule is:
+- `evidence_rule_version`: `no_self_referential_annotated_tag_closure_v1`
+- `current_final_tag`: `v3.2-m14-t03-rescue-ux-pacing-evidence-rule-v1`
+- `current_final_tag_target_verification_command`: `git rev-parse v3.2-m14-t03-rescue-ux-pacing-evidence-rule-v1^{}`
+- `current_final_tag_object_verification_command`: `git rev-parse v3.2-m14-t03-rescue-ux-pacing-evidence-rule-v1`
+- `current_head_commit`: verified externally by `git rev-parse HEAD`
+- `final_tag_target_must_equal_head`: `true`
+- `annotated_tag_object_recorded_in_tag_message`: `true`
+- `annotated_tag_object_not_required_inside_target_commit`: `true`
+
+The current final tag object is verified by `git rev-parse <tag>` and by the annotated tag message. The target closure is verified by `git rev-parse <tag>^{}` equaling `git rev-parse HEAD`, acceptance rerun PASS, and `git status --short` remaining empty. This patch changes only metadata/evidence rules and does not change gameplay, UI, data config, screenshot logic, acceptance logic, or PASS/FAIL logic.
