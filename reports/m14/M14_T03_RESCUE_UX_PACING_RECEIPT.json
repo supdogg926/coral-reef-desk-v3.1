@@ -84,7 +84,7 @@
     "receipt_path":  "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3_M14_T01\\reports\\m14\\M14_T03_RESCUE_UX_PACING_RECEIPT.json",
     "tag":  "v3.2-m14-t03-rescue-ux-pacing-fix2",
     "supersedes_tag":  "v3.2-m14-t03-rescue-ux-pacing",
-    "worktree_clean_after_rerun":  false,
+    "worktree_clean_after_rerun":  true,
     "recommendation_for_m14_t04":  "DO_NOT_ENTER_T04_PENDING_CODEX_REVIEW",
     "codex_handoff_ready":  true,
     "tests_run":  [
@@ -113,7 +113,7 @@
                          "m14_t03_copy_ui_verify",
                          "m14_t03_screenshot_capture"
                      ],
-    "worktree_clean_at_validation":  false,
+    "worktree_clean_at_validation":  true,
     "test_details":  [
                          {
                              "name":  "godot_static_editor_check",
