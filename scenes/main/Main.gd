@@ -5,8 +5,10 @@ extends Control
 var game_state: GameState = null
 var shop_panel: ShopPanel = null
 var livestock_panel: LivestockPanel = null
+var rescue_panel: RescueDockPanel = null
 var shop_btn: Button = null
 var livestock_btn: Button = null
+var rescue_btn: Button = null
 var panel_status_label: Label = null
 var maintenance_feedback_label: Label = null
 var maintenance_balance_label: Label = null
@@ -56,6 +58,8 @@ func _process(delta: float) -> void:
 		if _livestock_refresh_timer >= LIVESTOCK_REFRESH_INTERVAL:
 			_livestock_refresh_timer = 0.0
 			livestock_panel.update_display()
+	if rescue_panel != null and rescue_panel.visible:
+		rescue_panel.update_display()
 	_maintenance_button_refresh_timer += delta
 	if _maintenance_button_refresh_timer >= MAINTENANCE_BUTTON_REFRESH_INTERVAL:
 		_maintenance_button_refresh_timer = 0.0
@@ -94,6 +98,11 @@ func _setup_panels() -> void:
 	add_child(livestock_panel)
 	livestock_panel.setup(game_state)
 
+	rescue_panel = RescueDockPanel.new()
+	rescue_panel.hide()
+	add_child(rescue_panel)
+	rescue_panel.setup(game_state)
+
 	_panels_setup_done = true
 	_update_maintenance_button_states()
 	_update_device_button_states()
@@ -117,6 +126,7 @@ func _setup_bottom_dock_controls() -> void:
 	var callbacks: Dictionary = {
 		"shop": Callable(self, "_toggle_shop"),
 		"livestock": Callable(self, "_toggle_livestock"),
+		"rescue": Callable(self, "_toggle_rescue"),
 		"maintenance": Callable(self, "_on_water_maintenance_pressed"),
 		"device": Callable(self, "_on_device_pressed"),
 		"feed": Callable(self, "_on_feeding_pressed"),
@@ -148,6 +158,7 @@ func _setup_bottom_dock_controls() -> void:
 			light_temp_slider.value_changed.connect(func(v: float): light_temp_val.text = str(int(v)))
 	shop_btn = controls.get("shop_btn", null)
 	livestock_btn = controls.get("livestock_btn", null)
+	rescue_btn = controls.get("rescue_btn", null)
 	panel_status_label = controls.get("panel_status_label", null)
 	maintenance_feedback_label = controls.get("maintenance_feedback_label", null)
 	maintenance_balance_label = controls.get("maintenance_balance_label", null)
@@ -229,6 +240,8 @@ func _reset_test_save() -> void:
 	game_state.save_system.clear_save()
 	shop_panel.hide()
 	livestock_panel.hide()
+	if rescue_panel != null:
+		rescue_panel.hide()
 	game_state = null
 	game_state = GameState.new()
 	game_state.initialize()
@@ -237,6 +250,8 @@ func _reset_test_save() -> void:
 		shop_panel.setup(game_state)
 	if livestock_panel != null:
 		livestock_panel.setup(game_state)
+	if rescue_panel != null:
+		rescue_panel.setup(game_state)
 	_setup_bottom_dock_controls()
 	_update_status_labels()
 	if panel_status_label != null:
@@ -269,6 +284,9 @@ func _toggle_shop() -> void:
 	else:
 		livestock_panel.hide()
 		livestock_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		if rescue_panel != null:
+			rescue_panel.hide()
+			rescue_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		shop_panel.mouse_filter = Control.MOUSE_FILTER_STOP
 		shop_panel.anchor_left = 0.04
 		shop_panel.anchor_right = 0.96
@@ -297,6 +315,9 @@ func _toggle_livestock() -> void:
 	else:
 		shop_panel.hide()
 		shop_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		if rescue_panel != null:
+			rescue_panel.hide()
+			rescue_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		livestock_panel.mouse_filter = Control.MOUSE_FILTER_STOP
 		livestock_panel.update_display()
 		livestock_panel.anchor_left = 0.04
@@ -312,6 +333,38 @@ func _toggle_livestock() -> void:
 			livestock_panel.get_parent().move_child(livestock_panel, livestock_panel.get_parent().get_child_count() - 1)
 		if panel_status_label != null:
 			panel_status_label.text = "已打开：我的生物"
+
+
+func _toggle_rescue() -> void:
+	if rescue_panel == null:
+		return
+	if rescue_panel.visible:
+		rescue_panel.hide()
+		rescue_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		if panel_status_label != null:
+			panel_status_label.text = ""
+	else:
+		if shop_panel != null:
+			shop_panel.hide()
+			shop_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		if livestock_panel != null:
+			livestock_panel.hide()
+			livestock_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		rescue_panel.mouse_filter = Control.MOUSE_FILTER_STOP
+		rescue_panel.update_display()
+		rescue_panel.anchor_left = 0.04
+		rescue_panel.anchor_right = 0.96
+		rescue_panel.anchor_top = 0.10
+		rescue_panel.anchor_bottom = 0.90
+		rescue_panel.offset_left = 0.0
+		rescue_panel.offset_right = 0.0
+		rescue_panel.offset_top = 0.0
+		rescue_panel.offset_bottom = 0.0
+		rescue_panel.show()
+		if rescue_panel.get_parent() != null:
+			rescue_panel.get_parent().move_child(rescue_panel, rescue_panel.get_parent().get_child_count() - 1)
+		if panel_status_label != null:
+			panel_status_label.text = "已打开：救助码头"
 
 
 func _add_water_maintenance_controls(bar_row: HBoxContainer) -> void:
@@ -553,6 +606,7 @@ func _update_status_labels() -> void:
 	)
 	status_panel.update_timeline(game_state.get_timeline_entries())
 	status_panel.update_stage_objectives(game_state.get_stage_objective_debug_state())
+	status_panel.update_rescue_debug(game_state.get_rescue_ui_state())
 
 
 func _on_light_intensity_changed(value: float) -> void:

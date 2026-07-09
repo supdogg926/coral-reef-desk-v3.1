@@ -16,6 +16,7 @@ var save_system: SaveSystem = null
 var action_timeline: ActionTimeline = null
 var stage_objective_system: RefCounted = null  # StageObjectiveSystem loaded via script
 var rescue_system: RefCounted = null  # RescueSystem loaded via script; M14-T01 data/headless only
+var rescue_last_feedback: Dictionary = {}
 var stability_score: float = 50.0
 var carrying_capacity_score: float = 10.0
 var maintenance_load: float = 0.0
@@ -144,6 +145,7 @@ func update(delta_seconds: float) -> void:
 	water_chemistry_system.simulate_tick(simulation_delta_seconds, effects_summary)
 	_recalculate_debug_scores()
 	_update_livestock_and_economy(simulation_delta_seconds)
+	_update_rescue_playable(delta_seconds)
 	_check_timeline_system_events()
 	_update_player_progress(simulation_delta_seconds)
 	_update_unlocks()
@@ -903,6 +905,149 @@ func advance_rescue_day_for_test(day: int, comfort_override: float = -1.0, water
 			economy_system.add_reef_points(float(ev.get("reward_rp", 0)))
 	reef_points = economy_system.get_reef_points() if economy_system != null else reef_points
 	return events
+
+
+func get_rescue_ui_state() -> Dictionary:
+	if rescue_system == null:
+		return {}
+	var debug: Dictionary = rescue_system.get_debug_state()
+	var raw_dock: Variant = debug.get("dock_state", {})
+	var dock: Dictionary = raw_dock if raw_dock is Dictionary else {}
+	var raw_candidate: Variant = dock.get("candidate", {})
+	var candidate: Dictionary = raw_candidate if raw_candidate is Dictionary else {}
+	var raw_active: Variant = debug.get("active_rescue", {})
+	var active: Dictionary = raw_active if raw_active is Dictionary else {}
+	var has_candidate: bool = not candidate.is_empty()
+	var has_active: bool = not active.is_empty()
+	var progress: float = float(active.get("recovery_progress", 0.0)) if has_active else 0.0
+	var ready: bool = has_active and progress >= 100.0
+	var status_text: String = "待救助" if has_candidate else "等待"
+	if has_active:
+		status_text = "可放归" if ready else "救助中"
+	var config: Dictionary = rescue_system.config if rescue_system.get("config") is Dictionary else {}
+	var playable: Dictionary = config.get("first_playable", {}) if config.get("first_playable", {}) is Dictionary else {}
+	var target_seconds: float = float(playable.get("target_recovery_seconds", 720.0))
+	var cost: float = float(playable.get("bring_back_cost_rp", 0.0))
+	return {
+		"status_text": status_text,
+		"has_candidate": has_candidate,
+		"candidate": candidate.duplicate(true),
+		"has_active": has_active,
+		"active_rescue": active.duplicate(true),
+		"recovery_progress": progress,
+		"ready_to_release": ready,
+		"bring_back_cost_rp": cost,
+		"target_recovery_seconds": target_seconds,
+		"next_arrival": int(dock.get("next_arrival", 1)),
+		"current_day": _get_current_rescue_day(),
+		"ecological_reputation": int(debug.get("ecological_reputation", 0)),
+		"codex_rescue_marks": debug.get("codex_rescue_marks", {}).duplicate(true) if debug.get("codex_rescue_marks", {}) is Dictionary else {},
+		"completed_rescue_count": int(debug.get("completed_rescue_count", 0)),
+		"last_feedback": rescue_last_feedback.duplicate(true),
+		"reef_points": economy_system.get_reef_points() if economy_system != null else reef_points,
+	}
+
+
+func bring_back_current_rescue() -> Dictionary:
+	if rescue_system == null:
+		return {"success": false, "error": "rescue_system_unavailable", "summary": "救助系统不可用"}
+	_ensure_rescue_dock_candidate()
+	var state: Dictionary = get_rescue_ui_state()
+	if bool(state.get("has_active", false)):
+		return {"success": false, "error": "rescue_slot_occupied", "summary": "救助位已占用，请先完成当前救助"}
+	if not bool(state.get("has_candidate", false)):
+		return {"success": false, "error": "no_candidate", "summary": "码头暂无待救助生物"}
+	var cost: float = float(state.get("bring_back_cost_rp", 0.0))
+	if economy_system != null and not economy_system.spend_reef_points(cost):
+		return {"success": false, "error": "insufficient_rp", "summary": "RP不足，无法带回救助", "cost": cost, "reef_points": economy_system.get_reef_points()}
+	var day: int = _get_current_rescue_day()
+	var result: Dictionary = rescue_system.accept_current_rescue(day)
+	if bool(result.get("success", false)):
+		reef_points = economy_system.get_reef_points() if economy_system != null else reef_points
+		var active: Dictionary = rescue_system.get_debug_state().get("active_rescue", {})
+		result["summary"] = "已带回救助：" + String(active.get("species_name", result.get("species_id", "")))
+		result["cost"] = cost
+		result["species_name"] = String(active.get("species_name", ""))
+		rescue_last_feedback = result.duplicate(true)
+		_pending_save_after_livestock_change = true
+		_livestock_change_save_timer = 0.0
+		_timeline_log_player("带回救助 " + String(active.get("species_name", "")) + " RP-%d" % int(cost), ActionTimeline.COLOR_PLAYER)
+	return result
+
+
+func release_ready_rescue() -> Dictionary:
+	if rescue_system == null:
+		return {"success": false, "error": "rescue_system_unavailable", "summary": "救助系统不可用"}
+	var day: int = _get_current_rescue_day()
+	var before_debug: Dictionary = rescue_system.get_debug_state()
+	var before_active: Dictionary = before_debug.get("active_rescue", {}) if before_debug.get("active_rescue", {}) is Dictionary else {}
+	var result: Dictionary = rescue_system.release_active_rescue_for_ui(day)
+	if bool(result.get("success", false)):
+		var rp_reward: int = int(result.get("reward_rp", 0))
+		if economy_system != null:
+			economy_system.add_reef_points(float(rp_reward))
+			reef_points = economy_system.get_reef_points()
+		result["species_name"] = String(before_active.get("species_name", result.get("species_id", "")))
+		result["summary"] = "放归成功：" + String(result.get("species_name", "")) + " 声望+%d RP+%d 图鉴已标记救助" % [int(result.get("reward_reputation", 0)), rp_reward]
+		rescue_last_feedback = result.duplicate(true)
+		_pending_save_after_livestock_change = true
+		_livestock_change_save_timer = 0.0
+		_timeline_log_player(result["summary"], ActionTimeline.COLOR_POSITIVE)
+	return result
+
+
+func _update_rescue_playable(real_delta_seconds: float) -> void:
+	if rescue_system == null:
+		return
+	_ensure_rescue_dock_candidate()
+	var debug: Dictionary = rescue_system.get_debug_state()
+	var raw_active: Variant = debug.get("active_rescue", {})
+	if not raw_active is Dictionary or Dictionary(raw_active).is_empty():
+		return
+	var active: Dictionary = raw_active
+	if float(active.get("recovery_progress", 0.0)) >= 100.0:
+		return
+	var config: Dictionary = rescue_system.config if rescue_system.get("config") is Dictionary else {}
+	var playable: Dictionary = config.get("first_playable", {}) if config.get("first_playable", {}) is Dictionary else {}
+	var target_seconds: float = max(float(playable.get("target_recovery_seconds", 720.0)), 1.0)
+	var base_rate: float = max(float(active.get("recovery_rate_base", 30.0)), 1.0)
+	var scale: float = max(real_delta_seconds, 0.0) / target_seconds * (100.0 / base_rate)
+	var event: Dictionary = rescue_system.advance_active_rescue_for_ui(_get_current_rescue_day(), _get_current_water_quality_score(), _get_current_comfort_score(), scale)
+	if String(event.get("type", "")) == "recovery_ready":
+		rescue_last_feedback = {"success": true, "summary": "救助恢复完成，可放归", "type": "recovery_ready"}
+
+
+func _ensure_rescue_dock_candidate() -> void:
+	if rescue_system == null:
+		return
+	var debug: Dictionary = rescue_system.get_debug_state()
+	var dock: Dictionary = debug.get("dock_state", {}) if debug.get("dock_state", {}) is Dictionary else {}
+	var active: Dictionary = debug.get("active_rescue", {}) if debug.get("active_rescue", {}) is Dictionary else {}
+	if not active.is_empty():
+		return
+	if not String(dock.get("current_rescue_id", "")).is_empty():
+		return
+	var day: int = _get_current_rescue_day()
+	if day >= int(dock.get("next_arrival", 1)):
+		rescue_system.process_day(day, _get_current_water_quality_score(), _get_current_comfort_score(), false)
+
+
+func _get_current_rescue_day() -> int:
+	if time_system == null:
+		return 1
+	return int(floor(float(time_system.get_elapsed_game_minutes()) / 1440.0)) + 1
+
+
+func _get_current_water_quality_score() -> float:
+	if water_chemistry_system == null:
+		return 100.0
+	return float(water_chemistry_system.get_debug_state().get("water_quality_score", 100.0))
+
+
+func _get_current_comfort_score() -> float:
+	if livestock_system == null:
+		return 100.0
+	return float(livestock_system.get_debug_state().get("comfort_score", 100.0))
 
 
 func _check_stage_objectives() -> void:

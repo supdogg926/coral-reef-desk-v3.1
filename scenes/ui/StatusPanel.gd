@@ -5,6 +5,8 @@ var section_labels: Dictionary = {}
 var dock_control_slots: Dictionary = {}
 var timeline_labels: Array[Label] = []
 var rp_display_label: Label = null
+var rescue_reputation_label: Label = null
+var rescue_button: Button = null
 var dock_body: Control = null
 var collapsed_bar: Control = null
 var _last_timeline_count: int = -1
@@ -147,6 +149,32 @@ func update_livestock_economy_debug(livestock_debug: Dictionary, economy_debug: 
 	_set_status_line("livestock", "crustacean_count", "%d" % crustacean_count, STATUS_IDLE_COLOR if crustacean_count <= 0 else KEY_TEXT_COLOR)
 	var algae_count_display: int = int(livestock_debug.get("algae_count", 0))
 	_set_status_line("livestock", "algae_count", "%d" % algae_count_display, STATUS_IDLE_COLOR if algae_count_display <= 0 else KEY_TEXT_COLOR)
+
+
+func update_rescue_debug(rescue_state: Dictionary) -> void:
+	var reputation: int = int(rescue_state.get("ecological_reputation", 0))
+	var status_text: String = String(rescue_state.get("status_text", "等待"))
+	if rescue_reputation_label != null:
+		rescue_reputation_label.text = "生态声望 %d" % reputation
+		rescue_reputation_label.add_theme_color_override("font_color", Color(0.72, 0.90, 0.78))
+	if rescue_button != null:
+		match status_text:
+			"待救助":
+				rescue_button.text = "码头 *"
+				rescue_button.tooltip_text = "码头有待救助生物"
+				rescue_button.add_theme_color_override("font_color", STATUS_WARN_COLOR)
+			"救助中":
+				rescue_button.text = "码头"
+				rescue_button.tooltip_text = "救助位占用中"
+				rescue_button.add_theme_color_override("font_color", Color(0.70, 0.84, 0.92))
+			"可放归":
+				rescue_button.text = "放归!"
+				rescue_button.tooltip_text = "救助生物已恢复，可放归"
+				rescue_button.add_theme_color_override("font_color", STATUS_OK_COLOR)
+			_:
+				rescue_button.text = "码头"
+				rescue_button.tooltip_text = "救助码头"
+				rescue_button.add_theme_color_override("font_color", Color(0.80, 0.86, 0.84))
 
 
 func update_unlock_debug(unlock_debug: Dictionary) -> void:
@@ -456,6 +484,10 @@ func _create_entry_system_section(parent: Control) -> void:
 	rp_display_label.autowrap_mode = TextServer.AUTOWRAP_OFF
 	rp_display_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
 	rp_box.add_child(rp_display_label)
+	rescue_reputation_label = _make_label("生态声望 0", BODY_FONT_SIZE, false, true)
+	rescue_reputation_label.clip_text = true
+	rescue_reputation_label.autowrap_mode = TextServer.AUTOWRAP_OFF
+	rp_box.add_child(rescue_reputation_label)
 
 	status_lines["phase"] = _create_secondary_tile(info_grid, "等级")
 	status_lines["time_tick"] = _create_secondary_tile(info_grid, "时间")
@@ -589,6 +621,7 @@ func configure_dock_controls(maintenance_actions: Array, feeding_actions: Array,
 	var result: Dictionary = {
 		"shop_btn": null,
 		"livestock_btn": null,
+		"rescue_btn": null,
 		"panel_status_label": null,
 		"maintenance_feedback_label": null,
 		"maintenance_balance_label": null,
@@ -613,6 +646,11 @@ func configure_dock_controls(maintenance_actions: Array, feeding_actions: Array,
 		_connect_button(livestock_button, callbacks.get("livestock", Callable()))
 		entry_parent.add_child(livestock_button)
 		result["livestock_btn"] = livestock_button
+
+		rescue_button = _make_dock_button("码头")
+		_connect_button(rescue_button, callbacks.get("rescue", Callable()))
+		entry_parent.add_child(rescue_button)
+		result["rescue_btn"] = rescue_button
 
 
 	var system_parent: Control = dock_control_slots.get("system", null)

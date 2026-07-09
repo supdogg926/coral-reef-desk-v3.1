@@ -3,6 +3,7 @@ extends PanelContainer
 
 var game_state: GameState = null
 var summary_label: Label = null
+var rescue_codex_label: Label = null
 var item_list: VBoxContainer = null
 var detail_label: Label = null
 var status_label: Label = null
@@ -48,6 +49,8 @@ func update_display() -> void:
 			float(ls_debug.get("total_base_income_per_hour", 0)),
 			float(ls_debug.get("total_effective_income_per_hour", 0)),
 		]
+	if rescue_codex_label != null:
+		rescue_codex_label.text = _format_rescue_codex_marks()
 	if item_list != null:
 		for row_child in item_list.get_children():
 			row_child.queue_free()
@@ -125,6 +128,13 @@ func _build_ui() -> void:
 	summary_label.add_theme_font_size_override("font_size", 10)
 	summary_label.add_theme_color_override("font_color", Color(0.70, 0.85, 0.80))
 	root.add_child(summary_label)
+
+	rescue_codex_label = Label.new()
+	rescue_codex_label.text = "救助图鉴：暂无"
+	rescue_codex_label.add_theme_font_size_override("font_size", 10)
+	rescue_codex_label.add_theme_color_override("font_color", Color(0.70, 0.88, 0.78))
+	rescue_codex_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	root.add_child(rescue_codex_label)
 
 	var header: Label = Label.new()
 	header.text = "名称｜分类｜稀有度｜尺寸cm｜成熟%｜健康%｜收益/h｜容量｜状态"
@@ -227,6 +237,26 @@ func _category_display_name(raw: String) -> String:
 		"algae": return "藻类"
 		"invertebrate": return "无脊椎"
 		_: return raw
+
+
+func _format_rescue_codex_marks() -> String:
+	if game_state == null:
+		return "救助图鉴：暂无"
+	var state: Dictionary = game_state.get_rescue_ui_state()
+	var raw_marks: Variant = state.get("codex_rescue_marks", {})
+	if not raw_marks is Dictionary:
+		return "救助图鉴：暂无"
+	var marks: Dictionary = raw_marks
+	if marks.is_empty():
+		return "救助图鉴：暂无"
+	var parts: PackedStringArray = PackedStringArray()
+	for species_id in marks.keys():
+		var raw_mark: Variant = marks.get(species_id, {})
+		if raw_mark is Dictionary and bool(raw_mark.get("rescued", false)):
+			parts.append(String(species_id) + " 已救助")
+	if parts.is_empty():
+		return "救助图鉴：暂无"
+	return "救助图鉴：" + "｜".join(parts)
 
 
 func _on_close() -> void:

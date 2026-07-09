@@ -94,6 +94,26 @@ func force_start_rescue_for_test(species_id: String, day: int) -> Dictionary:
 	return {}
 
 
+func advance_active_rescue_for_ui(day: int, water_quality_score: float, comfort_score: float, progress_scale: float = 1.0) -> Dictionary:
+	if active_rescue.is_empty():
+		return {"success": false, "error": "no_active_rescue"}
+	var event: Dictionary = _advance_recovery(day, water_quality_score, comfort_score, false, max(progress_scale, 0.0))
+	if not event.is_empty():
+		event_log.append(event.duplicate(true))
+	return event
+
+
+func release_active_rescue_for_ui(day: int) -> Dictionary:
+	if active_rescue.is_empty():
+		return {"success": false, "error": "no_active_rescue"}
+	if float(active_rescue.get("recovery_progress", 0.0)) < 100.0:
+		return {"success": false, "error": "recovery_not_complete", "recovery_progress": active_rescue.get("recovery_progress", 0.0)}
+	var event: Dictionary = _release_active_rescue(day)
+	event["success"] = true
+	event_log.append(event.duplicate(true))
+	return event
+
+
 func export_state() -> Dictionary:
 	return {
 		"schema_version": 1,
@@ -158,20 +178,23 @@ func get_debug_state() -> Dictionary:
 	}
 
 
-func _advance_recovery(day: int, water_quality_score: float, comfort_score: float) -> Dictionary:
+func _advance_recovery(day: int, water_quality_score: float, comfort_score: float, auto_release: bool = true, progress_scale: float = 1.0) -> Dictionary:
 	var base_rate: float = float(active_rescue.get("recovery_rate_base", 0.0))
 	var recovery_cfg: Dictionary = config.get("recovery", {})
 	var comfort_ref: float = float(recovery_cfg.get("comfort_reference", 80.0))
 	var water_ref: float = float(recovery_cfg.get("water_quality_reference", 85.0))
 	var comfort_mod: float = clamp(comfort_score / max(comfort_ref, 1.0), float(recovery_cfg.get("comfort_modifier_min", 0.45)), float(recovery_cfg.get("comfort_modifier_max", 1.35)))
 	var water_mod: float = clamp(water_quality_score / max(water_ref, 1.0), float(recovery_cfg.get("water_modifier_min", 0.50)), float(recovery_cfg.get("water_modifier_max", 1.20)))
-	var delta: float = base_rate * comfort_mod * water_mod
+	var delta: float = base_rate * comfort_mod * water_mod * max(progress_scale, 0.0)
 	active_rescue["recovery_progress"] = min(float(active_rescue.get("recovery_progress", 0.0)) + delta, 100.0)
 	active_rescue["last_recovery_delta"] = delta
 	active_rescue["last_comfort_score"] = comfort_score
 	active_rescue["last_water_quality_score"] = water_quality_score
 	if float(active_rescue.get("recovery_progress", 0.0)) >= 100.0:
-		return _release_active_rescue(day)
+		if auto_release:
+			return _release_active_rescue(day)
+		active_rescue["rescue_status"] = "ready_to_release"
+		return {"day": day, "type": "recovery_ready", "rescue_id": active_rescue.get("rescue_id", ""), "recovery_progress": active_rescue.get("recovery_progress", 0.0), "delta": delta}
 	return {"day": day, "type": "recovery_tick", "rescue_id": active_rescue.get("rescue_id", ""), "recovery_progress": active_rescue.get("recovery_progress", 0.0), "delta": delta}
 
 

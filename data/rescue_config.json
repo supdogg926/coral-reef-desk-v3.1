@@ -22,5 +22,11 @@
     "rescue_generates_income": false,
     "rescue_can_be_sold": false,
     "injury_branching_enabled": false
+  },
+  "first_playable": {
+    "bring_back_cost_rp": 1.0,
+    "target_recovery_seconds": 215.0,
+    "first_loop_min_seconds": 600.0,
+    "first_loop_max_seconds": 900.0
   }
 }
