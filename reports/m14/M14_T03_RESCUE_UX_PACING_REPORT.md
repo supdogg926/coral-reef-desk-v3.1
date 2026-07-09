@@ -4,7 +4,11 @@ Overall Status: **PASS**
 
 - Branch: m14-t03-rescue-ux-pacing-hardening
 - Base tag: v3.2-m14-t02-rescue-first-playable-ui
-- Commit at validation: 05777a9df10cb59d46ef76d38862470ca3bfed5f
+- Commit at validation: bfa50f30c7e1f9b79ca5ea38463136482aaf69ed
+- Original Cloud Code commit: bfa50f30c7e1f9b79ca5ea38463136482aaf69ed
+- Final validation commit: bfa50f30c7e1f9b79ca5ea38463136482aaf69ed
+- Superseded tag: v3.2-m14-t03-rescue-ux-pacing
+- Closure candidate tag: v3.2-m14-t03-rescue-ux-pacing-fix1
 - First loop duration: 840 seconds
 - Worktree clean at validation: False
 - Project: C:\Users\admin\Desktop\桌面海缸v3.0\CoralReefIdleV3_M14_T01
@@ -55,21 +59,17 @@ M14-T03 screenshot evidence generated as deterministic PNG state captures.
 - data/rescue_config.json
 - reports/m14/M14_T02_RESCUE_FIRST_PLAYABLE_UI_RECEIPT.json
 - reports/m14/M14_T02_RESCUE_FIRST_PLAYABLE_UI_REPORT.md
+- reports/m14/M14_T03_BLIND_PLAYTEST_CHECKLIST.md
+- reports/m14/M14_T03_BLIND_PLAYTEST_REPORT.md
+- reports/m14/M14_T03_CLOUDCODE_TASK_BRIEF.md
+- reports/m14/M14_T03_CODEX_HANDOFF.md
+- reports/m14/M14_T03_RESCUE_UX_PACING_RECEIPT.json
+- reports/m14/M14_T03_RESCUE_UX_PACING_REPORT.md
 - reports/m14/screenshots/01_dock_entry.png
 - reports/m14/screenshots/03_rescue_slot_recovering.png
 - reports/m14/screenshots/04_ready_to_release.png
 - reports/m14/screenshots/05_release_settlement.png
 - reports/m14/screenshots/07_codex_rescued_badge.png
-- scenes/ui/LivestockPanel.gd
-- scenes/ui/RescueDockPanel.gd
-- scenes/ui/StatusPanel.gd
-- scripts/systems/GameState.gd
-- tests/m14_t02_rescue_ui_verify.gd
-- reports/m14/M14_T03_BLIND_PLAYTEST_CHECKLIST.md
-- reports/m14/M14_T03_BLIND_PLAYTEST_REPORT.md
-- reports/m14/M14_T03_CLOUDCODE_TASK_BRIEF.md
-- reports/m14/M14_T03_RESCUE_UX_PACING_RECEIPT.json
-- reports/m14/M14_T03_RESCUE_UX_PACING_REPORT.md
 - reports/m14/screenshots/t03_01_dock_entry.png
 - reports/m14/screenshots/t03_02_dock_candidate.png
 - reports/m14/screenshots/t03_03_rescue_slot_after_bring.png
@@ -79,6 +79,11 @@ M14-T03 screenshot evidence generated as deterministic PNG state captures.
 - reports/m14/screenshots/t03_07_reputation_change.png
 - reports/m14/screenshots/t03_08_codex_rescued_mark.png
 - reports/m14/screenshots/t03_09_next_arrival_waiting.png
+- scenes/ui/LivestockPanel.gd
+- scenes/ui/RescueDockPanel.gd
+- scenes/ui/StatusPanel.gd
+- scripts/systems/GameState.gd
+- tests/m14_t02_rescue_ui_verify.gd
 - tests/m14_t03_capture_screenshots.gd
 - tests/m14_t03_copy_ui_verify.gd
 - tests/run_m14_t03_acceptance.ps1
@@ -103,3 +108,5 @@ M14-T03 screenshot evidence generated as deterministic PNG state captures.
 - Blind playtest report is a separate human-authored document (M14_T03_BLIND_PLAYTEST_REPORT.md)
 - Copy refinements are in Chinese (zh-CN); no i18n framework exists yet
 - T03 does not add new systems; all changes are cosmetic/feedback within the existing rescue loop
+- v3.2-m14-t03-rescue-ux-pacing: superseded by evidence fix
+- v3.2-m14-t03-rescue-ux-pacing-fix1: Codex-reviewable closure candidate

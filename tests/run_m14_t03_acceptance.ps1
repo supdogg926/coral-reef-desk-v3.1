@@ -7,6 +7,16 @@ $ScreenshotDir = Join-Path $ReportDir "screenshots"
 $ReportPath = Join-Path $ReportDir "M14_T03_RESCUE_UX_PACING_REPORT.md"
 $ReceiptPath = Join-Path $ReportDir "M14_T03_RESCUE_UX_PACING_RECEIPT.json"
 $HandoffPath = Join-Path $ReportDir "M14_T03_CODEX_HANDOFF.md"
+$BlindPlaytestPath = Join-Path $ReportDir "M14_T03_BLIND_PLAYTEST_REPORT.md"
+$EvidenceFixupReportPath = Join-Path $ReportDir "M14_T03_EVIDENCE_FIXUP_REPORT.md"
+$OriginalCloudCodeCommit = "bfa50f30c7e1f9b79ca5ea38463136482aaf69ed"
+$SupersededTag = "v3.2-m14-t03-rescue-ux-pacing"
+$FixupTag = "v3.2-m14-t03-rescue-ux-pacing-fix1"
+$TopUxIssues = @(
+	"恢复等待期间缺少主动操作 -> M15 护理决策",
+	"救助生物没有视觉形象 -> M16 卡牌美术接入",
+	"声望缺乏阶段感 -> M18 守护者等级 / 称号"
+)
 New-Item -ItemType Directory -Force -Path $ReportDir,$LogDir,$ScreenshotDir | Out-Null
 
 function Invoke-GodotCheck($Name, $ScriptPath, $PassPattern) {
@@ -156,6 +166,16 @@ if (Test-Path $t02Log) {
 $result = if ($allTestsPass -and $m13Pass -and $t01Pass -and $t02Pass -and $t03CopyPass -and $t03ScreenshotPass -and $screensPass -and $forbiddenPass) { "PASS" } else { "FAIL" }
 $branch = (git -C $Project branch --show-current 2>$null) -replace "\s+", ""
 $commitHash = (git -C $Project rev-parse HEAD 2>$null) -replace "\s+", ""
+$existingFinalValidationCommit = ""
+if (Test-Path $ReceiptPath) {
+	try {
+		$existingReceipt = Get-Content -Raw -Path $ReceiptPath | ConvertFrom-Json
+		$existingFinalValidationCommit = [string]$existingReceipt.final_validation_commit
+	} catch {
+		$existingFinalValidationCommit = ""
+	}
+}
+$finalValidationCommit = if ($existingFinalValidationCommit -match "^[0-9a-f]{40}$" -and $existingFinalValidationCommit -ne $OriginalCloudCodeCommit) { $existingFinalValidationCommit } else { $commitHash }
 $worktreeClean = (@(git -C $Project status --short).Count -eq 0)
 
 # Generate report
@@ -166,7 +186,11 @@ $report += "Overall Status: **$result**"
 $report += ""
 $report += "- Branch: $branch"
 $report += "- Base tag: $baseTag"
-$report += "- Commit at validation: $commitHash"
+$report += "- Commit at validation: $finalValidationCommit"
+$report += "- Original Cloud Code commit: $OriginalCloudCodeCommit"
+$report += "- Final validation commit: $finalValidationCommit"
+$report += "- Superseded tag: $SupersededTag"
+$report += "- Closure candidate tag: $FixupTag"
 $report += "- First loop duration: $firstLoopDuration"
 $report += "- Worktree clean at validation: $worktreeClean"
 $report += "- Project: $Project"
@@ -224,6 +248,8 @@ $report += "- Headless screenshot evidence uses deterministic state captures (du
 $report += "- Blind playtest report is a separate human-authored document (M14_T03_BLIND_PLAYTEST_REPORT.md)"
 $report += "- Copy refinements are in Chinese (zh-CN); no i18n framework exists yet"
 $report += "- T03 does not add new systems; all changes are cosmetic/feedback within the existing rescue loop"
+$report += "- ${SupersededTag}: superseded by evidence fix"
+$report += "- ${FixupTag}: Codex-reviewable closure candidate"
 Set-Content -Path $ReportPath -Value ($report -join "`n") -Encoding UTF8
 
 # Generate receipt
@@ -231,23 +257,30 @@ $receipt = [ordered]@{
 	task_name = "M14-T03_RescueCore_BlindPlaytest_UX_And_Pacing_Hardening"
 	branch = $branch
 	base_tag = $baseTag
-	commit_hash = $commitHash
+	original_cloudcode_commit = $OriginalCloudCodeCommit
+	fixup_commit_hash = $finalValidationCommit
+	final_validation_commit = $finalValidationCommit
+	commit_hash = $finalValidationCommit
 	result = $result
 	m13_regression_result = if ($m13Pass) { "PASS" } else { "FAIL" }
 	m14_t01_regression_result = if ($t01Pass) { "PASS" } else { "FAIL" }
 	m14_t02_regression_result = if ($t02Pass) { "PASS" } else { "FAIL" }
-	m14_t03_acceptance_result = if ($t03CopyPass) { "PASS" } else { "FAIL" }
+	m14_t03_acceptance_result = $result
 	first_loop_duration = $firstLoopDuration
 	blind_playtest_result = "See M14_T03_BLIND_PLAYTEST_REPORT.md"
-	top_ux_issues = @()
+	top_ux_issues = $TopUxIssues
 	screenshots = $screenshotFiles
 	modified_files = $changed
 	forbidden_files_touched = $forbiddenTouched
 	report_path = $ReportPath
-	blind_playtest_report_path = (Join-Path $ReportDir "M14_T03_BLIND_PLAYTEST_REPORT.md")
+	blind_playtest_report_path = $BlindPlaytestPath
+	codex_handoff_path = $HandoffPath
+	evidence_fixup_report_path = $EvidenceFixupReportPath
 	receipt_path = $ReceiptPath
-	tag = "v3.2-m14-t03-rescue-ux-pacing"
-	recommendation_for_m14_t04 = "PENDING_CODEX_REVIEW"
+	tag = $FixupTag
+	supersedes_tag = $SupersededTag
+	worktree_clean_after_rerun = $worktreeClean
+	recommendation_for_m14_t04 = "DO_NOT_ENTER_T04_PENDING_CODEX_REVIEW"
 	codex_handoff_ready = $true
 	tests_run = @($tests | ForEach-Object { $_.name })
 	tests_passed = @($tests | Where-Object { $_.passed } | ForEach-Object { $_.name })

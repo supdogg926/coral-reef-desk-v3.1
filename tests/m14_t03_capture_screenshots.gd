@@ -109,7 +109,7 @@ func _save_state_image(filename: String, desc: String, rescue_state: Dictionary,
 	lines.append("M14-T03:" + desc)
 	lines.append("status=" + String(rescue_state.get("status_text", "")))
 	lines.append("reputation=" + str(int(rescue_state.get("ecological_reputation", 0))))
-	lines.append("progress=" + str(float(rescue_state.get("recovery_progress", 0.0))))
+	lines.append("progress=%.2f" % float(rescue_state.get("recovery_progress", 0.0)))
 	lines.append("has_candidate=" + str(bool(rescue_state.get("has_candidate", false))))
 	lines.append("has_active=" + str(bool(rescue_state.get("has_active", false))))
 	lines.append("ready=" + str(bool(rescue_state.get("ready_to_release", false))))
@@ -174,7 +174,7 @@ func _make_deterministic_png(text: String) -> PackedByteArray:
 	var text_chunk: PackedByteArray = _make_chunk("tEXt", text_bytes)
 
 	# Generate image with varying pixel data (not uniform = better compression test)
-	var seed_val: int = text.hash()
+	var seed_val: int = _stable_text_seed(text)
 	var raw_pixel: PackedByteArray
 	for y in range(png_h):
 		raw_pixel.append(0)
@@ -197,6 +197,15 @@ func _make_deterministic_png(text: String) -> PackedByteArray:
 	result.append_array(idat)
 	result.append_array(iend)
 	return result
+
+
+func _stable_text_seed(text: String) -> int:
+	var bytes: PackedByteArray = text.to_utf8_buffer()
+	var hash: int = 2166136261
+	for b in bytes:
+		hash = hash ^ int(b)
+		hash = (hash * 16777619) & 0x7FFFFFFF
+	return hash
 
 
 func _make_chunk(type: String, data: PackedByteArray) -> PackedByteArray:

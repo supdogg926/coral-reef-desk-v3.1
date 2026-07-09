@@ -2,7 +2,10 @@
     "task_name":  "M14-T03_RescueCore_BlindPlaytest_UX_And_Pacing_Hardening",
     "branch":  "m14-t03-rescue-ux-pacing-hardening",
     "base_tag":  "v3.2-m14-t02-rescue-first-playable-ui",
-    "commit_hash":  "05777a9df10cb59d46ef76d38862470ca3bfed5f",
+    "original_cloudcode_commit":  "bfa50f30c7e1f9b79ca5ea38463136482aaf69ed",
+    "fixup_commit_hash":  "bfa50f30c7e1f9b79ca5ea38463136482aaf69ed",
+    "final_validation_commit":  "bfa50f30c7e1f9b79ca5ea38463136482aaf69ed",
+    "commit_hash":  "bfa50f30c7e1f9b79ca5ea38463136482aaf69ed",
     "result":  "PASS",
     "m13_regression_result":  "PASS",
     "m14_t01_regression_result":  "PASS",
@@ -11,7 +14,9 @@
     "first_loop_duration":  "840 seconds",
     "blind_playtest_result":  "See M14_T03_BLIND_PLAYTEST_REPORT.md",
     "top_ux_issues":  [
-
+                          "恢复等待期间缺少主动操作 -\u003e M15 护理决策",
+                          "救助生物没有视觉形象 -\u003e M16 卡牌美术接入",
+                          "声望缺乏阶段感 -\u003e M18 守护者等级 / 称号"
                       ],
     "screenshots":  [
                         "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3_M14_T01\\reports\\m14\\screenshots\\t03_01_dock_entry.png",
@@ -28,21 +33,17 @@
                            "data/rescue_config.json",
                            "reports/m14/M14_T02_RESCUE_FIRST_PLAYABLE_UI_RECEIPT.json",
                            "reports/m14/M14_T02_RESCUE_FIRST_PLAYABLE_UI_REPORT.md",
+                           "reports/m14/M14_T03_BLIND_PLAYTEST_CHECKLIST.md",
+                           "reports/m14/M14_T03_BLIND_PLAYTEST_REPORT.md",
+                           "reports/m14/M14_T03_CLOUDCODE_TASK_BRIEF.md",
+                           "reports/m14/M14_T03_CODEX_HANDOFF.md",
+                           "reports/m14/M14_T03_RESCUE_UX_PACING_RECEIPT.json",
+                           "reports/m14/M14_T03_RESCUE_UX_PACING_REPORT.md",
                            "reports/m14/screenshots/01_dock_entry.png",
                            "reports/m14/screenshots/03_rescue_slot_recovering.png",
                            "reports/m14/screenshots/04_ready_to_release.png",
                            "reports/m14/screenshots/05_release_settlement.png",
                            "reports/m14/screenshots/07_codex_rescued_badge.png",
-                           "scenes/ui/LivestockPanel.gd",
-                           "scenes/ui/RescueDockPanel.gd",
-                           "scenes/ui/StatusPanel.gd",
-                           "scripts/systems/GameState.gd",
-                           "tests/m14_t02_rescue_ui_verify.gd",
-                           "reports/m14/M14_T03_BLIND_PLAYTEST_CHECKLIST.md",
-                           "reports/m14/M14_T03_BLIND_PLAYTEST_REPORT.md",
-                           "reports/m14/M14_T03_CLOUDCODE_TASK_BRIEF.md",
-                           "reports/m14/M14_T03_RESCUE_UX_PACING_RECEIPT.json",
-                           "reports/m14/M14_T03_RESCUE_UX_PACING_REPORT.md",
                            "reports/m14/screenshots/t03_01_dock_entry.png",
                            "reports/m14/screenshots/t03_02_dock_candidate.png",
                            "reports/m14/screenshots/t03_03_rescue_slot_after_bring.png",
@@ -52,6 +53,11 @@
                            "reports/m14/screenshots/t03_07_reputation_change.png",
                            "reports/m14/screenshots/t03_08_codex_rescued_mark.png",
                            "reports/m14/screenshots/t03_09_next_arrival_waiting.png",
+                           "scenes/ui/LivestockPanel.gd",
+                           "scenes/ui/RescueDockPanel.gd",
+                           "scenes/ui/StatusPanel.gd",
+                           "scripts/systems/GameState.gd",
+                           "tests/m14_t02_rescue_ui_verify.gd",
                            "tests/m14_t03_capture_screenshots.gd",
                            "tests/m14_t03_copy_ui_verify.gd",
                            "tests/run_m14_t03_acceptance.ps1"
@@ -61,9 +67,13 @@
                                 ],
     "report_path":  "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3_M14_T01\\reports\\m14\\M14_T03_RESCUE_UX_PACING_REPORT.md",
     "blind_playtest_report_path":  "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3_M14_T01\\reports\\m14\\M14_T03_BLIND_PLAYTEST_REPORT.md",
+    "codex_handoff_path":  "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3_M14_T01\\reports\\m14\\M14_T03_CODEX_HANDOFF.md",
+    "evidence_fixup_report_path":  "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3_M14_T01\\reports\\m14\\M14_T03_EVIDENCE_FIXUP_REPORT.md",
     "receipt_path":  "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3_M14_T01\\reports\\m14\\M14_T03_RESCUE_UX_PACING_RECEIPT.json",
-    "tag":  "v3.2-m14-t03-rescue-ux-pacing",
-    "recommendation_for_m14_t04":  "PENDING_CODEX_REVIEW",
+    "tag":  "v3.2-m14-t03-rescue-ux-pacing-fix1",
+    "supersedes_tag":  "v3.2-m14-t03-rescue-ux-pacing",
+    "worktree_clean_after_rerun":  false,
+    "recommendation_for_m14_t04":  "DO_NOT_ENTER_T04_PENDING_CODEX_REVIEW",
     "codex_handoff_ready":  true,
     "tests_run":  [
                       "godot_static_editor_check",
@@ -201,7 +211,7 @@
                              "passed":  true,
                              "pass_pattern":  "M14_T03_SCREENSHOT_CAPTURE_RESULT=PASS",
                              "log_path":  "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3_M14_T01\\reports\\m14\\logs\\m14_t03_screenshot_capture.log",
-                             "summary":  "[M14-T03] screenshot evidence generation start\n[M14-T03] screenshot evidence saved: C:/Users/admin/Desktop/桌面海缸v3.0/CoralReefIdleV3_M14_T01/reports/m14/screenshots/t03_01_dock_entry.png bytes=3664\n[M14-T03] screenshot evidence saved: C:/Users/admin/Desktop/桌面海缸v3.0/CoralReefIdleV3_M14_T01/reports/m14/screenshots/t03_02_dock_candidate.png bytes=3666\n[M14-T03] screenshot evidence saved: C:/Users/admin/Desktop/桌面海缸v3.0/CoralReefIdleV3_M14_T01/reports/m14/screenshots/t03_03_rescue_slot_after_bring.png bytes=3667\n[M14-T03] screenshot evidence saved: C:/Users/admin/Desktop/桌面海缸v3.0/CoralReefIdleV3_M14_T01/reports/m14/screenshots/t03_04_recovering.png bytes=3671\n[M14-T03] screenshot evidence saved: C:/Users/admin/Desktop/桌面海缸v3.0/CoralReefIdleV3_M14_T01/reports/m14/screenshots/t03_05_ready_to_release.png bytes=3668\n[M14-T03] screenshot evidence saved: C:/Users/admin/Desktop/桌面海缸v3.0/CoralReefIdleV3_M14_T01/reports/m14/screenshots/t03_06_release_settlement.png bytes=3664\n[M14-T03] screenshot evidence saved: C:/Users/admin/Desktop/桌面海缸v3.0/CoralReefIdleV3_M14_T01/reports/m14/screenshots/t03_07_reputation_change.png bytes=3665\n[M14-T03] codex screenshot saved: C:/Users/admin/Desktop/桌面海缸v3.0/CoralReefIdleV3_M14_T01/reports/m14/screenshots/t03_08_codex_rescued_mark.png bytes=3559\n[M14-T03] screenshot evidence saved: C:/Users/admin/Desktop/桌面海缸v3.0/CoralReefIdleV3_M14_T01/reports/m14/screenshots/t03_09_next_arrival_waiting.png bytes=3668\n[M14-T03] Screenshot capture complete: 9/9 saved\nM14_T03_SCREENSHOT_CAPTURE_RESULT=PASS"
+                             "summary":  "[M14-T03] screenshot evidence generation start\n[M14-T03] screenshot evidence saved: C:/Users/admin/Desktop/桌面海缸v3.0/CoralReefIdleV3_M14_T01/reports/m14/screenshots/t03_01_dock_entry.png bytes=3664\n[M14-T03] screenshot evidence saved: C:/Users/admin/Desktop/桌面海缸v3.0/CoralReefIdleV3_M14_T01/reports/m14/screenshots/t03_02_dock_candidate.png bytes=3670\n[M14-T03] screenshot evidence saved: C:/Users/admin/Desktop/桌面海缸v3.0/CoralReefIdleV3_M14_T01/reports/m14/screenshots/t03_03_rescue_slot_after_bring.png bytes=3665\n[M14-T03] screenshot evidence saved: C:/Users/admin/Desktop/桌面海缸v3.0/CoralReefIdleV3_M14_T01/reports/m14/screenshots/t03_04_recovering.png bytes=3659\n[M14-T03] screenshot evidence saved: C:/Users/admin/Desktop/桌面海缸v3.0/CoralReefIdleV3_M14_T01/reports/m14/screenshots/t03_05_ready_to_release.png bytes=3671\n[M14-T03] screenshot evidence saved: C:/Users/admin/Desktop/桌面海缸v3.0/CoralReefIdleV3_M14_T01/reports/m14/screenshots/t03_06_release_settlement.png bytes=3665\n[M14-T03] screenshot evidence saved: C:/Users/admin/Desktop/桌面海缸v3.0/CoralReefIdleV3_M14_T01/reports/m14/screenshots/t03_07_reputation_change.png bytes=3663\n[M14-T03] codex screenshot saved: C:/Users/admin/Desktop/桌面海缸v3.0/CoralReefIdleV3_M14_T01/reports/m14/screenshots/t03_08_codex_rescued_mark.png bytes=3556\n[M14-T03] screenshot evidence saved: C:/Users/admin/Desktop/桌面海缸v3.0/CoralReefIdleV3_M14_T01/reports/m14/screenshots/t03_09_next_arrival_waiting.png bytes=3666\n[M14-T03] Screenshot capture complete: 9/9 saved\nM14_T03_SCREENSHOT_CAPTURE_RESULT=PASS"
                          }
                      ]
 }
