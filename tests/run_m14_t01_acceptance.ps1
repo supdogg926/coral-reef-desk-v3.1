@@ -35,6 +35,7 @@ $tests += Invoke-GodotCheck "m13_unlock_capacity_regression" "tests/m13_unlock_c
 $tests += Invoke-GodotCheck "m13_save_load_regression" "tests/m13_save_load_30day_verify.gd" "PASS"
 
 $forbiddenTouched = @()
+$baseTag = "v3.1-m13-30day-progression-economy"
 $baseDiffFiles = @(git -C $Project diff --name-only $baseTag..HEAD)
 $changed = @($baseDiffFiles)
 $statusLines = @(git -C $Project status --short)
@@ -57,7 +58,6 @@ $allTestsPass = (@($tests | Where-Object { -not $_.passed }).Count -eq 0)
 $result = if ($allTestsPass -and $forbiddenTouched.Count -eq 0) { "PASS" } else { "FAIL" }
 $commitHash = (git -C $Project rev-parse HEAD 2>$null) -replace "\s+", ""
 $branch = (git -C $Project branch --show-current 2>$null) -replace "\s+", ""
-$baseTag = "v3.1-m13-30day-progression-economy"
 
 $report = @()
 $report += "# M14-T01 RescueCore DataModel And HeadlessSim Report"

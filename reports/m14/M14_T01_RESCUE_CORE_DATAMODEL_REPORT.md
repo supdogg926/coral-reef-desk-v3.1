@@ -4,7 +4,7 @@ Overall Status: **PASS**
 
 - Branch: m14-t01-rescue-core
 - Base tag: v3.1-m13-30day-progression-economy
-- Commit at validation: eb21b3c01157ed1f29a0a9dd7c4abc9d21140fe5
+- Commit at validation: 7392abcf4cf96041a9878773c87357a17d784438
 - Project: C:\Users\admin\Desktop\桌面海缸v3.0\CoralReefIdleV3_M14_T01
 
 ## Scope
