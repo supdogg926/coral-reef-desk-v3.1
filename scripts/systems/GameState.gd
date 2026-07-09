@@ -15,6 +15,7 @@ var unlock_system: UnlockSystem = null
 var save_system: SaveSystem = null
 var action_timeline: ActionTimeline = null
 var stage_objective_system: RefCounted = null  # StageObjectiveSystem loaded via script
+var rescue_system: RefCounted = null  # RescueSystem loaded via script; M14-T01 data/headless only
 var stability_score: float = 50.0
 var carrying_capacity_score: float = 10.0
 var maintenance_load: float = 0.0
@@ -110,6 +111,9 @@ func initialize() -> void:
 
 	stage_objective_system = load("res://scripts/systems/StageObjectiveSystem.gd").new()
 	stage_objective_system.initialize()
+
+	rescue_system = load("res://scripts/systems/RescueSystem.gd").new()
+	rescue_system.initialize()
 
 	_try_load_game()
 
@@ -878,6 +882,29 @@ func get_stage_objective_debug_state() -> Dictionary:
 	return stage_objective_system.get_debug_state()
 
 
+func get_rescue_debug_state() -> Dictionary:
+	if rescue_system == null:
+		return {}
+	return rescue_system.get_debug_state()
+
+
+func advance_rescue_day_for_test(day: int, comfort_override: float = -1.0, water_quality_override: float = -1.0, auto_accept: bool = true) -> Array:
+	if rescue_system == null:
+		return []
+	var comfort_score: float = comfort_override
+	if comfort_score < 0.0 and livestock_system != null:
+		comfort_score = float(livestock_system.get_debug_state().get("comfort_score", 100.0))
+	var water_quality: float = water_quality_override
+	if water_quality < 0.0 and water_chemistry_system != null:
+		water_quality = float(water_chemistry_system.get_debug_state().get("water_quality_score", 100.0))
+	var events: Array = rescue_system.process_day(day, water_quality, comfort_score, auto_accept)
+	for ev in events:
+		if ev is Dictionary and String(ev.get("type", "")) == "release" and economy_system != null:
+			economy_system.add_reef_points(float(ev.get("reward_rp", 0)))
+	reef_points = economy_system.get_reef_points() if economy_system != null else reef_points
+	return events
+
+
 func _check_stage_objectives() -> void:
 	if stage_objective_system == null:
 		return
@@ -1219,6 +1246,9 @@ func _apply_save_state(save_data: Dictionary) -> void:
 	var raw_stage_obj: Variant = save_data.get("stage_objective", {})
 	if raw_stage_obj is Dictionary and stage_objective_system != null:
 		stage_objective_system.import_state(raw_stage_obj)
+	var raw_rescue: Variant = save_data.get("rescue_data", save_data.get("rescue", {}))
+	if raw_rescue is Dictionary and rescue_system != null:
+		rescue_system.import_state(raw_rescue)
 	reef_points = economy_system.reef_points if economy_system != null else 0.0
 
 
@@ -1537,6 +1567,10 @@ func _perform_autosave() -> void:
 		"livestock": livestock_state,
 		"equipment": equipment_state,
 		"stage_objective": stage_objective_system.export_state() if stage_objective_system != null else {},
+		"rescue_data": rescue_system.export_state() if rescue_system != null else {},
+		"player": {
+			"reputation": int(rescue_system.get_debug_state().get("ecological_reputation", 0)) if rescue_system != null else 0,
+		},
 	}
 	print("[SAVE] calling save_game with keys=", save_dict.keys())
 	var ok: bool = save_system.save_game(save_dict)

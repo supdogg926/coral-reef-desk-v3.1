@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "CoralReefIdleV3 M10 Save Schema",
+  "title": "CoralReefIdleV3 M14-T01 Save Schema",
   "type": "object",
   "required": [
     "save_version",
@@ -23,6 +23,15 @@
     "last_save_unix_time": {
       "type": "integer",
       "minimum": 0
+    },
+    "player": {
+      "type": "object",
+      "properties": {
+        "reputation": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
     },
     "economy": {
       "type": "object"
@@ -53,11 +62,63 @@
         },
         "current_capacity_used": {
           "type": "number"
+        },
+        "maintenance_health": {
+          "type": "number"
         }
       }
     },
     "equipment": {
       "type": "object"
+    },
+    "dock_state": {
+      "type": "object",
+      "properties": {
+        "next_arrival": {
+          "type": "integer"
+        },
+        "current_rescue_id": {
+          "type": "string"
+        },
+        "rng_seed": {
+          "type": "integer"
+        }
+      }
+    },
+    "rescue_data": {
+      "type": "object",
+      "properties": {
+        "schema_version": {
+          "type": "integer"
+        },
+        "dock_state": {
+          "type": "object"
+        },
+        "active_rescue": {
+          "type": "object"
+        },
+        "completed_rescues": {
+          "type": "array"
+        },
+        "codex_rescue_marks": {
+          "type": "object"
+        },
+        "ecological_reputation": {
+          "type": "integer"
+        },
+        "total_release_rp_reward": {
+          "type": "integer"
+        },
+        "release_reward_sum_reputation": {
+          "type": "integer"
+        },
+        "event_log": {
+          "type": "array"
+        },
+        "rng_state": {
+          "type": "integer"
+        }
+      }
     }
   },
   "additionalProperties": false

@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "dock": {
+    "first_arrival_day": 1,
+    "arrival_interval_min_days": 2,
+    "arrival_interval_max_days": 4
+  },
+  "recovery": {
+    "comfort_reference": 80.0,
+    "water_quality_reference": 85.0,
+    "comfort_modifier_min": 0.45,
+    "comfort_modifier_max": 1.35,
+    "water_modifier_min": 0.50,
+    "water_modifier_max": 1.20
+  },
+  "rewards": {
+    "rp_multiplier": 1.0,
+    "reputation_multiplier": 1.0
+  },
+  "constraints": {
+    "single_rescue_slot": true,
+    "rescue_generates_income": false,
+    "rescue_can_be_sold": false,
+    "injury_branching_enabled": false
+  }
+}

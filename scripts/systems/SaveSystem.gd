@@ -2,7 +2,7 @@ class_name SaveSystem
 extends RefCounted
 
 const SAVE_PATH: String = "user://reef_idle_v3_save.json"
-const SAVE_VERSION: int = 1
+const SAVE_VERSION: int = 2
 const SAVE_SCHEMA_ID: String = "res://data/schemas/save_schema.json"
 const OFFLINE_CAP_SECONDS: float = 86400.0
 
@@ -39,12 +39,15 @@ func save_game(game_state_dict: Dictionary) -> bool:
 		"save_version": SAVE_VERSION,
 		"save_schema": SAVE_SCHEMA_ID,
 		"last_save_unix_time": timestamp,
+		"player": game_state_dict.get("player", {"reputation": 0}),
 		"economy": game_state_dict.get("economy", {}),
 		"water_chemistry": game_state_dict.get("water_chemistry", {}),
 		"time": game_state_dict.get("time", {}),
 		"unlocks": game_state_dict.get("unlocks", {}),
 		"livestock": game_state_dict.get("livestock", {}),
 		"equipment": game_state_dict.get("equipment", {}),
+		"dock_state": game_state_dict.get("dock_state", game_state_dict.get("rescue_data", {}).get("dock_state", {})),
+		"rescue_data": game_state_dict.get("rescue_data", {}),
 	}
 	var safe_variant: Variant = _to_json_safe(raw_save_data, "save")
 	if not (safe_variant is Dictionary) or not last_json_safety_ok:
@@ -113,12 +116,66 @@ func load_game() -> Dictionary:
 	if parsed == null or not parsed is Dictionary:
 		save_errors.append("Failed to parse save file")
 		return {}
-	var data: Dictionary = parsed
+	var data: Dictionary = migrate_save_data(parsed)
 	last_save_unix_time = int(data.get("last_save_unix_time", 0))
 	var version: int = int(data.get("save_version", 0))
 	if version < 1:
 		save_errors.append("Unknown save version: " + str(version))
 	save_exists = true
+	return data
+
+
+func migrate_save_data(raw_data: Dictionary) -> Dictionary:
+	var data: Dictionary = raw_data.duplicate(true)
+	var version: int = int(data.get("save_version", 0))
+	if version < 1:
+		save_errors.append("Unknown save version: " + str(version))
+	if version < SAVE_VERSION:
+		data["save_version"] = SAVE_VERSION
+	if not data.has("player") or not data["player"] is Dictionary:
+		data["player"] = {"reputation": 0}
+	else:
+		var player: Dictionary = data["player"]
+		player["reputation"] = int(player.get("reputation", 0))
+		data["player"] = player
+	var raw_livestock: Variant = data.get("livestock", {})
+	if raw_livestock is Dictionary:
+		var livestock: Dictionary = raw_livestock
+		var raw_owned: Variant = livestock.get("owned_livestock", [])
+		if raw_owned is Array:
+			var migrated_owned: Array = []
+			for item in raw_owned:
+				if item is Dictionary:
+					var entry: Dictionary = item.duplicate(true)
+					entry["is_rescue"] = bool(entry.get("is_rescue", false))
+					entry["rescue_status"] = String(entry.get("rescue_status", "none"))
+					migrated_owned.append(entry)
+			livestock["owned_livestock"] = migrated_owned
+		data["livestock"] = livestock
+	var rescue_data: Dictionary = {}
+	var raw_rescue: Variant = data.get("rescue_data", data.get("rescue", {}))
+	if raw_rescue is Dictionary:
+		rescue_data = raw_rescue.duplicate(true)
+	if not rescue_data.has("dock_state") or not rescue_data["dock_state"] is Dictionary:
+		rescue_data["dock_state"] = {
+			"next_arrival": 1,
+			"current_rescue_id": "",
+			"rng_seed": 1401,
+		}
+	if not rescue_data.has("active_rescue") or not rescue_data["active_rescue"] is Dictionary:
+		rescue_data["active_rescue"] = {}
+	if not rescue_data.has("completed_rescues") or not rescue_data["completed_rescues"] is Array:
+		rescue_data["completed_rescues"] = []
+	if not rescue_data.has("codex_rescue_marks") or not rescue_data["codex_rescue_marks"] is Dictionary:
+		rescue_data["codex_rescue_marks"] = {}
+	rescue_data["ecological_reputation"] = int(rescue_data.get("ecological_reputation", data.get("player", {}).get("reputation", 0)))
+	rescue_data["total_release_rp_reward"] = int(rescue_data.get("total_release_rp_reward", 0))
+	rescue_data["release_reward_sum_reputation"] = int(rescue_data.get("release_reward_sum_reputation", rescue_data.get("ecological_reputation", 0)))
+	rescue_data["rng_state"] = int(rescue_data.get("rng_state", rescue_data.get("dock_state", {}).get("rng_seed", 1401)))
+	if not rescue_data.has("event_log") or not rescue_data["event_log"] is Array:
+		rescue_data["event_log"] = []
+	data["rescue_data"] = rescue_data
+	data["dock_state"] = rescue_data["dock_state"]
 	return data
 
 

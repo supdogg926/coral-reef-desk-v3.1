@@ -117,6 +117,8 @@ func _load_starter_livestock() -> void:
 			"tank_slot_cost": float(record.get("capacity_cost", 2.0)),
 			"locked": false,
 			"water_sensitivity": float(record.get("water_sensitivity", 0.4)),
+			"is_rescue": false,
+			"rescue_status": "none",
 		}
 		owned_livestock.append(livestock_entry)
 
@@ -139,6 +141,8 @@ func add_livestock(entry: Dictionary) -> bool:
 		"locked": false,
 		"water_sensitivity": float(entry.get("water_sensitivity", 0.4)),
 		"purchase_price": float(entry.get("purchase_price", 0.0)),
+		"is_rescue": bool(entry.get("is_rescue", false)),
+		"rescue_status": String(entry.get("rescue_status", "none")),
 	}
 	owned_livestock.append(new_entry)
 	_recalculate_capacity_and_income()
@@ -258,6 +262,8 @@ func calculate_income_rate(water_chemistry_state: Dictionary, equipment_multipli
 	for entry in owned_livestock:
 		if bool(entry.get("locked", false)):
 			continue
+		if bool(entry.get("is_rescue", false)):
+			continue
 		var individual_income: float = float(entry.get("base_income_per_hour", 0.0))
 		var health_pct: float = float(entry.get("health_percent", 100.0)) / 100.0
 		base_income += individual_income * health_pct
@@ -322,6 +328,8 @@ func calculate_reef_value(water_chemistry_state: Dictionary) -> float:
 	for entry in owned_livestock:
 		if bool(entry.get("locked", false)):
 			continue
+		if bool(entry.get("is_rescue", false)):
+			continue
 		var base_income: float = float(entry.get("base_income_per_hour", 0.0))
 		var health_pct: float = float(entry.get("health_percent", 100.0)) / 100.0
 		var rarity_mult: float = _rarity_value_multiplier(String(entry.get("rarity", "普通")))
@@ -342,6 +350,8 @@ func _get_avg_water_sensitivity() -> float:
 	var total: float = 0.0
 	var count: int = 0
 	for entry in owned_livestock:
+		if bool(entry.get("is_rescue", false)):
+			continue
 		if bool(entry.get("locked", false)):
 			continue
 		total += float(entry.get("water_sensitivity", 0.4))
@@ -386,6 +396,8 @@ func import_state(state: Dictionary) -> void:
 				entry["rarity"] = _normalize_rarity(String(entry.get("rarity", "普通")))
 				entry["species_name"] = _map_name(String(entry.get("species_name", "")))
 				entry["category"] = _normalize_livestock_category(String(entry.get("category", "")))
+				entry["is_rescue"] = bool(entry.get("is_rescue", false))
+				entry["rescue_status"] = String(entry.get("rescue_status", "none"))
 				owned_livestock.append(entry)
 	tank_level = int(state.get("tank_level", 1))
 	max_capacity = float(state.get("max_capacity", DEFAULT_MAX_CAPACITY))
@@ -437,6 +449,8 @@ func _recount_livestock_categories() -> void:
 	invertebrate_count = 0
 	for entry in owned_livestock:
 		if bool(entry.get("locked", false)):
+			continue
+		if bool(entry.get("is_rescue", false)):
 			continue
 		var category: String = _normalize_livestock_category(String(entry.get("category", "")))
 		var qty: int = _get_entry_quantity(entry)
