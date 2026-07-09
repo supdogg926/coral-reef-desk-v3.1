@@ -2,7 +2,7 @@
     "task_name":  "M14-T01_RescueCore_DataModel_And_HeadlessSim",
     "branch":  "m14-t01-rescue-core",
     "base_tag":  "v3.1-m13-30day-progression-economy",
-    "commit_hash":  "eb229fbb917aee00af85e14cf0185bece4ea4f1a",
+    "commit_hash":  "8758b9d20203cee6815f4ce030f06dcdb975c03b",
     "result":  "PASS",
     "tests_run":  [
                       "m14_rescue_core",
@@ -24,16 +24,7 @@
     "rescue_sim_result":  "PASS",
     "save_migration_result":  "PASS",
     "modified_files":  [
-                           "data/schemas/save_schema.json",
-                           "scripts/systems/GameState.gd",
-                           "scripts/systems/LivestockSystem.gd",
-                           "scripts/systems/SaveSystem.gd",
-                           "data/rescue_config.json",
-                           "data/species_rescue_pool.json",
-                           "reports/m14/",
-                           "scripts/systems/RescueSystem.gd",
-                           "tests/m14_rescue_core_verify.gd",
-                           "tests/run_m14_t01_acceptance.ps1"
+
                        ],
     "forbidden_files_touched":  [
 
