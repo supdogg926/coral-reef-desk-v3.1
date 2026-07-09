@@ -87,3 +87,18 @@ Second rerun `git status --short`:
 
 - Recommend Codex re-review M14-T03 after this fixup.
 - Do not enter M14-T04 until the re-review passes.
+
+## Codex Second Review FAIL Resolution
+
+Codex second review failed for one remaining metadata issue: `v3.2-m14-t03-rescue-ux-pacing-fix1` and HEAD pointed at `d6a29aac73b963f7d9b21600c2c9b364573e6ad6`, but the core evidence files only named `a566b3ac15ba44381661a7918f6da4e6bf1eeb8b` as the validation/fixup commit.
+
+`d6a29aac73b963f7d9b21600c2c9b364573e6ad6` must be explicit in the evidence chain because it was the fix1 final closure / tag commit. Without that distinction, Codex could not tell whether the tag target and evidence files described the same closure candidate.
+
+Fix2 resolves this by splitting the fields:
+- `evidence_fixup_validation_commit`: `a566b3ac15ba44381661a7918f6da4e6bf1eeb8b`
+- `fix1_final_closure_commit`: `d6a29aac73b963f7d9b21600c2c9b364573e6ad6`
+- `fix1_tag_target_commit`: `d6a29aac73b963f7d9b21600c2c9b364573e6ad6`
+- `final_candidate_tag`: `v3.2-m14-t03-rescue-ux-pacing-fix2`
+- `final_candidate_tag_target_verification_command`: `git rev-parse v3.2-m14-t03-rescue-ux-pacing-fix2`
+
+This is a metadata-only alignment. It does not change gameplay, UI, data config, screenshot logic, or acceptance logic. The only script change is limited to report/receipt metadata output generation so reruns preserve the complete evidence chain.

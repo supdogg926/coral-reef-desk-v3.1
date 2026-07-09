@@ -9,9 +9,17 @@ $ReceiptPath = Join-Path $ReportDir "M14_T03_RESCUE_UX_PACING_RECEIPT.json"
 $HandoffPath = Join-Path $ReportDir "M14_T03_CODEX_HANDOFF.md"
 $BlindPlaytestPath = Join-Path $ReportDir "M14_T03_BLIND_PLAYTEST_REPORT.md"
 $EvidenceFixupReportPath = Join-Path $ReportDir "M14_T03_EVIDENCE_FIXUP_REPORT.md"
+$FinalClosureMetadataReportPath = Join-Path $ReportDir "M14_T03_FINAL_CLOSURE_METADATA_REPORT.md"
 $OriginalCloudCodeCommit = "bfa50f30c7e1f9b79ca5ea38463136482aaf69ed"
 $SupersededTag = "v3.2-m14-t03-rescue-ux-pacing"
-$FixupTag = "v3.2-m14-t03-rescue-ux-pacing-fix1"
+$EvidenceFixupValidationCommit = "a566b3ac15ba44381661a7918f6da4e6bf1eeb8b"
+$Fix1FinalClosureCommit = "d6a29aac73b963f7d9b21600c2c9b364573e6ad6"
+$Fix1Tag = "v3.2-m14-t03-rescue-ux-pacing-fix1"
+$Fix1TagTargetCommit = "d6a29aac73b963f7d9b21600c2c9b364573e6ad6"
+$FinalCandidateTag = "v3.2-m14-t03-rescue-ux-pacing-fix2"
+$FinalCandidateTagTargetVerificationCommand = "git rev-parse v3.2-m14-t03-rescue-ux-pacing-fix2"
+$EvidenceChainStatus = "fix1 tag target d6a29aac73b963f7d9b21600c2c9b364573e6ad6 is explicitly recorded; fix2 is a metadata-only alignment candidate pending Codex review"
+$CodexSecondReviewBlockerResolved = "pending_codex_review"
 $TopUxIssues = @(
 	"恢复等待期间缺少主动操作 -> M15 护理决策",
 	"救助生物没有视觉形象 -> M16 卡牌美术接入",
@@ -167,15 +175,19 @@ $result = if ($allTestsPass -and $m13Pass -and $t01Pass -and $t02Pass -and $t03C
 $branch = (git -C $Project branch --show-current 2>$null) -replace "\s+", ""
 $commitHash = (git -C $Project rev-parse HEAD 2>$null) -replace "\s+", ""
 $existingFinalValidationCommit = ""
+$existingMetadataAlignmentCommit = ""
 if (Test-Path $ReceiptPath) {
 	try {
 		$existingReceipt = Get-Content -Raw -Path $ReceiptPath | ConvertFrom-Json
 		$existingFinalValidationCommit = [string]$existingReceipt.final_validation_commit
+		$existingMetadataAlignmentCommit = [string]$existingReceipt.metadata_alignment_commit
 	} catch {
 		$existingFinalValidationCommit = ""
+		$existingMetadataAlignmentCommit = ""
 	}
 }
 $finalValidationCommit = if ($existingFinalValidationCommit -match "^[0-9a-f]{40}$" -and $existingFinalValidationCommit -ne $OriginalCloudCodeCommit) { $existingFinalValidationCommit } else { $commitHash }
+$metadataAlignmentCommit = if ($existingMetadataAlignmentCommit -match "^[0-9a-f]{40}$") { $existingMetadataAlignmentCommit } else { $commitHash }
 $worktreeClean = (@(git -C $Project status --short).Count -eq 0)
 
 # Generate report
@@ -190,10 +202,24 @@ $report += "- Commit at validation: $finalValidationCommit"
 $report += "- Original Cloud Code commit: $OriginalCloudCodeCommit"
 $report += "- Final validation commit: $finalValidationCommit"
 $report += "- Superseded tag: $SupersededTag"
-$report += "- Closure candidate tag: $FixupTag"
+$report += "- Closure candidate tag: $FinalCandidateTag"
 $report += "- First loop duration: $firstLoopDuration"
 $report += "- Worktree clean at validation: $worktreeClean"
 $report += "- Project: $Project"
+$report += ""
+$report += "## Evidence Closure Chain"
+$report += ""
+$report += "- original_cloudcode_commit = $OriginalCloudCodeCommit"
+$report += "- evidence_fixup_validation_commit = $EvidenceFixupValidationCommit"
+$report += "- fix1_final_closure_commit = $Fix1FinalClosureCommit"
+$report += "- fix1_tag = $Fix1Tag"
+$report += "- fix1_tag_target_commit = $Fix1TagTargetCommit"
+$report += "- metadata_alignment_commit = $metadataAlignmentCommit"
+$report += "- fix2_purpose = metadata-only clarification of final closure chain"
+$report += "- final_candidate_tag = $FinalCandidateTag"
+$report += "- final_candidate_tag_target must be verified by: $FinalCandidateTagTargetVerificationCommand"
+$report += "- evidence_chain_status = $EvidenceChainStatus"
+$report += "- codex_second_review_blocker_resolved = $CodexSecondReviewBlockerResolved"
 $report += ""
 $report += "## Scope"
 $report += ""
@@ -249,7 +275,8 @@ $report += "- Blind playtest report is a separate human-authored document (M14_T
 $report += "- Copy refinements are in Chinese (zh-CN); no i18n framework exists yet"
 $report += "- T03 does not add new systems; all changes are cosmetic/feedback within the existing rescue loop"
 $report += "- ${SupersededTag}: superseded by evidence fix"
-$report += "- ${FixupTag}: Codex-reviewable closure candidate"
+$report += "- ${Fix1Tag}: superseded by fix2 metadata alignment candidate"
+$report += "- ${FinalCandidateTag}: Codex-reviewable metadata alignment candidate"
 Set-Content -Path $ReportPath -Value ($report -join "`n") -Encoding UTF8
 
 # Generate receipt
@@ -258,6 +285,15 @@ $receipt = [ordered]@{
 	branch = $branch
 	base_tag = $baseTag
 	original_cloudcode_commit = $OriginalCloudCodeCommit
+	evidence_fixup_validation_commit = $EvidenceFixupValidationCommit
+	fix1_final_closure_commit = $Fix1FinalClosureCommit
+	fix1_tag = $Fix1Tag
+	fix1_tag_target_commit = $Fix1TagTargetCommit
+	metadata_alignment_commit = $metadataAlignmentCommit
+	final_candidate_tag = $FinalCandidateTag
+	final_candidate_tag_target_verification_command = $FinalCandidateTagTargetVerificationCommand
+	evidence_chain_status = $EvidenceChainStatus
+	codex_second_review_blocker_resolved = $CodexSecondReviewBlockerResolved
 	fixup_commit_hash = $finalValidationCommit
 	final_validation_commit = $finalValidationCommit
 	commit_hash = $finalValidationCommit
@@ -276,8 +312,9 @@ $receipt = [ordered]@{
 	blind_playtest_report_path = $BlindPlaytestPath
 	codex_handoff_path = $HandoffPath
 	evidence_fixup_report_path = $EvidenceFixupReportPath
+	final_closure_metadata_report_path = $FinalClosureMetadataReportPath
 	receipt_path = $ReceiptPath
-	tag = $FixupTag
+	tag = $FinalCandidateTag
 	supersedes_tag = $SupersededTag
 	worktree_clean_after_rerun = $worktreeClean
 	recommendation_for_m14_t04 = "DO_NOT_ENTER_T04_PENDING_CODEX_REVIEW"

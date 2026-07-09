@@ -8,10 +8,24 @@ Overall Status: **PASS**
 - Original Cloud Code commit: bfa50f30c7e1f9b79ca5ea38463136482aaf69ed
 - Final validation commit: a566b3ac15ba44381661a7918f6da4e6bf1eeb8b
 - Superseded tag: v3.2-m14-t03-rescue-ux-pacing
-- Closure candidate tag: v3.2-m14-t03-rescue-ux-pacing-fix1
+- Closure candidate tag: v3.2-m14-t03-rescue-ux-pacing-fix2
 - First loop duration: 840 seconds
-- Worktree clean at validation: True
+- Worktree clean at validation: False
 - Project: C:\Users\admin\Desktop\桌面海缸v3.0\CoralReefIdleV3_M14_T01
+
+## Evidence Closure Chain
+
+- original_cloudcode_commit = bfa50f30c7e1f9b79ca5ea38463136482aaf69ed
+- evidence_fixup_validation_commit = a566b3ac15ba44381661a7918f6da4e6bf1eeb8b
+- fix1_final_closure_commit = d6a29aac73b963f7d9b21600c2c9b364573e6ad6
+- fix1_tag = v3.2-m14-t03-rescue-ux-pacing-fix1
+- fix1_tag_target_commit = d6a29aac73b963f7d9b21600c2c9b364573e6ad6
+- metadata_alignment_commit = d6a29aac73b963f7d9b21600c2c9b364573e6ad6
+- fix2_purpose = metadata-only clarification of final closure chain
+- final_candidate_tag = v3.2-m14-t03-rescue-ux-pacing-fix2
+- final_candidate_tag_target must be verified by: git rev-parse v3.2-m14-t03-rescue-ux-pacing-fix2
+- evidence_chain_status = fix1 tag target d6a29aac73b963f7d9b21600c2c9b364573e6ad6 is explicitly recorded; fix2 is a metadata-only alignment candidate pending Codex review
+- codex_second_review_blocker_resolved = pending_codex_review
 
 ## Scope
 
@@ -88,6 +102,7 @@ M14-T03 screenshot evidence generated as deterministic PNG state captures.
 - tests/m14_t03_capture_screenshots.gd
 - tests/m14_t03_copy_ui_verify.gd
 - tests/run_m14_t03_acceptance.ps1
+- reports/m14/M14_T03_FINAL_CLOSURE_METADATA_REPORT.md
 
 ## Forbidden Files Touched
 
@@ -110,4 +125,5 @@ M14-T03 screenshot evidence generated as deterministic PNG state captures.
 - Copy refinements are in Chinese (zh-CN); no i18n framework exists yet
 - T03 does not add new systems; all changes are cosmetic/feedback within the existing rescue loop
 - v3.2-m14-t03-rescue-ux-pacing: superseded by evidence fix
-- v3.2-m14-t03-rescue-ux-pacing-fix1: Codex-reviewable closure candidate
+- v3.2-m14-t03-rescue-ux-pacing-fix1: superseded by fix2 metadata alignment candidate
+- v3.2-m14-t03-rescue-ux-pacing-fix2: Codex-reviewable metadata alignment candidate

@@ -5,8 +5,11 @@
 - **base tag**：`v3.2-m14-t02-rescue-first-playable-ui`
 - **原 Cloud Code commit**：`bfa50f30c7e1f9b79ca5ea38463136482aaf69ed`
 - **fixup validation commit**：`a566b3ac15ba44381661a7918f6da4e6bf1eeb8b`
+- **fix1 final closure / tag commit**：`d6a29aac73b963f7d9b21600c2c9b364573e6ad6`
 - **原 tag**：`v3.2-m14-t03-rescue-ux-pacing`（superseded by evidence fix）
-- **新修复 tag**：`v3.2-m14-t03-rescue-ux-pacing-fix1`（Codex-reviewable closure candidate）
+- **fix1 tag**：`v3.2-m14-t03-rescue-ux-pacing-fix1`（target: `d6a29aac73b963f7d9b21600c2c9b364573e6ad6`）
+- **fix2 candidate tag**：`v3.2-m14-t03-rescue-ux-pacing-fix2`
+- **fix2 tag target verification command**：`git rev-parse v3.2-m14-t03-rescue-ux-pacing-fix2`
 
 ## 任务概要
 - **本次任务目标**：M14-T03 RescueCore BlindPlaytest UX And Pacing Hardening
@@ -27,6 +30,7 @@
 - **本次未做内容**：海域系统、大海图鉴、多救助位、伤情分支、护理操作、繁殖、卡牌美术、复杂动画、声望商店、声望等级、新经济资源、M11 重构
 - **禁止范围是否触碰**：**否。0 文件触碰。**
 - **证据闭环修复**：已新增 `reports/m14/M14_T03_EVIDENCE_FIXUP_REPORT.md`，补齐 receipt 的 `top_ux_issues`，并修复 T03 截图生成的 deterministic seed。
+- **metadata alignment 修复**：fix2 只补齐证据链 metadata，明确 `d6a29aac73b963f7d9b21600c2c9b364573e6ad6` 是 fix1 final closure / tag commit；不改变玩法、UI、数据、截图逻辑或验收逻辑。
 
 ## 验收
 - **所有验收命令**：
@@ -55,6 +59,7 @@
 - **盲玩报告路径**：`reports/m14/M14_T03_BLIND_PLAYTEST_REPORT.md`
 - **盲玩检查清单路径**：`reports/m14/M14_T03_BLIND_PLAYTEST_CHECKLIST.md`
 - **证据修复报告路径**：`reports/m14/M14_T03_EVIDENCE_FIXUP_REPORT.md`
+- **最终闭包 metadata 报告路径**：`reports/m14/M14_T03_FINAL_CLOSURE_METADATA_REPORT.md`
 
 ## Codex 复核指南
 - **需要 Codex 复核的重点**：
@@ -78,6 +83,15 @@
   2. 组织一次真人盲玩（而非脚本模拟），验证"放归那一下的感受"
   3. 确认"救助放归体验成立"后再决定是否进入 T04 或调整 M14 方向
   4. 如进入 T04，建议从 M15 的 `injury_type` 字段实现开始（数据结构已预留）
+
+## Codex 三次复核重点
+
+1. 复核 `v3.2-m14-t03-rescue-ux-pacing-fix2` tag 实际指向：`git rev-parse v3.2-m14-t03-rescue-ux-pacing-fix2`。
+2. 复核核心证据文件是否已明确记录 `d6a29aac73b963f7d9b21600c2c9b364573e6ad6` 是 fix1 final closure / tag commit。
+3. 复核 fix2 是否只做 metadata alignment。
+4. 重跑 `powershell -ExecutionPolicy Bypass -File tests/run_m14_t03_acceptance.ps1`。
+5. 重跑后检查 `git status --short` 是否为空。
+6. 以上全部通过后，才允许关闭 M14-T03；仍不得直接进入 T04。
 
 ---
 
