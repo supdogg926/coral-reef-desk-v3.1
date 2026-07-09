@@ -102,3 +102,16 @@ Fix2 resolves this by splitting the fields:
 - `final_candidate_tag_target_verification_command`: `git rev-parse v3.2-m14-t03-rescue-ux-pacing-fix2`
 
 This is a metadata-only alignment. It does not change gameplay, UI, data config, screenshot logic, or acceptance logic. The only script change is limited to report/receipt metadata output generation so reruns preserve the complete evidence chain.
+
+## Fix2 Annotated Tag Closure
+
+- `fix2_tag`: `v3.2-m14-t03-rescue-ux-pacing-fix2`
+- `fix2_annotated_tag_object`: `4df1e5043dd94b61f74ab5f59478121d226c3714`
+- `fix2_dereferenced_target_commit`: `8c0ce8695db32d1d52151171dcc4ca50c2bea7f3`
+- `current_head_commit`: `8c0ce8695db32d1d52151171dcc4ca50c2bea7f3`
+- `tag_target_matches_head`: `true`
+- `verification_commands`:
+  - `git rev-parse v3.2-m14-t03-rescue-ux-pacing-fix2`
+  - `git rev-parse v3.2-m14-t03-rescue-ux-pacing-fix2^{}`
+  - `git rev-parse HEAD`
+- `4df1e5...` is the annotated tag object. `8c0ce8...` is the dereferenced final target / closure commit. HEAD equals `8c0ce8...`, so the fix2 final closure target is now explicitly recorded.

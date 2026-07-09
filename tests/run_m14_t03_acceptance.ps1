@@ -18,7 +18,9 @@ $Fix1Tag = "v3.2-m14-t03-rescue-ux-pacing-fix1"
 $Fix1TagTargetCommit = "d6a29aac73b963f7d9b21600c2c9b364573e6ad6"
 $FinalCandidateTag = "v3.2-m14-t03-rescue-ux-pacing-fix2"
 $FinalCandidateTagTargetVerificationCommand = "git rev-parse v3.2-m14-t03-rescue-ux-pacing-fix2"
-$EvidenceChainStatus = "fix1 tag target d6a29aac73b963f7d9b21600c2c9b364573e6ad6 is explicitly recorded; fix2 is a metadata-only alignment candidate pending Codex review"
+$Fix2ExpectedAnnotatedTagObject = "4df1e5043dd94b61f74ab5f59478121d226c3714"
+$Fix2ExpectedFinalTagTargetCommit = "8c0ce8695db32d1d52151171dcc4ca50c2bea7f3"
+$EvidenceChainStatus = "fix1 tag target d6a29aac73b963f7d9b21600c2c9b364573e6ad6 is explicitly recorded; fix2 annotated tag object and dereferenced final target are recorded; fix2 is a metadata-only alignment candidate pending Codex review"
 $CodexSecondReviewBlockerResolved = "pending_codex_review"
 $TopUxIssues = @(
 	"恢复等待期间缺少主动操作 -> M15 护理决策",
@@ -188,6 +190,13 @@ if (Test-Path $ReceiptPath) {
 }
 $finalValidationCommit = if ($existingFinalValidationCommit -match "^[0-9a-f]{40}$" -and $existingFinalValidationCommit -ne $OriginalCloudCodeCommit) { $existingFinalValidationCommit } else { $commitHash }
 $metadataAlignmentCommit = if ($existingMetadataAlignmentCommit -match "^[0-9a-f]{40}$") { $existingMetadataAlignmentCommit } else { $commitHash }
+$fix2AnnotatedTagObject = (git -C $Project rev-parse $FinalCandidateTag 2>$null) -replace "\s+", ""
+$fix2FinalTagTargetCommit = (git -C $Project rev-parse "$FinalCandidateTag^{}" 2>$null) -replace "\s+", ""
+$fix2CurrentHeadCommit = $commitHash
+$fix2TagTargetMatchesHead = ($fix2FinalTagTargetCommit -eq $fix2CurrentHeadCommit)
+$fix2TagObjectVerified = ($fix2AnnotatedTagObject -eq $Fix2ExpectedAnnotatedTagObject)
+$fix2TagTargetVerified = ($fix2FinalTagTargetCommit -eq $Fix2ExpectedFinalTagTargetCommit)
+$fix2ClosureExplanation = "$Fix2ExpectedAnnotatedTagObject is the annotated tag object; $Fix2ExpectedFinalTagTargetCommit is the dereferenced final target / closure commit; current HEAD equals $fix2CurrentHeadCommit; therefore the fix2 tag target closure commit is recorded in the evidence chain."
 $worktreeClean = (@(git -C $Project status --short).Count -eq 0)
 
 # Generate report
@@ -220,6 +229,21 @@ $report += "- final_candidate_tag = $FinalCandidateTag"
 $report += "- final_candidate_tag_target must be verified by: $FinalCandidateTagTargetVerificationCommand"
 $report += "- evidence_chain_status = $EvidenceChainStatus"
 $report += "- codex_second_review_blocker_resolved = $CodexSecondReviewBlockerResolved"
+$report += ""
+$report += "## Fix2 Annotated Tag Closure"
+$report += ""
+$report += "- fix2_tag = $FinalCandidateTag"
+$report += "- fix2_annotated_tag_object = $fix2AnnotatedTagObject"
+$report += "- fix2_dereferenced_target_commit = $fix2FinalTagTargetCommit"
+$report += "- current_head_commit = $fix2CurrentHeadCommit"
+$report += "- tag_target_matches_head = $fix2TagTargetMatchesHead"
+$report += "- tag_object_verified = $fix2TagObjectVerified"
+$report += "- tag_target_verified = $fix2TagTargetVerified"
+$report += "- closure_explanation = $fix2ClosureExplanation"
+$report += "- verification_commands:"
+$report += "  - git rev-parse $FinalCandidateTag"
+$report += "  - git rev-parse $FinalCandidateTag^{}"
+$report += "  - git rev-parse HEAD"
 $report += ""
 $report += "## Scope"
 $report += ""
@@ -292,6 +316,14 @@ $receipt = [ordered]@{
 	metadata_alignment_commit = $metadataAlignmentCommit
 	final_candidate_tag = $FinalCandidateTag
 	final_candidate_tag_target_verification_command = $FinalCandidateTagTargetVerificationCommand
+	fix2_tag = $FinalCandidateTag
+	fix2_annotated_tag_object = $fix2AnnotatedTagObject
+	fix2_final_tag_target_commit = $fix2FinalTagTargetCommit
+	fix2_current_head_commit = $fix2CurrentHeadCommit
+	fix2_tag_target_matches_head = $fix2TagTargetMatchesHead
+	fix2_tag_object_verified = $fix2TagObjectVerified
+	fix2_tag_target_verified = $fix2TagTargetVerified
+	fix2_closure_explanation = $fix2ClosureExplanation
 	evidence_chain_status = $EvidenceChainStatus
 	codex_second_review_blocker_resolved = $CodexSecondReviewBlockerResolved
 	fixup_commit_hash = $finalValidationCommit

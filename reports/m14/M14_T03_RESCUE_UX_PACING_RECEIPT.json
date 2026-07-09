@@ -10,7 +10,15 @@
     "metadata_alignment_commit":  "62ec77ec4e77b1fbc4400981af6f105ec1ff916b",
     "final_candidate_tag":  "v3.2-m14-t03-rescue-ux-pacing-fix2",
     "final_candidate_tag_target_verification_command":  "git rev-parse v3.2-m14-t03-rescue-ux-pacing-fix2",
-    "evidence_chain_status":  "fix1 tag target d6a29aac73b963f7d9b21600c2c9b364573e6ad6 is explicitly recorded; fix2 is a metadata-only alignment candidate pending Codex review",
+    "fix2_tag":  "v3.2-m14-t03-rescue-ux-pacing-fix2",
+    "fix2_annotated_tag_object":  "4df1e5043dd94b61f74ab5f59478121d226c3714",
+    "fix2_final_tag_target_commit":  "8c0ce8695db32d1d52151171dcc4ca50c2bea7f3",
+    "fix2_current_head_commit":  "8c0ce8695db32d1d52151171dcc4ca50c2bea7f3",
+    "fix2_tag_target_matches_head":  true,
+    "fix2_tag_object_verified":  true,
+    "fix2_tag_target_verified":  true,
+    "fix2_closure_explanation":  "4df1e5043dd94b61f74ab5f59478121d226c3714 is the annotated tag object; 8c0ce8695db32d1d52151171dcc4ca50c2bea7f3 is the dereferenced final target / closure commit; current HEAD equals 8c0ce8695db32d1d52151171dcc4ca50c2bea7f3; therefore the fix2 tag target closure commit is recorded in the evidence chain.",
+    "evidence_chain_status":  "fix1 tag target d6a29aac73b963f7d9b21600c2c9b364573e6ad6 is explicitly recorded; fix2 annotated tag object and dereferenced final target are recorded; fix2 is a metadata-only alignment candidate pending Codex review",
     "codex_second_review_blocker_resolved":  "pending_codex_review",
     "fixup_commit_hash":  "a566b3ac15ba44381661a7918f6da4e6bf1eeb8b",
     "final_validation_commit":  "a566b3ac15ba44381661a7918f6da4e6bf1eeb8b",
@@ -84,7 +92,7 @@
     "receipt_path":  "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3_M14_T01\\reports\\m14\\M14_T03_RESCUE_UX_PACING_RECEIPT.json",
     "tag":  "v3.2-m14-t03-rescue-ux-pacing-fix2",
     "supersedes_tag":  "v3.2-m14-t03-rescue-ux-pacing",
-    "worktree_clean_after_rerun":  true,
+    "worktree_clean_after_rerun":  false,
     "recommendation_for_m14_t04":  "DO_NOT_ENTER_T04_PENDING_CODEX_REVIEW",
     "codex_handoff_ready":  true,
     "tests_run":  [
@@ -113,7 +121,7 @@
                          "m14_t03_copy_ui_verify",
                          "m14_t03_screenshot_capture"
                      ],
-    "worktree_clean_at_validation":  true,
+    "worktree_clean_at_validation":  false,
     "test_details":  [
                          {
                              "name":  "godot_static_editor_check",

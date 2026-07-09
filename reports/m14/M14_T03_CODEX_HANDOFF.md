@@ -9,6 +9,8 @@
 - **原 tag**：`v3.2-m14-t03-rescue-ux-pacing`（superseded by evidence fix）
 - **fix1 tag**：`v3.2-m14-t03-rescue-ux-pacing-fix1`（target: `d6a29aac73b963f7d9b21600c2c9b364573e6ad6`）
 - **fix2 candidate tag**：`v3.2-m14-t03-rescue-ux-pacing-fix2`
+- **fix2 annotated tag object**：`4df1e5043dd94b61f74ab5f59478121d226c3714`
+- **fix2 final tag target / closure commit**：`8c0ce8695db32d1d52151171dcc4ca50c2bea7f3`
 - **fix2 tag target verification command**：`git rev-parse v3.2-m14-t03-rescue-ux-pacing-fix2`
 
 ## 任务概要
@@ -92,6 +94,19 @@
 4. 重跑 `powershell -ExecutionPolicy Bypass -File tests/run_m14_t03_acceptance.ps1`。
 5. 重跑后检查 `git status --short` 是否为空。
 6. 以上全部通过后，才允许关闭 M14-T03；仍不得直接进入 T04。
+
+## Fix2 Annotated Tag Closure
+
+- `fix2_tag`: `v3.2-m14-t03-rescue-ux-pacing-fix2`
+- `fix2_annotated_tag_object`: `4df1e5043dd94b61f74ab5f59478121d226c3714`
+- `fix2_dereferenced_target_commit`: `8c0ce8695db32d1d52151171dcc4ca50c2bea7f3`
+- `current_head_commit`: `8c0ce8695db32d1d52151171dcc4ca50c2bea7f3`
+- `tag_target_matches_head`: `true`
+- `verification_commands`:
+  - `git rev-parse v3.2-m14-t03-rescue-ux-pacing-fix2`
+  - `git rev-parse v3.2-m14-t03-rescue-ux-pacing-fix2^{}`
+  - `git rev-parse HEAD`
+- `4df1e5...` 是 annotated tag object；`8c0ce8...` 是该 tag 解引用后的 final target / closure commit，且当前 HEAD 等于 `8c0ce8...`。
 
 ---
 

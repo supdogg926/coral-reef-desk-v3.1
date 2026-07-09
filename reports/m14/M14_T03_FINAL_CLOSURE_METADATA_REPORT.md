@@ -39,6 +39,20 @@ Fix2 records the closure chain explicitly in report, receipt, handoff, and this 
 - final candidate tag: `v3.2-m14-t03-rescue-ux-pacing-fix2`
 - final candidate tag target verification command: `git rev-parse v3.2-m14-t03-rescue-ux-pacing-fix2`
 
+## Fix2 Annotated Tag Closure
+
+- `fix2_tag`: `v3.2-m14-t03-rescue-ux-pacing-fix2`
+- `fix2_annotated_tag_object`: `4df1e5043dd94b61f74ab5f59478121d226c3714`
+- `fix2_dereferenced_target_commit`: `8c0ce8695db32d1d52151171dcc4ca50c2bea7f3`
+- `current_head_commit`: `8c0ce8695db32d1d52151171dcc4ca50c2bea7f3`
+- `tag_target_matches_head`: `true`
+- `verification_commands`:
+  - `git rev-parse v3.2-m14-t03-rescue-ux-pacing-fix2`
+  - `git rev-parse v3.2-m14-t03-rescue-ux-pacing-fix2^{}`
+  - `git rev-parse HEAD`
+
+`4df1e5...` is the annotated tag object. `8c0ce8...` is the dereferenced final target / closure commit. The current HEAD equals `8c0ce8...`, so the fix2 tag points at the final closure commit now recorded in the core evidence chain.
+
 ## Codex Third Review Commands
 
 ```powershell

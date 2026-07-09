@@ -10,7 +10,7 @@ Overall Status: **PASS**
 - Superseded tag: v3.2-m14-t03-rescue-ux-pacing
 - Closure candidate tag: v3.2-m14-t03-rescue-ux-pacing-fix2
 - First loop duration: 840 seconds
-- Worktree clean at validation: True
+- Worktree clean at validation: False
 - Project: C:\Users\admin\Desktop\桌面海缸v3.0\CoralReefIdleV3_M14_T01
 
 ## Evidence Closure Chain
@@ -24,8 +24,23 @@ Overall Status: **PASS**
 - fix2_purpose = metadata-only clarification of final closure chain
 - final_candidate_tag = v3.2-m14-t03-rescue-ux-pacing-fix2
 - final_candidate_tag_target must be verified by: git rev-parse v3.2-m14-t03-rescue-ux-pacing-fix2
-- evidence_chain_status = fix1 tag target d6a29aac73b963f7d9b21600c2c9b364573e6ad6 is explicitly recorded; fix2 is a metadata-only alignment candidate pending Codex review
+- evidence_chain_status = fix1 tag target d6a29aac73b963f7d9b21600c2c9b364573e6ad6 is explicitly recorded; fix2 annotated tag object and dereferenced final target are recorded; fix2 is a metadata-only alignment candidate pending Codex review
 - codex_second_review_blocker_resolved = pending_codex_review
+
+## Fix2 Annotated Tag Closure
+
+- fix2_tag = v3.2-m14-t03-rescue-ux-pacing-fix2
+- fix2_annotated_tag_object = 4df1e5043dd94b61f74ab5f59478121d226c3714
+- fix2_dereferenced_target_commit = 8c0ce8695db32d1d52151171dcc4ca50c2bea7f3
+- current_head_commit = 8c0ce8695db32d1d52151171dcc4ca50c2bea7f3
+- tag_target_matches_head = True
+- tag_object_verified = True
+- tag_target_verified = True
+- closure_explanation = 4df1e5043dd94b61f74ab5f59478121d226c3714 is the annotated tag object; 8c0ce8695db32d1d52151171dcc4ca50c2bea7f3 is the dereferenced final target / closure commit; current HEAD equals 8c0ce8695db32d1d52151171dcc4ca50c2bea7f3; therefore the fix2 tag target closure commit is recorded in the evidence chain.
+- verification_commands:
+  - git rev-parse v3.2-m14-t03-rescue-ux-pacing-fix2
+  - git rev-parse v3.2-m14-t03-rescue-ux-pacing-fix2^{}
+  - git rev-parse HEAD
 
 ## Scope
 
