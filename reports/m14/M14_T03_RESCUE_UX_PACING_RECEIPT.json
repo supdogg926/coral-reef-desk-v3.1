@@ -37,6 +37,7 @@
                            "reports/m14/M14_T03_BLIND_PLAYTEST_REPORT.md",
                            "reports/m14/M14_T03_CLOUDCODE_TASK_BRIEF.md",
                            "reports/m14/M14_T03_CODEX_HANDOFF.md",
+                           "reports/m14/M14_T03_EVIDENCE_FIXUP_REPORT.md",
                            "reports/m14/M14_T03_RESCUE_UX_PACING_RECEIPT.json",
                            "reports/m14/M14_T03_RESCUE_UX_PACING_REPORT.md",
                            "reports/m14/screenshots/01_dock_entry.png",
@@ -60,8 +61,7 @@
                            "tests/m14_t02_rescue_ui_verify.gd",
                            "tests/m14_t03_capture_screenshots.gd",
                            "tests/m14_t03_copy_ui_verify.gd",
-                           "tests/run_m14_t03_acceptance.ps1",
-                           "reports/m14/M14_T03_EVIDENCE_FIXUP_REPORT.md"
+                           "tests/run_m14_t03_acceptance.ps1"
                        ],
     "forbidden_files_touched":  [
 
