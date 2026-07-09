@@ -4,7 +4,7 @@ Overall Status: **PASS**
 
 - Branch: m14-t01-rescue-core
 - Base tag: v3.1-m13-30day-progression-economy
-- Commit at validation: 7392abcf4cf96041a9878773c87357a17d784438
+- Commit at validation: 3b87034d44a12b95762cb7800ca136a02fbd7728
 - Project: C:\Users\admin\Desktop\桌面海缸v3.0\CoralReefIdleV3_M14_T01
 
 ## Scope
@@ -36,6 +36,16 @@ Implemented data/model/headless rescue loop only. No UI, .tscn, art, ocean, inju
 
 ## Modified Files
 
+- data/rescue_config.json
+- data/schemas/save_schema.json
+- data/species_rescue_pool.json
+- reports/m14/M14_T01_RESCUE_CORE_DATAMODEL_RECEIPT.json
+- reports/m14/M14_T01_RESCUE_CORE_DATAMODEL_REPORT.md
+- scripts/systems/GameState.gd
+- scripts/systems/LivestockSystem.gd
+- scripts/systems/RescueSystem.gd
+- scripts/systems/SaveSystem.gd
+- tests/m14_rescue_core_verify.gd
 - tests/run_m14_t01_acceptance.ps1
 
 ## Known Limitations

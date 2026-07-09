@@ -36,7 +36,7 @@ $tests += Invoke-GodotCheck "m13_save_load_regression" "tests/m13_save_load_30da
 
 $forbiddenTouched = @()
 $baseTag = "v3.1-m13-30day-progression-economy"
-$baseDiffFiles = @(git -C $Project diff --name-only $baseTag..HEAD)
+$baseDiffFiles = @(git -C $Project diff --name-only "${baseTag}..HEAD")
 $changed = @($baseDiffFiles)
 $statusLines = @(git -C $Project status --short)
 foreach ($line in $statusLines) {
