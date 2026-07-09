@@ -35,11 +35,15 @@ $tests += Invoke-GodotCheck "m13_unlock_capacity_regression" "tests/m13_unlock_c
 $tests += Invoke-GodotCheck "m13_save_load_regression" "tests/m13_save_load_30day_verify.gd" "PASS"
 
 $forbiddenTouched = @()
-$changed = @()
+$baseDiffFiles = @(git -C $Project diff --name-only $baseTag..HEAD)
+$changed = @($baseDiffFiles)
 $statusLines = @(git -C $Project status --short)
 foreach ($line in $statusLines) {
 	if ($line.Length -ge 4) {
-		$changed += $line.Substring(3)
+		$path = $line.Substring(3)
+		if ($changed -notcontains $path) {
+			$changed += $path
+		}
 	}
 }
 foreach ($f in $changed) {

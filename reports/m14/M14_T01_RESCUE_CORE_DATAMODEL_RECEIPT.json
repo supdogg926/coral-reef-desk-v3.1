@@ -2,7 +2,7 @@
     "task_name":  "M14-T01_RescueCore_DataModel_And_HeadlessSim",
     "branch":  "m14-t01-rescue-core",
     "base_tag":  "v3.1-m13-30day-progression-economy",
-    "commit_hash":  "8758b9d20203cee6815f4ce030f06dcdb975c03b",
+    "commit_hash":  "eb21b3c01157ed1f29a0a9dd7c4abc9d21140fe5",
     "result":  "PASS",
     "tests_run":  [
                       "m14_rescue_core",
@@ -24,7 +24,7 @@
     "rescue_sim_result":  "PASS",
     "save_migration_result":  "PASS",
     "modified_files":  [
-
+                           "tests/run_m14_t01_acceptance.ps1"
                        ],
     "forbidden_files_touched":  [
 
