@@ -56,6 +56,11 @@ $tests += Invoke-GodotCheck "m13_save_load_regression" "tests/m13_save_load_30da
 $tests += Invoke-GodotCheck "m14_t02_rescue_ui_verify" "tests/m14_t02_rescue_ui_verify.gd" "M14_T02_RESCUE_FIRST_PLAYABLE_RESULT=PASS"
 $tests += Invoke-GodotCheck "m14_t02_screenshot_capture" "tests/m14_t02_capture_screenshots.gd" "M14_T02_SCREENSHOT_CAPTURE_RESULT=PASS"
 
+$generatedImports = @(Get-ChildItem -Path $ScreenshotDir -Filter "*.import" -File -ErrorAction SilentlyContinue)
+foreach ($importFile in $generatedImports) {
+	Remove-Item -LiteralPath $importFile.FullName -Force -ErrorAction SilentlyContinue
+}
+
 $baseTag = "v3.2-m14-t01-rescue-datamodel"
 $changed = @()
 $diffFiles = @(git -C $Project diff --name-only "$baseTag..HEAD" 2>$null)
