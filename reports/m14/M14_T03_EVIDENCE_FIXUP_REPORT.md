@@ -66,10 +66,17 @@ After first fixup commit:
 - Purpose: deterministic screenshot generation, receipt field completion, regenerated evidence.
 
 Second rerun result:
-- To be verified after closure commit and tag creation; PASS is required before closing the fixup.
+- Command: `powershell -ExecutionPolicy Bypass -File tests/run_m14_t03_acceptance.ps1`
+- Result: PASS
+- M13 regression: PASS
+- M14-T01 regression: PASS
+- M14-T02 regression: PASS
+- M14-T03 acceptance: PASS
+- First loop duration: 840 seconds
+- Forbidden touched: 0
 
 Second rerun `git status --short`:
-- To be verified after closure commit and tag creation; empty output is required before closing the fixup.
+- Empty output. Worktree clean after rerun.
 
 ## Tag Status
 
