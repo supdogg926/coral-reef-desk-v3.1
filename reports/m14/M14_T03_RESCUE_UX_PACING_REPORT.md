@@ -4,13 +4,13 @@ Overall Status: **PASS**
 
 - Branch: m14-t03-rescue-ux-pacing-hardening
 - Base tag: v3.2-m14-t02-rescue-first-playable-ui
-- Commit at validation: bfa50f30c7e1f9b79ca5ea38463136482aaf69ed
+- Commit at validation: a566b3ac15ba44381661a7918f6da4e6bf1eeb8b
 - Original Cloud Code commit: bfa50f30c7e1f9b79ca5ea38463136482aaf69ed
-- Final validation commit: bfa50f30c7e1f9b79ca5ea38463136482aaf69ed
+- Final validation commit: a566b3ac15ba44381661a7918f6da4e6bf1eeb8b
 - Superseded tag: v3.2-m14-t03-rescue-ux-pacing
 - Closure candidate tag: v3.2-m14-t03-rescue-ux-pacing-fix1
 - First loop duration: 840 seconds
-- Worktree clean at validation: False
+- Worktree clean at validation: True
 - Project: C:\Users\admin\Desktop\桌面海缸v3.0\CoralReefIdleV3_M14_T01
 
 ## Scope
@@ -87,6 +87,7 @@ M14-T03 screenshot evidence generated as deterministic PNG state captures.
 - tests/m14_t03_capture_screenshots.gd
 - tests/m14_t03_copy_ui_verify.gd
 - tests/run_m14_t03_acceptance.ps1
+- reports/m14/M14_T03_EVIDENCE_FIXUP_REPORT.md
 
 ## Forbidden Files Touched
 

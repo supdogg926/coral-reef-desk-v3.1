@@ -3,8 +3,10 @@
 ## 基本信息
 - **当前分支**：`m14-t03-rescue-ux-pacing-hardening`
 - **base tag**：`v3.2-m14-t02-rescue-first-playable-ui`
-- **commit hash**：`05777a9df10cb59d46ef76d38862470ca3bfed5f`（base）→ 待 commit
-- **新 tag**：`v3.2-m14-t03-rescue-ux-pacing`（待打标）
+- **原 Cloud Code commit**：`bfa50f30c7e1f9b79ca5ea38463136482aaf69ed`
+- **fixup validation commit**：`a566b3ac15ba44381661a7918f6da4e6bf1eeb8b`
+- **原 tag**：`v3.2-m14-t03-rescue-ux-pacing`（superseded by evidence fix）
+- **新修复 tag**：`v3.2-m14-t03-rescue-ux-pacing-fix1`（Codex-reviewable closure candidate）
 
 ## 任务概要
 - **本次任务目标**：M14-T03 RescueCore BlindPlaytest UX And Pacing Hardening
@@ -24,6 +26,7 @@
   - `reports/m14/screenshots/t03_*.png` — T03 截图证据 9 张
 - **本次未做内容**：海域系统、大海图鉴、多救助位、伤情分支、护理操作、繁殖、卡牌美术、复杂动画、声望商店、声望等级、新经济资源、M11 重构
 - **禁止范围是否触碰**：**否。0 文件触碰。**
+- **证据闭环修复**：已新增 `reports/m14/M14_T03_EVIDENCE_FIXUP_REPORT.md`，补齐 receipt 的 `top_ux_issues`，并修复 T03 截图生成的 deterministic seed。
 
 ## 验收
 - **所有验收命令**：
@@ -51,6 +54,7 @@
 - **receipt 路径**：`reports/m14/M14_T03_RESCUE_UX_PACING_RECEIPT.json`
 - **盲玩报告路径**：`reports/m14/M14_T03_BLIND_PLAYTEST_REPORT.md`
 - **盲玩检查清单路径**：`reports/m14/M14_T03_BLIND_PLAYTEST_CHECKLIST.md`
+- **证据修复报告路径**：`reports/m14/M14_T03_EVIDENCE_FIXUP_REPORT.md`
 
 ## Codex 复核指南
 - **需要 Codex 复核的重点**：
@@ -77,5 +81,5 @@
 
 ---
 
-*本文件由 Cloud Code M14-T03 任务生成，供 Codex 余额恢复后独立复核使用。*
-*生成时间：2026-07-09*
+*本文件由 Cloud Code M14-T03 任务生成，并由 Codex 执行 M14-T03-FIXUP_Evidence_Closure_And_Clean_Rerun 证据闭环修复。*
+*修复时间：2026-07-10*

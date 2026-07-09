@@ -3,9 +3,9 @@
     "branch":  "m14-t03-rescue-ux-pacing-hardening",
     "base_tag":  "v3.2-m14-t02-rescue-first-playable-ui",
     "original_cloudcode_commit":  "bfa50f30c7e1f9b79ca5ea38463136482aaf69ed",
-    "fixup_commit_hash":  "bfa50f30c7e1f9b79ca5ea38463136482aaf69ed",
-    "final_validation_commit":  "bfa50f30c7e1f9b79ca5ea38463136482aaf69ed",
-    "commit_hash":  "bfa50f30c7e1f9b79ca5ea38463136482aaf69ed",
+    "fixup_commit_hash":  "a566b3ac15ba44381661a7918f6da4e6bf1eeb8b",
+    "final_validation_commit":  "a566b3ac15ba44381661a7918f6da4e6bf1eeb8b",
+    "commit_hash":  "a566b3ac15ba44381661a7918f6da4e6bf1eeb8b",
     "result":  "PASS",
     "m13_regression_result":  "PASS",
     "m14_t01_regression_result":  "PASS",
@@ -60,7 +60,8 @@
                            "tests/m14_t02_rescue_ui_verify.gd",
                            "tests/m14_t03_capture_screenshots.gd",
                            "tests/m14_t03_copy_ui_verify.gd",
-                           "tests/run_m14_t03_acceptance.ps1"
+                           "tests/run_m14_t03_acceptance.ps1",
+                           "reports/m14/M14_T03_EVIDENCE_FIXUP_REPORT.md"
                        ],
     "forbidden_files_touched":  [
 
@@ -72,7 +73,7 @@
     "receipt_path":  "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3_M14_T01\\reports\\m14\\M14_T03_RESCUE_UX_PACING_RECEIPT.json",
     "tag":  "v3.2-m14-t03-rescue-ux-pacing-fix1",
     "supersedes_tag":  "v3.2-m14-t03-rescue-ux-pacing",
-    "worktree_clean_after_rerun":  false,
+    "worktree_clean_after_rerun":  true,
     "recommendation_for_m14_t04":  "DO_NOT_ENTER_T04_PENDING_CODEX_REVIEW",
     "codex_handoff_ready":  true,
     "tests_run":  [
@@ -101,7 +102,7 @@
                          "m14_t03_copy_ui_verify",
                          "m14_t03_screenshot_capture"
                      ],
-    "worktree_clean_at_validation":  false,
+    "worktree_clean_at_validation":  true,
     "test_details":  [
                          {
                              "name":  "godot_static_editor_check",
