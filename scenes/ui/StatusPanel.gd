@@ -438,7 +438,7 @@ func _create_entry_system_section(parent: Control) -> void:
 	_add_title_label(box, "系统")
 
 	var entry_grid: GridContainer = GridContainer.new()
-	entry_grid.columns = 2
+	entry_grid.columns = 3
 	entry_grid.add_theme_constant_override("h_separation", 4)
 	entry_grid.add_theme_constant_override("v_separation", 3)
 	entry_grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
