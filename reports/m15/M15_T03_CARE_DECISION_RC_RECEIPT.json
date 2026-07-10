@@ -1,0 +1,82 @@
+﻿{
+    "task_name":  "M15-T03_CareDecision_BlindPlaytest_And_RC",
+    "branch":  "m15-t03-care-blindplay-rc",
+    "base_tag":  "v3.3-m15-t02-care-playable-ui",
+    "commit_hash":  "verified externally by: git rev-parse HEAD",
+    "result":  "PASS",
+    "evidence_rule_version":  "no_self_referential_annotated_tag_closure_v1",
+    "blind_play_result":  "PASS",
+    "rc_result":  "PASS",
+    "m15_t02_result":  "PASS",
+    "m15_t01_result":  "PASS",
+    "m13_result":  "PASS",
+    "m14_t01_result":  "PASS",
+    "m14_t02_result":  "PASS",
+    "m14_t03_result":  "PASS",
+    "m14_t04_result":  "PASS",
+    "first_loop_duration":  "840 seconds",
+    "m15_t02_first_loop_duration":  "560 seconds",
+    "forbidden_touched":  0,
+    "forbidden_files_touched":  [
+
+                                ],
+    "screenshot_result":  "PASS",
+    "screenshot_checks":  [
+                              {
+                                  "path":  "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3_M14_T01\\reports\\m15\\screenshots\\m15_t02_01_care_need_visible.png",
+                                  "passed":  true,
+                                  "error":  "",
+                                  "width":  960,
+                                  "height":  540,
+                                  "pixel_variance":  596.81983750034442,
+                                  "length":  3672
+                              },
+                              {
+                                  "path":  "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3_M14_T01\\reports\\m15\\screenshots\\m15_t02_02_three_care_buttons.png",
+                                  "passed":  true,
+                                  "error":  "",
+                                  "width":  960,
+                                  "height":  540,
+                                  "pixel_variance":  501.915479108897,
+                                  "length":  3703
+                              },
+                              {
+                                  "path":  "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3_M14_T01\\reports\\m15\\screenshots\\m15_t02_03_after_care_feedback.png",
+                                  "passed":  true,
+                                  "error":  "",
+                                  "width":  960,
+                                  "height":  540,
+                                  "pixel_variance":  462.88197173199308,
+                                  "length":  3721
+                              },
+                              {
+                                  "path":  "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3_M14_T01\\reports\\m15\\screenshots\\m15_t02_04_ready_after_care.png",
+                                  "passed":  true,
+                                  "error":  "",
+                                  "width":  960,
+                                  "height":  540,
+                                  "pixel_variance":  1098.03986702843,
+                                  "length":  3748
+                              },
+                              {
+                                  "path":  "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3_M14_T01\\reports\\m15\\screenshots\\m15_t02_05_release_bonus_line.png",
+                                  "passed":  true,
+                                  "error":  "",
+                                  "width":  960,
+                                  "height":  540,
+                                  "pixel_variance":  743.4703754258835,
+                                  "length":  3667
+                              }
+                          ],
+    "modified_files":  [
+                           "tests/run_m15_t03_acceptance.ps1",
+                           "reports/m15/M15_T03_CARE_DECISION_RC_REPORT.md",
+                           "reports/m15/M15_T03_CARE_DECISION_RC_RECEIPT.json"
+                       ],
+    "report_path":  "reports/m15/M15_T03_CARE_DECISION_RC_REPORT.md",
+    "receipt_path":  "reports/m15/M15_T03_CARE_DECISION_RC_RECEIPT.json",
+    "final_tag":  "v3.3-m15-t03-care-blindplay-rc",
+    "final_tag_target_verification_command":  "git rev-parse v3.3-m15-t03-care-blindplay-rc^{}",
+    "final_tag_object_verification_command":  "git rev-parse v3.3-m15-t03-care-blindplay-rc",
+    "worktree_clean_after_rerun":  "verified externally by: git status --short"
+}
