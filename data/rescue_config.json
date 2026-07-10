@@ -31,5 +31,28 @@
     "dock_entry_hint": "码头来了受伤的海洋生物，水质越好恢复越快",
     "next_arrival_hint": "下一只需要帮助的生物即将到达码头",
     "release_settlement_hint": "每次放归都在修复海洋生态"
+  },
+  "care": {
+    "needs": ["weak", "stressed", "minor_injury"],
+    "actions": ["nutrition", "soothe", "purify"],
+    "effect_matrix": {
+      "weak": {
+        "nutrition": 1.0,
+        "soothe": 0.5,
+        "purify": 0.2
+      },
+      "stressed": {
+        "nutrition": 0.5,
+        "soothe": 1.0,
+        "purify": 0.2
+      },
+      "minor_injury": {
+        "nutrition": 0.2,
+        "soothe": 0.5,
+        "purify": 1.0
+      }
+    },
+    "multiplier_gain": 0.5,
+    "care_bonus_rp": 1
   }
 }

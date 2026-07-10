@@ -2,9 +2,10 @@ class_name SaveSystem
 extends RefCounted
 
 const SAVE_PATH: String = "user://reef_idle_v3_save.json"
-const SAVE_VERSION: int = 2
+const SAVE_VERSION: int = 3
 const SAVE_SCHEMA_ID: String = "res://data/schemas/save_schema.json"
 const OFFLINE_CAP_SECONDS: float = 86400.0
+const CARE_NEEDS: Array[String] = ["weak", "stressed", "minor_injury"]
 
 var initialized: bool = false
 var _is_saving: bool = false
@@ -130,8 +131,10 @@ func migrate_save_data(raw_data: Dictionary) -> Dictionary:
 	var version: int = int(data.get("save_version", 0))
 	if version < 1:
 		save_errors.append("Unknown save version: " + str(version))
-	if version < SAVE_VERSION:
+	if version >= 2 and version < SAVE_VERSION:
 		data["save_version"] = SAVE_VERSION
+	elif version < 2:
+		data["save_version"] = 2
 	if not data.has("player") or not data["player"] is Dictionary:
 		data["player"] = {"reputation": 0}
 	else:
@@ -164,8 +167,18 @@ func migrate_save_data(raw_data: Dictionary) -> Dictionary:
 		}
 	if not rescue_data.has("active_rescue") or not rescue_data["active_rescue"] is Dictionary:
 		rescue_data["active_rescue"] = {}
+	elif version >= 2:
+		var active: Dictionary = rescue_data["active_rescue"]
+		if not active.is_empty():
+			rescue_data["active_rescue"] = _ensure_care_fields(active)
 	if not rescue_data.has("completed_rescues") or not rescue_data["completed_rescues"] is Array:
 		rescue_data["completed_rescues"] = []
+	elif version >= 2:
+		var migrated_completed: Array = []
+		for item in rescue_data["completed_rescues"]:
+			if item is Dictionary:
+				migrated_completed.append(_ensure_care_fields(item))
+		rescue_data["completed_rescues"] = migrated_completed
 	if not rescue_data.has("codex_rescue_marks") or not rescue_data["codex_rescue_marks"] is Dictionary:
 		rescue_data["codex_rescue_marks"] = {}
 	rescue_data["ecological_reputation"] = int(rescue_data.get("ecological_reputation", data.get("player", {}).get("reputation", 0)))
@@ -272,6 +285,25 @@ func _mark_non_json_safe(path: String, value: Variant) -> void:
 	last_json_safety_ok = false
 	last_json_safety_error_count += 1
 	save_errors.append("Non JSON-safe value at %s, type=%d" % [path, typeof(value)])
+
+
+func _ensure_care_fields(entry: Dictionary) -> Dictionary:
+	var result: Dictionary = entry.duplicate(true)
+	var need: String = String(result.get("care_need", ""))
+	if not CARE_NEEDS.has(need):
+		need = _derive_care_need(String(result.get("rescue_id", "")))
+	result["care_need"] = need
+	result["care_used"] = bool(result.get("care_used", false))
+	result["care_action_taken"] = String(result.get("care_action_taken", ""))
+	result["care_score"] = clamp(float(result.get("care_score", 0.0)), 0.0, 1.0)
+	return result
+
+
+func _derive_care_need(rescue_id: String) -> String:
+	var raw_hash: int = int(hash(rescue_id))
+	if raw_hash < 0:
+		raw_hash = -raw_hash
+	return CARE_NEEDS[raw_hash % CARE_NEEDS.size()]
 
 
 func _to_plain_string_array(values: Array) -> Array:

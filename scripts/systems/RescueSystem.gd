@@ -6,6 +6,8 @@ const POOL_PATH: String = "res://data/species_rescue_pool.json"
 const RNG_MOD: int = 2147483647
 const RNG_MULT: int = 1103515245
 const RNG_INC: int = 12345
+const DEFAULT_CARE_NEEDS: Array[String] = ["weak", "stressed", "minor_injury"]
+const DEFAULT_CARE_ACTIONS: Array[String] = ["nutrition", "soothe", "purify"]
 
 var initialized: bool = false
 var config: Dictionary = {}
@@ -114,6 +116,28 @@ func release_active_rescue_for_ui(day: int) -> Dictionary:
 	return event
 
 
+func apply_care(action: String) -> Dictionary:
+	if active_rescue.is_empty():
+		return {"success": false, "error": "no_active_rescue"}
+	if bool(active_rescue.get("care_used", false)):
+		return {"success": false, "error": "care_already_used"}
+	if not _is_valid_care_action(action):
+		return {"success": false, "error": "invalid_care_action"}
+	active_rescue = _ensure_care_fields(active_rescue)
+	var need: String = String(active_rescue.get("care_need", ""))
+	var score: float = _get_care_score(need, action)
+	active_rescue["care_used"] = true
+	active_rescue["care_action_taken"] = action
+	active_rescue["care_score"] = score
+	return {
+		"success": true,
+		"care_need": need,
+		"care_action_taken": action,
+		"care_score": score,
+		"care_multiplier": _get_care_multiplier(active_rescue),
+	}
+
+
 func export_state() -> Dictionary:
 	return {
 		"schema_version": 1,
@@ -138,13 +162,13 @@ func import_state(state: Dictionary) -> void:
 	active_rescue = {}
 	var raw_active: Variant = state.get("active_rescue", {})
 	if raw_active is Dictionary:
-		active_rescue = raw_active.duplicate(true)
+		active_rescue = _ensure_care_fields(raw_active.duplicate(true)) if not Dictionary(raw_active).is_empty() else {}
 	completed_rescues = []
 	var raw_completed: Variant = state.get("completed_rescues", [])
 	if raw_completed is Array:
 		for item in raw_completed:
 			if item is Dictionary:
-				completed_rescues.append(item.duplicate(true))
+				completed_rescues.append(_ensure_care_fields(item.duplicate(true)))
 	codex_rescue_marks = {}
 	var raw_codex: Variant = state.get("codex_rescue_marks", {})
 	if raw_codex is Dictionary:
@@ -185,7 +209,8 @@ func _advance_recovery(day: int, water_quality_score: float, comfort_score: floa
 	var water_ref: float = float(recovery_cfg.get("water_quality_reference", 85.0))
 	var comfort_mod: float = clamp(comfort_score / max(comfort_ref, 1.0), float(recovery_cfg.get("comfort_modifier_min", 0.45)), float(recovery_cfg.get("comfort_modifier_max", 1.35)))
 	var water_mod: float = clamp(water_quality_score / max(water_ref, 1.0), float(recovery_cfg.get("water_modifier_min", 0.50)), float(recovery_cfg.get("water_modifier_max", 1.20)))
-	var delta: float = base_rate * comfort_mod * water_mod * max(progress_scale, 0.0)
+	var care_multiplier: float = _get_care_multiplier(active_rescue)
+	var delta: float = base_rate * comfort_mod * water_mod * max(progress_scale, 0.0) * care_multiplier
 	active_rescue["recovery_progress"] = min(float(active_rescue.get("recovery_progress", 0.0)) + delta, 100.0)
 	active_rescue["last_recovery_delta"] = delta
 	active_rescue["last_comfort_score"] = comfort_score
@@ -200,11 +225,19 @@ func _advance_recovery(day: int, water_quality_score: float, comfort_score: floa
 
 func _release_active_rescue(day: int) -> Dictionary:
 	var released: Dictionary = active_rescue.duplicate(true)
+	released = _ensure_care_fields(released)
 	released["rescue_status"] = "released"
 	released["released_at_day"] = day
 	released["recovery_progress"] = 100.0
 	var rep: int = int(released.get("reward_reputation", 0))
 	var rp: int = int(released.get("reward_rp", 0))
+	var care_bonus_rp: int = 0
+	if bool(released.get("care_used", false)) and float(released.get("care_score", 0.0)) >= 1.0:
+		care_bonus_rp = int(config.get("care", {}).get("care_bonus_rp", 0))
+		rp += care_bonus_rp
+	if care_bonus_rp > 0:
+		released["care_bonus_rp"] = care_bonus_rp
+		released["reward_rp"] = rp
 	ecological_reputation += rep
 	release_reward_sum_reputation += rep
 	total_release_rp_reward += rp
@@ -221,7 +254,7 @@ func _generate_candidate(day: int) -> Dictionary:
 
 func _build_rescue_entry(species: Dictionary, day: int) -> Dictionary:
 	var sequence: int = event_log.size() + completed_rescues.size() + 1
-	return {
+	var entry: Dictionary = {
 		"rescue_id": "rescue_%d_%d" % [day, sequence],
 		"species_id": String(species.get("id", "")),
 		"species_name": String(species.get("species_name", "")),
@@ -236,6 +269,7 @@ func _build_rescue_entry(species: Dictionary, day: int) -> Dictionary:
 		"reward_rp": int(species.get("reward_rp", 0)),
 		"water_pressure": float(species.get("water_pressure", 0.0)),
 	}
+	return _ensure_care_fields(entry)
 
 
 func _schedule_next_arrival(day: int) -> void:
@@ -251,6 +285,74 @@ func _rand_range(min_value: int, max_value: int) -> int:
 	if max_value <= min_value:
 		return min_value
 	return min_value + int(_rng_state % int(max_value - min_value + 1))
+
+
+func _ensure_care_fields(entry: Dictionary) -> Dictionary:
+	var result: Dictionary = entry
+	var need: String = String(result.get("care_need", ""))
+	if not _is_valid_care_need(need):
+		need = _derive_care_need(String(result.get("rescue_id", "")))
+	result["care_need"] = need
+	result["care_used"] = bool(result.get("care_used", false))
+	result["care_action_taken"] = String(result.get("care_action_taken", ""))
+	result["care_score"] = clamp(float(result.get("care_score", 0.0)), 0.0, 1.0)
+	return result
+
+
+func _derive_care_need(rescue_id: String) -> String:
+	var needs: Array[String] = _get_care_needs()
+	if needs.is_empty():
+		return "weak"
+	var raw_hash: int = int(hash(rescue_id))
+	if raw_hash < 0:
+		raw_hash = -raw_hash
+	return needs[raw_hash % needs.size()]
+
+
+func _get_care_multiplier(rescue: Dictionary) -> float:
+	var care_cfg: Dictionary = config.get("care", {})
+	var gain: float = float(care_cfg.get("multiplier_gain", 0.0))
+	var score: float = clamp(float(rescue.get("care_score", 0.0)), 0.0, 1.0)
+	return 1.0 + score * gain
+
+
+func _get_care_score(need: String, action: String) -> float:
+	var care_cfg: Dictionary = config.get("care", {})
+	var matrix: Dictionary = care_cfg.get("effect_matrix", {})
+	var row: Dictionary = matrix.get(need, {}) if matrix.get(need, {}) is Dictionary else {}
+	return clamp(float(row.get(action, 0.0)), 0.0, 1.0)
+
+
+func _is_valid_care_need(need: String) -> bool:
+	return _get_care_needs().has(need)
+
+
+func _is_valid_care_action(action: String) -> bool:
+	return _get_care_actions().has(action)
+
+
+func _get_care_needs() -> Array[String]:
+	var result: Array[String] = []
+	var care_cfg: Dictionary = config.get("care", {})
+	var raw_needs: Variant = care_cfg.get("needs", DEFAULT_CARE_NEEDS)
+	if raw_needs is Array:
+		for item in raw_needs:
+			var value: String = String(item)
+			if not value.is_empty():
+				result.append(value)
+	return result
+
+
+func _get_care_actions() -> Array[String]:
+	var result: Array[String] = []
+	var care_cfg: Dictionary = config.get("care", {})
+	var raw_actions: Variant = care_cfg.get("actions", DEFAULT_CARE_ACTIONS)
+	if raw_actions is Array:
+		for item in raw_actions:
+			var value: String = String(item)
+			if not value.is_empty():
+				result.append(value)
+	return result
 
 
 func _default_dock_state() -> Dictionary:

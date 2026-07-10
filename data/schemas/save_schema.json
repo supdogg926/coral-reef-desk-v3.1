@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "CoralReefIdleV3 M14-T01 Save Schema",
+  "title": "CoralReefIdleV3 M15-T01 Save Schema",
   "type": "object",
   "required": [
     "save_version",
@@ -95,10 +95,13 @@
           "type": "object"
         },
         "active_rescue": {
-          "type": "object"
+          "$ref": "#/$defs/rescue_record"
         },
         "completed_rescues": {
-          "type": "array"
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/rescue_record"
+          }
         },
         "codex_rescue_marks": {
           "type": "object"
@@ -117,6 +120,29 @@
         },
         "rng_state": {
           "type": "integer"
+        }
+      }
+    }
+  },
+  "$defs": {
+    "rescue_record": {
+      "type": "object",
+      "properties": {
+        "care_need": {
+          "type": "string",
+          "enum": ["weak", "stressed", "minor_injury"]
+        },
+        "care_used": {
+          "type": "boolean"
+        },
+        "care_action_taken": {
+          "type": "string",
+          "enum": ["", "nutrition", "soothe", "purify"]
+        },
+        "care_score": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 1.0
         }
       }
     }

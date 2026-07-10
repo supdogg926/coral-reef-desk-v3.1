@@ -1,0 +1,81 @@
+﻿{
+    "task_name":  "M15-T01_CareModel_And_HeadlessSim",
+    "branch":  "m15-t01-caremodel-headless",
+    "base_tag":  "v3.2-m14-final-rescue-core-playable",
+    "commit_hash":  "verified externally by: git rev-parse HEAD",
+    "result":  "PASS",
+    "evidence_rule_version":  "no_self_referential_annotated_tag_closure_v1",
+    "m15_t01_result":  "PASS",
+    "baseline_bit_equivalence_result":  "PASS",
+    "rng_determinism_result":  "PASS",
+    "v2_to_v3_migration_result":  "PASS",
+    "m13_result":  "PASS",
+    "m14_t01_result":  "PASS",
+    "m14_t02_result":  "PASS",
+    "m14_t03_result":  "PASS",
+    "m14_t04_result":  "PASS",
+    "first_loop_duration":  "840 seconds",
+    "t04_forbidden_touched":  0,
+    "forbidden_touched":  0,
+    "forbidden_files_touched":  [
+
+                                ],
+    "gdlint_result":  "PASS_GDLINT_UNAVAILABLE_GODOT_STATIC_PARSE_0_ERROR",
+    "godot_static_parse_result":  "PASS",
+    "screenshot_resolution_check_function":  "PRESENT_WIDTH_GE_800_AND_PIXEL_VARIANCE_CHECK",
+    "modified_files":  [
+                           "data/rescue_config.json",
+                           "data/schemas/save_schema.json",
+                           "reports/m15/M15_T01_CAREMODEL_RECEIPT.json",
+                           "reports/m15/M15_T01_CAREMODEL_REPORT.md",
+                           "scripts/systems/RescueSystem.gd",
+                           "scripts/systems/SaveSystem.gd",
+                           "tests/m15_t01_caremodel_verify.gd",
+                           "tests/run_m15_t01_acceptance.ps1"
+                       ],
+    "report_path":  "reports/m15/M15_T01_CAREMODEL_REPORT.md",
+    "receipt_path":  "reports/m15/M15_T01_CAREMODEL_RECEIPT.json",
+    "final_tag":  "v3.3-m15-t01-care-datamodel",
+    "final_tag_target_verification_command":  "git rev-parse v3.3-m15-t01-care-datamodel^{}",
+    "final_tag_object_verification_command":  "git rev-parse v3.3-m15-t01-care-datamodel",
+    "worktree_clean_after_rerun":  "verified externally by: git status --short",
+    "recommendation_for_codex_review":  "YES",
+    "recommendation_for_m15_t02":  "ONLY_AFTER_CODEX_REVIEW_PASS",
+    "tests":  [
+                  {
+                      "name":  "godot_static_editor_check",
+                      "command":  "C:\\Users\\admin\\Desktop\\Godot_v4.7-stable_win64_console.exe --headless --editor --path C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3_M14_T01 --quit",
+                      "script":  "",
+                      "exit_code":  0,
+                      "passed":  true,
+                      "pass_pattern":  "exit 0",
+                      "log_path":  "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3_M14_T01\\reports\\m15\\logs\\m15_t01_godot_static_editor_check.log",
+                      "summary":  "Godot editor class registration exit_code=0"
+                  },
+                  {
+                      "name":  "gdlint",
+                      "command":  "gdlint unavailable; using Godot static parser",
+                      "exit_code":  0,
+                      "passed":  true,
+                      "result":  "PASS_GDLINT_UNAVAILABLE_GODOT_STATIC_PARSE_0_ERROR",
+                      "log_path":  "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3_M14_T01\\reports\\m15\\logs\\m15_t01_godot_static_editor_check.log",
+                      "summary":  "gdlint binary unavailable; Godot headless editor static parse completed with exit_code=0"
+                  },
+                  {
+                      "name":  "m15_t01_caremodel_verify",
+                      "command":  "C:\\Users\\admin\\Desktop\\Godot_v4.7-stable_win64_console.exe --headless --path C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3_M14_T01 --script tests/m15_t01_caremodel_verify.gd",
+                      "script":  "tests/m15_t01_caremodel_verify.gd",
+                      "exit_code":  0,
+                      "passed":  true,
+                      "pass_pattern":  "M15_T01_CAREMODEL_RESULT=PASS",
+                      "log_path":  "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3_M14_T01\\reports\\m15\\logs\\m15_t01_caremodel_verify.log",
+                      "summary":  "[M15-T01] Care model headless verification start\n[M15-T01] care case action=nutrition multiplier=1.50 seconds=144\n[M15-T01] care case action=soothe multiplier=1.25 seconds=173\n[M15-T01] care case action=purify multiplier=1.10 seconds=196\n  M15-T01 CareModel: 24/24\n  BASELINE_BIT_EQUIVALENCE=PASS\n  RNG_DETERMINISM=PASS\n  V2_TO_V3_MIGRATION=PASS\n  M15_T01_CAREMODEL_RESULT=PASS"
+                  },
+                  {
+                      "name":  "m14_final_regression",
+                      "exit_code":  0,
+                      "passed":  true,
+                      "log_path":  "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3_M14_T01\\reports\\m15\\logs\\m15_t01_m14_final_regression.log"
+                  }
+              ]
+}
