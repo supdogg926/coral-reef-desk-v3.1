@@ -1,0 +1,48 @@
+{
+  "task_name": "M14-T03-CLOSEOUT_RescueUX_Pacing_And_EvidenceRule",
+  "result": "PASS",
+  "codex_final_review_result": "PASS",
+  "m14_t03_formal_closure": "ALLOWED",
+  "m14_t04_entry": "ALLOWED_AFTER_T03_CLOSEOUT",
+  "m14_t04_development_entered": false,
+  "evidence_rule_version": "no_self_referential_annotated_tag_closure_v1",
+  "annotated_tag_verification_rule": {
+    "tag_object_command": "git rev-parse <tag>",
+    "tag_target_commit_command": "git rev-parse <tag>^{}",
+    "self_referential_tag_object_required_in_target_commit": false
+  },
+  "final_effective_tag": "v3.2-m14-t03-rescue-ux-pacing-evidence-rule-v1",
+  "final_effective_tag_object": "917db400989738021f02afa398d5a11d7a0a04ea",
+  "final_effective_commit": "502889b4de201e963b4020d85c963ec464b206d8",
+  "final_effective_tag_object_verification_command": "git rev-parse v3.2-m14-t03-rescue-ux-pacing-evidence-rule-v1",
+  "final_effective_tag_target_verification_command": "git rev-parse v3.2-m14-t03-rescue-ux-pacing-evidence-rule-v1^{}",
+  "key_acceptance_results": {
+    "m13": "PASS",
+    "m14_t01": "PASS",
+    "m14_t02": "PASS",
+    "m14_t03": "PASS",
+    "first_loop_duration": "840 seconds",
+    "forbidden_touched": 0,
+    "worktree_clean_at_final_t03_validation": true
+  },
+  "t03_deliverables": [
+    "copy hardening",
+    "dock / rescue slot / release / reputation / codex rescued-mark expression hardening",
+    "blind playtest report",
+    "Codex handoff",
+    "evidence rule patch"
+  ],
+  "closeout_report_path": "reports/m14/M14_T03_CLOSEOUT_REPORT.md",
+  "closeout_receipt_path": "reports/m14/M14_T03_CLOSEOUT_RECEIPT.json",
+  "referenced_evidence": [
+    "reports/m14/M14_T03_RESCUE_UX_PACING_REPORT.md",
+    "reports/m14/M14_T03_RESCUE_UX_PACING_RECEIPT.json",
+    "reports/m14/M14_T03_BLIND_PLAYTEST_REPORT.md",
+    "reports/m14/M14_T03_CODEX_HANDOFF.md",
+    "reports/m14/M14_T03_EVIDENCE_FIXUP_REPORT.md",
+    "reports/m14/M14_T03_FINAL_CLOSURE_METADATA_REPORT.md"
+  ],
+  "recommended_next_task": "M14-T04_RescueCore_CloseoutAndPlayableReleaseCandidate",
+  "recommended_next_task_scope": "Stabilize T01/T02/T03 as a playable RescueCore release candidate before expanding ocean, injury, breeding, care-decision, art, or reputation-shop systems.",
+  "closeout_tag_to_create": "v3.2-m14-t03-closeout"
+}
