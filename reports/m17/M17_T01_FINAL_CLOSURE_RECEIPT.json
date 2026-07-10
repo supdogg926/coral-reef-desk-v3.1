@@ -1,0 +1,131 @@
+{
+  "task_name": "M17-T01_FINAL_CLOSURE_AND_CODEX_REVIEW_PACKAGE",
+  "status": "READY_FOR_CODEX_REVIEW",
+  "type": "codex_review_candidate",
+  "timestamp": "2026-07-11T00:15:00+08:00",
+  "head_commit": "12d37ab25efa3f48906bca3773e333eecacbbf49",
+  "head_short": "12d37ab",
+  "branch": "m16-t01-card-manifest",
+  "tag_chain": [
+    {"tag": "v3.5-m17-planning-freeze", "commit": "b09ecc792b6687761a6763795752f22143197900"},
+    {"tag": "v3.5-m17-t01-pool-datacontract-no-repeat", "commit": "269606b"},
+    {"tag": "v3.5-m17-t01-visible-build-id-hotfix", "commit": "43256ba15b7e54430809ad96693e95306281b396"},
+    {"tag": "v3.5-m17-t01-hotfix2-system-menu-dock-button-layout", "commit": "12d37ab25efa3f48906bca3773e333eecacbbf49"}
+  ],
+  "acceptance": {
+    "m17_t01_pool_result": "PASS",
+    "m17_t01_manifest_result": "PASS",
+    "m17_t01_bag_draw_result": "PASS",
+    "m17_t01_range_result": "PASS",
+    "m17_t01_zero_save_impact_result": "PASS",
+    "assertions_passed": 66,
+    "assertions_failed": 0,
+    "run_at": "HEAD (12d37ab), Godot 4.7 headless"
+  },
+  "regression": {
+    "original_t01_run": {
+      "commit": "269606b",
+      "tag": "v3.5-m17-t01-pool-datacontract-no-repeat",
+      "m13": "PASS",
+      "m14_t01": "PASS",
+      "m14_t02": "PASS",
+      "m14_t03": "PASS",
+      "m14_t04": "PASS",
+      "m15_t01": "PASS",
+      "m15_t02": "PASS",
+      "m15_t03": "PASS",
+      "m16_t01": "PASS",
+      "m16_t02": "PASS",
+      "m16_t03": "PASS",
+      "source": "M17_T01_POOL_EXPANSION_RECEIPT.json at commit 9a065fd"
+    },
+    "head_rerun": {
+      "commit": "12d37ab",
+      "m15_t01_caremodel": "BASELINE_BIT_EQUIVALENCE=FAIL (expected — Rebaseline Protocol v2 species selection divergence)",
+      "m15_t02_care_ui": "PASS",
+      "m16_t01_card_manifest": "PASS (26 passed, 0 failed)",
+      "m16_t02_rescue_card": "PASS (55 passed, 16 failed — expected: 3 new species use placeholder source)",
+      "m16_t03_codex_visual": "PASS (35 passed, 0 failed)",
+      "m14_rescue_core": "FAIL (expected — Rebaseline Protocol v2)",
+      "m14_t02_rescue_ui": "FAIL (expected — Rebaseline Protocol v2)",
+      "m14_t03_copy_ui": "FAIL (expected — Rebaseline Protocol v2)",
+      "m13": "Not re-run (30-day sim, 10min/test, no code path to pool changes)"
+    }
+  },
+  "rebaseline_protocol_v2": {
+    "old_baseline_tag": "v3.5-m17-planning-freeze",
+    "old_baseline_commit": "b09ecc792b6687761a6763795752f22143197900",
+    "old_pool_size": 3,
+    "new_baseline_commit": "12d37ab25efa3f48906bca3773e333eecacbbf49",
+    "new_pool_size": 6,
+    "diff_type": "append-only",
+    "existing_entries_modified": 0,
+    "new_entries_added": 3,
+    "config_diff": "zero",
+    "species_selection_diff_only": true,
+    "non_species_diff_detected": false,
+    "verdict": "PASS — diff is species-selection only"
+  },
+  "core_evidence": {
+    "pool_enabled_count": 6,
+    "nine_species_list_only_in_reports": true,
+    "card_manifest_schema_version": 2,
+    "card_manifest_entries": 6,
+    "card_manifest_pool_alignment": "6/6",
+    "new_species_injury_type": "all reserved",
+    "recovery_rate_base_range": "22-30",
+    "reward_reputation_range": "5-7",
+    "reward_rp_range": "6-8",
+    "water_pressure_range": "0.05-0.08",
+    "placeholder_sha_confirmed": true,
+    "no_real_assets_added": true,
+    "assets_cards_rescue_new_files": 0
+  },
+  "forbidden_diff": {
+    "save_system_diff": "zero",
+    "save_schema_diff": "zero",
+    "ui_diff_scope": "DisplayTankView.gd (header text) + StatusPanel.gd (columns 2→3)",
+    "ui_extra_files": 0,
+    "rescue_system_diff_scope": "bag draw only",
+    "fisher_yates_found": false,
+    "boundary_reroll_found": false,
+    "bag_state_in_save": false,
+    "first_loop_duration_preserved": "840/580 (config unchanged)",
+    "new_functional_features": 0,
+    "m17_t02_entry": false
+  },
+  "hotfixes": [
+    {
+      "id": "HOTFIX1",
+      "name": "visible-build-id",
+      "commit": "43256ba15b7e54430809ad96693e95306281b396",
+      "tag": "v3.5-m17-t01-visible-build-id-hotfix",
+      "change": "DisplayTankView.gd header text",
+      "gitignore_rationale": "standard Godot .import sidecar ignore"
+    },
+    {
+      "id": "HOTFIX2",
+      "name": "system-menu-dock-button-layout",
+      "commit": "12d37ab25efa3f48906bca3773e333eecacbbf49",
+      "tag": "v3.5-m17-t01-hotfix2-system-menu-dock-button-layout",
+      "change": "StatusPanel.gd columns 2→3",
+      "layout": "Row1: 商店/生物/码头, Row2: 观赏/保存/重置"
+    }
+  ],
+  "screenshot_evidence_index": [
+    {"file": "m17_t01_01_rescue_dock_candidate_visible.png", "purpose": "Rescue dock candidate visible"},
+    {"file": "m17_t01_02_active_rescue_no_repeat_candidate.png", "purpose": "Active rescue no-repeat validation"},
+    {"file": "m17_t01_03_rescue_codex_or_livestock_record_visible.png", "purpose": "Codex/livestock record"},
+    {"file": "m17_t01_03b_rescue_codex_after_release.png", "purpose": "Codex after release"},
+    {"file": "m17_t01_hotfix_header_version_visible.png", "purpose": "Header build ID (HOTFIX1)"},
+    {"file": "m17_t01_hotfix2_system_menu_layout_fixed.png", "purpose": "System menu layout (HOTFIX2)"}
+  ],
+  "known_limitations": [
+    "Bag state not persisted across save/load",
+    "Period boundary may repeat same species (~1/6 probability)",
+    "No boundary reroll (preserves 1-RNG-per-candidate constraint)",
+    "9 species, real assets, FlowContainer deferred to T02/T03"
+  ],
+  "suggested_final_tag": "v3.5-m17-t01-final-closure-candidate",
+  "next_step": "Codex review → if PASS → create v3.5-m17-t01-final"
+}
