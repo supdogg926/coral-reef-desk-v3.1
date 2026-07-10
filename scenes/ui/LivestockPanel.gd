@@ -2,8 +2,10 @@ class_name LivestockPanel
 extends PanelContainer
 
 var game_state: GameState = null
+var card_library: RefCounted = null
 var summary_label: Label = null
 var rescue_codex_label: Label = null
+var rescue_codex_cards: HBoxContainer = null
 var item_list: VBoxContainer = null
 var detail_label: Label = null
 var status_label: Label = null
@@ -27,6 +29,10 @@ func _ready() -> void:
 
 func setup(gs: GameState) -> void:
 	game_state = gs
+	if card_library == null:
+		var CardAssetLibraryScript = load("res://scripts/systems/CardAssetLibrary.gd")
+		card_library = CardAssetLibraryScript.new()
+		card_library.initialize()
 	if not _built:
 		_build_ui()
 		_built = true
@@ -51,6 +57,7 @@ func update_display() -> void:
 		]
 	if rescue_codex_label != null:
 		rescue_codex_label.text = _format_rescue_codex_marks()
+	_update_rescue_codex_cards()
 	if item_list != null:
 		for row_child in item_list.get_children():
 			row_child.queue_free()
@@ -135,6 +142,11 @@ func _build_ui() -> void:
 	rescue_codex_label.add_theme_color_override("font_color", Color(0.70, 0.88, 0.78))
 	rescue_codex_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	root.add_child(rescue_codex_label)
+
+	rescue_codex_cards = HBoxContainer.new()
+	rescue_codex_cards.name = "RescueCodexCards"
+	rescue_codex_cards.add_theme_constant_override("separation", 6)
+	root.add_child(rescue_codex_cards)
 
 	var header: Label = Label.new()
 	header.text = "名称｜分类｜稀有度｜尺寸cm｜成熟%｜健康%｜收益/h｜容量｜状态"
@@ -257,6 +269,113 @@ func _format_rescue_codex_marks() -> String:
 	if parts.is_empty():
 		return "救助图鉴：暂无已救助记录"
 	return "救助图鉴（已救助物种）：" + "｜".join(parts)
+
+
+func _update_rescue_codex_cards() -> void:
+	if rescue_codex_cards == null:
+		return
+	for child in rescue_codex_cards.get_children():
+		rescue_codex_cards.remove_child(child)
+		child.queue_free()
+	var records := _build_rescue_codex_records()
+	rescue_codex_cards.visible = not records.is_empty()
+	for record in records:
+		rescue_codex_cards.add_child(_make_rescue_codex_card(record))
+
+
+func _build_rescue_codex_records() -> Array[Dictionary]:
+	var records: Array[Dictionary] = []
+	if game_state == null or game_state.rescue_system == null:
+		return records
+	var debug: Dictionary = game_state.rescue_system.get_debug_state()
+	var raw_marks: Variant = debug.get("codex_rescue_marks", {})
+	var raw_completed: Variant = debug.get("completed_rescues", [])
+	if not (raw_marks is Dictionary):
+		return records
+	var marks: Dictionary = raw_marks
+	var completed: Array = raw_completed if raw_completed is Array else []
+	var names_by_id := _load_rescue_species_names()
+	var species_ids := marks.keys()
+	species_ids.sort()
+	for species_id_variant in species_ids:
+		var species_id := String(species_id_variant)
+		var mark: Variant = marks.get(species_id, {})
+		if not (mark is Dictionary) or not bool(mark.get("rescued", false)):
+			continue
+		var count := 0
+		var species_name := String(names_by_id.get(species_id, species_id))
+		for item in completed:
+			if not (item is Dictionary):
+				continue
+			if String(item.get("species_id", "")) != species_id:
+				continue
+			count += 1
+			if String(item.get("species_name", "")) != "":
+				species_name = String(item.get("species_name", ""))
+		var record := {
+			"species_id": species_id,
+			"species_name": species_name,
+			"rescue_count": count,
+			"last_released_day": int(mark.get("last_released_day", -1)),
+		}
+		records.append(record)
+	return records
+
+
+func _make_rescue_codex_card(record: Dictionary) -> VBoxContainer:
+	var card := VBoxContainer.new()
+	card.name = "RescueCodexCard_%s" % String(record.get("species_id", "unknown"))
+	card.custom_minimum_size = Vector2(86, 0)
+	card.add_theme_constant_override("separation", 2)
+
+	var texture_rect := TextureRect.new()
+	texture_rect.name = "RescueCodexCardTexture"
+	texture_rect.custom_minimum_size = Vector2(72, 72)
+	texture_rect.expand_mode = TextureRect.EXPAND_KEEP_SIZE
+	texture_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	if card_library != null:
+		var result: Dictionary = card_library.get_card_texture(String(record.get("species_id", "")))
+		var texture = result.get("texture", null)
+		if texture != null:
+			texture_rect.texture = texture
+	card.add_child(texture_rect)
+
+	var name_label := _make_small_codex_label(String(record.get("species_name", "未知生物")), Color(0.86, 0.92, 0.88))
+	name_label.name = "RescueCodexSpeciesName"
+	card.add_child(name_label)
+
+	var count_label := _make_small_codex_label("已救助 x%d" % int(record.get("rescue_count", 0)), Color(0.72, 0.88, 0.78))
+	count_label.name = "RescueCodexRescuedMark"
+	card.add_child(count_label)
+
+	var last_day := int(record.get("last_released_day", -1))
+	if last_day >= 0:
+		var day_label := _make_small_codex_label("上次 第%d天" % last_day, Color(0.62, 0.76, 0.78))
+		day_label.name = "RescueCodexLastReleasedDay"
+		card.add_child(day_label)
+	return card
+
+
+func _make_small_codex_label(text: String, color: Color) -> Label:
+	var label := Label.new()
+	label.text = text
+	label.add_theme_font_size_override("font_size", 9)
+	label.add_theme_color_override("font_color", color)
+	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	label.clip_text = false
+	return label
+
+
+func _load_rescue_species_names() -> Dictionary:
+	var result := {}
+	var text := FileAccess.get_file_as_string("res://data/species_rescue_pool.json")
+	var parsed = JSON.parse_string(text)
+	if not (parsed is Array):
+		return result
+	for item in parsed:
+		if item is Dictionary:
+			result[String(item.get("id", ""))] = String(item.get("species_name", item.get("id", "")))
+	return result
 
 
 func _on_close() -> void:
