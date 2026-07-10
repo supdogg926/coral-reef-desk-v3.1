@@ -27,6 +27,20 @@ M15 closes as a narrow care decision depth milestone. It adds one lightweight ca
 - v3.3-m15-t03-care-blindplay-rc
 - v3.3-m15-final-care-decision-depth
 
+## M15 Final Effective Tag / Fixup Chain
+
+- Original final tag: v3.3-m15-final-care-decision-depth
+- Original final tag object: 9074ba1e074bad979bf815e19c163d70e7173779
+- Original final target commit: 0940d307af13d458057bd6592cf4da0246226f66
+- Fixup1 tag: v3.3-m15-final-care-decision-depth-fix1
+- Fixup1 tag object: ad80aad4c11bc92de0c74cf9becb9610f5862a52
+- Fixup1 target commit: 0a74049052b6f59f17e46184aac39be57f92a6c6
+- Fixup1 purpose: real Godot viewport screenshots; T03 rerun worktree clean; stable M15_T02_FIRST_LOOP_DURATION=580 seconds; no gameplay changes; no M16 work
+- Effective M15 final evidence tag before this metadata patch: v3.3-m15-final-care-decision-depth-fix1
+- Old final tag moved: false
+- Fixup1 is an additive evidence-closure tag.
+- Evidence rule: no_self_referential_annotated_tag_closure_v1
+
 ## Final M15 Result
 
 - Care model and headless simulation: PASS
