@@ -13,6 +13,10 @@ var bring_back_btn: Button = null
 var slot_label: Label = null
 var progress_bar: ProgressBar = null
 var progress_label: Label = null
+var care_need_label: Label = null
+var nutrition_btn: Button = null
+var soothe_btn: Button = null
+var purify_btn: Button = null
 var release_btn: Button = null
 var feedback_label: Label = null
 var codex_label: Label = null
@@ -50,6 +54,8 @@ func update_display() -> void:
 	var current_rp: float = float(state.get("reef_points", 0.0))
 	var next_day: int = int(state.get("next_arrival", 1))
 	var current_day: int = int(state.get("current_day", 1))
+	var care_need: String = String(state.get("care_need", ""))
+	var care_used: bool = bool(state.get("care_used", false))
 
 	if title_label != null:
 		title_label.text = "海洋救助站"
@@ -99,6 +105,13 @@ func update_display() -> void:
 		slot_label.text = "救助位：空闲"
 		progress_bar.value = 0.0
 		progress_label.text = "救助生物不产金币、不可出售、不占用普通容量｜恢复速度与水质舒适度相关"
+
+	if care_need_label != null:
+		if has_active:
+			care_need_label.text = "护理需求：%s｜每次救助只能护理一次" % _care_need_text(care_need)
+		else:
+			care_need_label.text = "护理需求：带回救助后显示"
+	_update_care_buttons(has_active and not ready, care_used)
 
 	if release_btn != null:
 		release_btn.disabled = not ready
@@ -167,6 +180,21 @@ func _build_ui() -> void:
 	progress_label = _make_label("救助生物不产金币、不可出售、不占用普通容量", 10, Color(0.68, 0.80, 0.82))
 	root.add_child(progress_label)
 
+	care_need_label = _make_label("护理需求：带回救助后显示", 10, Color(0.84, 0.86, 0.70))
+	care_need_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	root.add_child(care_need_label)
+
+	var care_row: HBoxContainer = HBoxContainer.new()
+	care_row.add_theme_constant_override("separation", 4)
+	root.add_child(care_row)
+
+	nutrition_btn = _make_care_button("NutritionCareButton", "营养补给", "nutrition")
+	care_row.add_child(nutrition_btn)
+	soothe_btn = _make_care_button("SootheCareButton", "安抚照料", "soothe")
+	care_row.add_child(soothe_btn)
+	purify_btn = _make_care_button("PurifyCareButton", "净水护理", "purify")
+	care_row.add_child(purify_btn)
+
 	release_btn = Button.new()
 	release_btn.name = "ReleaseRescueButton"
 	release_btn.text = "等待恢复"
@@ -206,6 +234,13 @@ func _on_release_pressed() -> void:
 	update_display()
 
 
+func _on_care_pressed(action: String) -> void:
+	if game_state == null:
+		return
+	game_state.apply_rescue_care(action)
+	update_display()
+
+
 func _on_close_pressed() -> void:
 	hide()
 	close_requested.emit()
@@ -234,3 +269,36 @@ func _make_label(text: String, size: int, color: Color) -> Label:
 	label.add_theme_color_override("font_color", color)
 	label.clip_text = false
 	return label
+
+
+func _make_care_button(node_name: String, text: String, action: String) -> Button:
+	var button: Button = Button.new()
+	button.name = node_name
+	button.text = text
+	button.custom_minimum_size = Vector2(0, 26)
+	button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	button.add_theme_font_size_override("font_size", 10)
+	button.tooltip_text = "本次救助只能选择一次"
+	button.pressed.connect(_on_care_pressed.bind(action))
+	return button
+
+
+func _update_care_buttons(can_care: bool, care_used: bool) -> void:
+	var disabled: bool = (not can_care) or care_used
+	for button in [nutrition_btn, soothe_btn, purify_btn]:
+		if button == null:
+			continue
+		button.disabled = disabled
+		button.tooltip_text = "已护理，本次救助不能再次护理" if care_used else "本次救助只能选择一次"
+
+
+func _care_need_text(need: String) -> String:
+	match need:
+		"weak":
+			return "虚弱，需要营养"
+		"stressed":
+			return "紧张，需要安抚"
+		"minor_injury":
+			return "轻微擦伤，需要净水"
+		_:
+			return "等待判断"

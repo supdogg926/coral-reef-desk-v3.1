@@ -244,7 +244,10 @@ func _release_active_rescue(day: int) -> Dictionary:
 	codex_rescue_marks[String(released.get("species_id", ""))] = {"rescued": true, "last_released_day": day}
 	completed_rescues.append(released)
 	active_rescue = {}
-	return {"day": day, "type": "release", "rescue_id": released.get("rescue_id", ""), "species_id": released.get("species_id", ""), "reward_reputation": rep, "reward_rp": rp}
+	var event: Dictionary = {"day": day, "type": "release", "rescue_id": released.get("rescue_id", ""), "species_id": released.get("species_id", ""), "reward_reputation": rep, "reward_rp": rp}
+	if care_bonus_rp > 0:
+		event["care_bonus_rp"] = care_bonus_rp
+	return event
 
 
 func _generate_candidate(day: int) -> Dictionary:

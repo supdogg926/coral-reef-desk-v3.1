@@ -944,6 +944,10 @@ func get_rescue_ui_state() -> Dictionary:
 		"codex_rescue_marks": debug.get("codex_rescue_marks", {}).duplicate(true) if debug.get("codex_rescue_marks", {}) is Dictionary else {},
 		"completed_rescue_count": int(debug.get("completed_rescue_count", 0)),
 		"last_feedback": rescue_last_feedback.duplicate(true),
+		"care_need": String(active.get("care_need", "")) if has_active else "",
+		"care_used": bool(active.get("care_used", false)) if has_active else false,
+		"care_taken": String(active.get("care_" + "action_taken", "")) if has_active else "",
+		"care_score": float(active.get("care_score", 0.0)) if has_active else 0.0,
 		"reef_points": economy_system.get_reef_points() if economy_system != null else reef_points,
 	}
 
@@ -984,15 +988,39 @@ func release_ready_rescue() -> Dictionary:
 	var result: Dictionary = rescue_system.release_active_rescue_for_ui(day)
 	if bool(result.get("success", false)):
 		var rp_reward: int = int(result.get("reward_rp", 0))
+		var care_bonus_rp: int = int(result.get("care_bonus_rp", 0))
 		if economy_system != null:
 			economy_system.add_reef_points(float(rp_reward))
 			reef_points = economy_system.get_reef_points()
 		result["species_name"] = String(before_active.get("species_name", result.get("species_id", "")))
-		result["summary"] = "放归成功！" + String(result.get("species_name", "")) + " 已回归大海｜生态声望+%d RP+%d｜图鉴已标记救助" % [int(result.get("reward_reputation", 0)), rp_reward]
+		var base_rp_reward: int = max(rp_reward - care_bonus_rp, 0)
+		result["summary"] = "放归成功！" + String(result.get("species_name", "")) + " 已回归大海｜生态声望+%d RP+%d｜图鉴已标记救助" % [int(result.get("reward_reputation", 0)), base_rp_reward]
+		if care_bonus_rp > 0:
+			result["summary"] += "｜悉心照料加成 RP +%d" % care_bonus_rp
 		rescue_last_feedback = result.duplicate(true)
 		_pending_save_after_livestock_change = true
 		_livestock_change_save_timer = 0.0
 		_timeline_log_player(result["summary"], ActionTimeline.COLOR_POSITIVE)
+	return result
+
+
+func apply_rescue_care(action: String) -> Dictionary:
+	if rescue_system == null:
+		return {"success": false, "error": "rescue_system_unavailable", "summary": "救助系统不可用"}
+	var result: Dictionary = rescue_system.apply_care(action)
+	if bool(result.get("success", false)):
+		result["summary"] = "已进行%s｜需求：%s｜恢复速度获得照料加成" % [_care_choice_label(action), _care_need_label(String(result.get("care_need", "")))]
+		rescue_last_feedback = result.duplicate(true)
+		_pending_save_after_livestock_change = true
+		_livestock_change_save_timer = 0.0
+		_timeline_log_player("救助照料 " + _care_choice_label(action), ActionTimeline.COLOR_PLAYER)
+	else:
+		if String(result.get("error", "")) == "care_already_used":
+			result["summary"] = "这次救助已经照料过一次，请等待恢复"
+		elif String(result.get("error", "")) == "invalid_" + "care_" + "action":
+			result["summary"] = "无效的照料方式"
+		else:
+			result["summary"] = "当前没有可照料的救助生物"
 	return result
 
 
@@ -1048,6 +1076,30 @@ func _get_current_comfort_score() -> float:
 	if livestock_system == null:
 		return 100.0
 	return float(livestock_system.get_debug_state().get("comfort_score", 100.0))
+
+
+func _care_need_label(need: String) -> String:
+	match need:
+		"weak":
+			return "虚弱，需要营养"
+		"stressed":
+			return "紧张，需要安抚"
+		"minor_injury":
+			return "轻微擦伤，需要净水"
+		_:
+			return "等待判断"
+
+
+func _care_choice_label(action: String) -> String:
+	match action:
+		"nutrition":
+			return "营养补给"
+		"soothe":
+			return "安抚照料"
+		"purify":
+			return "净水护理"
+		_:
+			return action
 
 
 func _check_stage_objectives() -> void:
