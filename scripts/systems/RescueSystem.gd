@@ -22,6 +22,7 @@ var release_reward_sum_reputation: int = 0
 var event_log: Array[Dictionary] = []
 var load_errors: Array[String] = []
 var _rng_state: int = 1
+var _bag: Array[int] = []
 
 
 func initialize(seed: int = 1401) -> void:
@@ -184,6 +185,8 @@ func import_state(state: Dictionary) -> void:
 				event_log.append(ev.duplicate(true))
 	_rng_state = int(state.get("rng_state", dock_state.get("rng_seed", 1)))
 	dock_state["rng_seed"] = _rng_state
+	# Bag is runtime ephemeral; not persisted across save/load (known limitation).
+	_bag.clear()
 
 
 func get_debug_state() -> Dictionary:
@@ -251,7 +254,17 @@ func _release_active_rescue(day: int) -> Dictionary:
 
 
 func _generate_candidate(day: int) -> Dictionary:
-	var idx: int = _rand_range(0, species_pool.size() - 1)
+	# One-draw bag draw: each call consumes exactly 1 RNG draw.
+	# Bag is refilled when empty (zero RNG cost).
+	# This preserves _schedule_next_arrival RNG consumption order.
+	if _bag.is_empty():
+		_bag.clear()
+		for i in range(species_pool.size()):
+			_bag.append(i)
+		# Bag refill does NOT consume RNG.
+	var r: int = _rand_range(0, _bag.size() - 1)
+	var idx: int = _bag[r]
+	_bag.remove_at(r)
 	return _build_rescue_entry(species_pool[idx], day)
 
 

@@ -1,0 +1,65 @@
+﻿{
+    "task_name":  "M17-T01_PoolExpansionDataContract_And_NoRepeatCandidateRotation",
+    "base_tag":  "v3.5-m17-planning-freeze",
+    "base_commit":  "b09ecc792b6687761a6763795752f22143197900",
+    "commit":  "b09ecc792b6687761a6763795752f22143197900",
+    "suggested_tag":  "v3.5-m17-t01-pool-datacontract-no-repeat",
+    "result":  "PASS",
+    "evidence_rule_version":  "no_self_referential_annotated_tag_closure_v1",
+    "pool_result":  "PASS",
+    "manifest_result":  "PASS",
+    "bag_draw_result":  "PASS",
+    "range_result":  "PASS",
+    "zero_save_impact_result":  "PASS",
+    "godot_static_parse_result":  "PASS",
+    "species_pool_count":  6,
+    "new_species":  [
+                        "rescue_seahorse",
+                        "rescue_hermit_crab",
+                        "rescue_brain_coral_frag"
+                    ],
+    "category_distribution":  {
+                                  "fish":  3,
+                                  "coral":  1,
+                                  "crustacean":  2
+                              },
+    "algorithm":  "one-draw bag draw",
+    "rng_per_candidate":  1,
+    "fisher_yates_used":  false,
+    "m13_result":  "PASS",
+    "m14_t01_result":  "PASS",
+    "m14_t02_result":  "PASS",
+    "m14_t03_result":  "PASS",
+    "m14_t04_result":  "PASS",
+    "m15_t01_result":  "PASS",
+    "m15_t02_result":  "PASS",
+    "m15_t03_result":  "PASS",
+    "m16_t01_result":  "PASS",
+    "m16_t02_result":  "PASS",
+    "m16_t03_result":  "PASS",
+    "first_loop_duration":  "840 seconds",
+    "m15_t02_first_loop_duration":  "580 seconds",
+    "forbidden_touched":  0,
+    "forbidden_files_touched":  [
+
+                                ],
+    "save_version_result":  "PASS",
+    "save_version":  3,
+    "save_system_diff_empty":  true,
+    "save_schema_diff_empty":  true,
+    "placeholder_shas":  [
+                             "14d8f3b790d5c3dd675e9235058970554229321c656be0ef81e07459b407e026",
+                             "4518724af38455b141b7b8989ff9f4d9cb890569d38e3c2b3c1f26cb284474b1",
+                             "9fb3c7b891a2579ceac49d01b67d64bda2820b16e98a543ed96d33d767477f9c"
+                         ],
+    "nine_species_plan_only_in_report":  true,
+    "rebaseline_protocol":  "v2",
+    "known_limitations":  [
+                              "bag_not_persisted_across_save_load",
+                              "cycle_boundary_repeats_possible_1_in_6"
+                          ],
+    "report_path":  "reports/m17/M17_T01_POOL_EXPANSION_REPORT.md",
+    "receipt_path":  "reports/m17/M17_T01_POOL_EXPANSION_RECEIPT.json",
+    "recommendation_for_codex_review":  "YES",
+    "allow_m17_t02":  "WAIT_FOR_CODEX_PASS"
+}

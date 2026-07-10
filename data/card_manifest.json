@@ -1,6 +1,6 @@
 {
   "schema_version": 2,
-  "max_entries": 3,
+  "max_entries": 6,
   "cards": [
     {
       "species_id": "rescue_clownfish_juvenile",
@@ -42,6 +42,39 @@
         "processed_resolution": "256x256",
         "background_process": "rembg",
         "imported_for": "M16-T02"
+      }
+    },
+    {
+      "species_id": "rescue_seahorse",
+      "asset_path": "res://assets/cards/placeholder/rescue_seahorse.png",
+      "sha256": "14d8f3b790d5c3dd675e9235058970554229321c656be0ef81e07459b407e026",
+      "source": "placeholder",
+      "gen_info": {
+        "type": "deterministic_placeholder",
+        "style": "species_theme_color_name_card",
+        "imported_for": "M17-T01"
+      }
+    },
+    {
+      "species_id": "rescue_hermit_crab",
+      "asset_path": "res://assets/cards/placeholder/rescue_hermit_crab.png",
+      "sha256": "4518724af38455b141b7b8989ff9f4d9cb890569d38e3c2b3c1f26cb284474b1",
+      "source": "placeholder",
+      "gen_info": {
+        "type": "deterministic_placeholder",
+        "style": "species_theme_color_name_card",
+        "imported_for": "M17-T01"
+      }
+    },
+    {
+      "species_id": "rescue_brain_coral_frag",
+      "asset_path": "res://assets/cards/placeholder/rescue_brain_coral_frag.png",
+      "sha256": "9fb3c7b891a2579ceac49d01b67d64bda2820b16e98a543ed96d33d767477f9c",
+      "source": "placeholder",
+      "gen_info": {
+        "type": "deterministic_placeholder",
+        "style": "species_theme_color_name_card",
+        "imported_for": "M17-T01"
       }
     }
   ]
