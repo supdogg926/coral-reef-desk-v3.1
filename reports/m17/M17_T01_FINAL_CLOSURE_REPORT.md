@@ -19,14 +19,16 @@
 | v3.5-m17-t01-visible-build-id-hotfix | 43256ba | Hotfix 1: header build ID |
 | (chore) | 740379d | .gitignore *.import |
 | v3.5-m17-t01-hotfix2-system-menu-dock-button-layout | 12d37ab | Hotfix 2: system menu layout |
-| v3.5-m17-t01-final-closure-candidate | 944a5e0 | Closure docs (this report) |
+| v3.5-m17-t01-final-closure-candidate | 944a5e0 | Previous candidate v1 (closure docs) |
+| v3.5-m17-t01-final-closure-candidate-v2 | 7742c7c | Previous candidate v2 (consistency hotfix) |
+| **v3.5-m17-t01-final-closure-candidate-v3** | **(this tag)** | **Current review candidate v3 (tag identity hotfix)** |
 
 ### 1.2 Commit Identity (Verified Externally)
 
 | Role | Identifier | How Verified |
 |------|-----------|--------------|
 | **runtime_tested_code_baseline** | `12d37ab25efa3f48906bca3773e333eecacbbf49` | All acceptance/regression tests executed at this commit |
-| **closure_candidate_tag** | `v3.5-m17-t01-final-closure-candidate` | `git rev-parse v3.5-m17-t01-final-closure-candidate^{commit}` |
+| **closure_candidate_tag** | `v3.5-m17-t01-final-closure-candidate-v3` | `git rev-parse v3.5-m17-t01-final-closure-candidate-v3^{commit}` |
 | **review_target_commit** | Supplied by reviewer: `git rev-parse HEAD` during Codex review | Externally verified — NOT self-embedded in this file |
 | **closure package commit** | Verified externally by git/tag — NOT self-embedded in this file | `git tag -v` or `git rev-list` |
 

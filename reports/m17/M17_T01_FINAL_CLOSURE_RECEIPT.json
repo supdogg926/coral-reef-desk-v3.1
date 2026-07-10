@@ -1,10 +1,10 @@
 {
   "task_name": "M17-T01_FINAL_CLOSURE_AND_CODEX_REVIEW_PACKAGE",
-  "status": "READY_FOR_CODEX_REVIEW_V2",
-  "type": "codex_review_candidate_v2",
+  "status": "READY_FOR_CODEX_REVIEW_V3",
+  "type": "codex_review_candidate_v3",
   "timestamp": "2026-07-11T00:30:00+08:00",
-  "closure_candidate_tag": "v3.5-m17-t01-final-closure-candidate",
-  "closure_candidate_commit": "verified externally by git rev-parse v3.5-m17-t01-final-closure-candidate^{commit}",
+  "closure_candidate_tag": "v3.5-m17-t01-final-closure-candidate-v3",
+  "closure_candidate_commit": "verified externally by git rev-parse v3.5-m17-t01-final-closure-candidate-v3^{commit}",
   "runtime_tested_code_baseline": "12d37ab25efa3f48906bca3773e333eecacbbf49",
   "runtime_tested_code_baseline_short": "12d37ab",
   "review_target_commit": "supplied by reviewer: git rev-parse HEAD during Codex review — NOT self-embedded",
@@ -15,7 +15,9 @@
     {"tag": "v3.5-m17-t01-pool-datacontract-no-repeat", "commit": "269606b"},
     {"tag": "v3.5-m17-t01-visible-build-id-hotfix", "commit": "43256ba15b7e54430809ad96693e95306281b396"},
     {"tag": "v3.5-m17-t01-hotfix2-system-menu-dock-button-layout", "commit": "12d37ab25efa3f48906bca3773e333eecacbbf49"},
-    {"tag": "v3.5-m17-t01-final-closure-candidate", "note": "this tag points to the closure docs commit; verify with git rev-parse"}
+    {"tag": "v3.5-m17-t01-final-closure-candidate", "note": "previous candidate v1 (superseded)"},
+    {"tag": "v3.5-m17-t01-final-closure-candidate-v2", "note": "previous candidate v2 (superseded)"},
+    {"tag": "v3.5-m17-t01-final-closure-candidate-v3", "note": "current review candidate v3 — this tag; verify with git rev-parse"}
   ],
   "acceptance": {
     "m17_t01_pool_result": "PASS",
@@ -136,11 +138,11 @@
     "self_embedding_note": "This file does NOT self-embed its own commit hash. The commit containing this file is verified externally by git rev-parse <tag>^{commit} or git rev-list.",
     "consistency_rules": [
       "runtime_tested_code_baseline = 12d37ab (where tests were actually run)",
-      "closure_candidate_tag = v3.5-m17-t01-final-closure-candidate (or v2)",
+      "closure_candidate_tag = v3.5-m17-t01-final-closure-candidate-v3",
       "review_target_commit = determined by git rev-parse HEAD at review time",
       "M16-T02 = PASS_WITH_EXPECTED_FAILURES (55 pass / 16 expected / 0 unexpected) across all three closure files"
     ]
   },
-  "suggested_tag": "v3.5-m17-t01-final-closure-candidate-v2",
+  "suggested_tag": "v3.5-m17-t01-final-closure-candidate-v3",
   "next_step": "Codex review v2 → if PASS → create v3.5-m17-t01-final (NOT before Codex PASS)"
 }
