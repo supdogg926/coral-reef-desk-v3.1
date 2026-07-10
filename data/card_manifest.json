@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "max_entries": 3,
+  "cards": [
+    {
+      "species_id": "rescue_clownfish_juvenile",
+      "asset_path": "res://assets/cards/placeholder/rescue_clownfish_juvenile.png",
+      "sha256": "1d3ec04c82901473259edc8d8ace79156c47a192e5604b9eefb1e3e93c655829",
+      "source": "placeholder",
+      "gen_info": {
+        "type": "deterministic_placeholder",
+        "style": "species_theme_color_name_card"
+      }
+    },
+    {
+      "species_id": "rescue_cleaner_shrimp",
+      "asset_path": "res://assets/cards/placeholder/rescue_cleaner_shrimp.png",
+      "sha256": "a1450a16828ec5bef5c2e061ab818c3eb5c9d2eb768b3cb72873657019a98a46",
+      "source": "placeholder",
+      "gen_info": {
+        "type": "deterministic_placeholder",
+        "style": "species_theme_color_name_card"
+      }
+    },
+    {
+      "species_id": "rescue_goby",
+      "asset_path": "res://assets/cards/placeholder/rescue_goby.png",
+      "sha256": "fb7f34806326655660cf5bb7253595c5eb8c59ae47af716af1485abe31ec3dc4",
+      "source": "placeholder",
+      "gen_info": {
+        "type": "deterministic_placeholder",
+        "style": "species_theme_color_name_card"
+      }
+    }
+  ]
+}
