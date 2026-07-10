@@ -1,9 +1,10 @@
 extends SceneTree
 
-const SCREENSHOT_DIR: String = "res://reports/m16/screenshots"
+const DEFAULT_SCREENSHOT_DIR: String = "res://reports/m16/screenshots"
 
 var _saved: Array[String] = []
 var _failed: bool = false
+var _screenshot_dir: String = DEFAULT_SCREENSHOT_DIR
 
 
 func _init() -> void:
@@ -13,7 +14,11 @@ func _init() -> void:
 
 func _run() -> void:
 	print("[M16-T02] screenshot evidence generation start")
-	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(SCREENSHOT_DIR))
+	var env_output_dir := OS.get_environment("M16_T02_SCREENSHOT_OUTPUT_DIR")
+	if not env_output_dir.is_empty():
+		_screenshot_dir = env_output_dir
+	DirAccess.make_dir_recursive_absolute(_to_absolute_path(_screenshot_dir))
+	print("[M16-T02] screenshot output dir: ", _screenshot_dir)
 
 	var GameStateScript = load("res://scripts/systems/GameState.gd")
 	var DockPanelScript = load("res://scenes/ui/RescueDockPanel.gd")
@@ -100,8 +105,8 @@ func _save_screenshot(dock_panel, gs, filename: String, label: String) -> void:
 	# Draw RescueDockPanel simulation
 	_draw_dock_panel_visual(image, dock_panel, gs, label)
 
-	var path := SCREENSHOT_DIR + "/" + filename
-	var absolute := ProjectSettings.globalize_path(path)
+	var path := _screenshot_dir.path_join(filename)
+	var absolute := _to_absolute_path(path)
 	var err := image.save_png(absolute)
 	if err == OK:
 		_saved.append(filename)
@@ -109,6 +114,12 @@ func _save_screenshot(dock_panel, gs, filename: String, label: String) -> void:
 	else:
 		printerr("[M16-T02] failed to save screenshot: ", filename, " err=", err)
 		_failed = true
+
+
+func _to_absolute_path(path: String) -> String:
+	if path.begins_with("res://") or path.begins_with("user://"):
+		return ProjectSettings.globalize_path(path)
+	return path
 
 
 func _draw_dock_panel_visual(image: Image, dock_panel, gs, label: String) -> void:

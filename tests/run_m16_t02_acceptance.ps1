@@ -1,3 +1,7 @@
+param(
+	[switch]$RefreshEvidence
+)
+
 $ErrorActionPreference = "Continue"
 $Godot = "C:\Users\admin\Desktop\Godot_v4.7-stable_win64_console.exe"
 $Project = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
@@ -12,7 +16,8 @@ $ReportDir = Join-Path $Project "reports\m16"
 $ScreenshotDir = Join-Path $ReportDir "screenshots"
 $ReportPath = Join-Path $ReportDir "M16_T02_RESCUE_CARD_PLAYABLE_UI_REPORT.md"
 $ReceiptPath = Join-Path $ReportDir "M16_T02_RESCUE_CARD_PLAYABLE_UI_RECEIPT.json"
-$WriteEvidence = ($env:M16_T02_WRITE_EVIDENCE -eq "1")
+$WriteEvidence = ($RefreshEvidence -or ($env:M16_T02_WRITE_EVIDENCE -eq "1"))
+$TempScreenshotDir = Join-Path $env:TEMP "CoralReefDesk\M16_T02_RERUN_SCREENSHOTS"
 $OriginalT02Commit = "11dbf8a284acecfe16e2b9928a03aa4dfff7fc7f"
 $OriginalT02Tag = "v3.4-m16-t02-rescue-card-playable-ui"
 $TempRoot = Join-Path $Project "_m16_t02_acceptance_tmp"
@@ -40,6 +45,92 @@ function Invoke-GodotScriptCheck([string]$Name, [string]$ScriptPath, [string]$Pa
 		pass_pattern = $PassPattern
 		log_path = $logPath
 		summary = (($text -split "`r?`n") | Select-String -Pattern "M16_T02_|FAIL|ERROR" | ForEach-Object { $_.Line }) -join "`n"
+	}
+}
+
+function Invoke-GodotScreenshotRefresh([string]$OutputDir) {
+	$oldOutput = $env:M16_T02_SCREENSHOT_OUTPUT_DIR
+	$env:M16_T02_SCREENSHOT_OUTPUT_DIR = $OutputDir
+	try {
+		return Invoke-GodotScriptCheck "m16_t02_capture_screenshots" "res://tests/m16_t02_capture_screenshots.gd" "screenshot evidence generation complete"
+	} finally {
+		if ($null -eq $oldOutput) {
+			Remove-Item Env:\M16_T02_SCREENSHOT_OUTPUT_DIR -ErrorAction SilentlyContinue
+		} else {
+			$env:M16_T02_SCREENSHOT_OUTPUT_DIR = $oldOutput
+		}
+	}
+}
+
+function Get-ImageVariance([System.Drawing.Bitmap]$Bitmap, [int]$X, [int]$Y, [int]$Width, [int]$Height) {
+	$maxX = [Math]::Min($Bitmap.Width, $X + $Width)
+	$maxY = [Math]::Min($Bitmap.Height, $Y + $Height)
+	$stepX = [Math]::Max(1, [int]($Width / 80))
+	$stepY = [Math]::Max(1, [int]($Height / 80))
+	$values = New-Object System.Collections.Generic.List[double]
+	for ($py = $Y; $py -lt $maxY; $py += $stepY) {
+		for ($px = $X; $px -lt $maxX; $px += $stepX) {
+			$c = $Bitmap.GetPixel($px, $py)
+			$values.Add((([double]$c.R + [double]$c.G + [double]$c.B) / 3.0) / 255.0)
+		}
+	}
+	if ($values.Count -eq 0) { return 0.0 }
+	$mean = 0.0
+	foreach ($v in $values) { $mean += $v }
+	$mean = $mean / $values.Count
+	$variance = 0.0
+	foreach ($v in $values) {
+		$d = $v - $mean
+		$variance += $d * $d
+	}
+	return $variance / $values.Count
+}
+
+function Test-CommittedScreenshots() {
+	Add-Type -AssemblyName System.Drawing
+	$expected = @(
+		"m16_t02_01_dock_candidate_card_visible.png",
+		"m16_t02_02_active_rescue_card_visible.png",
+		"m16_t02_03_care_need_text_still_visible.png",
+		"m16_t02_04_fallback_placeholder_visible.png",
+		"m16_t02_05_release_ready_card_visible.png"
+	)
+	$errors = @()
+	foreach ($name in $expected) {
+		$path = Join-Path $ScreenshotDir $name
+		if (-not (Test-Path $path)) {
+			$errors += "missing screenshot: $name"
+			continue
+		}
+		$bitmap = $null
+		try {
+			$bitmap = [System.Drawing.Bitmap]::FromFile($path)
+			if ($bitmap.Width -ne 960 -or $bitmap.Height -ne 540) {
+				$errors += "resolution mismatch for ${name}: $($bitmap.Width)x$($bitmap.Height)"
+			}
+			if ($bitmap.Width -eq 32 -and $bitmap.Height -eq 32) {
+				$errors += "32x32 placeholder screenshot found: $name"
+			}
+			$fullVariance = Get-ImageVariance $bitmap 0 0 $bitmap.Width $bitmap.Height
+			$cardVariance = Get-ImageVariance $bitmap 10 54 96 96
+			if ($fullVariance -lt 0.0001) {
+				$errors += "full image variance too low for ${name}: $fullVariance"
+			}
+			if ($cardVariance -lt 0.0001) {
+				$errors += "card region variance too low for ${name}: $cardVariance"
+			}
+		} catch {
+			$errors += "failed to read screenshot ${name}: $($_.Exception.Message)"
+		} finally {
+			if ($bitmap -ne $null) { $bitmap.Dispose() }
+		}
+	}
+	$missingCount = @($errors | Where-Object { $_ -like "missing screenshot:*" }).Count
+	return [ordered]@{
+		passed = ($errors.Count -eq 0)
+		errors = $errors
+		count = ($expected.Count - $missingCount)
+		expected = $expected
 	}
 }
 
@@ -113,7 +204,9 @@ function Test-AllowedM16T02File([string]$File) {
 		"reports/m16/M16_T02_RESCUE_CARD_PLAYABLE_UI_REPORT.md",
 		"reports/m16/M16_T02_RESCUE_CARD_PLAYABLE_UI_RECEIPT.json",
 		"reports/m16/M16_T02_FIXUP1_EVIDENCE_STABILITY_REPORT.md",
-		"reports/m16/M16_T02_FIXUP1_EVIDENCE_STABILITY_RECEIPT.json"
+		"reports/m16/M16_T02_FIXUP1_EVIDENCE_STABILITY_RECEIPT.json",
+		"reports/m16/M16_T02_FIXUP2_SCREENSHOT_EVIDENCE_STABILITY_REPORT.md",
+		"reports/m16/M16_T02_FIXUP2_SCREENSHOT_EVIDENCE_STABILITY_RECEIPT.json"
 	)
 	if ($allowedExact -contains $File) { return $true }
 	if ($File.StartsWith("assets/cards/rescue/")) { return $true }
@@ -155,7 +248,13 @@ function Get-ForbiddenTouches([array]$ChangedFiles) {
 # Run checks
 $staticCheck = Invoke-GodotStaticParse
 $m16Check = Invoke-GodotScriptCheck "m16_t02_rescue_card_verify" "res://tests/m16_t02_rescue_card_verify.gd" "M16_T02_ZERO_SAVE_IMPACT_RESULT=PASS"
-$screenshotCheck = Invoke-GodotScriptCheck "m16_t02_capture_screenshots" "res://tests/m16_t02_capture_screenshots.gd" "screenshot evidence generation complete"
+if ($RefreshEvidence) {
+	$screenshotRefresh = Invoke-GodotScreenshotRefresh $ScreenshotDir
+	Write-Host "M16_T02_REFRESH_EVIDENCE=True"
+} else {
+	$screenshotRefresh = [ordered]@{ passed = $true; exit_code = 0; summary = "default rerun validates committed screenshots only" }
+}
+$committedScreenshotCheck = Test-CommittedScreenshots
 $regression = Invoke-M15RegressionInCleanClone
 $regressionText = [string]$regression.text
 if (Test-Path $TempRoot) {
@@ -167,6 +266,8 @@ $assetResult = if ($m16Check.summary -match "M16_T02_ASSET_RESULT=PASS") { "PASS
 $manifestResult = if ($m16Check.summary -match "M16_T02_MANIFEST_RESULT=PASS") { "PASS" } else { "FAIL" }
 $fallbackResult = if ($m16Check.summary -match "M16_T02_FALLBACK_RESULT=PASS") { "PASS" } else { "FAIL" }
 $zeroSaveResult = if ($m16Check.summary -match "M16_T02_ZERO_SAVE_IMPACT_RESULT=PASS") { "PASS" } else { "FAIL" }
+$textureRectResult = if ($m16Check.summary -match "M16_T02_TEXTURE_RECT_RESULT=PASS") { "PASS" } else { "FAIL" }
+$screenshotEvidenceResult = if ($committedScreenshotCheck.passed) { "PASS" } else { "FAIL" }
 
 $m13Result = if ($regressionText -match "M13_REGRESSION_RESULT=PASS|M13_RESULT=PASS") { "PASS" } else { "FAIL" }
 $m14T01Result = if ($regressionText -match "M14_T01_RESULT=PASS") { "PASS" } else { "FAIL" }
@@ -200,10 +301,13 @@ $forbiddenResult = if ($forbiddenTouched.Count -eq 0) { "PASS" } else { "FAIL" }
 $result = if (
 	$staticCheck.passed -and
 	$m16Check.passed -and
+	$screenshotRefresh.passed -and
+	$committedScreenshotCheck.passed -and
 	$regression.passed -and
 	($assetResult -eq "PASS") -and
 	($manifestResult -eq "PASS") -and
 	($fallbackResult -eq "PASS") -and
+	($textureRectResult -eq "PASS") -and
 	($zeroSaveFullResult -eq "PASS") -and
 	$allRegressionPass -and
 	($loopResult -eq "PASS") -and
@@ -253,7 +357,9 @@ $report += "- Godot static parse: $(if($staticCheck.passed){'PASS'}else{'FAIL'})
 $report += "- Asset verification: $assetResult"
 $report += "- Manifest v2 validation: $manifestResult"
 $report += "- Fallback three cases: $fallbackResult"
+$report += "- TextureRect semantic check: $textureRectResult"
 $report += "- Zero save impact: $zeroSaveFullResult"
+$report += "- Screenshot evidence validation: $screenshotEvidenceResult"
 $report += "- Screenshot count: $($screenshots.Count)"
 $report += "- M13 regression: $m13Result"
 $report += "- M14-T01 regression: $m14T01Result"
@@ -292,6 +398,8 @@ $report += "- M16-T02 result: $result"
 $report += "- Tag: $FinalTagSuggestion"
 $report += "- Recommendation: request Codex independent review before M16-T03."
 $report += "- M16-T03 remains blocked until Codex PASS."
+$report += "- Default rerun mode verifies committed screenshots only; it does not overwrite repo screenshot evidence."
+$report += "- RefreshEvidence mode is required to rewrite official screenshot evidence."
 $report += ""
 $report += "## Final Closure"
 $report += ""
@@ -359,7 +467,12 @@ $receipt = [ordered]@{
 	asset_result = $assetResult
 	manifest_result = $manifestResult
 	fallback_result = $fallbackResult
+	texture_rect_result = $textureRectResult
 	zero_save_impact_result = $zeroSaveFullResult
+	screenshot_evidence_result = $screenshotEvidenceResult
+	default_rerun_overwrites_repo_screenshots = $false
+	refresh_evidence_mode = $RefreshEvidence.IsPresent
+	temp_screenshot_dir = $TempScreenshotDir
 	godot_static_parse_result = if($staticCheck.passed){'PASS'}else{'FAIL'}
 	screenshot_count = $screenshots.Count
 	screenshots = @($screenshots)
@@ -402,7 +515,9 @@ if ($WriteEvidence) {
 Write-Host "M16_T02_ASSET_RESULT=$assetResult"
 Write-Host "M16_T02_MANIFEST_RESULT=$manifestResult"
 Write-Host "M16_T02_FALLBACK_RESULT=$fallbackResult"
+Write-Host "M16_T02_TEXTURE_RECT_RESULT=$textureRectResult"
 Write-Host "M16_T02_ZERO_SAVE_IMPACT_RESULT=$zeroSaveFullResult"
+Write-Host "M16_T02_SCREENSHOT_EVIDENCE_RESULT=$screenshotEvidenceResult"
 Write-Host "M16_T02_SCREENSHOT_COUNT=$($screenshots.Count)"
 Write-Host "M13_RESULT=$m13Result"
 Write-Host "M14_T01_RESULT=$m14T01Result"
@@ -421,5 +536,7 @@ Write-Host "GODOT_STATIC_PARSE_RESULT=$(if($staticCheck.passed){'PASS'}else{'FAI
 Write-Host "M16_T02_RESULT=$result"
 Write-Host "M16_T02_REGRESSION_EXIT_CODE=$($regression.exit_code)"
 Write-Host "M16_T02_WRITE_EVIDENCE=$WriteEvidence"
+Write-Host "M16_T02_REFRESH_EVIDENCE=$($RefreshEvidence.IsPresent)"
+Write-Host "M16_T02_TEMP_SCREENSHOT_DIR=$TempScreenshotDir"
 Write-Host "Report: $ReportPath"
 Write-Host "Receipt: $ReceiptPath"

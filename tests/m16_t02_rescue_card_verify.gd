@@ -7,6 +7,7 @@ var _asset_result := "FAIL"
 var _manifest_result := "FAIL"
 var _fallback_result := "FAIL"
 var _zero_save_result := "FAIL"
+var _texture_rect_result := "FAIL"
 
 
 func _init() -> void:
@@ -20,6 +21,7 @@ func _run_tests() -> void:
 	_test_real_assets()
 	_test_manifest_v2()
 	_test_fallback_modes()
+	_test_rescue_dock_texture_rect_semantics()
 	_test_zero_save_fields()
 	_test_forbidden_untouched()
 
@@ -103,6 +105,34 @@ func _test_fallback_modes() -> void:
 	_fallback_result = "PASS"
 
 
+func _test_rescue_dock_texture_rect_semantics() -> void:
+	var GameStateScript = load("res://scripts/systems/GameState.gd")
+	var DockPanelScript = load("res://scenes/ui/RescueDockPanel.gd")
+	_assert(GameStateScript != null, "UI.1 GameState loads for card UI semantic test")
+	_assert(DockPanelScript != null, "UI.2 RescueDockPanel loads for card UI semantic test")
+	if GameStateScript == null or DockPanelScript == null:
+		return
+	var gs = GameStateScript.new()
+	gs.initialize()
+	gs.economy_system.add_reef_points(20.0)
+	gs.reef_points = gs.economy_system.get_reef_points()
+	gs._ensure_rescue_dock_candidate()
+	var dock_panel = DockPanelScript.new()
+	dock_panel.setup(gs)
+	dock_panel.update_display()
+	_assert(dock_panel.rescue_card_texture != null, "UI.3 RescueCardTexture exists")
+	if dock_panel.rescue_card_texture != null:
+		_assert(dock_panel.rescue_card_texture.custom_minimum_size == Vector2(96, 96), "UI.4 RescueCardTexture minimum size is 96x96")
+		_assert(dock_panel.rescue_card_texture.texture != null, "UI.5 candidate RescueCardTexture.texture is non-null")
+		_assert(dock_panel.rescue_card_texture.visible, "UI.6 candidate RescueCardTexture visible")
+	gs.bring_back_current_rescue()
+	dock_panel.update_display()
+	if dock_panel.rescue_card_texture != null:
+		_assert(dock_panel.rescue_card_texture.texture != null, "UI.7 active rescue RescueCardTexture.texture is non-null")
+		_assert(dock_panel.rescue_card_texture.visible, "UI.8 active rescue RescueCardTexture visible")
+	_texture_rect_result = "PASS"
+
+
 func _test_zero_save_fields() -> void:
 	var schema_text := FileAccess.get_file_as_string("res://data/schemas/save_schema.json")
 	_assert(schema_text.find("visual_card_id") == -1, "SAVE.1 no visual_card_id in save schema")
@@ -148,6 +178,7 @@ func _print_summary() -> void:
 	print("M16_T02_ASSET_RESULT=", _asset_result)
 	print("M16_T02_MANIFEST_RESULT=", _manifest_result)
 	print("M16_T02_FALLBACK_RESULT=", _fallback_result)
+	print("M16_T02_TEXTURE_RECT_RESULT=", _texture_rect_result)
 	print("M16_T02_ZERO_SAVE_IMPACT_RESULT=", _zero_save_result)
 	print("M16_T02_ASSERTIONS_PASSED=", _passed)
 	print("M16_T02_ASSERTIONS_FAILED=", _failed)
