@@ -1,0 +1,157 @@
+﻿{
+    "task_name":  "M14-T04_RescueCore_PlayableReleaseCandidate",
+    "branch":  "m14-t04-rescue-core-release-candidate",
+    "base_tag":  "v3.2-m14-t03-closeout",
+    "commit_hash":  "verified externally by: git rev-parse HEAD",
+    "result":  "PASS",
+    "evidence_rule_version":  "no_self_referential_annotated_tag_closure_v1",
+    "m13_regression_result":  "PASS",
+    "m14_t01_result":  "PASS",
+    "m14_t02_result":  "PASS",
+    "m14_t03_result":  "PASS",
+    "m14_t04_result":  "PASS",
+    "first_loop_duration":  "840 seconds",
+    "save_load_consistency_result":  "PASS",
+    "old_save_migration_result":  "PASS",
+    "forbidden_touched":  0,
+    "forbidden_files_touched":  [
+
+                                ],
+    "modified_files":  [
+                           "reports/m14/M14_T04_RESCUE_CORE_RELEASE_CANDIDATE_RECEIPT.json",
+                           "reports/m14/M14_T04_RESCUE_CORE_RELEASE_CANDIDATE_REPORT.md",
+                           "tests/run_m14_t04_release_candidate.ps1"
+                       ],
+    "report_path":  "reports/m14/M14_T04_RESCUE_CORE_RELEASE_CANDIDATE_REPORT.md",
+    "receipt_path":  "reports/m14/M14_T04_RESCUE_CORE_RELEASE_CANDIDATE_RECEIPT.json",
+    "final_candidate_tag":  "v3.2-m14-t04-rescue-core-rc",
+    "final_candidate_tag_target_verification_command":  "git rev-parse v3.2-m14-t04-rescue-core-rc^{}",
+    "final_candidate_tag_object_verification_command":  "git rev-parse v3.2-m14-t04-rescue-core-rc",
+    "head_commit_verification_command":  "git rev-parse HEAD",
+    "worktree_clean_after_rerun":  "verified externally by: git status --short",
+    "recommendation_for_m14_final_closeout":  "YES_AFTER_CODEX_REVIEW",
+    "no_self_referential_annotated_tag_closure":  true,
+    "screenshot_evidence":  [
+                                "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3_M14_T01\\reports\\m14\\screenshots\\01_dock_entry.png",
+                                "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3_M14_T01\\reports\\m14\\screenshots\\02_dock_panel_candidate.png",
+                                "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3_M14_T01\\reports\\m14\\screenshots\\03_rescue_slot_recovering.png",
+                                "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3_M14_T01\\reports\\m14\\screenshots\\04_ready_to_release.png",
+                                "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3_M14_T01\\reports\\m14\\screenshots\\05_release_settlement.png",
+                                "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3_M14_T01\\reports\\m14\\screenshots\\06_reputation_display.png",
+                                "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3_M14_T01\\reports\\m14\\screenshots\\07_codex_rescued_badge.png",
+                                "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3_M14_T01\\reports\\m14\\screenshots\\t03_01_dock_entry.png",
+                                "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3_M14_T01\\reports\\m14\\screenshots\\t03_02_dock_candidate.png",
+                                "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3_M14_T01\\reports\\m14\\screenshots\\t03_03_rescue_slot_after_bring.png",
+                                "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3_M14_T01\\reports\\m14\\screenshots\\t03_04_recovering.png",
+                                "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3_M14_T01\\reports\\m14\\screenshots\\t03_05_ready_to_release.png",
+                                "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3_M14_T01\\reports\\m14\\screenshots\\t03_06_release_settlement.png",
+                                "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3_M14_T01\\reports\\m14\\screenshots\\t03_07_reputation_change.png",
+                                "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3_M14_T01\\reports\\m14\\screenshots\\t03_08_codex_rescued_mark.png"
+                            ],
+    "missing_screenshots":  [
+
+                            ],
+    "tests_run":  [
+                      "godot_static_editor_check",
+                      "m13_smoke_regression",
+                      "m13_progression_regression",
+                      "m13_economy_balance_regression",
+                      "m13_unlock_capacity_regression",
+                      "m13_save_load_regression",
+                      "m14_t01_core_regression",
+                      "m14_t02_rescue_ui_verify",
+                      "m14_t03_copy_ui_verify"
+                  ],
+    "test_details":  [
+                         {
+                             "name":  "godot_static_editor_check",
+                             "command":  "C:\\Users\\admin\\Desktop\\Godot_v4.7-stable_win64_console.exe --headless --editor --path C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3_M14_T01 --quit",
+                             "script":  "",
+                             "exit_code":  0,
+                             "passed":  true,
+                             "pass_pattern":  "exit 0",
+                             "log_path":  "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3_M14_T01\\reports\\m14\\logs\\t04_godot_static_editor_check.log",
+                             "summary":  "Godot editor class registration exit_code=0"
+                         },
+                         {
+                             "name":  "m13_smoke_regression",
+                             "command":  "C:\\Users\\admin\\Desktop\\Godot_v4.7-stable_win64_console.exe --headless --path C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3_M14_T01 --script tests/smoke_test.gd",
+                             "script":  "tests/smoke_test.gd",
+                             "exit_code":  0,
+                             "passed":  true,
+                             "pass_pattern":  "SMOKE_TEST_RESULT=PASS",
+                             "log_path":  "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3_M14_T01\\reports\\m14\\logs\\t04_m13_smoke_regression.log",
+                             "summary":  "PASS: project.godot exists\nPASS: Main.tscn loads\nPASS: DataRegistry.gd loads\nPASS: DataRegistry.is_loaded_ok is true\nPASS: species count \u003e= 100\nPASS: equipment count \u003e= 20\nPASS: task count == 10\nSMOKE_TEST_RESULT=PASS"
+                         },
+                         {
+                             "name":  "m13_progression_regression",
+                             "command":  "C:\\Users\\admin\\Desktop\\Godot_v4.7-stable_win64_console.exe --headless --path C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3_M14_T01 --script tests/m13_30day_progression_sim_verify.gd",
+                             "script":  "tests/m13_30day_progression_sim_verify.gd",
+                             "exit_code":  0,
+                             "passed":  true,
+                             "pass_pattern":  "PASS",
+                             "log_path":  "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3_M14_T01\\reports\\m14\\logs\\t04_m13_progression_regression.log",
+                             "summary":  "  PASS"
+                         },
+                         {
+                             "name":  "m13_economy_balance_regression",
+                             "command":  "C:\\Users\\admin\\Desktop\\Godot_v4.7-stable_win64_console.exe --headless --path C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3_M14_T01 --script tests/m13_economy_balance_30day_verify.gd",
+                             "script":  "tests/m13_economy_balance_30day_verify.gd",
+                             "exit_code":  0,
+                             "passed":  true,
+                             "pass_pattern":  "PASS",
+                             "log_path":  "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3_M14_T01\\reports\\m14\\logs\\t04_m13_economy_balance_regression.log",
+                             "summary":  "  PASS"
+                         },
+                         {
+                             "name":  "m13_unlock_capacity_regression",
+                             "command":  "C:\\Users\\admin\\Desktop\\Godot_v4.7-stable_win64_console.exe --headless --path C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3_M14_T01 --script tests/m13_unlock_capacity_30day_verify.gd",
+                             "script":  "tests/m13_unlock_capacity_30day_verify.gd",
+                             "exit_code":  0,
+                             "passed":  true,
+                             "pass_pattern":  "PASS",
+                             "log_path":  "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3_M14_T01\\reports\\m14\\logs\\t04_m13_unlock_capacity_regression.log",
+                             "summary":  "  PASS"
+                         },
+                         {
+                             "name":  "m13_save_load_regression",
+                             "command":  "C:\\Users\\admin\\Desktop\\Godot_v4.7-stable_win64_console.exe --headless --path C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3_M14_T01 --script tests/m13_save_load_30day_verify.gd",
+                             "script":  "tests/m13_save_load_30day_verify.gd",
+                             "exit_code":  0,
+                             "passed":  true,
+                             "pass_pattern":  "PASS",
+                             "log_path":  "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3_M14_T01\\reports\\m14\\logs\\t04_m13_save_load_regression.log",
+                             "summary":  "  PASS"
+                         },
+                         {
+                             "name":  "m14_t01_core_regression",
+                             "command":  "C:\\Users\\admin\\Desktop\\Godot_v4.7-stable_win64_console.exe --headless --path C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3_M14_T01 --script tests/m14_rescue_core_verify.gd",
+                             "script":  "tests/m14_rescue_core_verify.gd",
+                             "exit_code":  0,
+                             "passed":  true,
+                             "pass_pattern":  "M14_T01_RESCUE_CORE_RESULT=PASS",
+                             "log_path":  "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3_M14_T01\\reports\\m14\\logs\\t04_m14_t01_core_regression.log",
+                             "summary":  "[M14-T01] RescueCore data/headless verification start\n[M14-T01] Recovery contrast high_avg=3.00 low_avg=8.00\n  M14-T01 RescueCore: 23/23\n  M14_T01_RESCUE_CORE_RESULT=PASS"
+                         },
+                         {
+                             "name":  "m14_t02_rescue_ui_verify",
+                             "command":  "C:\\Users\\admin\\Desktop\\Godot_v4.7-stable_win64_console.exe --headless --path C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3_M14_T01 --script tests/m14_t02_rescue_ui_verify.gd",
+                             "script":  "tests/m14_t02_rescue_ui_verify.gd",
+                             "exit_code":  0,
+                             "passed":  true,
+                             "pass_pattern":  "M14_T02_RESCUE_FIRST_PLAYABLE_RESULT=PASS",
+                             "log_path":  "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3_M14_T01\\reports\\m14\\logs\\t04_m14_t02_rescue_ui_verify.log",
+                             "summary":  "[M14-T02] Rescue first playable UI verification start\n[M14-T02] first loop probe progress=100.00 target=215\n  M14-T02 Rescue UI: 30/30\n  first_loop_duration_seconds=840\n  M14_T02_RESCUE_FIRST_PLAYABLE_RESULT=PASS"
+                         },
+                         {
+                             "name":  "m14_t03_copy_ui_verify",
+                             "command":  "C:\\Users\\admin\\Desktop\\Godot_v4.7-stable_win64_console.exe --headless --path C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3_M14_T01 --script tests/m14_t03_copy_ui_verify.gd",
+                             "script":  "tests/m14_t03_copy_ui_verify.gd",
+                             "exit_code":  0,
+                             "passed":  true,
+                             "pass_pattern":  "M14_T03_COPY_UI_VERIFY_RESULT=PASS",
+                             "log_path":  "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3_M14_T01\\reports\\m14\\logs\\t04_m14_t03_copy_ui_verify.log",
+                             "summary":  "[M14-T03] Copy/UI verification start\n[M14-T03] Copy/UI verification complete: 35/35\nM14_T03_COPY_UI_VERIFY_RESULT=PASS"
+                         }
+                     ]
+}
