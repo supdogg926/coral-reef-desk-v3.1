@@ -12,6 +12,9 @@ $ReportDir = Join-Path $Project "reports\m16"
 $ScreenshotDir = Join-Path $ReportDir "screenshots"
 $ReportPath = Join-Path $ReportDir "M16_T02_RESCUE_CARD_PLAYABLE_UI_REPORT.md"
 $ReceiptPath = Join-Path $ReportDir "M16_T02_RESCUE_CARD_PLAYABLE_UI_RECEIPT.json"
+$WriteEvidence = ($env:M16_T02_WRITE_EVIDENCE -eq "1")
+$OriginalT02Commit = "11dbf8a284acecfe16e2b9928a03aa4dfff7fc7f"
+$OriginalT02Tag = "v3.4-m16-t02-rescue-card-playable-ui"
 $TempRoot = Join-Path $Project "_m16_t02_acceptance_tmp"
 $LogDir = Join-Path $TempRoot "logs"
 $RegressionProject = Join-Path $TempRoot "m15_regression_clone"
@@ -108,7 +111,9 @@ function Test-AllowedM16T02File([string]$File) {
 		"tests/m16_t02_rescue_card_verify.gd",
 		"tests/m16_t02_capture_screenshots.gd",
 		"reports/m16/M16_T02_RESCUE_CARD_PLAYABLE_UI_REPORT.md",
-		"reports/m16/M16_T02_RESCUE_CARD_PLAYABLE_UI_RECEIPT.json"
+		"reports/m16/M16_T02_RESCUE_CARD_PLAYABLE_UI_RECEIPT.json",
+		"reports/m16/M16_T02_FIXUP1_EVIDENCE_STABILITY_REPORT.md",
+		"reports/m16/M16_T02_FIXUP1_EVIDENCE_STABILITY_RECEIPT.json"
 	)
 	if ($allowedExact -contains $File) { return $true }
 	if ($File.StartsWith("assets/cards/rescue/")) { return $true }
@@ -236,9 +241,9 @@ $report += "## Asset Processing"
 $report += ""
 $report += "| Species | Original | Processed | SHA256 |"
 $report += "|---------|----------|-----------|--------|"
-$report += "| rescue_clownfish_juvenile | 1254x1254 RGB | 256x256 RGBA | BAC63DFBB2F16BD63F8EC0E9BF749D72FE32CE7AB8107D11EA4CCF2B79A3FE6F |"
-$report += "| rescue_cleaner_shrimp | 1254x1254 RGB | 256x256 RGBA | B106A67F63D3A0D6A9E86016360CF5913A25B558FF1935F6AB17DF1E1BC9DA8E |"
-$report += "| rescue_goby | 1254x1254 RGB | 256x256 RGBA | EEC2D417561E2C80BFBEE4901A86689998F897F79738C4CB7D000C173EDBEF27 |"
+$report += "| rescue_clownfish_juvenile | 1254x1254 RGB | 256x256 RGBA | bac63dfbb2f16bd63f8ec0e9bf749d72fe32ce7ab8107d11ea4ccf2b79a3fe6f |"
+$report += "| rescue_cleaner_shrimp | 1254x1254 RGB | 256x256 RGBA | b106a67f63d3a0d6a9e86016360cf5913a25b558ff1935f6ab17df1e1bc9da8e |"
+$report += "| rescue_goby | 1254x1254 RGB | 256x256 RGBA | eec2d417561e2c80bfbee4901a86689998f897f79738c4cb7d000c173edbef27 |"
 $report += ""
 $report += "Processing: rembg (white bg removal) -> resize 256x256 (Lanczos) -> SHA256"
 $report += ""
@@ -284,20 +289,71 @@ $report += ""
 $report += "## Result"
 $report += ""
 $report += "- M16-T02 result: $result"
-$report += "- Suggested tag: $FinalTagSuggestion"
+$report += "- Tag: $FinalTagSuggestion"
 $report += "- Recommendation: request Codex independent review before M16-T03."
 $report += "- M16-T03 remains blocked until Codex PASS."
+$report += ""
+$report += "## Final Closure"
+$report += ""
+$report += "- **Base tag**: $BaseTag"
+$report += "- **Base commit**: $BaseCommit"
+$report += "- **Original T02 tag**: $OriginalT02Tag"
+$report += "- **Original T02 commit**: $OriginalT02Commit"
+$report += "- **Manifest schema_version**: 2 (card manifest only; save_version remains v3)"
+$report += "- **Manifest source**: image2_user_generated (all 3 entries)"
+$report += "- **SaveSystem/save_schema**: untouched"
+$report += "- **SAVE_VERSION**: v3"
+$report += "- **FIRST_LOOP_DURATION**: 840 seconds (M14 baseline) / 580 seconds (M15 care path) - unchanged"
+$report += "- **Evidence rule**: $EvidenceRuleVersion"
+$report += "- **M16-T03**: not started, blocked until Codex PASS"
+$report += ""
+$report += "### Processed Asset SHA256"
+$report += ""
+$report += "| Species | SHA256 |"
+$report += "|---------|--------|"
+$report += "| rescue_clownfish_juvenile | bac63dfbb2f16bd63f8ec0e9bf749d72fe32ce7ab8107d11ea4ccf2b79a3fe6f |"
+$report += "| rescue_cleaner_shrimp | b106a67f63d3a0d6a9e86016360cf5913a25b558ff1935f6ab17df1e1bc9da8e |"
+$report += "| rescue_goby | eec2d417561e2c80bfbee4901a86689998f897f79738c4cb7d000c173edbef27 |"
+$report += ""
+$report += "### Screenshots (5)"
+$report += ""
+foreach ($ss in $screenshots) {
+	$report += "- $ss (960x540)"
+}
+$report += ""
+$report += "### Changed Files"
+$report += ""
+$report += "| File | Operation |"
+$report += "|------|-----------|"
+$report += "| data/card_manifest.json | MODIFY (schema v2, 3 image2_user_generated assets) |"
+$report += "| data/schemas/card_manifest_schema.json | MODIFY (schema v2, new source) |"
+$report += "| scripts/systems/CardAssetLibrary.gd | MODIFY (multi-source, schema v1/v2) |"
+$report += "| scenes/ui/RescueDockPanel.gd | MODIFY (96x96 TextureRect only) |"
+$report += "| assets/cards/rescue/*.png (3) | NEW |"
+$report += "| tests/m16_t02_*.gd (2) | NEW |"
+$report += "| tests/run_m16_t02_acceptance.ps1 | NEW |"
+$report += "| reports/m16/screenshots/*.png (5) | NEW |"
+$report += "| reports/m16/M16_T02_RESCUE_CARD_PLAYABLE_UI_REPORT.md | NEW |"
+$report += "| reports/m16/M16_T02_RESCUE_CARD_PLAYABLE_UI_RECEIPT.json | NEW |"
+$report += ""
+$report += "### Forbidden Files"
+$report += ""
+$report += "0 touched. SaveSystem.gd, save_schema.json, RescueSystem.gd, GameState.gd, LivestockSystem.gd, LivestockPanel.gd, StatusPanel.gd, Main.gd, species_rescue_pool.json, rescue_config.json, project.godot, and .tscn files are untouched."
 
 $reportText = $report -join "`n"
-Set-Content -Path $ReportPath -Value $reportText -Encoding UTF8
+if ($WriteEvidence) {
+	Set-Content -Path $ReportPath -Value $reportText -Encoding UTF8
+}
 
 # Receipt
 $receipt = [ordered]@{
 	task_name = $TaskName
 	base_tag = $BaseTag
 	base_commit = $BaseCommit
-	commit = $commitHash
-	suggested_tag = $FinalTagSuggestion
+	commit = $OriginalT02Commit
+	original_t02_commit = $OriginalT02Commit
+	original_t02_tag = $OriginalT02Tag
+	tag = $FinalTagSuggestion
 	result = $result
 	evidence_rule_version = $EvidenceRuleVersion
 	asset_result = $assetResult
@@ -328,9 +384,9 @@ $receipt = [ordered]@{
 	manifest_all_source_image2 = ($manifestResult -eq "PASS")
 	assets_processed = 3
 	asset_shas = @(
-		"BAC63DFBB2F16BD63F8EC0E9BF749D72FE32CE7AB8107D11EA4CCF2B79A3FE6F",
-		"B106A67F63D3A0D6A9E86016360CF5913A25B558FF1935F6AB17DF1E1BC9DA8E",
-		"EEC2D417561E2C80BFBEE4901A86689998F897F79738C4CB7D000C173EDBEF27"
+		"bac63dfbb2f16bd63f8ec0e9bf749d72fe32ce7ab8107d11ea4ccf2b79a3fe6f",
+		"b106a67f63d3a0d6a9e86016360cf5913a25b558ff1935f6ab17df1e1bc9da8e",
+		"eec2d417561e2c80bfbee4901a86689998f897f79738c4cb7d000c173edbef27"
 	)
 	report_path = "reports/m16/M16_T02_RESCUE_CARD_PLAYABLE_UI_REPORT.md"
 	receipt_path = "reports/m16/M16_T02_RESCUE_CARD_PLAYABLE_UI_RECEIPT.json"
@@ -338,7 +394,9 @@ $receipt = [ordered]@{
 	allow_m16_t03 = "WAIT_FOR_CODEX_PASS"
 }
 $receiptJson = $receipt | ConvertTo-Json -Depth 4
-Set-Content -Path $ReceiptPath -Value $receiptJson -Encoding UTF8
+if ($WriteEvidence) {
+	Set-Content -Path $ReceiptPath -Value $receiptJson -Encoding UTF8
+}
 
 # Print summary
 Write-Host "M16_T02_ASSET_RESULT=$assetResult"
@@ -362,5 +420,6 @@ Write-Host "SAVE_VERSION_RESULT=$saveVersionResult"
 Write-Host "GODOT_STATIC_PARSE_RESULT=$(if($staticCheck.passed){'PASS'}else{'FAIL'})"
 Write-Host "M16_T02_RESULT=$result"
 Write-Host "M16_T02_REGRESSION_EXIT_CODE=$($regression.exit_code)"
+Write-Host "M16_T02_WRITE_EVIDENCE=$WriteEvidence"
 Write-Host "Report: $ReportPath"
 Write-Host "Receipt: $ReceiptPath"

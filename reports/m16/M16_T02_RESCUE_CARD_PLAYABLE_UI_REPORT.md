@@ -83,12 +83,13 @@ Processing: rembg (white bg removal) -> resize 256x256 (Lanczos) -> SHA256
 
 - **Base tag**: v3.4-m16-t01-card-manifest
 - **Base commit**: f7d2e7078e000ffd16e3160ea2dc4ace96d49825
-- **Tag**: v3.4-m16-t02-rescue-card-playable-ui
+- **Original T02 tag**: v3.4-m16-t02-rescue-card-playable-ui
+- **Original T02 commit**: 11dbf8a284acecfe16e2b9928a03aa4dfff7fc7f
 - **Manifest schema_version**: 2 (card manifest only; save_version remains v3)
 - **Manifest source**: image2_user_generated (all 3 entries)
 - **SaveSystem/save_schema**: untouched
 - **SAVE_VERSION**: v3
-- **FIRST_LOOP_DURATION**: 840 seconds (M14 baseline) / 580 seconds (M15 care path) — unchanged
+- **FIRST_LOOP_DURATION**: 840 seconds (M14 baseline) / 580 seconds (M15 care path) - unchanged
 - **Evidence rule**: no_self_referential_annotated_tag_closure_v1
 - **M16-T03**: not started, blocked until Codex PASS
 
@@ -102,20 +103,20 @@ Processing: rembg (white bg removal) -> resize 256x256 (Lanczos) -> SHA256
 
 ### Screenshots (5)
 
-- m16_t02_01_dock_candidate_card_visible.png (960×540)
-- m16_t02_02_active_rescue_card_visible.png (960×540)
-- m16_t02_03_care_need_text_still_visible.png (960×540)
-- m16_t02_04_fallback_placeholder_visible.png (960×540)
-- m16_t02_05_release_ready_card_visible.png (960×540)
+- m16_t02_01_dock_candidate_card_visible.png (960x540)
+- m16_t02_02_active_rescue_card_visible.png (960x540)
+- m16_t02_03_care_need_text_still_visible.png (960x540)
+- m16_t02_04_fallback_placeholder_visible.png (960x540)
+- m16_t02_05_release_ready_card_visible.png (960x540)
 
 ### Changed Files
 
 | File | Operation |
 |------|-----------|
-| data/card_manifest.json | MODIFY (schema v2, 3 real assets) |
+| data/card_manifest.json | MODIFY (schema v2, 3 image2_user_generated assets) |
 | data/schemas/card_manifest_schema.json | MODIFY (schema v2, new source) |
 | scripts/systems/CardAssetLibrary.gd | MODIFY (multi-source, schema v1/v2) |
-| scenes/ui/RescueDockPanel.gd | MODIFY (96×96 TextureRect) |
+| scenes/ui/RescueDockPanel.gd | MODIFY (96x96 TextureRect only) |
 | assets/cards/rescue/*.png (3) | NEW |
 | tests/m16_t02_*.gd (2) | NEW |
 | tests/run_m16_t02_acceptance.ps1 | NEW |
@@ -125,4 +126,4 @@ Processing: rembg (white bg removal) -> resize 256x256 (Lanczos) -> SHA256
 
 ### Forbidden Files
 
-0 touched. SaveSystem.gd, save_schema.json, RescueSystem.gd, GameState.gd, LivestockSystem.gd, LivestockPanel.gd, StatusPanel.gd, Main.gd, species_rescue_pool.json, rescue_config.json, project.godot, .tscn files — all untouched.
+0 touched. SaveSystem.gd, save_schema.json, RescueSystem.gd, GameState.gd, LivestockSystem.gd, LivestockPanel.gd, StatusPanel.gd, Main.gd, species_rescue_pool.json, rescue_config.json, project.godot, and .tscn files are untouched.

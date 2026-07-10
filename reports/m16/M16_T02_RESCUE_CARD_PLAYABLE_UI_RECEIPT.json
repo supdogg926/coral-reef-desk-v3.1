@@ -2,8 +2,10 @@
     "task_name":  "M16-T02_RescueCardPlayable_UI",
     "base_tag":  "v3.4-m16-t01-card-manifest",
     "base_commit":  "f7d2e7078e000ffd16e3160ea2dc4ace96d49825",
-    "commit":  "f7d2e7078e000ffd16e3160ea2dc4ace96d49825",
-    "suggested_tag":  "v3.4-m16-t02-rescue-card-playable-ui",
+    "commit":  "11dbf8a284acecfe16e2b9928a03aa4dfff7fc7f",
+    "original_t02_commit":  "11dbf8a284acecfe16e2b9928a03aa4dfff7fc7f",
+    "original_t02_tag":  "v3.4-m16-t02-rescue-card-playable-ui",
+    "tag":  "v3.4-m16-t02-rescue-card-playable-ui",
     "result":  "PASS",
     "evidence_rule_version":  "no_self_referential_annotated_tag_closure_v1",
     "asset_result":  "PASS",
@@ -42,9 +44,9 @@
     "manifest_all_source_image2":  true,
     "assets_processed":  3,
     "asset_shas":  [
-                       "BAC63DFBB2F16BD63F8EC0E9BF749D72FE32CE7AB8107D11EA4CCF2B79A3FE6F",
-                       "B106A67F63D3A0D6A9E86016360CF5913A25B558FF1935F6AB17DF1E1BC9DA8E",
-                       "EEC2D417561E2C80BFBEE4901A86689998F897F79738C4CB7D000C173EDBEF27"
+                       "bac63dfbb2f16bd63f8ec0e9bf749d72fe32ce7ab8107d11ea4ccf2b79a3fe6f",
+                       "b106a67f63d3a0d6a9e86016360cf5913a25b558ff1935f6ab17df1e1bc9da8e",
+                       "eec2d417561e2c80bfbee4901a86689998f897f79738c4cb7d000c173edbef27"
                    ],
     "report_path":  "reports/m16/M16_T02_RESCUE_CARD_PLAYABLE_UI_REPORT.md",
     "receipt_path":  "reports/m16/M16_T02_RESCUE_CARD_PLAYABLE_UI_RECEIPT.json",
