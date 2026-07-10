@@ -5,6 +5,11 @@ var _failed: int = 0
 var _errors: Array[String] = []
 var _first_loop_seconds: float = 0.0
 
+const FIXED_CARE_NEED: String = "weak"
+const FIXED_CARE_ACTION: String = "nutrition"
+const FIXED_WATER_QUALITY: float = 40.0
+const FIXED_COMFORT_SCORE: float = 40.0
+
 
 func _init() -> void:
 	_run_tests()
@@ -35,6 +40,7 @@ func _run_tests() -> void:
 func _test_care_ui_first_loop(GameStateScript, PanelScript) -> void:
 	var gs = GameStateScript.new()
 	gs.initialize()
+	_reset_to_clean_test_state(gs)
 	gs.economy_system.add_reef_points(20.0)
 	gs.reef_points = gs.economy_system.get_reef_points()
 	gs._ensure_rescue_dock_candidate()
@@ -49,6 +55,7 @@ func _test_care_ui_first_loop(GameStateScript, PanelScript) -> void:
 	_assert(panel.purify_btn.text == "净水护理", "UI.5 purify button visible")
 
 	var accepted: Dictionary = gs.bring_back_current_rescue()
+	_force_fixed_care_need(gs)
 	panel.update_display()
 	_assert(bool(accepted.get("success", false)), "FLOW.1 bring-back succeeds")
 	var state: Dictionary = gs.get_rescue_ui_state()
@@ -57,7 +64,7 @@ func _test_care_ui_first_loop(GameStateScript, PanelScript) -> void:
 	_assert(panel.care_need_label.text.find("护理需求") >= 0 and panel.care_need_label.text.find("每次救助只能护理一次") >= 0, "FLOW.3 care need copy visible")
 	_assert(not panel.nutrition_btn.disabled and not panel.soothe_btn.disabled and not panel.purify_btn.disabled, "FLOW.4 care buttons enabled before care")
 
-	var action: String = _best_action_for_need(care_need)
+	var action: String = FIXED_CARE_ACTION
 	_press_care_button(panel, action)
 	panel.update_display()
 	state = gs.get_rescue_ui_state()
@@ -75,7 +82,7 @@ func _test_care_ui_first_loop(GameStateScript, PanelScript) -> void:
 	var elapsed: float = 0.0
 	var ready: bool = false
 	while elapsed <= 920.0:
-		gs._update_rescue_playable(10.0)
+		_advance_rescue_for_fixed_test_environment(gs, 10.0)
 		elapsed += 10.0
 		state = gs.get_rescue_ui_state()
 		if bool(state.get("ready_to_release", false)):
@@ -114,6 +121,44 @@ func _best_action_for_need(need: String) -> String:
 			return "purify"
 		_:
 			return "nutrition"
+
+
+func _force_fixed_care_need(gs) -> void:
+	var active: Dictionary = gs.rescue_system.active_rescue
+	active["care_need"] = FIXED_CARE_NEED
+	active["care_used"] = false
+	active["care_action_taken"] = ""
+	active["care_score"] = 0.0
+	gs.rescue_system.active_rescue = active
+
+
+func _reset_to_clean_test_state(gs) -> void:
+	gs.time_system.initialize()
+	gs.economy_system.initialize()
+	gs.water_chemistry_system.initialize()
+	gs.livestock_system.initialize()
+	gs.unlock_system.initialize()
+	gs.stage_objective_system.initialize()
+	gs.rescue_system.initialize(1401)
+	gs.rescue_last_feedback = {}
+	gs.save_loaded = false
+	gs.offline_summary = {}
+	gs._recalculate_debug_scores()
+	gs._update_livestock_and_economy(0.0)
+	gs._update_unlocks()
+
+
+func _advance_rescue_for_fixed_test_environment(gs, real_delta_seconds: float) -> void:
+	var active: Dictionary = gs.rescue_system.get_debug_state().get("active_rescue", {})
+	if active.is_empty() or float(active.get("recovery_progress", 0.0)) >= 100.0:
+		return
+	var playable: Dictionary = gs.rescue_system.config.get("first_playable", {})
+	var target_seconds: float = max(float(playable.get("target_recovery_seconds", 720.0)), 1.0)
+	var base_rate: float = max(float(active.get("recovery_rate_base", 30.0)), 1.0)
+	var scale: float = max(real_delta_seconds, 0.0) / target_seconds * (100.0 / base_rate)
+	var event: Dictionary = gs.rescue_system.advance_active_rescue_for_ui(gs._get_current_rescue_day(), FIXED_WATER_QUALITY, FIXED_COMFORT_SCORE, scale)
+	if String(event.get("type", "")) == "recovery_ready":
+		gs.rescue_last_feedback = {"success": true, "summary": "救助生物已完全康复！请前往码头将其放归大海", "type": "recovery_ready"}
 
 
 func _different_action(action: String) -> String:

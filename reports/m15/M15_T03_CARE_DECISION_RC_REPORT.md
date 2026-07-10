@@ -38,19 +38,28 @@ T03 does not add gameplay, UI, art, economy, scene, or M16 content. It consolida
 - M14-T03 regression: PASS
 - M14-T04 regression: PASS
 - M14 FIRST_LOOP_DURATION: 840 seconds
-- M15-T02 FIRST_LOOP_DURATION: 560 seconds
+- M15-T02 FIRST_LOOP_DURATION: 580 seconds
 - Screenshot resolution/variance: PASS
+- Screenshot viewport source: PASS
+- UI semantic assertions: PASS
 - FORBIDDEN_TOUCHED: 0
+
+## First Loop Stability
+
+- M14 / no-care baseline FIRST_LOOP_DURATION remains 840 seconds from M14 final regression.
+- M15 care path FIRST_LOOP_DURATION is 580 seconds under a fixed new-game test state, fixed rescue_id sequence, fixed care_need=weak, fixed care action=nutrition, water quality 40, and comfort 40.
+- The M15 care path is <= 900 seconds and does not alter the M14 no-care baseline validated by M15-T01.
+- This RC evidence no longer depends on local save/offline-state drift.
 
 ## Screenshot Evidence
 
 | File | Width | Height | Pixel variance | Passed |
 |---|---:|---:|---:|---:|
-| C:\Users\admin\Desktop\桌面海缸v3.0\CoralReefIdleV3_M14_T01\reports\m15\screenshots\m15_t02_01_care_need_visible.png | 960 | 540 | 596.82 | True |
-| C:\Users\admin\Desktop\桌面海缸v3.0\CoralReefIdleV3_M14_T01\reports\m15\screenshots\m15_t02_02_three_care_buttons.png | 960 | 540 | 501.92 | True |
-| C:\Users\admin\Desktop\桌面海缸v3.0\CoralReefIdleV3_M14_T01\reports\m15\screenshots\m15_t02_03_after_care_feedback.png | 960 | 540 | 462.88 | True |
-| C:\Users\admin\Desktop\桌面海缸v3.0\CoralReefIdleV3_M14_T01\reports\m15\screenshots\m15_t02_04_ready_after_care.png | 960 | 540 | 1098.04 | True |
-| C:\Users\admin\Desktop\桌面海缸v3.0\CoralReefIdleV3_M14_T01\reports\m15\screenshots\m15_t02_05_release_bonus_line.png | 960 | 540 | 743.47 | True |
+| C:\Users\admin\Desktop\桌面海缸v3.0\CoralReefIdleV3_M14_T01\reports\m15\screenshots\m15_t02_01_care_need_visible.png | 960 | 540 | 821.84 | True |
+| C:\Users\admin\Desktop\桌面海缸v3.0\CoralReefIdleV3_M14_T01\reports\m15\screenshots\m15_t02_02_three_care_buttons.png | 960 | 540 | 854.78 | True |
+| C:\Users\admin\Desktop\桌面海缸v3.0\CoralReefIdleV3_M14_T01\reports\m15\screenshots\m15_t02_03_after_care_feedback.png | 960 | 540 | 881.25 | True |
+| C:\Users\admin\Desktop\桌面海缸v3.0\CoralReefIdleV3_M14_T01\reports\m15\screenshots\m15_t02_04_ready_after_care.png | 960 | 540 | 1008.57 | True |
+| C:\Users\admin\Desktop\桌面海缸v3.0\CoralReefIdleV3_M14_T01\reports\m15\screenshots\m15_t02_05_release_bonus_line.png | 960 | 540 | 898.01 | True |
 
 ## Modified Files
 

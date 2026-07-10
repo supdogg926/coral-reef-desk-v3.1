@@ -48,7 +48,24 @@ function Invoke-GodotCheck($Name, $ScriptPath, $PassPattern) {
 		passed = (($exit -eq 0) -and ($text -match $PassPattern))
 		pass_pattern = $PassPattern
 		log_path = $logPath
-		summary = (($text -split "`r?`n") | Select-String -Pattern "RESULT=|PASS|FAIL|first_loop_duration|BASELINE_BIT_EQUIVALENCE|RNG_DETERMINISM|V2_TO_V3_MIGRATION|M15-T02|SCREENSHOT" | Select-Object -Last 30 | ForEach-Object { $_.Line }) -join "`n"
+		summary = (($text -split "`r?`n") | Select-String -Pattern "RESULT=|PASS|FAIL|first_loop_duration|BASELINE_BIT_EQUIVALENCE|RNG_DETERMINISM|V2_TO_V3_MIGRATION|M15-T02|M15_T02|SCREENSHOT|VIEWPORT|SEMANTIC" | Select-Object -Last 40 | ForEach-Object { $_.Line }) -join "`n"
+	}
+}
+
+function Invoke-GodotViewportCheck($Name, $ScriptPath, $PassPattern) {
+	$logPath = Join-Path $LogDir "$Name.log"
+	$output = & $Godot --path $Project --script $ScriptPath 2>&1
+	$exit = $LASTEXITCODE
+	$text = if ($output -is [array]) { $output -join "`n" } else { "$output" }
+	Set-Content -Path $logPath -Value $text -Encoding UTF8
+	return [ordered]@{
+		name = $Name
+		command = "$Godot --path $Project --script $ScriptPath"
+		exit_code = $exit
+		passed = (($exit -eq 0) -and ($text -match $PassPattern))
+		pass_pattern = $PassPattern
+		log_path = $logPath
+		summary = (($text -split "`r?`n") | Select-String -Pattern "RESULT=|PASS|FAIL|first_loop_duration|M15-T02|M15_T02|SCREENSHOT|VIEWPORT|SEMANTIC" | Select-Object -Last 40 | ForEach-Object { $_.Line }) -join "`n"
 	}
 }
 
@@ -73,6 +90,7 @@ function Test-ScreenshotEvidence {
 	param(
 		[string]$Path,
 		[int]$MinWidth = 800,
+		[int]$MinHeight = 450,
 		[double]$MinPixelVariance = 1.0
 	)
 	if (-not (Test-Path -LiteralPath $Path -PathType Leaf)) {
@@ -99,7 +117,7 @@ function Test-ScreenshotEvidence {
 		}
 		$variance = $variance / [Math]::Max($values.Count, 1)
 		$length = (Get-Item -LiteralPath $Path).Length
-		$passed = ($width -ge $MinWidth) -and ($variance -ge $MinPixelVariance)
+		$passed = ($width -ge $MinWidth) -and ($height -ge $MinHeight) -and ($width -ne 32) -and ($height -ne 32) -and ($variance -ge $MinPixelVariance)
 		return [ordered]@{ path = $Path; passed = $passed; error = ""; width = $width; height = $height; pixel_variance = $variance; length = $length }
 	}
 	finally {
@@ -107,10 +125,28 @@ function Test-ScreenshotEvidence {
 	}
 }
 
+function Test-ViewportCaptureSource() {
+	$scriptPath = Join-Path $Project "tests\m15_t02_capture_screenshots.gd"
+	$text = Get-Content -LiteralPath $scriptPath -Raw
+	$hasViewportCapture = ($text -match "get_texture\(\)\.get_image\(\)")
+	$banned = @("Image.create", "fill_rect", "draw_")
+	$foundBanned = @()
+	foreach ($token in $banned) {
+		if ($text.Contains($token)) {
+			$foundBanned += $token
+		}
+	}
+	return [ordered]@{
+		passed = ($hasViewportCapture -and $foundBanned.Count -eq 0)
+		has_viewport_capture = $hasViewportCapture
+		banned_tokens_found = $foundBanned
+	}
+}
+
 $staticCheck = Invoke-GodotStaticCheck
 $m15T01Check = Invoke-GodotCheck "m15_t01_caremodel_verify" "tests/m15_t01_caremodel_verify.gd" "M15_T01_CAREMODEL_RESULT=PASS"
 $m15T02Check = Invoke-GodotCheck "m15_t02_care_ui_verify" "tests/m15_t02_care_ui_verify.gd" "M15_T02_CARE_PLAYABLE_UI_RESULT=PASS"
-$screenshotCapture = Invoke-GodotCheck "m15_t02_screenshot_capture" "tests/m15_t02_capture_screenshots.gd" "M15_T02_SCREENSHOT_CAPTURE_RESULT=PASS"
+$screenshotCapture = Invoke-GodotViewportCheck "m15_t02_screenshot_capture" "tests/m15_t02_capture_screenshots.gd" "M15_T02_SCREENSHOT_CAPTURE_RESULT=PASS"
 Remove-GeneratedImports
 
 $t04LogPath = Join-Path $LogDir "m15_t03_m14_final_regression.log"
@@ -145,6 +181,10 @@ foreach ($shot in $screenshots) {
 	$screenshotChecks += Test-ScreenshotEvidence $shot.FullName
 }
 $screenshotPass = ($screenshots.Count -ge 5) -and (@($screenshotChecks | Where-Object { -not $_.passed }).Count -eq 0) -and [bool]$screenshotCapture.passed
+$viewportSourceCheck = Test-ViewportCaptureSource
+$uiSemanticPass = ($screenshotCapture.summary -match "M15_T02_UI_SEMANTIC_ASSERTIONS=PASS")
+$viewportCapturePass = ($screenshotCapture.summary -match "M15_T02_VIEWPORT_CAPTURE_SOURCE=PASS")
+$screenshotPass = $screenshotPass -and [bool]$viewportSourceCheck.passed -and $uiSemanticPass -and $viewportCapturePass
 Restore-ScreenshotEvidenceDrift
 $screenshots = @(Get-ChildItem -Path $ScreenshotDir -Filter "m15_t02_*.png" -File -ErrorAction SilentlyContinue | Sort-Object Name)
 $screenshotChecks = @()
@@ -152,6 +192,7 @@ foreach ($shot in $screenshots) {
 	$screenshotChecks += Test-ScreenshotEvidence $shot.FullName
 }
 $screenshotPass = ($screenshots.Count -ge 5) -and (@($screenshotChecks | Where-Object { -not $_.passed }).Count -eq 0) -and [bool]$screenshotCapture.passed
+$screenshotPass = $screenshotPass -and [bool]$viewportSourceCheck.passed -and $uiSemanticPass -and $viewportCapturePass
 
 $changedForForbidden = @(git -C $Project diff --name-only "$BaseTag..HEAD" 2>$null)
 $statusLines = @(git -C $Project status --short)
@@ -166,7 +207,13 @@ $allowedPrefixes = @(
 	"reports/m15/M15_T03_CARE_DECISION_RC_REPORT.md",
 	"reports/m15/M15_T03_CARE_DECISION_RC_RECEIPT.json",
 	"reports/m15/M15_FINAL_CLOSEOUT_REPORT.md",
-	"reports/m15/M15_FINAL_CLOSEOUT_RECEIPT.json"
+	"reports/m15/M15_FINAL_CLOSEOUT_RECEIPT.json",
+	"tests/m15_t02_capture_screenshots.gd",
+	"tests/m15_t02_care_ui_verify.gd",
+	"tests/run_m15_t02_acceptance.ps1",
+	"reports/m15/M15_T02_CARE_PLAYABLE_UI_REPORT.md",
+	"reports/m15/M15_T02_CARE_PLAYABLE_UI_RECEIPT.json",
+	"reports/m15/screenshots/"
 )
 $forbiddenTouched = @()
 foreach ($f in $changedForForbidden) {
@@ -246,7 +293,16 @@ $report += "- M14-T04 regression: $m14T04Result"
 $report += "- M14 FIRST_LOOP_DURATION: $firstLoopDuration"
 $report += "- M15-T02 FIRST_LOOP_DURATION: $t02FirstLoopDuration"
 $report += "- Screenshot resolution/variance: $($(if ($screenshotPass) { "PASS" } else { "FAIL" }))"
+$report += "- Screenshot viewport source: $($(if ($viewportSourceCheck.passed) { "PASS" } else { "FAIL" }))"
+$report += "- UI semantic assertions: $($(if ($uiSemanticPass) { "PASS" } else { "FAIL" }))"
 $report += "- FORBIDDEN_TOUCHED: $($forbiddenTouched.Count)"
+$report += ""
+$report += "## First Loop Stability"
+$report += ""
+$report += "- M14 / no-care baseline FIRST_LOOP_DURATION remains $firstLoopDuration from M14 final regression."
+$report += "- M15 care path FIRST_LOOP_DURATION is $t02FirstLoopDuration under a fixed new-game test state, fixed rescue_id sequence, fixed care_need=weak, fixed care action=nutrition, water quality 40, and comfort 40."
+$report += "- The M15 care path is <= 900 seconds and does not alter the M14 no-care baseline validated by M15-T01."
+$report += "- This RC evidence no longer depends on local save/offline-state drift."
 $report += ""
 $report += "## Screenshot Evidence"
 $report += ""
@@ -286,9 +342,13 @@ $receipt = [ordered]@{
 	m14_t04_result = $m14T04Result
 	first_loop_duration = $firstLoopDuration
 	m15_t02_first_loop_duration = $t02FirstLoopDuration
+	first_loop_stability_note = "M14/no-care baseline remains $firstLoopDuration; M15 care path uses fixed test state with care_need=weak, action=nutrition, water_quality=40, comfort=40."
 	forbidden_touched = $forbiddenTouched.Count
 	forbidden_files_touched = $forbiddenTouched
 	screenshot_result = if ($screenshotPass) { "PASS" } else { "FAIL" }
+	screenshot_viewport_source_result = if ($viewportSourceCheck.passed) { "PASS" } else { "FAIL" }
+	screenshot_viewport_source_check = $viewportSourceCheck
+	ui_semantic_assertion_result = if ($uiSemanticPass) { "PASS" } else { "FAIL" }
 	screenshot_checks = $screenshotChecks
 	modified_files = $modifiedFiles
 	report_path = "reports/m15/M15_T03_CARE_DECISION_RC_REPORT.md"
@@ -311,6 +371,8 @@ Write-Host "M14_T04_RESULT=$m14T04Result"
 Write-Host "FIRST_LOOP_DURATION=$firstLoopDuration"
 Write-Host "M15_T02_FIRST_LOOP_DURATION=$t02FirstLoopDuration"
 Write-Host "SCREENSHOT_RESOLUTION_RESULT=$($(if ($screenshotPass) { "PASS" } else { "FAIL" }))"
+Write-Host "SCREENSHOT_VIEWPORT_SOURCE_RESULT=$($(if ($viewportSourceCheck.passed) { "PASS" } else { "FAIL" }))"
+Write-Host "UI_SEMANTIC_ASSERTION_RESULT=$($(if ($uiSemanticPass) { "PASS" } else { "FAIL" }))"
 Write-Host "FORBIDDEN_TOUCHED=$($forbiddenTouched.Count)"
 Write-Host "Report: $ReportPath"
 Write-Host "Receipt: $ReceiptPath"

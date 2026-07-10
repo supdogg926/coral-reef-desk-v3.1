@@ -3,7 +3,7 @@
 Overall Status: **PASS**
 
 - Task: M15-T02_CarePlayable_UI_FirstLoop
-- Branch: m15-t02-care-playable-ui
+- Branch: m15-fixup1-real-viewport-evidence
 - Base tag: v3.3-m15-t01-care-datamodel
 - HEAD commit: verified externally by: git rev-parse HEAD
 - Evidence rule: no_self_referential_annotated_tag_closure_v1
@@ -19,6 +19,8 @@ T02 adds only playable UI access for the M15 care decision: a visible care need,
 - M15-T02 UI result: PASS
 - Screenshot capture result: PASS
 - Screenshot resolution/variance result: PASS
+- Screenshot viewport source result: PASS
+- UI semantic assertion result: PASS
 - M15-T01 regression: PASS
 - M13 regression: PASS
 - M14-T01 regression: PASS
@@ -26,23 +28,34 @@ T02 adds only playable UI access for the M15 care decision: a visible care need,
 - M14-T03 regression: PASS
 - M14-T04 regression: PASS
 - M14 FIRST_LOOP_DURATION: 840 seconds
-- M15-T02 FIRST_LOOP_DURATION: 560 seconds
+- M15-T02 FIRST_LOOP_DURATION: 580 seconds
 - FORBIDDEN_TOUCHED: 0
+
+## First Loop Stability
+
+- M14 / no-care baseline FIRST_LOOP_DURATION remains 840 seconds from M14 final regression.
+- M15 care path FIRST_LOOP_DURATION is 580 seconds under a fixed new-game test state, fixed rescue_id sequence, fixed care_need=weak, fixed care action=nutrition, water quality 40, and comfort 40.
+- The M15 care path is <= 900 seconds and is separate from the M14 no-care baseline equivalence tested by M15-T01.
+- This fix removes local save/offline-state influence from T02/T03 evidence and does not modify gameplay code.
 
 ## Screenshot Evidence
 
 | File | Width | Height | Pixel variance | Passed |
 |---|---:|---:|---:|---:|
-| C:\Users\admin\Desktop\桌面海缸v3.0\CoralReefIdleV3_M14_T01\reports\m15\screenshots\m15_t02_01_care_need_visible.png | 960 | 540 | 596.82 | True |
-| C:\Users\admin\Desktop\桌面海缸v3.0\CoralReefIdleV3_M14_T01\reports\m15\screenshots\m15_t02_02_three_care_buttons.png | 960 | 540 | 501.92 | True |
-| C:\Users\admin\Desktop\桌面海缸v3.0\CoralReefIdleV3_M14_T01\reports\m15\screenshots\m15_t02_03_after_care_feedback.png | 960 | 540 | 462.88 | True |
-| C:\Users\admin\Desktop\桌面海缸v3.0\CoralReefIdleV3_M14_T01\reports\m15\screenshots\m15_t02_04_ready_after_care.png | 960 | 540 | 1098.04 | True |
-| C:\Users\admin\Desktop\桌面海缸v3.0\CoralReefIdleV3_M14_T01\reports\m15\screenshots\m15_t02_05_release_bonus_line.png | 960 | 540 | 743.47 | True |
+| C:\Users\admin\Desktop\桌面海缸v3.0\CoralReefIdleV3_M14_T01\reports\m15\screenshots\m15_t02_01_care_need_visible.png | 960 | 540 | 821.84 | True |
+| C:\Users\admin\Desktop\桌面海缸v3.0\CoralReefIdleV3_M14_T01\reports\m15\screenshots\m15_t02_02_three_care_buttons.png | 960 | 540 | 854.78 | True |
+| C:\Users\admin\Desktop\桌面海缸v3.0\CoralReefIdleV3_M14_T01\reports\m15\screenshots\m15_t02_03_after_care_feedback.png | 960 | 540 | 881.25 | True |
+| C:\Users\admin\Desktop\桌面海缸v3.0\CoralReefIdleV3_M14_T01\reports\m15\screenshots\m15_t02_04_ready_after_care.png | 960 | 540 | 1008.57 | True |
+| C:\Users\admin\Desktop\桌面海缸v3.0\CoralReefIdleV3_M14_T01\reports\m15\screenshots\m15_t02_05_release_bonus_line.png | 960 | 540 | 898.01 | True |
 
 ## Modified Files
 
+- reports/m15/M15_FINAL_CLOSEOUT_RECEIPT.json
+- reports/m15/M15_FINAL_CLOSEOUT_REPORT.md
 - reports/m15/M15_T02_CARE_PLAYABLE_UI_RECEIPT.json
 - reports/m15/M15_T02_CARE_PLAYABLE_UI_REPORT.md
+- reports/m15/M15_T03_CARE_DECISION_RC_RECEIPT.json
+- reports/m15/M15_T03_CARE_DECISION_RC_REPORT.md
 - reports/m15/screenshots/m15_t02_01_care_need_visible.png
 - reports/m15/screenshots/m15_t02_02_three_care_buttons.png
 - reports/m15/screenshots/m15_t02_03_after_care_feedback.png
@@ -54,6 +67,7 @@ T02 adds only playable UI access for the M15 care decision: a visible care need,
 - tests/m15_t02_capture_screenshots.gd
 - tests/m15_t02_care_ui_verify.gd
 - tests/run_m15_t02_acceptance.ps1
+- tests/run_m15_t03_acceptance.ps1
 
 ## Forbidden Scope
 

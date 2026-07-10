@@ -15,12 +15,22 @@
     "m14_t03_result":  "PASS",
     "m14_t04_result":  "PASS",
     "first_loop_duration":  "840 seconds",
-    "m15_t02_first_loop_duration":  "560 seconds",
+    "m15_t02_first_loop_duration":  "580 seconds",
+    "first_loop_stability_note":  "M14/no-care baseline remains 840 seconds; M15 care path uses fixed test state with care_need=weak, action=nutrition, water_quality=40, comfort=40.",
     "forbidden_touched":  0,
     "forbidden_files_touched":  [
 
                                 ],
     "screenshot_result":  "PASS",
+    "screenshot_viewport_source_result":  "PASS",
+    "screenshot_viewport_source_check":  {
+                                             "passed":  true,
+                                             "has_viewport_capture":  true,
+                                             "banned_tokens_found":  [
+
+                                                                     ]
+                                         },
+    "ui_semantic_assertion_result":  "PASS",
     "screenshot_checks":  [
                               {
                                   "path":  "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3_M14_T01\\reports\\m15\\screenshots\\m15_t02_01_care_need_visible.png",
@@ -28,8 +38,8 @@
                                   "error":  "",
                                   "width":  960,
                                   "height":  540,
-                                  "pixel_variance":  596.81983750034442,
-                                  "length":  3672
+                                  "pixel_variance":  821.839046956775,
+                                  "length":  35667
                               },
                               {
                                   "path":  "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3_M14_T01\\reports\\m15\\screenshots\\m15_t02_02_three_care_buttons.png",
@@ -37,8 +47,8 @@
                                   "error":  "",
                                   "width":  960,
                                   "height":  540,
-                                  "pixel_variance":  501.915479108897,
-                                  "length":  3703
+                                  "pixel_variance":  854.78056542314164,
+                                  "length":  38133
                               },
                               {
                                   "path":  "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3_M14_T01\\reports\\m15\\screenshots\\m15_t02_03_after_care_feedback.png",
@@ -46,8 +56,8 @@
                                   "error":  "",
                                   "width":  960,
                                   "height":  540,
-                                  "pixel_variance":  462.88197173199308,
-                                  "length":  3721
+                                  "pixel_variance":  881.25043701387153,
+                                  "length":  38628
                               },
                               {
                                   "path":  "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3_M14_T01\\reports\\m15\\screenshots\\m15_t02_04_ready_after_care.png",
@@ -55,8 +65,8 @@
                                   "error":  "",
                                   "width":  960,
                                   "height":  540,
-                                  "pixel_variance":  1098.03986702843,
-                                  "length":  3748
+                                  "pixel_variance":  1008.5660742764534,
+                                  "length":  39490
                               },
                               {
                                   "path":  "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3_M14_T01\\reports\\m15\\screenshots\\m15_t02_05_release_bonus_line.png",
@@ -64,8 +74,8 @@
                                   "error":  "",
                                   "width":  960,
                                   "height":  540,
-                                  "pixel_variance":  743.4703754258835,
-                                  "length":  3667
+                                  "pixel_variance":  898.00619460715245,
+                                  "length":  41002
                               }
                           ],
     "modified_files":  [

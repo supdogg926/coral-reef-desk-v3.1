@@ -16,8 +16,8 @@ M15 closes as a narrow care decision depth milestone. It adds one lightweight ca
 ## Stage Outputs
 
 - M15-T01_CareModel_And_HeadlessSim: PASS. Added care data model, deterministic care_need derivation, apply_care API, v2 to v3 save migration, no-care baseline equivalence, RNG determinism checks, and screenshot validation helper.
-- M15-T02_CarePlayable_UI_FirstLoop: PASS. Added care need text, nutrition/soothe/purify buttons, single-use UI state, care feedback text, appended care RP bonus line, and real 960px screenshot evidence.
-- M15-T03_CareDecision_BlindPlaytest_And_RC: PASS. Consolidated blind-play answers, RC judgment, T02 UI regression, screenshot resolution/variance checks, M13/M14/M15-T01 regression, and forbidden scope checks.
+- M15-T02_CarePlayable_UI_FirstLoop: PASS. Added care need text, nutrition/soothe/purify buttons, single-use UI state, care feedback text, appended care RP bonus line, and real 960px viewport screenshot evidence.
+- M15-T03_CareDecision_BlindPlaytest_And_RC: PASS. Consolidated blind-play answers, RC judgment, T02 UI regression, screenshot resolution/variance/viewport-source checks, M13/M14/M15-T01 regression, and forbidden scope checks.
 
 ## Final Tag Chain
 
@@ -38,9 +38,16 @@ M15 closes as a narrow care decision depth milestone. It adds one lightweight ca
 - M14-T03 regression: PASS
 - M14-T04 regression: PASS
 - FIRST_LOOP_DURATION: 840 seconds
-- M15-T02_FIRST_LOOP_DURATION: 560 seconds
+- M15-T02_FIRST_LOOP_DURATION: 580 seconds
 - FORBIDDEN_TOUCHED: 0
-- Screenshot evidence: PASS, width >= 800px and non-flat pixel variance
+- Screenshot evidence: PASS, real viewport capture, width >= 800px, height >= 450px, and non-flat pixel variance
+
+## First Loop Evidence Closure
+
+- M14 / no-care baseline FIRST_LOOP_DURATION remains 840 seconds from M14 final regression.
+- M15 care path FIRST_LOOP_DURATION is 580 seconds under fixed T02/T03 evidence conditions: clean new-game test state, fixed rescue_id sequence, care_need=weak, action=nutrition, water quality 40, and comfort 40.
+- 580 seconds is below the <= 900 seconds M15 playable requirement.
+- This does not break the M14 baseline because no-care bit-equivalence and M14 final regression remain covered by M15-T01/T03 validation.
 
 ## Player-Visible Loop
 
@@ -95,8 +102,11 @@ M15 closes as a narrow care decision depth milestone. It adds one lightweight ca
 M15 corrects the M14 weak screenshot evidence pattern. Later screenshot validation must check more than file existence and size:
 
 - Width must be at least 800px.
+- Height must be at least 450px.
 - Files must be real rendered PNGs.
 - Pixel variance must be non-flat.
+- Screenshot scripts must use viewport capture, not generated placeholder images.
+- UI node semantic assertions must pass before saving screenshot evidence.
 
 ## Final Recommendation
 
