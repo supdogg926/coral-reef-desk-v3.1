@@ -1,35 +1,47 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "max_entries": 3,
   "cards": [
     {
       "species_id": "rescue_clownfish_juvenile",
-      "asset_path": "res://assets/cards/placeholder/rescue_clownfish_juvenile.png",
-      "sha256": "1d3ec04c82901473259edc8d8ace79156c47a192e5604b9eefb1e3e93c655829",
-      "source": "placeholder",
+      "asset_path": "res://assets/cards/rescue/rescue_clownfish_juvenile.png",
+      "sha256": "bac63dfbb2f16bd63f8ec0e9bf749d72fe32ce7ab8107d11ea4ccf2b79a3fe6f",
+      "source": "image2_user_generated",
       "gen_info": {
-        "type": "deterministic_placeholder",
-        "style": "species_theme_color_name_card"
+        "source_tool": "Image2",
+        "original_filename": "rescue_clownfish_juvenile.png",
+        "original_resolution": "1254x1254",
+        "processed_resolution": "256x256",
+        "background_process": "rembg",
+        "imported_for": "M16-T02"
       }
     },
     {
       "species_id": "rescue_cleaner_shrimp",
-      "asset_path": "res://assets/cards/placeholder/rescue_cleaner_shrimp.png",
-      "sha256": "a1450a16828ec5bef5c2e061ab818c3eb5c9d2eb768b3cb72873657019a98a46",
-      "source": "placeholder",
+      "asset_path": "res://assets/cards/rescue/rescue_cleaner_shrimp.png",
+      "sha256": "b106a67f63d3a0d6a9e86016360cf5913a25b558ff1935f6ab17df1e1bc9da8e",
+      "source": "image2_user_generated",
       "gen_info": {
-        "type": "deterministic_placeholder",
-        "style": "species_theme_color_name_card"
+        "source_tool": "Image2",
+        "original_filename": "rescue_cleaner_shrimp.png",
+        "original_resolution": "1254x1254",
+        "processed_resolution": "256x256",
+        "background_process": "rembg",
+        "imported_for": "M16-T02"
       }
     },
     {
       "species_id": "rescue_goby",
-      "asset_path": "res://assets/cards/placeholder/rescue_goby.png",
-      "sha256": "fb7f34806326655660cf5bb7253595c5eb8c59ae47af716af1485abe31ec3dc4",
-      "source": "placeholder",
+      "asset_path": "res://assets/cards/rescue/rescue_goby.png",
+      "sha256": "eec2d417561e2c80bfbee4901a86689998f897f79738c4cb7d000c173edbef27",
+      "source": "image2_user_generated",
       "gen_info": {
-        "type": "deterministic_placeholder",
-        "style": "species_theme_color_name_card"
+        "source_tool": "Image2",
+        "original_filename": "rescue_goby.png",
+        "original_resolution": "1254x1254",
+        "processed_resolution": "256x256",
+        "background_process": "rembg",
+        "imported_for": "M16-T02"
       }
     }
   ]

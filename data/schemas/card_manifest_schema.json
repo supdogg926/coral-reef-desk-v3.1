@@ -1,6 +1,6 @@
 {
-  "schema_version": 1,
-  "description": "M16-T01 rescue visual card manifest contract. T01 accepts placeholder assets only.",
+  "schema_version": 2,
+  "description": "M16-T02 rescue visual card manifest contract. Accepts placeholder and real sample assets.",
   "required_top_level_fields": [
     "schema_version",
     "max_entries",
@@ -14,7 +14,16 @@
     "gen_info"
   ],
   "source_allowed": [
-    "placeholder"
+    "placeholder",
+    "image2_user_generated"
+  ],
+  "gen_info_required_fields": [
+    "source_tool",
+    "original_filename",
+    "original_resolution",
+    "processed_resolution",
+    "background_process",
+    "imported_for"
   ],
   "constraints": {
     "max_entries_equals_species_rescue_pool_count": true,
@@ -22,7 +31,6 @@
     "asset_path_must_be_res_path": true,
     "asset_filename_ascii_only": true,
     "sha256_must_match_actual_file": true,
-    "no_save_fields": true,
-    "no_real_art_sources_in_t01": true
+    "no_save_fields": true
   }
 }

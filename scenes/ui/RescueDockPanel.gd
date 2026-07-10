@@ -4,6 +4,8 @@ extends PanelContainer
 signal close_requested
 
 var game_state: GameState = null
+var card_library: RefCounted = null
+var rescue_card_texture: TextureRect = null
 var title_label: Label = null
 var reputation_label: Label = null
 var dock_status_label: Label = null
@@ -34,6 +36,10 @@ func _ready() -> void:
 
 func setup(gs: GameState) -> void:
 	game_state = gs
+	if card_library == null:
+		var CardAssetLibraryScript = load("res://scripts/systems/CardAssetLibrary.gd")
+		card_library = CardAssetLibraryScript.new()
+		card_library.initialize()
 	if not _built:
 		_build_ui()
 		_built = true
@@ -111,6 +117,7 @@ func update_display() -> void:
 			care_need_label.text = "护理需求：%s｜每次救助只能护理一次" % _care_need_text(care_need)
 		else:
 			care_need_label.text = "护理需求：带回救助后显示"
+	_update_card_texture(has_candidate, has_active, candidate, active)
 	_update_care_buttons(has_active and not ready, care_used)
 
 	if release_btn != null:
@@ -147,6 +154,13 @@ func _build_ui() -> void:
 
 	dock_status_label = _make_label("码头状态：等待下一只需要帮助的生物", 10, Color(0.76, 0.84, 0.86))
 	root.add_child(dock_status_label)
+
+	rescue_card_texture = TextureRect.new()
+	rescue_card_texture.name = "RescueCardTexture"
+	rescue_card_texture.custom_minimum_size = Vector2(96, 96)
+	rescue_card_texture.expand_mode = TextureRect.EXPAND_KEEP_SIZE
+	rescue_card_texture.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	root.add_child(rescue_card_texture)
 
 	candidate_label = _make_label("暂无待救助生物", 12, Color(0.86, 0.90, 0.88))
 	root.add_child(candidate_label)
@@ -281,6 +295,33 @@ func _make_care_button(node_name: String, text: String, action: String) -> Butto
 	button.tooltip_text = "本次救助只能选择一次"
 	button.pressed.connect(_on_care_pressed.bind(action))
 	return button
+
+
+func _update_card_texture(has_candidate: bool, has_active: bool, candidate: Dictionary, active: Dictionary) -> void:
+	if rescue_card_texture == null or card_library == null:
+		return
+	if has_active:
+		var species_id: String = String(active.get("species_id", ""))
+		if not species_id.is_empty():
+			var result: Dictionary = card_library.get_card_texture(species_id)
+			var texture = result.get("texture", null)
+			if texture != null:
+				rescue_card_texture.texture = texture
+				rescue_card_texture.visible = true
+				return
+		rescue_card_texture.visible = false
+	elif has_candidate:
+		var species_id: String = String(candidate.get("species_id", ""))
+		if not species_id.is_empty():
+			var result: Dictionary = card_library.get_card_texture(species_id)
+			var texture = result.get("texture", null)
+			if texture != null:
+				rescue_card_texture.texture = texture
+				rescue_card_texture.visible = true
+				return
+		rescue_card_texture.visible = false
+	else:
+		rescue_card_texture.visible = false
 
 
 func _update_care_buttons(can_care: bool, care_used: bool) -> void:

@@ -6,7 +6,7 @@ const DEFAULT_SCHEMA_PATH := "res://data/schemas/card_manifest_schema.json"
 const DEFAULT_SPECIES_POOL_PATH := "res://data/species_rescue_pool.json"
 const PLACEHOLDER_WIDTH := 320
 const PLACEHOLDER_HEIGHT := 200
-const ALLOWED_SOURCE_T01 := "placeholder"
+const ALLOWED_SOURCES := ["placeholder", "image2_user_generated"]
 
 var manifest_path := DEFAULT_MANIFEST_PATH
 var schema_path := DEFAULT_SCHEMA_PATH
@@ -81,8 +81,9 @@ func validate_manifest(manifest: Dictionary = {}) -> Dictionary:
 	if _species_by_id.is_empty():
 		errors.append("species_rescue_pool is empty or invalid")
 
-	if int(target.get("schema_version", -1)) != 1:
-		errors.append("schema_version must be 1")
+	var sv := int(target.get("schema_version", -1))
+	if sv != 1 and sv != 2:
+		errors.append("schema_version must be 1 or 2")
 	var species_count := _species_by_id.size()
 	var max_entries := int(target.get("max_entries", -1))
 	if max_entries != species_count:
@@ -119,8 +120,8 @@ func validate_manifest(manifest: Dictionary = {}) -> Dictionary:
 			errors.append("duplicate species_id in card manifest: %s" % species_id)
 		seen[species_id] = true
 
-		if source != ALLOWED_SOURCE_T01:
-			errors.append("source must be placeholder in M16-T01: %s" % source)
+		if not ALLOWED_SOURCES.has(source):
+			errors.append("source must be one of %s: %s" % [str(ALLOWED_SOURCES), source])
 		if not asset_path.begins_with("res://"):
 			errors.append("asset_path must be a res:// path for %s" % species_id)
 		if not _is_ascii(asset_path.get_file()):

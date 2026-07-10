@@ -1,0 +1,53 @@
+﻿{
+    "task_name":  "M16-T02_RescueCardPlayable_UI",
+    "base_tag":  "v3.4-m16-t01-card-manifest",
+    "base_commit":  "f7d2e7078e000ffd16e3160ea2dc4ace96d49825",
+    "commit":  "f7d2e7078e000ffd16e3160ea2dc4ace96d49825",
+    "suggested_tag":  "v3.4-m16-t02-rescue-card-playable-ui",
+    "result":  "PASS",
+    "evidence_rule_version":  "no_self_referential_annotated_tag_closure_v1",
+    "asset_result":  "PASS",
+    "manifest_result":  "PASS",
+    "fallback_result":  "PASS",
+    "zero_save_impact_result":  "PASS",
+    "godot_static_parse_result":  "PASS",
+    "screenshot_count":  5,
+    "screenshots":  [
+                        "m16_t02_01_dock_candidate_card_visible.png",
+                        "m16_t02_02_active_rescue_card_visible.png",
+                        "m16_t02_03_care_need_text_still_visible.png",
+                        "m16_t02_04_fallback_placeholder_visible.png",
+                        "m16_t02_05_release_ready_card_visible.png"
+                    ],
+    "m13_result":  "PASS",
+    "m14_t01_result":  "PASS",
+    "m14_t02_result":  "PASS",
+    "m14_t03_result":  "PASS",
+    "m14_t04_result":  "PASS",
+    "m15_t01_result":  "PASS",
+    "m15_t02_result":  "PASS",
+    "m15_t03_result":  "PASS",
+    "m16_t01_result":  "PASS",
+    "first_loop_duration":  "840 seconds",
+    "m15_t02_first_loop_duration":  "580 seconds",
+    "forbidden_touched":  0,
+    "forbidden_files_touched":  [
+
+                                ],
+    "save_version_result":  "PASS",
+    "save_version":  3,
+    "save_system_diff_empty":  true,
+    "save_schema_diff_empty":  true,
+    "card_manifest_schema_version":  2,
+    "manifest_all_source_image2":  true,
+    "assets_processed":  3,
+    "asset_shas":  [
+                       "BAC63DFBB2F16BD63F8EC0E9BF749D72FE32CE7AB8107D11EA4CCF2B79A3FE6F",
+                       "B106A67F63D3A0D6A9E86016360CF5913A25B558FF1935F6AB17DF1E1BC9DA8E",
+                       "EEC2D417561E2C80BFBEE4901A86689998F897F79738C4CB7D000C173EDBEF27"
+                   ],
+    "report_path":  "reports/m16/M16_T02_RESCUE_CARD_PLAYABLE_UI_REPORT.md",
+    "receipt_path":  "reports/m16/M16_T02_RESCUE_CARD_PLAYABLE_UI_RECEIPT.json",
+    "recommendation_for_codex_review":  "YES",
+    "allow_m16_t03":  "WAIT_FOR_CODEX_PASS"
+}
