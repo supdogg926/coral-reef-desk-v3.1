@@ -160,20 +160,20 @@ func update_rescue_debug(rescue_state: Dictionary) -> void:
 	if rescue_button != null:
 		match status_text:
 			"待救助":
-				rescue_button.text = "救助!"
-				rescue_button.tooltip_text = "码头有受伤生物等待救助"
+				rescue_button.text = "待放归"
+				rescue_button.tooltip_text = "有生物等待康复后放归"
 				rescue_button.add_theme_color_override("font_color", Color(0.96, 0.72, 0.36))
 			"救助中":
-				rescue_button.text = "码头"
-				rescue_button.tooltip_text = "救助位恢复中，水质越好恢复越快"
+				rescue_button.text = "康复中"
+				rescue_button.tooltip_text = "生物康复中，水质越好恢复越快"
 				rescue_button.add_theme_color_override("font_color", Color(0.70, 0.84, 0.92))
 			"可放归":
 				rescue_button.text = "可放归!"
-				rescue_button.tooltip_text = "救助生物已康复，点击放归大海"
+				rescue_button.tooltip_text = "生物已康复，点击放归大海"
 				rescue_button.add_theme_color_override("font_color", STATUS_OK_COLOR)
 			_:
-				rescue_button.text = "码头"
-				rescue_button.tooltip_text = "海洋救助站入口"
+				rescue_button.text = "放归"
+				rescue_button.tooltip_text = "康复生物放归大海"
 				rescue_button.add_theme_color_override("font_color", Color(0.80, 0.86, 0.84))
 
 
@@ -637,17 +637,20 @@ func configure_dock_controls(maintenance_actions: Array, feeding_actions: Array,
 	var entry_parent: Control = dock_control_slots.get("entry", null)
 	if entry_parent != null:
 		_clear_container_children(entry_parent)
-		var shop_button: Button = _make_dock_button("商店")
+		var shop_button: Button = _make_dock_button("蓝色守护")
+		shop_button.tooltip_text = "巡海救助系统将在下一阶段开放"
 		_connect_button(shop_button, callbacks.get("shop", Callable()))
 		entry_parent.add_child(shop_button)
 		result["shop_btn"] = shop_button
 
-		var livestock_button: Button = _make_dock_button("生物")
+		var livestock_button: Button = _make_dock_button("图鉴")
+		livestock_button.tooltip_text = "海洋生物图鉴与照护记录"
 		_connect_button(livestock_button, callbacks.get("livestock", Callable()))
 		entry_parent.add_child(livestock_button)
 		result["livestock_btn"] = livestock_button
 
-		rescue_button = _make_dock_button("码头")
+		rescue_button = _make_dock_button("放归")
+		rescue_button.tooltip_text = "康复生物放归大海"
 		_connect_button(rescue_button, callbacks.get("rescue", Callable()))
 		entry_parent.add_child(rescue_button)
 		result["rescue_btn"] = rescue_button
