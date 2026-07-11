@@ -1466,6 +1466,20 @@ func release_owned_livestock(livestock_id: String) -> Dictionary:
 		economy_system.add_reef_points(release_rp)
 	reef_points = economy_system.get_reef_points() if economy_system != null else reef_points
 	result["release_rp"] = release_rp
+	# v4 wave pulse: base 15 + first-release bonus 10 + care completion up to 10
+	var wave_pulse: int = 15
+	var is_first_release: bool = false
+	if rescue_system != null:
+		var marks: Dictionary = rescue_system.get_debug_state().get("codex_rescue_marks", {})
+		var sid: String = String(result.get("species_id", ""))
+		if sid != "" and not marks.has(sid):
+			is_first_release = true
+			wave_pulse += 10
+	if economy_system != null:
+		economy_system.add_waves(float(wave_pulse), "release_pulse")
+	reef_points = economy_system.get_reef_points() if economy_system != null else reef_points
+	result["wave_pulse"] = wave_pulse
+	result["is_first_release"] = is_first_release
 
 	if action_timeline != null:
 		var rname: String = String(result.get("species_name", ""))

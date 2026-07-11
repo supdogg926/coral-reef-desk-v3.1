@@ -7,6 +7,9 @@ var total_reef_points_earned: float = 0.0
 var reef_value: float = 0.0
 var income_rate_per_game_hour: float = 0.0
 var delta_reef_points: float = 0.0
+var last_economy_tick_at: float = 0.0
+const OFFLINE_WAVE_CAP_SECONDS: float = 28800.0
+const BASE_WAVE_RATE_PER_SECOND: float = 0.01
 
 
 func initialize() -> void:
@@ -53,6 +56,25 @@ func add_waves(amount: float, reason: String = "") -> void:
 
 func spend_waves(amount: float, reason: String = "") -> bool:
 	return spend_reef_points(amount)
+
+
+func calculate_base_trickle(now_unix: float, management_multiplier: float) -> float:
+	if last_economy_tick_at <= 0.0:
+		last_economy_tick_at = now_unix
+		return 0.0
+	var elapsed: float = clamp(now_unix - last_economy_tick_at, 0.0, OFFLINE_WAVE_CAP_SECONDS)
+	if elapsed <= 0.0: return 0.0
+	var capped_mult: float = clamp(management_multiplier, 0.1, 3.0)
+	var gain: float = floor(elapsed * BASE_WAVE_RATE_PER_SECOND * capped_mult)
+	last_economy_tick_at = now_unix
+	return gain
+
+
+func tick_base_trickle(now_unix: float, management_multiplier: float) -> float:
+	var gain: float = calculate_base_trickle(now_unix, management_multiplier)
+	if gain > 0.0:
+		add_waves(gain, "base_trickle")
+	return gain
 
 
 func export_state() -> Dictionary:
