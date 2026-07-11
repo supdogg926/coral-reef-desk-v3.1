@@ -255,7 +255,7 @@ func update_save_debug(save_debug: Dictionary, save_loaded: bool, offline_summar
 	if last_save_time > 0:
 		var time_dict: Dictionary = Time.get_datetime_dict_from_unix_time(float(last_save_time))
 		last_save_text = "%02d:%02d:%02d" % [time_dict.get("hour", 0), time_dict.get("minute", 0), time_dict.get("second", 0)]
-	var save_line: String = "已保存" if last_save_time > 0 else ("自动" if save_loaded else "未保存")
+	var save_line: String = "已保存" if last_save_time > 0 else ("自动存档" if save_loaded else "未保存")
 	_set_line("status", "save_status", save_line)
 
 	var offline_applied: bool = bool(offline_summary.get("applied", false))
@@ -675,8 +675,8 @@ func configure_dock_controls(maintenance_actions: Array, feeding_actions: Array,
 			_connect_button(reset_button, callbacks.get("reset", Callable()))
 			system_parent.add_child(reset_button)
 
-		var status_label: Label = _create_secondary_tile(system_parent, "tick")
-		status_label.text = "0"
+		var status_label: Label = _create_secondary_tile(system_parent, "运行状态")
+		status_label.text = "正常"
 		result["panel_status_label"] = status_label
 
 
@@ -731,10 +731,12 @@ func configure_dock_controls(maintenance_actions: Array, feeding_actions: Array,
 			var raw_device: Variant = devices.get(device_id, {})
 			var device_info: Dictionary = raw_device if raw_device is Dictionary else {}
 			var display_name: String = String(device_info.get("display_name", device_id))
-			var tier: int = int(device_info.get("tier", 1))
-			var btn_text: String = display_name + " T" + str(tier)
+			var enabled: bool = bool(device_info.get("enabled", false))
+			var state_text: String = "开" if enabled else "关"
+			var btn_text: String = display_name + " " + state_text
 			var button: Button = _make_dock_button(btn_text, Vector2(84, 18))
-			button.tooltip_text = "%s Tier %d" % [display_name, tier]
+			var tier: int = int(device_info.get("tier", 1))
+			button.tooltip_text = "%s 等级%d %s" % [display_name, tier, "开启" if enabled else "关闭"]
 			_connect_button(button, callbacks.get("device", Callable()).bind(device_id))
 			device_parent.add_child(button)
 			device_buttons_result[device_id] = button
@@ -951,7 +953,7 @@ func _format_device_state_line(device_state: Dictionary, device_effect: Dictiona
 		var device_info: Dictionary = raw_device if raw_device is Dictionary else {}
 		var display_name: String = String(device_info.get("display_name", device_id))
 		var enabled: bool = bool(device_info.get("enabled", false))
-		parts.append("%s%s" % [display_name, "ON" if enabled else "OFF"])
+		parts.append("%s%s" % [display_name, "开" if enabled else "关"])
 	return _join_short_parts(parts)
 
 
