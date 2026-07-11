@@ -61,6 +61,7 @@ var device_states: Dictionary = {
 	"reserve": false,
 }
 var device_tiers: Dictionary = {}
+var tier3_trigger_state: Dictionary = {}
 var last_device_runtime_summary: String = "设备：默认运行"
 var light_intensity: int = 100
 var light_color_temp: int = 50
@@ -1848,6 +1849,7 @@ func _perform_autosave() -> void:
 		"tier2_preview": unlock_system.unlocked_states.get("tier2_equipment_preview", false) if unlock_system != null else false,
 		"tier3_locked": true,
 		"device_tiers": equipment_system.device_tiers.duplicate() if equipment_system != null else {},
+		"tier3_trigger_state": tier3_trigger_state.duplicate(),
 	}
 	var save_dict: Dictionary = {
 		"economy": economy_state,
