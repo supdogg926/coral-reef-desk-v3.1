@@ -1,0 +1,10 @@
+{
+  "task_id": "M17-T03-SCOPE-RECONCILIATION",
+  "legacy_items": 16,
+  "complete": 15,
+  "not_started": 1,
+  "selected": "A",
+  "development_allowed": false,
+  "overall_status": "PASS",
+  "generated_at": "2026-07-11T18:32:51.478778+08:00"
+}

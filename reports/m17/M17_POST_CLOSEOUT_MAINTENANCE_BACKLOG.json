@@ -1,0 +1,79 @@
+{
+  "generated_at": "2026-07-11T18:38:06.825963+08:00",
+  "completion_tag": "v3.5-m17-t02-final",
+  "items": [
+    {
+      "id": "MNT-001",
+      "title": "FlowContainer upgrade for LivestockPanel codex cards",
+      "reason": "Old M17 plan called for FlowContainer at 9 species; HBoxContainer works but wrapping future-proofs expansion",
+      "source": "M17 planning freeze",
+      "status": "DEFERRED",
+      "blocking": false,
+      "timing": "Before next pool expansion beyond 9",
+      "allowed_scope": "Replace HBoxContainer with FlowContainer in LivestockPanel.gd; no layout changes",
+      "prohibited_scope": "No new codex features; no sorting; no filtering; no UI redesign",
+      "acceptance": "Codex displays correctly with auto-wrapping; regression PASS"
+    },
+    {
+      "id": "MNT-002",
+      "title": "Runtime texture pixel hash test in permanent regression",
+      "reason": "m17_t02_runtime_texture_mapping_verify.gd should be part of frozen regression suite",
+      "source": "M17-T02-P2",
+      "status": "DEFERRED",
+      "blocking": false,
+      "timing": "Next maintenance cycle",
+      "allowed_scope": "Add to run_all_frozen.ps1; ensure path independence",
+      "prohibited_scope": "No test logic changes",
+      "acceptance": "Runs without modification in any worktree"
+    },
+    {
+      "id": "MNT-003",
+      "title": "Unified frozen regression entry point (run_all_frozen.ps1)",
+      "reason": "Multiple milestones have independent acceptance scripts; unified entry reduces audit overhead",
+      "source": "M11/M12/M13/M16/M17 acceptance",
+      "status": "DEFERRED",
+      "blocking": false,
+      "timing": "Next maintenance cycle",
+      "allowed_scope": "Create single script that invokes existing per-milestone acceptance",
+      "prohibited_scope": "No modification of existing acceptance scripts",
+      "acceptance": "Single command runs all frozen acceptance; all PASS"
+    },
+    {
+      "id": "MNT-004",
+      "title": "Reef milestone task card template standardization",
+      "reason": "Task cards for M10-M17 have varying formats; template improves consistency",
+      "source": "M10-M17 task cards",
+      "status": "DEFERRED",
+      "blocking": false,
+      "timing": "Low priority",
+      "allowed_scope": "Document template format; recommend for future milestones",
+      "prohibited_scope": "No retroactive modification of closed milestone cards",
+      "acceptance": "Template documented and usable for M18+"
+    },
+    {
+      "id": "MNT-005",
+      "title": "Asset provenance format standardization",
+      "reason": "Provenance JSON format evolved across P1/P2; standardization benefits tooling",
+      "source": "M17-T02-P1/P2",
+      "status": "DEFERRED",
+      "blocking": false,
+      "timing": "Low priority",
+      "allowed_scope": "Define canonical provenance schema; retrofitting optional",
+      "prohibited_scope": "No modification of signed-off P1 provenance",
+      "acceptance": "Schema documented; future milestones can adopt"
+    },
+    {
+      "id": "MNT-006",
+      "title": "Codex review bundle path standardization",
+      "reason": "Codex review files scattered across reports/m17/t02/; standardized paths improve audit",
+      "source": "M17-T02 Codex reviews",
+      "status": "DEFERRED",
+      "blocking": false,
+      "timing": "Low priority",
+      "allowed_scope": "Define standard Codex bundle paths for future milestones",
+      "prohibited_scope": "No retroactive restructuring",
+      "acceptance": "Path convention documented"
+    }
+  ],
+  "all_non_blocking": true
+}

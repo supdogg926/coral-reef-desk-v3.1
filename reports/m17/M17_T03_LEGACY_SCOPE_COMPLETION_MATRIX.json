@@ -1,0 +1,203 @@
+{
+  "generated_at": "2026-07-11T18:32:51.478778+08:00",
+  "baseline": "v3.5-m17-t02-final",
+  "items": [
+    {
+      "req": "New species enter candidate pool",
+      "source": "M17 planning freeze",
+      "stage": "T01+T02",
+      "impl": "51a5e2b",
+      "stage_done": "T02",
+      "evidence": "data/species_rescue_pool.json: 9 entries (3 M16 + 6 M17)",
+      "status": "COMPLETE_IN_T02",
+      "gap": "",
+      "risk": "NONE",
+      "rec": "No further action"
+    },
+    {
+      "req": "Active count expansion 3 to 9",
+      "source": "M17 planning freeze",
+      "stage": "T02",
+      "impl": "51a5e2b",
+      "stage_done": "T02",
+      "evidence": "Pool 9; M16 3 + M17 new 6",
+      "status": "COMPLETE_IN_T02",
+      "gap": "",
+      "risk": "NONE",
+      "rec": "No further action"
+    },
+    {
+      "req": "Reserved species gate (3 backup)",
+      "source": "M17-T02-P1 ruling",
+      "stage": "T02",
+      "impl": "51a5e2b",
+      "stage_done": "T02",
+      "evidence": "3 reserved PNGs; reserved_in_pool=0; simulation appearance=0",
+      "status": "COMPLETE_IN_T02",
+      "gap": "",
+      "risk": "NONE",
+      "rec": "No further action"
+    },
+    {
+      "req": "One-draw bag draw (no-repeat)",
+      "source": "M17 planning freeze",
+      "stage": "T01",
+      "impl": "269606b",
+      "stage_done": "T01",
+      "evidence": "RescueSystem.gd:256-268; BAG_DRAW=PASS",
+      "status": "COMPLETE_IN_T01",
+      "gap": "",
+      "risk": "NONE",
+      "rec": "No further action"
+    },
+    {
+      "req": "Dock candidate card display",
+      "source": "M17 planning freeze",
+      "stage": "M16+T02",
+      "impl": "M16-T02+T02",
+      "stage_done": "T02",
+      "evidence": "RescueDockPanel.gd: candidate cards with real images",
+      "status": "COMPLETE_IN_T02",
+      "gap": "",
+      "risk": "NONE",
+      "rec": "No further action"
+    },
+    {
+      "req": "Codex/bestiary species display",
+      "source": "M17 planning freeze",
+      "stage": "T02",
+      "impl": "M16-T03+T02",
+      "stage_done": "T02",
+      "evidence": "LivestockPanel.gd: rescue_codex_cards HBoxContainer 72px cards",
+      "status": "COMPLETE_IN_T02",
+      "gap": "HBoxContainer at 9 species = ~828px; fits 1280px viewport. FlowContainer not needed yet.",
+      "risk": "LOW",
+      "rec": "FlowContainer is LOW priority. HBoxContainer works at 9 species. Defer to maintenance if pool exceeds 9."
+    },
+    {
+      "req": "Real asset pipeline (256x256 RGBA)",
+      "source": "M17 planning freeze",
+      "stage": "T02",
+      "impl": "51a5e2b",
+      "stage_done": "T02",
+      "evidence": "9 formal + 3 reserved assets; all SHA verified; rembg",
+      "status": "COMPLETE_IN_T02",
+      "gap": "",
+      "risk": "NONE",
+      "rec": "No further action"
+    },
+    {
+      "req": "Manifest schema v2",
+      "source": "M17 planning freeze",
+      "stage": "T01+T02",
+      "impl": "51a5e2b",
+      "stage_done": "T02",
+      "evidence": "card_manifest.json: schema_version=2, 9 entries",
+      "status": "COMPLETE_IN_T02",
+      "gap": "",
+      "risk": "NONE",
+      "rec": "No further action"
+    },
+    {
+      "req": "Runtime texture pixel hash mapping",
+      "source": "M17-T02-P2 spec",
+      "stage": "T02",
+      "impl": "51a5e2b",
+      "stage_done": "T02",
+      "evidence": "m17_t02_runtime_texture_mapping_verify.gd: 12 loaded, 6/6 PASS",
+      "status": "COMPLETE_IN_T02",
+      "gap": "",
+      "risk": "NONE",
+      "rec": "No further action"
+    },
+    {
+      "req": "UI FlowContainer upgrade",
+      "source": "M17 planning freeze",
+      "stage": "T03",
+      "impl": "NOT_DONE",
+      "stage_done": "NOT_STARTED",
+      "evidence": "LivestockPanel uses HBoxContainer. 9 species at 86px+6px gap = 828px fits 1280px.",
+      "status": "NOT_STARTED",
+      "gap": "HBoxContainer is functional. FlowContainer only needed if pool >9 or viewport <1280px.",
+      "risk": "LOW",
+      "rec": "DEFER to maintenance. Not a blocking gap. Current HBoxContainer works at 9 species."
+    },
+    {
+      "req": "Playable UI verification",
+      "source": "M17 planning freeze",
+      "stage": "T02",
+      "impl": "51a5e2b",
+      "stage_done": "T02",
+      "evidence": "Godot launched 0 errors; dock/bestiary show new species; Codex verified",
+      "status": "COMPLETE_IN_T02",
+      "gap": "",
+      "risk": "NONE",
+      "rec": "No further action"
+    },
+    {
+      "req": "Screenshot evidence",
+      "source": "M17-T02-P2 spec",
+      "stage": "T02",
+      "impl": "51a5e2b",
+      "stage_done": "T02",
+      "evidence": "Contact sheets + live game launch during Codex review",
+      "status": "COMPLETE_IN_T02",
+      "gap": "",
+      "risk": "NONE",
+      "rec": "No further action"
+    },
+    {
+      "req": "M11/M12/M13/M16/M17 full regression",
+      "source": "M17 planning freeze",
+      "stage": "T02",
+      "impl": "c4dd847",
+      "stage_done": "T02",
+      "evidence": "M11 PASS, M12 PASS, M13 PASS, M16 26/0, M17-T01 structural PASS",
+      "status": "COMPLETE_IN_T02",
+      "gap": "",
+      "risk": "NONE",
+      "rec": "No further action"
+    },
+    {
+      "req": "Codex independent review (2 rounds)",
+      "source": "M17-T02-P2 spec",
+      "stage": "T02",
+      "impl": "c4dd847",
+      "stage_done": "T02",
+      "evidence": "CODEX_REVIEW_RESULT=PASS (round 2); all gates verified",
+      "status": "COMPLETE_IN_T02",
+      "gap": "",
+      "risk": "NONE",
+      "rec": "No further action"
+    },
+    {
+      "req": "Final Build ID",
+      "source": "M17-T02 hotfix",
+      "stage": "T02",
+      "impl": "607f5aa",
+      "stage_done": "T02",
+      "evidence": "DisplayTankView.gd:19: CoralReefIdleV3 M17-T02 v3.5-m17-t02-final",
+      "status": "COMPLETE_IN_T02",
+      "gap": "",
+      "risk": "NONE",
+      "rec": "No further action"
+    },
+    {
+      "req": "Final tag v3.5-m17-t02-final",
+      "source": "M17-T02 closeout",
+      "stage": "T02",
+      "impl": "607f5aa",
+      "stage_done": "T02",
+      "evidence": "git tag v3.5-m17-t02-final -> 607f5aa; local + remote verified",
+      "status": "COMPLETE_IN_T02",
+      "gap": "",
+      "risk": "NONE",
+      "rec": "No further action"
+    }
+  ],
+  "summary": {
+    "total": 16,
+    "complete": 15,
+    "not_started": 1
+  }
+}

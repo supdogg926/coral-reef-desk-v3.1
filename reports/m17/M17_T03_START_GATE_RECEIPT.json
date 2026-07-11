@@ -1,0 +1,27 @@
+{
+  "task_id": "M17-T03-START-GATE",
+  "source_tag": "v3.5-m17-t02-final",
+  "source_commit": "607f5aa55951a05bc0f6985f05b01547ae6d122c",
+  "worktree": "C:/Users/admin/Desktop/桌面海缸v3.0/CoralReefIdleV3_M17_T03",
+  "branch": "prototype/m17-t03",
+  "head": "607f5aa55951a05bc0f6985f05b01547ae6d122c",
+  "status_clean": true,
+  "M16": "PASS 26/0",
+  "runtime_mapping": "PASS 6/6",
+  "pool_semantics": "PASS",
+  "build_id": "PASS",
+  "godot_errors": {
+    "parse": 0,
+    "script": 0,
+    "missing_resource": 0,
+    "texture_load": 0,
+    "assertion_failure": 0
+  },
+  "active": 9,
+  "reserved": 3,
+  "reserved_in_pool": 0,
+  "commit_result": "NOT_ALLOWED",
+  "push_result": "NOT_ALLOWED",
+  "overall_status": "PASS",
+  "generated_at": "2026-07-11T18:28:22.762946+08:00"
+}

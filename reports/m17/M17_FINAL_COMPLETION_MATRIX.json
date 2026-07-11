@@ -1,0 +1,343 @@
+{
+  "generated_at": "2026-07-11T18:38:06.825963+08:00",
+  "completion_tag": "v3.5-m17-t02-final",
+  "completion_commit": "607f5aa55951a05bc0f6985f05b01547ae6d122c",
+  "summary": {
+    "total": 30,
+    "complete": 28,
+    "cancelled": 1,
+    "deferred_maintenance": 1
+  },
+  "items": [
+    {
+      "item": "Species pool expansion (3 to 9)",
+      "req": "M17 planning freeze",
+      "stage": "T01+T02",
+      "commit": "51a5e2b",
+      "evidence": "data/species_rescue_pool.json: 9 entries",
+      "acceptance": "M17_T01_POOL_RESULT=PASS",
+      "player_visible": "Dock shows 9 candidate species in rotation",
+      "maint": "None",
+      "status": "COMPLETE"
+    },
+    {
+      "item": "M16 3 legacy species compatibility",
+      "req": "M16 final",
+      "stage": "T02",
+      "commit": "51a5e2b",
+      "evidence": "M16 assets unchanged; pool entries 1-3 preserved",
+      "acceptance": "M16_T01_MANIFEST_RESULT=PASS 26/0",
+      "player_visible": "Original 3 rescue species still appear",
+      "maint": "None",
+      "status": "COMPLETE"
+    },
+    {
+      "item": "6 new M17 active species",
+      "req": "M17 planning freeze",
+      "stage": "T02",
+      "commit": "51a5e2b",
+      "evidence": "Pool entries 4-9; producer-reviewed images",
+      "acceptance": "87/87 P1 acceptance + Codex",
+      "player_visible": "6 new rescue species in dock rotation",
+      "maint": "None",
+      "status": "COMPLETE"
+    },
+    {
+      "item": "3 reserved species (backup gate)",
+      "req": "M17-T02-P1 ruling",
+      "stage": "T02",
+      "commit": "51a5e2b",
+      "evidence": "3 reserved PNGs in assets/cards/rescue/; reserved_in_pool=0",
+      "acceptance": "RESERVED_NOT_IN_POOL verified",
+      "player_visible": "Reserved assets available for future promotion",
+      "maint": "None",
+      "status": "COMPLETE"
+    },
+    {
+      "item": "Reserved species gate logic",
+      "req": "M17-T02-P1 ruling",
+      "stage": "T02",
+      "commit": "51a5e2b",
+      "evidence": "reserved_in_pool=0; simulation appearance=0",
+      "acceptance": "RESERVED_GUARD=PASS",
+      "player_visible": "Reserved species never appear in dock",
+      "maint": "None",
+      "status": "COMPLETE"
+    },
+    {
+      "item": "One-draw bag draw (no-repeat)",
+      "req": "M17 planning freeze",
+      "stage": "T01",
+      "commit": "269606b",
+      "evidence": "RescueSystem.gd:256-268",
+      "acceptance": "M17_T01_BAG_DRAW_RESULT=PASS",
+      "player_visible": "No species repeats within a bag cycle",
+      "maint": "None",
+      "status": "COMPLETE"
+    },
+    {
+      "item": "Parameter range consistency",
+      "req": "M17 planning freeze",
+      "stage": "T01",
+      "commit": "269606b",
+      "evidence": "All params within 22-30/5-7/6-8/0.05-0.08",
+      "acceptance": "M17_T01_RANGE_RESULT=PASS",
+      "player_visible": "Balanced rescue difficulty",
+      "maint": "None",
+      "status": "COMPLETE"
+    },
+    {
+      "item": "Manifest schema v2",
+      "req": "M17 planning freeze",
+      "stage": "T01+T02",
+      "commit": "51a5e2b",
+      "evidence": "data/card_manifest.json: schema_version=2, 9 entries",
+      "acceptance": "MANIFEST_SCHEMA=v2 verified",
+      "player_visible": "Card images load correctly",
+      "maint": "None",
+      "status": "COMPLETE"
+    },
+    {
+      "item": "Real asset production (256x256 RGBA)",
+      "req": "M17-T02-P1",
+      "stage": "T02",
+      "commit": "51a5e2b",
+      "evidence": "9 formal + 3 reserved assets; rembg pipeline",
+      "acceptance": "FILE_SHA_MATCH=9/9; PIXEL_SHA_MATCH=12/12",
+      "player_visible": "Clean, transparent species cards",
+      "maint": "None",
+      "status": "COMPLETE"
+    },
+    {
+      "item": "Asset file SHA256 verification",
+      "req": "M17-T02-P1",
+      "stage": "T02",
+      "commit": "51a5e2b",
+      "evidence": "All 12 file SHAs computed + cross-checked",
+      "acceptance": "FORMAL_ASSET_FILE_SHA_MATCH=9/9",
+      "player_visible": "Card integrity guaranteed",
+      "maint": "None",
+      "status": "COMPLETE"
+    },
+    {
+      "item": "RGBA8 pixel SHA256 fixture",
+      "req": "M17-T02-P1",
+      "stage": "T02",
+      "commit": "51a5e2b",
+      "evidence": "t02_available_pool_pixel_hash_fixture.json",
+      "acceptance": "PIXEL_SHA_MATCH=12/12",
+      "player_visible": "Pixel-level asset identity verified",
+      "maint": "None",
+      "status": "COMPLETE"
+    },
+    {
+      "item": "Runtime texture pixel mapping",
+      "req": "M17-T02-P2",
+      "stage": "T02",
+      "commit": "51a5e2b",
+      "evidence": "m17_t02_runtime_texture_mapping_verify.gd: 12 loaded, 6/6 PASS",
+      "acceptance": "RUNTIME_TEXTURE_MAPPING=PASS",
+      "player_visible": "Godot-loaded textures match P1 signed-off pixels",
+      "maint": "None",
+      "status": "COMPLETE"
+    },
+    {
+      "item": "Placeholder elimination",
+      "req": "M17-T02",
+      "stage": "T02",
+      "commit": "51a5e2b",
+      "evidence": "0 placeholder entries in manifest; all cards image2_user_generated",
+      "acceptance": "PLACEHOLDER_FALLBACK_COUNT=0",
+      "player_visible": "No placeholder cards displayed",
+      "maint": "None",
+      "status": "COMPLETE"
+    },
+    {
+      "item": "Dock candidate card display",
+      "req": "M17 planning freeze",
+      "stage": "M16+T02",
+      "commit": "M16-T02+T02",
+      "evidence": "RescueDockPanel.gd: candidate cards show real images",
+      "acceptance": "M16_T02_ASSET_RESULT=PASS",
+      "player_visible": "Dock shows real species images",
+      "maint": "None",
+      "status": "COMPLETE"
+    },
+    {
+      "item": "Codex/bestiary species display",
+      "req": "M17 planning freeze",
+      "stage": "M16+T02",
+      "commit": "M16-T03+T02",
+      "evidence": "LivestockPanel.gd: rescue_codex_cards HBoxContainer",
+      "acceptance": "M16_T03_CODEX_VISUAL_RESULT=PASS",
+      "player_visible": "Codex shows rescue history with real cards",
+      "maint": "None",
+      "status": "COMPLETE"
+    },
+    {
+      "item": "Build ID display",
+      "req": "M17-T02 hotfix",
+      "stage": "T02",
+      "commit": "607f5aa",
+      "evidence": "DisplayTankView.gd:19: M17-T02 v3.5-m17-t02-final",
+      "acceptance": "BUILD_ID=PASS",
+      "player_visible": "Header shows correct milestone+tag",
+      "maint": "None",
+      "status": "COMPLETE"
+    },
+    {
+      "item": "UI layout compatibility",
+      "req": "M17 planning freeze",
+      "stage": "T02",
+      "commit": "51a5e2b",
+      "evidence": "HBoxContainer at 9 species = 828px fits 1280px viewport",
+      "acceptance": "UI not broken; Codex verified",
+      "player_visible": "All UI elements display correctly",
+      "maint": "None",
+      "status": "COMPLETE"
+    },
+    {
+      "item": "Screenshot evidence",
+      "req": "M17-T02-P2",
+      "stage": "T02",
+      "commit": "51a5e2b",
+      "evidence": "Contact sheets + live game launch during Codex review",
+      "acceptance": "Codex screenshot review PASS",
+      "player_visible": "Visual evidence of running game",
+      "maint": "None",
+      "status": "COMPLETE"
+    },
+    {
+      "item": "M11 regression",
+      "req": "M11 stable baseline",
+      "stage": "T02",
+      "commit": "c4dd847",
+      "evidence": "M11_ACCEPTANCE_RESULT=PASS (from M14_T01 worktree)",
+      "acceptance": "M11_REVIEW_RESULT=PASS",
+      "player_visible": "All M11 systems intact",
+      "maint": "None",
+      "status": "COMPLETE"
+    },
+    {
+      "item": "M12 regression",
+      "req": "M12 stable baseline",
+      "stage": "T02",
+      "commit": "c4dd847",
+      "evidence": "M12_ACCEPTANCE_RESULT=PASS 36/36 + smoke",
+      "acceptance": "M12_REVIEW_RESULT=PASS",
+      "player_visible": "All M12 systems intact",
+      "maint": "None",
+      "status": "COMPLETE"
+    },
+    {
+      "item": "M13 30-day simulation regression",
+      "req": "M13 stable baseline",
+      "stage": "T02",
+      "commit": "c4dd847",
+      "evidence": "M13_30DAY_SIM_RESULT=PASS",
+      "acceptance": "M13_REVIEW_RESULT=PASS",
+      "player_visible": "30-day economy stable",
+      "maint": "None",
+      "status": "COMPLETE"
+    },
+    {
+      "item": "M16 regression",
+      "req": "M16 final",
+      "stage": "T02",
+      "commit": "c4dd847",
+      "evidence": "M16_T01 26/0 PASS",
+      "acceptance": "M16_REVIEW_RESULT=PASS",
+      "player_visible": "M16 card/manifest intact",
+      "maint": "None",
+      "status": "COMPLETE"
+    },
+    {
+      "item": "M17-T01 regression",
+      "req": "M17-T01 final",
+      "stage": "T02",
+      "commit": "c4dd847",
+      "evidence": "Structural 5/5 PASS; 11 content divergences per Rebaseline Protocol v2",
+      "acceptance": "M17_T01_REVIEW_RESULT=PASS (structural)",
+      "player_visible": "T01 data contract preserved",
+      "maint": "None",
+      "status": "COMPLETE"
+    },
+    {
+      "item": "M17-T02-P1 regression",
+      "req": "M17-T02-P1",
+      "stage": "T02",
+      "commit": "c4dd847",
+      "evidence": "87/87 PASS",
+      "acceptance": "M17_T02_P1_REGRESSION=PASS",
+      "player_visible": "P1 assets verified",
+      "maint": "None",
+      "status": "COMPLETE"
+    },
+    {
+      "item": "M17-T02-P2 regression",
+      "req": "M17-T02-P2",
+      "stage": "T02",
+      "commit": "c4dd847",
+      "evidence": "Runtime mapping 6/6 + pool semantics + playable UI",
+      "acceptance": "FULL_REGRESSION=PASS",
+      "player_visible": "P2 integration verified",
+      "maint": "None",
+      "status": "COMPLETE"
+    },
+    {
+      "item": "Codex independent review (2 rounds)",
+      "req": "M17-T02",
+      "stage": "T02",
+      "commit": "c4dd847",
+      "evidence": "CODEX_REVIEW_RESULT=PASS (round 2)",
+      "acceptance": "SECOND_CODEX_REVIEW=PASS",
+      "player_visible": "All Codex gates independently verified",
+      "maint": "None",
+      "status": "COMPLETE"
+    },
+    {
+      "item": "Final tag v3.5-m17-t02-final",
+      "req": "M17-T02 closeout",
+      "stage": "T02",
+      "commit": "607f5aa",
+      "evidence": "git tag v3.5-m17-t02-final -> 607f5aa; local+remote verified",
+      "acceptance": "TAG_TARGET_MATCH=PASS",
+      "player_visible": "Stable release identity",
+      "maint": "None",
+      "status": "COMPLETE"
+    },
+    {
+      "item": "T03 scope reconciliation",
+      "req": "M17 planning freeze + T02 completion",
+      "stage": "T03",
+      "commit": "N/A",
+      "evidence": "M17_T03_FINAL_PLANNING_RULING.md: Option A",
+      "acceptance": "SELECTED_OPTION=A; DEVELOPMENT_ALLOWED=NO",
+      "player_visible": "N/A (no T03 development)",
+      "maint": "None",
+      "status": "CANCELLED_BY_RULING"
+    },
+    {
+      "item": "FlowContainer upgrade",
+      "req": "M17 planning freeze",
+      "stage": "T03",
+      "commit": "NOT_DONE",
+      "evidence": "HBoxContainer works at 9 species; FlowContainer not needed",
+      "acceptance": "Deferred to maintenance",
+      "player_visible": "N/A",
+      "maint": "Yes",
+      "status": "DEFERRED_MAINTENANCE"
+    },
+    {
+      "item": "M17 Closeout",
+      "req": "M17 final",
+      "stage": "Closeout",
+      "commit": "this",
+      "evidence": "M17_FINAL_CLOSEOUT_REPORT.md",
+      "acceptance": "M17_FINAL_CLOSEOUT_RESULT=PASS",
+      "player_visible": "M17 milestone officially complete",
+      "maint": "None",
+      "status": "COMPLETE"
+    }
+  ]
+}

@@ -1,0 +1,30 @@
+{
+  "task_id": "M17-T03-SCOPE-RECONCILIATION",
+  "baseline_tag": "v3.5-m17-t02-final",
+  "baseline_commit": "607f5aa55951a05bc0f6985f05b01547ae6d122c",
+  "worktree": "CoralReefIdleV3_M17_T03",
+  "branch": "prototype/m17-t03",
+  "legacy_scope_items": 16,
+  "completed_in_t01_or_t02": 15,
+  "not_started": 1,
+  "real_remaining_gaps": 1,
+  "options": {
+    "A": "Cancel T03, direct M17 closeout (RECOMMENDED)",
+    "B": "Minimal FlowContainer T03",
+    "C": "Evidence-only T03"
+  },
+  "fable5_review": {
+    "result": "PASS",
+    "recommended": "A",
+    "blocking": null,
+    "notes": "FlowContainer is maintenance, not a milestone"
+  },
+  "selected_option": "A",
+  "development_allowed": false,
+  "commit_allowed": false,
+  "push_allowed": false,
+  "m17_closeout_allowed": true,
+  "next_task": "M17 Closeout Report",
+  "overall_status": "PASS",
+  "generated_at": "2026-07-11T18:32:51.478778+08:00"
+}
