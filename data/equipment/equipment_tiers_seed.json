@@ -29,7 +29,19 @@
     "removable": true,
     "runtime_status": "active",
     "upgrade_enabled": true,
-    "upgrade_target_tier": 2
+    "upgrade_target_tier": 2,
+    "tier_definitions": {
+      "1": {
+        "effects": {
+          "stability_score": 4,
+          "carrying_capacity_score": 1,
+          "maintenance_load": 2,
+          "nutrient_export": 2
+        },
+        "runtime_status": "active",
+        "upgrade_enabled": false
+      }
+    }
   },
   {
     "id": "protein_skimmer",
@@ -62,7 +74,20 @@
     "removable": true,
     "runtime_status": "active",
     "upgrade_enabled": true,
-    "upgrade_target_tier": 2
+    "upgrade_target_tier": 2,
+    "tier_definitions": {
+      "1": {
+        "effects": {
+          "stability_score": 8,
+          "carrying_capacity_score": 4,
+          "maintenance_load": 3,
+          "oxygenation": 3,
+          "nutrient_export": 4
+        },
+        "runtime_status": "active",
+        "upgrade_enabled": false
+      }
+    }
   },
   {
     "id": "refugium",
@@ -94,7 +119,19 @@
     "removable": true,
     "runtime_status": "active",
     "upgrade_enabled": true,
-    "upgrade_target_tier": 2
+    "upgrade_target_tier": 2,
+    "tier_definitions": {
+      "1": {
+        "effects": {
+          "stability_score": 7,
+          "carrying_capacity_score": 3,
+          "maintenance_load": 2,
+          "nutrient_export": 4
+        },
+        "runtime_status": "active",
+        "upgrade_enabled": false
+      }
+    }
   },
   {
     "id": "return_pump",
@@ -126,7 +163,19 @@
     "removable": true,
     "runtime_status": "active",
     "upgrade_enabled": true,
-    "upgrade_target_tier": 2
+    "upgrade_target_tier": 2,
+    "tier_definitions": {
+      "1": {
+        "effects": {
+          "stability_score": 6,
+          "carrying_capacity_score": 1,
+          "maintenance_load": 2,
+          "flow": 4
+        },
+        "runtime_status": "active",
+        "upgrade_enabled": false
+      }
+    }
   },
   {
     "id": "live_rock",
@@ -159,7 +208,19 @@
     "removable": true,
     "runtime_status": "active",
     "upgrade_enabled": true,
-    "upgrade_target_tier": 2
+    "upgrade_target_tier": 2,
+    "tier_definitions": {
+      "1": {
+        "effects": {
+          "stability_score": 7,
+          "carrying_capacity_score": 5,
+          "maintenance_load": 1,
+          "bio_filtration": 5
+        },
+        "runtime_status": "active",
+        "upgrade_enabled": false
+      }
+    }
   },
   {
     "id": "filter_media",
@@ -192,7 +253,19 @@
     "removable": true,
     "runtime_status": "active",
     "upgrade_enabled": true,
-    "upgrade_target_tier": 2
+    "upgrade_target_tier": 2,
+    "tier_definitions": {
+      "1": {
+        "effects": {
+          "stability_score": 5,
+          "carrying_capacity_score": 3,
+          "maintenance_load": 1,
+          "bio_filtration": 3
+        },
+        "runtime_status": "active",
+        "upgrade_enabled": false
+      }
+    }
   },
   {
     "id": "heater",
@@ -225,7 +298,19 @@
     "removable": true,
     "runtime_status": "active",
     "upgrade_enabled": true,
-    "upgrade_target_tier": 2
+    "upgrade_target_tier": 2,
+    "tier_definitions": {
+      "1": {
+        "effects": {
+          "stability_score": 5,
+          "carrying_capacity_score": 0,
+          "maintenance_load": 1,
+          "temperature_control": 4
+        },
+        "runtime_status": "active",
+        "upgrade_enabled": false
+      }
+    }
   },
   {
     "id": "chiller",
@@ -237,10 +322,10 @@
     "default_enabled": false,
     "reserved": false,
     "effects": {
-      "stability_loss_reduction": 10,
-      "stability_recovery_bonus": 3,
-      "maintenance_load_delta": 2,
-      "daily_operating_cost_delta": 8
+      "stability_loss_reduction": 16,
+      "stability_recovery_bonus": 6,
+      "maintenance_load_delta": 3,
+      "daily_operating_cost_delta": 12
     },
     "legal_zone_ids": [
       "reserved_tier2_utility"
@@ -258,9 +343,69 @@
     "runtime_status": "reserved",
     "upgrade_enabled": true,
     "upgrade_target_tier": null,
-    "upgrade_rp_cost": 350,
-    "unlock_day": 5,
-    "daily_operating_cost_delta": 8
+    "upgrade_rp_cost": 650,
+    "unlock_day": 22,
+    "daily_operating_cost_delta": 12,
+    "specialization": {
+      "trigger_id": "emergency_stability_buffer",
+      "trigger_event_ids": [
+        "system_stress_spike"
+      ],
+      "trigger_phases": [
+        "ACTIVE"
+      ],
+      "state_condition": "stability_below_35",
+      "effect_modifiers": {
+        "stability_loss_multiplier": 0.35,
+        "peak_soak": 1
+      },
+      "max_triggers_per_event": 1,
+      "cooldown_days": 4,
+      "additional_operating_cost_when_active": 8,
+      "description": "紧急稳定缓冲：系统压力峰值期间稳定性损失降低65%，单事件限触发一次"
+    },
+    "tier_definitions": {
+      "2": {
+        "effects": {
+          "stability_loss_reduction": 16,
+          "stability_recovery_bonus": 6,
+          "maintenance_load_delta": 3,
+          "daily_operating_cost_delta": 12
+        },
+        "upgrade_rp_cost": 650,
+        "unlock_day": 22,
+        "daily_operating_cost_delta": 12,
+        "maintenance_pressure_delta": 0,
+        "runtime_status": "reserved",
+        "upgrade_enabled": true
+      },
+      "3": {
+        "effects": {
+          "stability_loss_reduction": 16,
+          "stability_recovery_bonus": 6,
+          "maintenance_load_delta": 3
+        },
+        "upgrade_rp_cost": 650,
+        "unlock_day": 22,
+        "daily_operating_cost_delta": 12,
+        "maintenance_pressure_delta": 1,
+        "runtime_status": "active",
+        "upgrade_enabled": true,
+        "specialization": {
+          "trigger_id": "emergency_stability_buffer",
+          "trigger_event_ids": [
+            "system_stress_spike"
+          ],
+          "trigger_phases": [
+            "ACTIVE"
+          ],
+          "max_triggers_per_event": 1,
+          "cooldown_days": 4,
+          "additional_operating_cost_when_active": 8,
+          "description": "紧急稳定缓冲：系统压力峰值期间稳定性损失降低65%，单事件限触发一次"
+        }
+      }
+    }
   },
   {
     "id": "uv_sterilizer",
@@ -272,10 +417,10 @@
     "default_enabled": false,
     "reserved": false,
     "effects": {
-      "stability_recovery_bonus": 6,
-      "bio_filtration": 4,
-      "maintenance_load_delta": 3,
-      "daily_operating_cost_delta": 10
+      "stability_recovery_bonus": 10,
+      "bio_filtration": 7,
+      "maintenance_load_delta": 4,
+      "daily_operating_cost_delta": 12
     },
     "legal_zone_ids": [
       "reserved_tier2_utility"
@@ -293,9 +438,71 @@
     "runtime_status": "reserved",
     "upgrade_enabled": true,
     "upgrade_target_tier": null,
-    "upgrade_rp_cost": 400,
-    "unlock_day": 6,
-    "daily_operating_cost_delta": 10
+    "upgrade_rp_cost": 700,
+    "unlock_day": 24,
+    "daily_operating_cost_delta": 12,
+    "specialization": {
+      "trigger_id": "bloom_suppression",
+      "trigger_event_ids": [
+        "waterborne_bloom"
+      ],
+      "trigger_phases": [
+        "WARNING",
+        "ACTIVE"
+      ],
+      "state_condition": "stability_below_45",
+      "effect_modifiers": {
+        "initial_severity_reduction": 0.4,
+        "recovery_grade_improvement": 1
+      },
+      "max_triggers_per_event": 1,
+      "cooldown_days": 3,
+      "additional_operating_cost_when_active": 6,
+      "description": "浑浊抑制：水体浑浊事件初始严重度降低40%，改善恢复评级"
+    },
+    "tier_definitions": {
+      "2": {
+        "effects": {
+          "stability_recovery_bonus": 10,
+          "bio_filtration": 7,
+          "maintenance_load_delta": 4,
+          "daily_operating_cost_delta": 12
+        },
+        "upgrade_rp_cost": 700,
+        "unlock_day": 24,
+        "daily_operating_cost_delta": 12,
+        "maintenance_pressure_delta": 0,
+        "runtime_status": "reserved",
+        "upgrade_enabled": true
+      },
+      "3": {
+        "effects": {
+          "stability_recovery_bonus": 10,
+          "bio_filtration": 7,
+          "maintenance_load_delta": 4
+        },
+        "upgrade_rp_cost": 700,
+        "unlock_day": 24,
+        "daily_operating_cost_delta": 12,
+        "maintenance_pressure_delta": 1,
+        "runtime_status": "active",
+        "upgrade_enabled": true,
+        "specialization": {
+          "trigger_id": "bloom_suppression",
+          "trigger_event_ids": [
+            "waterborne_bloom"
+          ],
+          "trigger_phases": [
+            "WARNING",
+            "ACTIVE"
+          ],
+          "max_triggers_per_event": 1,
+          "cooldown_days": 3,
+          "additional_operating_cost_when_active": 6,
+          "description": "浑浊抑制：水体浑浊事件初始严重度降低40%，改善恢复评级"
+        }
+      }
+    }
   },
   {
     "id": "refugium_light",
@@ -307,10 +514,10 @@
     "default_enabled": false,
     "reserved": false,
     "effects": {
-      "nutrient_export": 8,
-      "stability_recovery_bonus": 2,
-      "maintenance_load_delta": 1,
-      "daily_operating_cost_delta": 3
+      "nutrient_export": 14,
+      "stability_recovery_bonus": 4,
+      "maintenance_load_delta": 2,
+      "daily_operating_cost_delta": 8
     },
     "legal_zone_ids": [
       "reserved_tier2_utility"
@@ -328,9 +535,71 @@
     "runtime_status": "reserved",
     "upgrade_enabled": true,
     "upgrade_target_tier": null,
-    "upgrade_rp_cost": 200,
-    "unlock_day": 3,
-    "daily_operating_cost_delta": 3
+    "upgrade_rp_cost": 500,
+    "unlock_day": 18,
+    "daily_operating_cost_delta": 8,
+    "specialization": {
+      "trigger_id": "nutrient_surge_mode",
+      "trigger_event_ids": [
+        "nutrient_surge"
+      ],
+      "trigger_phases": [
+        "WARNING",
+        "ACTIVE"
+      ],
+      "state_condition": "no3_above_10",
+      "effect_modifiers": {
+        "nutrient_export_multiplier": 1.8,
+        "severity_reduction": 0.3
+      },
+      "max_triggers_per_event": 1,
+      "cooldown_days": 3,
+      "additional_operating_cost_when_active": 5,
+      "description": "高营养盐强化导出：营养盐上升期间 nutrient_export 效果提升80%，严重度额外降低30%"
+    },
+    "tier_definitions": {
+      "2": {
+        "effects": {
+          "nutrient_export": 14,
+          "stability_recovery_bonus": 4,
+          "maintenance_load_delta": 2,
+          "daily_operating_cost_delta": 8
+        },
+        "upgrade_rp_cost": 500,
+        "unlock_day": 18,
+        "daily_operating_cost_delta": 8,
+        "maintenance_pressure_delta": 0,
+        "runtime_status": "reserved",
+        "upgrade_enabled": true
+      },
+      "3": {
+        "effects": {
+          "nutrient_export": 14,
+          "stability_recovery_bonus": 4,
+          "maintenance_load_delta": 3
+        },
+        "upgrade_rp_cost": 500,
+        "unlock_day": 18,
+        "daily_operating_cost_delta": 8,
+        "maintenance_pressure_delta": 1,
+        "runtime_status": "active",
+        "upgrade_enabled": true,
+        "specialization": {
+          "trigger_id": "nutrient_surge_mode",
+          "trigger_event_ids": [
+            "nutrient_surge"
+          ],
+          "trigger_phases": [
+            "WARNING",
+            "ACTIVE"
+          ],
+          "max_triggers_per_event": 1,
+          "cooldown_days": 3,
+          "additional_operating_cost_when_active": 5,
+          "description": "高营养盐强化导出：营养盐上升期间 nutrient_export 提升80%，额外降低严重度30%"
+        }
+      }
+    }
   },
   {
     "id": "wave_pump",
@@ -342,10 +611,10 @@
     "default_enabled": false,
     "reserved": false,
     "effects": {
-      "comfort_decay_reduction": 6,
-      "comfort_recovery_bonus": 3,
-      "maintenance_load_delta": 1,
-      "daily_operating_cost_delta": 5
+      "comfort_decay_reduction": 10,
+      "comfort_recovery_bonus": 6,
+      "maintenance_load_delta": 2,
+      "daily_operating_cost_delta": 9
     },
     "legal_zone_ids": [
       "reserved_tier2_display"
@@ -363,9 +632,73 @@
     "runtime_status": "reserved",
     "upgrade_enabled": true,
     "upgrade_target_tier": null,
-    "upgrade_rp_cost": 250,
-    "unlock_day": 4,
-    "daily_operating_cost_delta": 5
+    "upgrade_rp_cost": 550,
+    "unlock_day": 20,
+    "daily_operating_cost_delta": 9,
+    "specialization": {
+      "trigger_id": "stress_recovery_pulse",
+      "trigger_event_ids": [
+        "livestock_stress"
+      ],
+      "trigger_phases": [
+        "WARNING",
+        "ACTIVE",
+        "RECOVERY"
+      ],
+      "state_condition": "comfort_below_55",
+      "effect_modifiers": {
+        "comfort_decay_multiplier": 0.4,
+        "recovery_speed_multiplier": 1.5
+      },
+      "max_triggers_per_event": 2,
+      "cooldown_days": 2,
+      "additional_operating_cost_when_active": 4,
+      "description": "应激恢复脉冲：生物应激期间舒适衰减降低60%，恢复速度提升50%"
+    },
+    "tier_definitions": {
+      "2": {
+        "effects": {
+          "comfort_decay_reduction": 10,
+          "comfort_recovery_bonus": 6,
+          "maintenance_load_delta": 2,
+          "daily_operating_cost_delta": 9
+        },
+        "upgrade_rp_cost": 550,
+        "unlock_day": 20,
+        "daily_operating_cost_delta": 9,
+        "maintenance_pressure_delta": 0,
+        "runtime_status": "reserved",
+        "upgrade_enabled": true
+      },
+      "3": {
+        "effects": {
+          "comfort_decay_reduction": 10,
+          "comfort_recovery_bonus": 6,
+          "maintenance_load_delta": 2
+        },
+        "upgrade_rp_cost": 550,
+        "unlock_day": 20,
+        "daily_operating_cost_delta": 9,
+        "maintenance_pressure_delta": 1,
+        "runtime_status": "active",
+        "upgrade_enabled": true,
+        "specialization": {
+          "trigger_id": "stress_recovery_pulse",
+          "trigger_event_ids": [
+            "livestock_stress"
+          ],
+          "trigger_phases": [
+            "WARNING",
+            "ACTIVE",
+            "RECOVERY"
+          ],
+          "max_triggers_per_event": 2,
+          "cooldown_days": 2,
+          "additional_operating_cost_when_active": 4,
+          "description": "应激恢复脉冲：生物应激期间舒适衰减降低60%，恢复速度提升50%"
+        }
+      }
+    }
   },
   {
     "id": "kh_stabilizer",
