@@ -1372,6 +1372,8 @@ func get_save_debug_state() -> Dictionary:
 
 
 func buy_livestock_from_shop(shop_id: String) -> Dictionary:
+	return {"success": false, "error": "shop_retired_v4", "message": "商店已退役，生物通过蓝色守护获得"}
+	# Legacy shop purchase path disabled per M19-T1 (store retirement)
 	print("[BUY] gs.buy start shop_id=", shop_id)
 	if livestock_system == null or economy_system == null:
 		print("[BUY] gs.buy system unavailable")

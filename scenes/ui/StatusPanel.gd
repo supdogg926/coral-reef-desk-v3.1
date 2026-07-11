@@ -139,7 +139,7 @@ func update_livestock_economy_debug(livestock_debug: Dictionary, economy_debug: 
 	var income_rate: float = float(economy_debug.get("income_rate_per_game_hour", livestock_debug.get("income_rate_per_game_hour", 0.0)))
 
 	if rp_display_label != null:
-		rp_display_label.text = "%.0f  +%.2f/h" % [reef_points, income_rate]
+		rp_display_label.text = "%.0f朵  +%.2f/h" % [reef_points, income_rate]
 		rp_display_label.add_theme_color_override("font_color", Color(0.82, 0.88, 0.86))
 	_set_status_line("livestock", "comfort_primary", "%.0f" % comfort_score, _score_color(comfort_score, 80.0, 55.0))
 	_set_status_line("livestock", "load_primary", "%.1f/%.1f" % [bio_load, system_capacity], _load_color(bio_load, system_capacity))
@@ -267,7 +267,7 @@ func update_save_debug(save_debug: Dictionary, save_loaded: bool, offline_summar
 			offline_text = "离线时长：%.1f小时" % (offline_sec / 3600.0)
 		else:
 			offline_text = "离线时长：%d分钟" % int(offline_sec / 60.0)
-		offline_text += "｜离线 +%.1f RP" % offline_income
+		offline_text += "｜离线 +%.1f 浪花" % offline_income
 		_set_line("status", "save_offline", offline_text)
 	else:
 		_set_line("status", "save_offline", "离线 无")
@@ -476,7 +476,7 @@ func _create_entry_system_section(parent: Control) -> void:
 	var rp_box: VBoxContainer = VBoxContainer.new()
 	rp_box.add_theme_constant_override("separation", 0)
 	rp_margin.add_child(rp_box)
-	var rp_title: Label = _make_label("RP", 7, false)
+	var rp_title: Label = _make_label("浪花", 7, false)
 	rp_title.add_theme_color_override("font_color", MUTED_TEXT_COLOR)
 	rp_box.add_child(rp_title)
 	rp_display_label = _make_label("0  +0.00/h", KEY_FONT_SIZE, false, true)

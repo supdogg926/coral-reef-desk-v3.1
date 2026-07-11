@@ -43,6 +43,18 @@ func get_reef_points() -> float:
 	return reef_points
 
 
+func get_waves_balance() -> float:
+	return reef_points
+
+
+func add_waves(amount: float, reason: String = "") -> void:
+	add_reef_points(amount)
+
+
+func spend_waves(amount: float, reason: String = "") -> bool:
+	return spend_reef_points(amount)
+
+
 func export_state() -> Dictionary:
 	return {
 		"reef_points": reef_points,
