@@ -485,8 +485,8 @@ func _create_entry_system_section(parent: Control) -> void:
 	rp_display_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
 	rp_box.add_child(rp_display_label)
 	rescue_reputation_label = _make_label("生态声望 0", BODY_FONT_SIZE, false, true)
-	rescue_reputation_label.clip_text = true
-	rescue_reputation_label.autowrap_mode = TextServer.AUTOWRAP_OFF
+	rescue_reputation_label.clip_text = false
+	rescue_reputation_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	rp_box.add_child(rescue_reputation_label)
 
 	status_lines["phase"] = _create_secondary_tile(info_grid, "等级")
@@ -712,7 +712,7 @@ func configure_dock_controls(maintenance_actions: Array, feeding_actions: Array,
 		fb_label.text = "就绪"
 		fb_label.add_theme_font_size_override("font_size", 9)
 		fb_label.add_theme_color_override("font_color", Color(0.66, 0.80, 0.78))
-		fb_label.clip_text = true
+		fb_label.clip_text = false
 		fb_label.custom_minimum_size = Vector2(0, 18)
 		feedback_parent.add_child(fb_label)
 		result["maintenance_feedback_label"] = fb_label
@@ -769,7 +769,7 @@ func _make_dock_button(text: String, min_size: Vector2 = Vector2(54, 18)) -> But
 	var button: Button = Button.new()
 	button.text = text
 	button.custom_minimum_size = min_size
-	button.clip_text = true
+	button.clip_text = false
 	button.add_theme_font_size_override("font_size", 9)
 	button.add_theme_color_override("font_color", Color(0.80, 0.86, 0.84))
 	button.add_theme_stylebox_override("normal", _make_button_style(Color(0.18, 0.20, 0.21), Color(0.32, 0.36, 0.37)))
@@ -917,8 +917,8 @@ func _make_label(text: String, font_size: int, is_title: bool, is_key: bool = fa
 	label.text = text
 	label.add_theme_font_size_override("font_size", font_size)
 	label.add_theme_constant_override("line_spacing", 0)
-	label.clip_text = true
-	label.autowrap_mode = TextServer.AUTOWRAP_OFF
+	label.clip_text = false
+	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	label.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	if is_title:
