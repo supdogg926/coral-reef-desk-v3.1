@@ -87,10 +87,36 @@ func unlock_equipment(equipment_id: String) -> bool:
 	if not equipment_records.has(equipment_id):
 		return false
 	var record: Dictionary = _get_equipment_record(equipment_id)
-	if int(record.get("tier", 0)) > 1:
+	if String(record.get("runtime_status", "")) == "reserved":
+		return false
+	if not bool(record.get("upgrade_enabled", false)):
 		return false
 	unlocked_equipment[equipment_id] = true
 	return true
+
+
+func get_tier_definition(equipment_id: String, target_tier: int) -> Dictionary:
+	if not equipment_records.has(equipment_id):
+		return {}
+	var record: Dictionary = _get_equipment_record(equipment_id)
+	if int(record.get("tier", 0)) != target_tier:
+		return {}
+	if String(record.get("runtime_status", "")) == "reserved":
+		return {}
+	return record.duplicate()
+
+
+var device_tiers: Dictionary = {}
+
+
+func get_device_tier(equipment_id: String) -> int:
+	if device_tiers.has(equipment_id):
+		return int(device_tiers[equipment_id])
+	return 1
+
+
+func set_device_tier(equipment_id: String, tier: int) -> void:
+	device_tiers[equipment_id] = tier
 
 
 func enable_equipment(equipment_id: String) -> bool:
@@ -226,6 +252,7 @@ func get_debug_state() -> Dictionary:
 		"warehouse_count": get_warehouse_equipment().size(),
 		"locked_count": _get_locked_equipment_count(),
 		"effects_summary": get_equipment_effects_summary(),
+		"device_tiers": device_tiers.duplicate(),
 		"load_errors": load_errors.duplicate(),
 	}
 

@@ -723,16 +723,18 @@ func configure_dock_controls(maintenance_actions: Array, feeding_actions: Array,
 	if device_parent != null:
 		var raw_devices: Variant = device_state.get("devices", {})
 		var devices: Dictionary = raw_devices if raw_devices is Dictionary else {}
-		for device_id in ["return_pump", "wave_pump", "main_light"]:
+		for device_id in ["return_pump", "wave_pump", "main_light", "chiller", "uv_sterilizer", "refugium_light"]:
 			var raw_device: Variant = devices.get(device_id, {})
 			var device_info: Dictionary = raw_device if raw_device is Dictionary else {}
 			var display_name: String = String(device_info.get("display_name", device_id))
-			var button: Button = _make_dock_button(display_name, Vector2(74, 18))
-			button.tooltip_text = "切换%s（prototype运行时状态，不写入存档）" % display_name
+			var tier: int = int(device_info.get("tier", 1))
+			var btn_text: String = display_name + " T" + str(tier)
+			var button: Button = _make_dock_button(btn_text, Vector2(84, 18))
+			button.tooltip_text = "%s Tier %d" % [display_name, tier]
 			_connect_button(button, callbacks.get("device", Callable()).bind(device_id))
 			device_parent.add_child(button)
 			device_buttons_result[device_id] = button
-			device_base_texts[device_id] = display_name
+			device_base_texts[device_id] = btn_text
 		for raw_feed in feeding_actions:
 			if not raw_feed is Dictionary:
 				continue

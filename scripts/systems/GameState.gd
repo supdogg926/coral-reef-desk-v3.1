@@ -59,6 +59,7 @@ var device_states: Dictionary = {
 	"main_light": true,
 	"reserve": false,
 }
+var device_tiers: Dictionary = {}
 var last_device_runtime_summary: String = "设备：默认运行"
 var light_intensity: int = 100
 var light_color_temp: int = 50
@@ -334,6 +335,82 @@ func set_device_enabled(device_id: String, enabled: bool) -> Dictionary:
 	return result
 
 
+func get_device_tier(device_id: String) -> int:
+	if equipment_system != null:
+		return equipment_system.get_device_tier(device_id)
+	return 1
+
+
+func get_tier_upgrade_cost(device_id: String, target_tier: int) -> int:
+	if equipment_system == null: return 0
+	var defn: Dictionary = equipment_system.get_tier_definition(device_id, target_tier)
+	if defn.is_empty(): return 0
+	return int(defn.get("upgrade_rp_cost", 0))
+
+
+func get_tier_unlock_day(device_id: String, target_tier: int) -> int:
+	if equipment_system == null: return 0
+	var defn: Dictionary = equipment_system.get_tier_definition(device_id, target_tier)
+	if defn.is_empty(): return 0
+	return int(defn.get("unlock_day", 0))
+
+
+func can_upgrade_device_to_tier(device_id: String, target_tier: int) -> Dictionary:
+	var current_tier: int = get_device_tier(device_id)
+	var defn: Dictionary = {}
+	if equipment_system != null:
+		defn = equipment_system.get_tier_definition(device_id, target_tier)
+	if defn.is_empty():
+		return {"can_upgrade": false, "reason": "tier_not_available", "cost": 0}
+	var cost: int = get_tier_upgrade_cost(device_id, target_tier)
+	if cost <= 0:
+		return {"can_upgrade": false, "reason": "no_cost_defined", "cost": 0}
+	if current_tier >= target_tier:
+		return {"can_upgrade": false, "reason": "already_upgraded", "cost": cost}
+	var unlock_day: int = get_tier_unlock_day(device_id, target_tier)
+	if unlock_day > 0:
+		var current_day: int = 1
+		if time_system != null:
+			var td: Dictionary = time_system.get_debug_state()
+			current_day = int(float(td.get("elapsed_game_minutes", 0.0)) / 1440.0) + 1
+		if current_day < unlock_day:
+			return {"can_upgrade": false, "reason": "locked_until_day", "cost": cost, "unlock_day": unlock_day, "current_day": current_day}
+	var rp: float = economy_system.reef_points if economy_system != null else 0.0
+	if rp < float(cost):
+		return {"can_upgrade": false, "reason": "insufficient_rp", "cost": cost, "current_rp": int(rp)}
+	return {"can_upgrade": true, "reason": "", "cost": cost, "current_rp": int(rp), "target_tier": target_tier}
+
+
+func upgrade_device_to_tier(device_id: String, target_tier: int) -> Dictionary:
+	var check: Dictionary = can_upgrade_device_to_tier(device_id, target_tier)
+	if not bool(check.get("can_upgrade", false)):
+		return {"success": false, "reason": check.get("reason", "unknown")}
+	var cost: int = int(check.get("cost", 0))
+	if economy_system != null:
+		economy_system.spend_reef_points(float(cost))
+	if equipment_system != null:
+		equipment_system.set_device_tier(device_id, target_tier)
+	var display_name: String = str(DEVICE_DEFINITIONS.get(device_id, {}).get("display_name", device_id))
+	var summary: String = "Upgrade: " + display_name + " T1->T" + str(target_tier) + " | RP -" + str(cost)
+	_timeline_log_player(summary, ActionTimeline.COLOR_PLAYER)
+	last_device_runtime_summary = summary
+	return {"success": true, "device_id": device_id, "new_tier": target_tier, "cost": cost}
+
+
+func get_device_tier_operating_cost_total() -> int:
+	var total: int = 0
+	if equipment_system == null: return 0
+	var all_ids: Array[String] = []
+	all_ids.append_array(DEVICE_DEFINITIONS.keys())
+	for device_id in all_ids:
+		var tier: int = get_device_tier(device_id)
+		if tier >= 2 and bool(device_states.get(device_id, false)):
+			var defn: Dictionary = equipment_system.get_tier_definition(device_id, tier)
+			if not defn.is_empty():
+				total += int(defn.get("daily_operating_cost_delta", 0))
+	return total
+
+
 func get_device_state() -> Dictionary:
 	_ensure_device_state_defaults()
 	var devices: Dictionary = {}
@@ -342,6 +419,7 @@ func get_device_state() -> Dictionary:
 			"device_id": device_id,
 			"display_name": _get_device_display_name(device_id),
 			"enabled": bool(device_states.get(device_id, false)),
+			"tier": get_device_tier(device_id),
 		}
 	return {
 		"devices": devices,
@@ -1446,6 +1524,12 @@ func _apply_save_state(save_data: Dictionary) -> void:
 	var raw_rescue: Variant = save_data.get("rescue_data", save_data.get("rescue", {}))
 	if raw_rescue is Dictionary and rescue_system != null:
 		rescue_system.import_state(raw_rescue)
+	var raw_equipment: Variant = save_data.get("equipment", {})
+	if raw_equipment is Dictionary and equipment_system != null:
+		var saved_tiers: Variant = raw_equipment.get("device_tiers", {})
+		if saved_tiers is Dictionary:
+			for device_id in saved_tiers.keys():
+				equipment_system.set_device_tier(device_id, int(saved_tiers[device_id]))
 	reef_points = economy_system.reef_points if economy_system != null else 0.0
 
 
@@ -1755,6 +1839,7 @@ func _perform_autosave() -> void:
 		"tier1_installed": true,
 		"tier2_preview": unlock_system.unlocked_states.get("tier2_equipment_preview", false) if unlock_system != null else false,
 		"tier3_locked": true,
+		"device_tiers": equipment_system.device_tiers.duplicate() if equipment_system != null else {},
 	}
 	var save_dict: Dictionary = {
 		"economy": economy_state,
