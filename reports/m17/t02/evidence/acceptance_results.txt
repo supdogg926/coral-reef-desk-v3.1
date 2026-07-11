@@ -1,0 +1,96 @@
+C01: PASS | Asset production set = 9
+C02: PASS | Active species = 6
+C03: PASS | Reserved species = 3
+C04_01: PASS | Final asset exists: rescue_clownfish_juvenile
+C05_01: PASS | File non-empty: rescue_clownfish_juvenile
+C06_01: PASS | 256x256: rescue_clownfish_juvenile
+C07_01: PASS | Decodable: rescue_clownfish_juvenile
+C08_01: PASS | RGBA mode: rescue_clownfish_juvenile
+C04_02: PASS | Final asset exists: rescue_cleaner_shrimp
+C05_02: PASS | File non-empty: rescue_cleaner_shrimp
+C06_02: PASS | 256x256: rescue_cleaner_shrimp
+C07_02: PASS | Decodable: rescue_cleaner_shrimp
+C08_02: PASS | RGBA mode: rescue_cleaner_shrimp
+C04_03: PASS | Final asset exists: rescue_goby
+C05_03: PASS | File non-empty: rescue_goby
+C06_03: PASS | 256x256: rescue_goby
+C07_03: PASS | Decodable: rescue_goby
+C08_03: PASS | RGBA mode: rescue_goby
+C04_04: PASS | Final asset exists: rescue_seahorse
+C05_04: PASS | File non-empty: rescue_seahorse
+C06_04: PASS | 256x256: rescue_seahorse
+C07_04: PASS | Decodable: rescue_seahorse
+C08_04: PASS | RGBA mode: rescue_seahorse
+C04_05: PASS | Final asset exists: rescue_hermit_crab
+C05_05: PASS | File non-empty: rescue_hermit_crab
+C06_05: PASS | 256x256: rescue_hermit_crab
+C07_05: PASS | Decodable: rescue_hermit_crab
+C08_05: PASS | RGBA mode: rescue_hermit_crab
+C04_06: PASS | Final asset exists: rescue_brain_coral_frag
+C05_06: PASS | File non-empty: rescue_brain_coral_frag
+C06_06: PASS | 256x256: rescue_brain_coral_frag
+C07_06: PASS | Decodable: rescue_brain_coral_frag
+C08_06: PASS | RGBA mode: rescue_brain_coral_frag
+C04_07: PASS | Final asset exists: rescue_mandarin_dragonet
+C05_07: PASS | File non-empty: rescue_mandarin_dragonet
+C06_07: PASS | 256x256: rescue_mandarin_dragonet
+C07_07: PASS | Decodable: rescue_mandarin_dragonet
+C08_07: PASS | RGBA mode: rescue_mandarin_dragonet
+C04_08: PASS | Final asset exists: rescue_sea_star
+C05_08: PASS | File non-empty: rescue_sea_star
+C06_08: PASS | 256x256: rescue_sea_star
+C07_08: PASS | Decodable: rescue_sea_star
+C08_08: PASS | RGBA mode: rescue_sea_star
+C04_09: PASS | Final asset exists: rescue_anemone_tube
+C05_09: PASS | File non-empty: rescue_anemone_tube
+C06_09: PASS | 256x256: rescue_anemone_tube
+C07_09: PASS | Decodable: rescue_anemone_tube
+C08_09: PASS | RGBA mode: rescue_anemone_tube
+C13: PASS | No duplicate file SHA256
+C14: PASS | No duplicate pixel SHA256
+C15: PASS | Manifest draft exists
+C16: PASS | Manifest schema_version = 2
+C17: PASS | Manifest entries = 9
+C18_01: PASS | Manifest SHA matches file: rescue_clownfish_juvenile
+C18_02: PASS | Manifest SHA matches file: rescue_cleaner_shrimp
+C18_03: PASS | Manifest SHA matches file: rescue_goby
+C18_04: PASS | Manifest SHA matches file: rescue_seahorse
+C18_05: PASS | Manifest SHA matches file: rescue_hermit_crab
+C18_06: PASS | Manifest SHA matches file: rescue_brain_coral_frag
+C18_07: PASS | Manifest SHA matches file: rescue_mandarin_dragonet
+C18_08: PASS | Manifest SHA matches file: rescue_sea_star
+C18_09: PASS | Manifest SHA matches file: rescue_anemone_tube
+C19: PASS | No placeholder entries in manifest
+C20: PASS | Reserved count in manifest = 3
+C21: PASS | Provenance JSON exists
+C22: PASS | Provenance records = 9
+C23: PASS | All visual_review_status = REVIEW_PENDING
+C24: PASS | Pixel hash fixture exists
+C25: PASS | Fixture entries = 9
+C26: PASS | Pixel fixture matches computed values
+C27: PASS | Contact sheet exists
+C28: PASS | Contact sheet width >= 1200 (actual: 1220)
+C29: PASS | Contact sheet decodable
+C30: PASS | Contact sheet not solid color (unique center sample: 944)
+C31: PASS | Contact sheet filename has timestamp
+C32: PASS | Inventory CSV exists
+C33: PASS | Inventory MD exists
+C34: PASS | Generation records exist
+C35: PASS | T01 species pool count = 6
+C36: PASS | T01 pool species IDs preserved
+C37: PASS | card_manifest.json schema_version = 2
+C38: PASS | card_manifest.json entries = 6
+C39: PASS | M16 rescue assets source = image2_user_generated
+C40: PASS | Reserved species NOT in pool JSON
+C41: PASS | Forbidden files modified: 0
+C42: PASS | Runtime files modified: 0
+C43: PASS | Git diff --check clean
+C44: PASS | Reserved species not in active pool
+C45: PASS | Reserved count in asset production = 3
+C46: PASS | All reserved have finalized assets
+C47: PASS | M16 rescue assets exist
+C48: PASS | No source_candidates used as final path
+
+TOTAL: 92 | PASS: 92 | FAIL: 0
+M17_T02_P1_ASSET_PROGRAMMATIC_RESULT=PASS
+M17_T02_ASSET_VISUAL_STATUS=REVIEW_PENDING

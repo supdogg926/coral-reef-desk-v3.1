@@ -1,0 +1,26 @@
+{
+  "policy": "AVAILABLE_APPROVED_IMAGES_FIRST",
+  "tiger_angelfish_removed": true,
+  "replaced_by": "rescue_mountain_gold_green_euphyllia",
+  "renames": [
+    {
+      "old": "rescue_coral_beauty_angelfish",
+      "new": "rescue_bicolor_angelfish"
+    },
+    {
+      "old": "rescue_holy_grail_scolymia",
+      "new": "rescue_holy_grail_matchstick_coral"
+    }
+  ],
+  "new_species_ids": [
+    "rescue_blue_eye_bristletooth_tang",
+    "rescue_eight_line_flasher_wrasse",
+    "rescue_bicolor_angelfish",
+    "rescue_green_star_polyp",
+    "rescue_pulsing_xenia",
+    "rescue_golden_brain_coral",
+    "rescue_yellow_coris_wrasse",
+    "rescue_mountain_gold_green_euphyllia",
+    "rescue_holy_grail_matchstick_coral"
+  ]
+}

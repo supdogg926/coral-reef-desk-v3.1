@@ -1,6 +1,6 @@
 {
   "schema_version": 2,
-  "max_entries": 6,
+  "max_entries": 9,
   "cards": [
     {
       "species_id": "rescue_clownfish_juvenile",
@@ -9,10 +9,6 @@
       "source": "image2_user_generated",
       "gen_info": {
         "source_tool": "Image2",
-        "original_filename": "rescue_clownfish_juvenile.png",
-        "original_resolution": "1254x1254",
-        "processed_resolution": "256x256",
-        "background_process": "rembg",
         "imported_for": "M16-T02"
       }
     },
@@ -23,10 +19,6 @@
       "source": "image2_user_generated",
       "gen_info": {
         "source_tool": "Image2",
-        "original_filename": "rescue_cleaner_shrimp.png",
-        "original_resolution": "1254x1254",
-        "processed_resolution": "256x256",
-        "background_process": "rembg",
         "imported_for": "M16-T02"
       }
     },
@@ -37,44 +29,91 @@
       "source": "image2_user_generated",
       "gen_info": {
         "source_tool": "Image2",
-        "original_filename": "rescue_goby.png",
-        "original_resolution": "1254x1254",
-        "processed_resolution": "256x256",
-        "background_process": "rembg",
         "imported_for": "M16-T02"
       }
     },
     {
-      "species_id": "rescue_seahorse",
-      "asset_path": "res://assets/cards/placeholder/rescue_seahorse.png",
-      "sha256": "14d8f3b790d5c3dd675e9235058970554229321c656be0ef81e07459b407e026",
-      "source": "placeholder",
+      "species_id": "rescue_blue_eye_bristletooth_tang",
+      "asset_path": "res://assets/cards/rescue/rescue_blue_eye_bristletooth_tang.png",
+      "sha256": "72726f5f9c20c857eeccbd2e5ad9c358631994cf91338b4b7d4251fc8e9c8300",
+      "source": "image2_user_generated",
       "gen_info": {
-        "type": "deterministic_placeholder",
-        "style": "species_theme_color_name_card",
-        "imported_for": "M17-T01"
+        "source_tool": "Image2",
+        "original_resolution": "256x256",
+        "processed_resolution": "256x256",
+        "background_process": "rembg",
+        "imported_for": "M17-T02",
+        "role": "active"
       }
     },
     {
-      "species_id": "rescue_hermit_crab",
-      "asset_path": "res://assets/cards/placeholder/rescue_hermit_crab.png",
-      "sha256": "4518724af38455b141b7b8989ff9f4d9cb890569d38e3c2b3c1f26cb284474b1",
-      "source": "placeholder",
+      "species_id": "rescue_eight_line_flasher_wrasse",
+      "asset_path": "res://assets/cards/rescue/rescue_eight_line_flasher_wrasse.png",
+      "sha256": "0dd0c14dadec68b1c38e90cb3b485288507476472e349b705b71d674d358e4a8",
+      "source": "image2_user_generated",
       "gen_info": {
-        "type": "deterministic_placeholder",
-        "style": "species_theme_color_name_card",
-        "imported_for": "M17-T01"
+        "source_tool": "Image2",
+        "original_resolution": "256x256",
+        "processed_resolution": "256x256",
+        "background_process": "rembg",
+        "imported_for": "M17-T02",
+        "role": "active"
       }
     },
     {
-      "species_id": "rescue_brain_coral_frag",
-      "asset_path": "res://assets/cards/placeholder/rescue_brain_coral_frag.png",
-      "sha256": "9fb3c7b891a2579ceac49d01b67d64bda2820b16e98a543ed96d33d767477f9c",
-      "source": "placeholder",
+      "species_id": "rescue_bicolor_angelfish",
+      "asset_path": "res://assets/cards/rescue/rescue_bicolor_angelfish.png",
+      "sha256": "834efd0620abc7cabd09500dd0db45284e37660d73e21d9c5c6f9612296e7d85",
+      "source": "image2_user_generated",
       "gen_info": {
-        "type": "deterministic_placeholder",
-        "style": "species_theme_color_name_card",
-        "imported_for": "M17-T01"
+        "source_tool": "Image2",
+        "original_resolution": "256x256",
+        "processed_resolution": "256x256",
+        "background_process": "rembg",
+        "imported_for": "M17-T02",
+        "role": "active"
+      }
+    },
+    {
+      "species_id": "rescue_green_star_polyp",
+      "asset_path": "res://assets/cards/rescue/rescue_green_star_polyp.png",
+      "sha256": "b5f71cc67dfca172987f10e143ddaa06672e162344e5342ff8d25e14e3314f41",
+      "source": "image2_user_generated",
+      "gen_info": {
+        "source_tool": "Image2",
+        "original_resolution": "256x256",
+        "processed_resolution": "256x256",
+        "background_process": "rembg",
+        "imported_for": "M17-T02",
+        "role": "active"
+      }
+    },
+    {
+      "species_id": "rescue_pulsing_xenia",
+      "asset_path": "res://assets/cards/rescue/rescue_pulsing_xenia.png",
+      "sha256": "9e1df506ac570de00346acc77e74cbf94b3ad017874bef632a46ea61626f90a9",
+      "source": "image2_user_generated",
+      "gen_info": {
+        "source_tool": "Image2",
+        "original_resolution": "256x256",
+        "processed_resolution": "256x256",
+        "background_process": "rembg",
+        "imported_for": "M17-T02",
+        "role": "active"
+      }
+    },
+    {
+      "species_id": "rescue_golden_brain_coral",
+      "asset_path": "res://assets/cards/rescue/rescue_golden_brain_coral.png",
+      "sha256": "16ef829d4b1e8f5be0c7afbd96f27a2abeb5fd81c7c7ea22bc275ad532392bcd",
+      "source": "image2_user_generated",
+      "gen_info": {
+        "source_tool": "Image2",
+        "original_resolution": "256x256",
+        "processed_resolution": "256x256",
+        "background_process": "rembg",
+        "imported_for": "M17-T02",
+        "role": "active"
       }
     }
   ]

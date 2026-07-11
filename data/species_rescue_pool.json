@@ -30,8 +30,8 @@
     "injury_type": "reserved"
   },
   {
-    "id": "rescue_seahorse",
-    "species_name": "受困海马",
+    "id": "rescue_blue_eye_bristletooth_tang",
+    "species_name": "蓝眼食苔吊",
     "category": "fish",
     "recovery_rate_base": 26.0,
     "reward_reputation": 5,
@@ -40,23 +40,53 @@
     "injury_type": "reserved"
   },
   {
-    "id": "rescue_hermit_crab",
-    "species_name": "寄居蟹",
-    "category": "crustacean",
-    "recovery_rate_base": 22.0,
+    "id": "rescue_eight_line_flasher_wrasse",
+    "species_name": "八线龙",
+    "category": "fish",
+    "recovery_rate_base": 24.0,
     "reward_reputation": 6,
     "reward_rp": 7,
     "water_pressure": 0.05,
     "injury_type": "reserved"
   },
   {
-    "id": "rescue_brain_coral_frag",
-    "species_name": "脑珊瑚碎片",
+    "id": "rescue_bicolor_angelfish",
+    "species_name": "双色神仙",
+    "category": "fish",
+    "recovery_rate_base": 28.0,
+    "reward_reputation": 5,
+    "reward_rp": 7,
+    "water_pressure": 0.07,
+    "injury_type": "reserved"
+  },
+  {
+    "id": "rescue_green_star_polyp",
+    "species_name": "荧光绿草皮",
     "category": "coral",
     "recovery_rate_base": 28.0,
+    "reward_reputation": 6,
+    "reward_rp": 7,
+    "water_pressure": 0.06,
+    "injury_type": "reserved"
+  },
+  {
+    "id": "rescue_pulsing_xenia",
+    "species_name": "闪千手",
+    "category": "coral",
+    "recovery_rate_base": 26.0,
     "reward_reputation": 7,
     "reward_rp": 8,
-    "water_pressure": 0.07,
+    "water_pressure": 0.05,
+    "injury_type": "reserved"
+  },
+  {
+    "id": "rescue_golden_brain_coral",
+    "species_name": "金菊脑",
+    "category": "coral",
+    "recovery_rate_base": 30.0,
+    "reward_reputation": 7,
+    "reward_rp": 8,
+    "water_pressure": 0.08,
     "injury_type": "reserved"
   }
 ]

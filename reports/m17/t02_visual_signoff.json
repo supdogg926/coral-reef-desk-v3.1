@@ -1,0 +1,103 @@
+{
+  "task_id": "M17-T02",
+  "phase": "P1-closeout",
+  "contact_sheet_path": "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3_M17_T02\\reports\\m17\\t02\\evidence\\t02_available_pool_contact_sheet_20260711_172559.png",
+  "contact_sheet_relative_path": "reports/m17/t02/evidence/t02_available_pool_contact_sheet_20260711_172559.png",
+  "contact_sheet_sha256": "db4db1b36a9c35edb71a365d71c2e7ba4a35a5cb2d4a04c158b3967e4402f67c",
+  "contact_sheet_generated_at": "2026-07-11T17:28:18.281493+08:00",
+  "signoff_date": "2026-07-11",
+  "reviewer": "Producer",
+  "species": [
+    {
+      "species_id": "rescue_blue_eye_bristletooth_tang",
+      "zh_name": "蓝眼食苔吊",
+      "en_name": "Blue-Eye Bristletooth Tang",
+      "category": "fish",
+      "role": "active",
+      "image_decision": "APPROVED",
+      "identity_decision": "APPROVED",
+      "notes": ""
+    },
+    {
+      "species_id": "rescue_eight_line_flasher_wrasse",
+      "zh_name": "八线龙",
+      "en_name": "Eight-Line Flasher Wrasse",
+      "category": "fish",
+      "role": "active",
+      "image_decision": "APPROVED",
+      "identity_decision": "APPROVED",
+      "notes": ""
+    },
+    {
+      "species_id": "rescue_bicolor_angelfish",
+      "zh_name": "双色神仙",
+      "en_name": "Bicolor Angelfish",
+      "category": "fish",
+      "role": "active",
+      "image_decision": "APPROVED",
+      "identity_decision": "APPROVED",
+      "notes": ""
+    },
+    {
+      "species_id": "rescue_green_star_polyp",
+      "zh_name": "荧光绿草皮",
+      "en_name": "Green Star Polyp",
+      "category": "coral",
+      "role": "active",
+      "image_decision": "APPROVED",
+      "identity_decision": "APPROVED",
+      "notes": ""
+    },
+    {
+      "species_id": "rescue_pulsing_xenia",
+      "zh_name": "闪千手",
+      "en_name": "Pulsing Xenia",
+      "category": "coral",
+      "role": "active",
+      "image_decision": "APPROVED",
+      "identity_decision": "APPROVED",
+      "notes": ""
+    },
+    {
+      "species_id": "rescue_golden_brain_coral",
+      "zh_name": "金菊脑",
+      "en_name": "Golden Brain Coral",
+      "category": "coral",
+      "role": "active",
+      "image_decision": "APPROVED",
+      "identity_decision": "APPROVED",
+      "notes": ""
+    },
+    {
+      "species_id": "rescue_yellow_coris_wrasse",
+      "zh_name": "黄龙",
+      "en_name": "Yellow Coris Wrasse",
+      "category": "fish",
+      "role": "reserved",
+      "image_decision": "APPROVED",
+      "identity_decision": "APPROVED",
+      "notes": ""
+    },
+    {
+      "species_id": "rescue_mountain_gold_green_euphyllia",
+      "zh_name": "山脉金绿猪腰",
+      "en_name": "Mountain Gold-Green Euphyllia",
+      "category": "coral",
+      "role": "reserved",
+      "image_decision": "APPROVED",
+      "identity_decision": "APPROVED",
+      "notes": ""
+    },
+    {
+      "species_id": "rescue_holy_grail_matchstick_coral",
+      "zh_name": "圣杯火柴珊瑚",
+      "en_name": "Holy Grail Matchstick Coral",
+      "category": "coral",
+      "role": "reserved",
+      "image_decision": "APPROVED",
+      "identity_decision": "APPROVED",
+      "notes": ""
+    }
+  ],
+  "overall_status": "APPROVED"
+}

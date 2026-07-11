@@ -1,0 +1,59 @@
+[
+  {
+    "species_id": "rescue_seahorse",
+    "zh_name": "受困海马",
+    "attempts": [
+      {
+        "attempt_number": 1,
+        "requested_at": "2026-07-11T12:06:28.125509+08:00",
+        "completed_at": "2026-07-11T12:06:42.121646+08:00",
+        "output_path": "assets\\m17\\t02\\source_candidates\\rescue_seahorse_attempt01.png",
+        "output_sha256": "eaf347d9e6dc7c35732bdd0477e5b366ffa3e0271bfa7fea79f726928e961f92",
+        "file_size_bytes": 565313,
+        "status": "generated",
+        "width": 2432,
+        "height": 1536,
+        "format": "JPEG",
+        "mode": "RGB"
+      }
+    ]
+  },
+  {
+    "species_id": "rescue_hermit_crab",
+    "zh_name": "寄居蟹",
+    "attempts": [
+      {
+        "attempt_number": 1,
+        "requested_at": "2026-07-11T12:06:42.126403+08:00",
+        "completed_at": "2026-07-11T12:06:57.397008+08:00",
+        "output_path": "assets\\m17\\t02\\source_candidates\\rescue_hermit_crab_attempt01.png",
+        "output_sha256": "6975e1eceebcf93a8a78165c56adf03a345e0e334df6643b7de09170da961950",
+        "file_size_bytes": 764908,
+        "status": "generated",
+        "width": 2432,
+        "height": 1536,
+        "format": "JPEG",
+        "mode": "RGB"
+      }
+    ]
+  },
+  {
+    "species_id": "rescue_sea_star",
+    "zh_name": "海星",
+    "attempts": [
+      {
+        "attempt_number": 1,
+        "requested_at": "2026-07-11T12:06:57.397008+08:00",
+        "completed_at": "2026-07-11T12:07:16.696854+08:00",
+        "output_path": "assets\\m17\\t02\\source_candidates\\rescue_sea_star_attempt01.png",
+        "output_sha256": "574ada71f75b1acdaf859c68180bfaa55c3319fdac8c803b624d7b528b4917d5",
+        "file_size_bytes": 642881,
+        "status": "generated",
+        "width": 2432,
+        "height": 1536,
+        "format": "JPEG",
+        "mode": "RGB"
+      }
+    ]
+  }
+]

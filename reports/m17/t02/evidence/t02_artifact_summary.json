@@ -1,0 +1,17 @@
+{
+  "manifest_draft_path": "data\\card_manifest_m17_t02_draft.json",
+  "provenance_path": "reports\\m17\\m17_t02_asset_provenance.json",
+  "pixel_hash_fixture_path": "reports\\m17\\t02_asset_pixel_hash_fixture.json",
+  "inventory_csv_path": "reports\\m17\\t02_p1_asset_inventory.csv",
+  "inventory_md_path": "reports\\m17\\t02_p1_asset_inventory.md",
+  "contact_sheet_path": "reports\\m17\\t02\\evidence\\t02_contact_sheet_20260711_160600.png",
+  "contact_sheet_sha256": "7346757101508ebf7e37ab5e0ed9bec4d2ac836413d32ecd48bc55a75669f9ea",
+  "contact_sheet_width": 1220,
+  "contact_sheet_height": 1490,
+  "contact_sheet_index_path": "reports\\m17\\t02\\evidence\\t02_contact_sheet_index.md",
+  "contact_sheet_generated_at": "2026-07-11T16:06:00.669970+08:00",
+  "asset_production_set_count": 9,
+  "active_count": 6,
+  "reserved_count": 3,
+  "normalized_count": 9
+}

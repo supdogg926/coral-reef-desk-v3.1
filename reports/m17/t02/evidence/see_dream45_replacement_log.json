@@ -1,0 +1,124 @@
+{
+  "timestamp": "2026-07-11T16:05:44.774905+08:00",
+  "source_root": "C:\\Users\\admin\\Desktop\\see dream4.5",
+  "replaced_count": 4,
+  "retained_count": 5,
+  "replaced": [
+    "rescue_clownfish_juvenile",
+    "rescue_brain_coral_frag",
+    "rescue_mandarin_dragonet",
+    "rescue_anemone_tube"
+  ],
+  "retained": [
+    "rescue_cleaner_shrimp",
+    "rescue_goby",
+    "rescue_seahorse",
+    "rescue_hermit_crab",
+    "rescue_sea_star"
+  ],
+  "log": [
+    {
+      "species_id": "rescue_clownfish_juvenile",
+      "replaced": true,
+      "reason": "Producer-reviewed Image2 ocellaris clownfish from see dream4.5; filename confirms 公子小丑 species identity",
+      "old_source": "assets\\cards\\rescue\\rescue_clownfish_juvenile.png",
+      "new_source": "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3_M17_T02\\assets\\m17\\t02\\source_candidates\\rescue_clownfish_juvenile_see_dream45_source.png",
+      "old_file_sha256": "bac63dfbb2f16bd63f8ec0e9bf749d72fe32ce7ab8107d11ea4ccf2b79a3fe6f",
+      "new_file_sha256": "96c0a0379a8b6f6b825ca8c519d36daa23859fa8d3c5edf674d1cdea7e46f82b",
+      "old_pixel_sha256": "e34d4f9343cb9085aa8a8cd3c00fa833aa197c36f36715dab7c22284030bc92e",
+      "new_pixel_sha256": "0477a5d74fa85991b17e9e8cc62a1c033211925f2ca16838dae5590907102998",
+      "original_see_dream45_sha256": "60dd450dde19d2a5822a9034b082924a74be423851984a9fada2b00304684560"
+    },
+    {
+      "species_id": "rescue_cleaner_shrimp",
+      "replaced": false,
+      "reason": "No matching producer-reviewed image found in see dream4.5",
+      "old_source": "assets\\cards\\rescue\\rescue_cleaner_shrimp.png",
+      "new_source": "",
+      "old_file_sha256": "b106a67f63d3a0d6a9e86016360cf5913a25b558ff1935f6ab17df1e1bc9da8e",
+      "new_file_sha256": "",
+      "old_pixel_sha256": "f863a9a9215cda2f9fb48e2268a13cf334e842f9e436ea2b4e551b5819030a1a",
+      "new_pixel_sha256": ""
+    },
+    {
+      "species_id": "rescue_goby",
+      "replaced": false,
+      "reason": "No matching producer-reviewed image found in see dream4.5",
+      "old_source": "assets\\cards\\rescue\\rescue_goby.png",
+      "new_source": "",
+      "old_file_sha256": "eec2d417561e2c80bfbee4901a86689998f897f79738c4cb7d000c173edbef27",
+      "new_file_sha256": "",
+      "old_pixel_sha256": "114c000d01d465e50d4251ff9fc910ee8ff3fca253a893a067b3dfd39fd679a1",
+      "new_pixel_sha256": ""
+    },
+    {
+      "species_id": "rescue_seahorse",
+      "replaced": false,
+      "reason": "No matching producer-reviewed image found in see dream4.5",
+      "old_source": "assets\\m17\\t02\\source_candidates\\rescue_seahorse_attempt01.png",
+      "new_source": "",
+      "old_file_sha256": "e8ff9fce35b16fba200d72b4525240cabfc81b40f3b5d41d4b760e19484b56a6",
+      "new_file_sha256": "",
+      "old_pixel_sha256": "dba0be5c2ffaae8494e3f3b3f6f6d56f1f720e7e9276e8f116e7fbda757045fc",
+      "new_pixel_sha256": ""
+    },
+    {
+      "species_id": "rescue_hermit_crab",
+      "replaced": false,
+      "reason": "No matching producer-reviewed image found in see dream4.5",
+      "old_source": "assets\\m17\\t02\\source_candidates\\rescue_hermit_crab_attempt01.png",
+      "new_source": "",
+      "old_file_sha256": "47b24230b6cb90da3685713f77ec3bc7bcde154c69b48ee638201cf9927fe657",
+      "new_file_sha256": "",
+      "old_pixel_sha256": "4854f2643f05604e12bed8002b7acc4c633c3b8a848bdf631511104555e8c31b",
+      "new_pixel_sha256": ""
+    },
+    {
+      "species_id": "rescue_brain_coral_frag",
+      "replaced": true,
+      "reason": "Producer-reviewed Image2 brain coral from see dream4.5; 金菊脑 (Golden Brain Coral, Favia/Favites) is a true brain coral species, organized in numbered species folder with metadata",
+      "old_source": "assets\\m17\\t02\\source_candidates\\rescue_brain_coral_frag_reuse_source.png",
+      "new_source": "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3_M17_T02\\assets\\m17\\t02\\source_candidates\\rescue_brain_coral_frag_see_dream45_source.png",
+      "old_file_sha256": "de86ae89c15c1c83c095fb583126c39cda697f068b062464dac9c28e6fba3ef1",
+      "new_file_sha256": "16ef829d4b1e8f5be0c7afbd96f27a2abeb5fd81c7c7ea22bc275ad532392bcd",
+      "old_pixel_sha256": "b2f07e62f09476415bdf86c7522e4b84d6831b45823ae069663c70ba2d07fc3b",
+      "new_pixel_sha256": "66ba9113655df6b88d6b994864c361034673e75be11e3f98869b78fbf31846df",
+      "original_see_dream45_sha256": "b41ead6e8f376b33836eebab492fa05828ee79caca2ce6e199fcdb8a6421d08f"
+    },
+    {
+      "species_id": "rescue_mandarin_dragonet",
+      "replaced": true,
+      "reason": "Producer-reviewed Image2 mandarinfish from see dream4.5; 五彩青蛙 is the standard Chinese name for Synchiropus splendidus",
+      "old_source": "assets\\m17\\t02\\source_candidates\\rescue_mandarin_dragonet_reuse_source.png",
+      "new_source": "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3_M17_T02\\assets\\m17\\t02\\source_candidates\\rescue_mandarin_dragonet_see_dream45_source.png",
+      "old_file_sha256": "9b64b8a54b5de18cdc8b24fc607eb8a452d40e6a6466afe707af8272f05bf28b",
+      "new_file_sha256": "f5f82998abc8e160e52c7ddc3fec42bae24fd904b349b71c38fa863aca1b2ed3",
+      "old_pixel_sha256": "310952cefbb4f0c8d745796fbbeb52b71394e1be8b1ba7a3fd452a017c86b349",
+      "new_pixel_sha256": "4936617e5281fccb339f76a9b1c20e9aecb90849b66991310162a11409df715f",
+      "original_see_dream45_sha256": "710c995414b116a0c296e164862441491310354576022792ccb702f60368abe9"
+    },
+    {
+      "species_id": "rescue_sea_star",
+      "replaced": false,
+      "reason": "No matching producer-reviewed image found in see dream4.5",
+      "old_source": "assets\\m17\\t02\\source_candidates\\rescue_sea_star_attempt01.png",
+      "new_source": "",
+      "old_file_sha256": "bb743697300c3a308b27ad9a1065c97b84509a3604e2c247eb2c31f89e711dfd",
+      "new_file_sha256": "",
+      "old_pixel_sha256": "7bbcf73c2dbb14f12694e233de0c5b144c1e72b74451ec80481e93f8750b5567",
+      "new_pixel_sha256": ""
+    },
+    {
+      "species_id": "rescue_anemone_tube",
+      "replaced": true,
+      "reason": "Producer-reviewed Image2 BTA anemone from see dream4.5; 红奶嘴 (Rose BTA) is a valid anemone species for the tube anemone category",
+      "old_source": "assets\\m17\\t02\\source_candidates\\rescue_anemone_tube_reuse_source.png",
+      "new_source": "C:\\Users\\admin\\Desktop\\桌面海缸v3.0\\CoralReefIdleV3_M17_T02\\assets\\m17\\t02\\source_candidates\\rescue_anemone_tube_see_dream45_source.png",
+      "old_file_sha256": "85c66b7c9a82d53ac30dcbe38405d1252aeaf1b4151a7f1adc0b6563fadd9224",
+      "new_file_sha256": "266f2e26b888b6233dea9d3af3fd5a114437b77c126bab0f66e2f85c4518e46e",
+      "old_pixel_sha256": "91342f2b6a0d946aa6672f58e8299a14da4b122b26d212b22ec2358e57ddce26",
+      "new_pixel_sha256": "8e2033dbeccb23f61bf53d59c71dac5f447d15899adb59e8b2dedac856f8e38d",
+      "original_see_dream45_sha256": "76e6253d71f0387d1bbdea329d15f207fab695827b564c002b3a270757cb8da3"
+    }
+  ]
+}

@@ -1,0 +1,114 @@
+{
+  "schema_version": 2,
+  "max_entries": 9,
+  "cards": [
+    {
+      "species_id": "rescue_blue_eye_bristletooth_tang",
+      "asset_path": "res://assets/cards/rescue/rescue_blue_eye_bristletooth_tang.png",
+      "sha256": "72726f5f9c20c857eeccbd2e5ad9c358631994cf91338b4b7d4251fc8e9c8300",
+      "source": "image2_human_approved_available_pool",
+      "gen_info": {
+        "role": "active",
+        "zh_name": "蓝眼食苔吊",
+        "en_name": "Blue-Eye Bristletooth Tang",
+        "category": "fish"
+      }
+    },
+    {
+      "species_id": "rescue_eight_line_flasher_wrasse",
+      "asset_path": "res://assets/cards/rescue/rescue_eight_line_flasher_wrasse.png",
+      "sha256": "0dd0c14dadec68b1c38e90cb3b485288507476472e349b705b71d674d358e4a8",
+      "source": "image2_human_approved_available_pool",
+      "gen_info": {
+        "role": "active",
+        "zh_name": "八线龙",
+        "en_name": "Eight-Line Flasher Wrasse",
+        "category": "fish"
+      }
+    },
+    {
+      "species_id": "rescue_bicolor_angelfish",
+      "asset_path": "res://assets/cards/rescue/rescue_bicolor_angelfish.png",
+      "sha256": "834efd0620abc7cabd09500dd0db45284e37660d73e21d9c5c6f9612296e7d85",
+      "source": "image2_human_approved_available_pool",
+      "gen_info": {
+        "role": "active",
+        "zh_name": "双色神仙",
+        "en_name": "Bicolor Angelfish",
+        "category": "fish"
+      }
+    },
+    {
+      "species_id": "rescue_green_star_polyp",
+      "asset_path": "res://assets/cards/rescue/rescue_green_star_polyp.png",
+      "sha256": "b5f71cc67dfca172987f10e143ddaa06672e162344e5342ff8d25e14e3314f41",
+      "source": "image2_human_approved_available_pool",
+      "gen_info": {
+        "role": "active",
+        "zh_name": "荧光绿草皮",
+        "en_name": "Green Star Polyp",
+        "category": "coral"
+      }
+    },
+    {
+      "species_id": "rescue_pulsing_xenia",
+      "asset_path": "res://assets/cards/rescue/rescue_pulsing_xenia.png",
+      "sha256": "9e1df506ac570de00346acc77e74cbf94b3ad017874bef632a46ea61626f90a9",
+      "source": "image2_human_approved_available_pool",
+      "gen_info": {
+        "role": "active",
+        "zh_name": "闪千手",
+        "en_name": "Pulsing Xenia",
+        "category": "coral"
+      }
+    },
+    {
+      "species_id": "rescue_golden_brain_coral",
+      "asset_path": "res://assets/cards/rescue/rescue_golden_brain_coral.png",
+      "sha256": "16ef829d4b1e8f5be0c7afbd96f27a2abeb5fd81c7c7ea22bc275ad532392bcd",
+      "source": "image2_human_approved_available_pool",
+      "gen_info": {
+        "role": "active",
+        "zh_name": "金菊脑",
+        "en_name": "Golden Brain Coral",
+        "category": "coral"
+      }
+    },
+    {
+      "species_id": "rescue_yellow_coris_wrasse",
+      "asset_path": "res://assets/cards/rescue/rescue_yellow_coris_wrasse.png",
+      "sha256": "c47acd9614e213c0d15e46bd91b2f1e669c904a4b3197c6e1b7185031f564d77",
+      "source": "image2_human_approved_available_pool",
+      "gen_info": {
+        "role": "reserved",
+        "zh_name": "黄龙",
+        "en_name": "Yellow Coris Wrasse",
+        "category": "fish"
+      }
+    },
+    {
+      "species_id": "rescue_mountain_gold_green_euphyllia",
+      "asset_path": "res://assets/cards/rescue/rescue_mountain_gold_green_euphyllia.png",
+      "sha256": "79132e09cb5550ceca414352fa92c0829acb7a4af1caed64c561e0344260d4c1",
+      "source": "image2_human_approved_available_pool",
+      "gen_info": {
+        "role": "reserved",
+        "zh_name": "山脉金绿猪腰",
+        "en_name": "Mountain Gold-Green Euphyllia",
+        "category": "coral"
+      }
+    },
+    {
+      "species_id": "rescue_holy_grail_matchstick_coral",
+      "asset_path": "res://assets/cards/rescue/rescue_holy_grail_matchstick_coral.png",
+      "sha256": "12aeb0870a3cffe04a0555cc68ef7d8f394acd9e3c2433d87ed0ba9c455e4d11",
+      "source": "image2_human_approved_available_pool",
+      "gen_info": {
+        "role": "reserved",
+        "zh_name": "圣杯火柴珊瑚",
+        "en_name": "Holy Grail Matchstick Coral",
+        "category": "coral"
+      }
+    }
+  ]
+}

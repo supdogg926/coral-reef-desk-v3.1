@@ -1,0 +1,246 @@
+{
+  "scan_root": "C:\\Users\\admin\\Desktop\\see dream4.5",
+  "total_images": 32,
+  "matched_species_count": 3,
+  "ambiguous_species": [
+    "rescue_brain_coral_frag"
+  ],
+  "unmatched_species": [
+    "rescue_cleaner_shrimp",
+    "rescue_goby",
+    "rescue_seahorse",
+    "rescue_hermit_crab",
+    "rescue_sea_star"
+  ],
+  "auto_selected_count": 3,
+  "species_matches": [
+    {
+      "species_id": "rescue_clownfish_juvenile",
+      "zh_name": "迷路小丑鱼",
+      "role": "active",
+      "total_found": 3,
+      "best_score": 10,
+      "candidates": [
+        {
+          "absolute_path": "C:\\Users\\admin\\Desktop\\see dream4.5\\普通公子小丑01.jpeg",
+          "relative_path": "普通公子小丑01.jpeg",
+          "filename": "普通公子小丑01.jpeg",
+          "extension": ".jpeg",
+          "file_size_bytes": 721558,
+          "modified_time": "2026-06-26T21:27:40.716572+08:00",
+          "parent_folder": ".",
+          "width": 2848,
+          "height": 1600,
+          "color_mode": "RGB",
+          "has_alpha": false,
+          "file_sha256": "4742df1866bfe9d70663e2a81c0b26f8d89ddb56f50de0535947085e1f9f6b99",
+          "metadata_available": [],
+          "decode_error": null,
+          "match_score": 10,
+          "match_basis": [
+            "filename_zh:公子小丑"
+          ],
+          "candidate_rank": 1,
+          "selected": true,
+          "rejection_reason": "",
+          "notes": "Auto-matched: strong keyword match"
+        },
+        {
+          "absolute_path": "C:\\Users\\admin\\Desktop\\see dream4.5\\普通公子小丑02.png",
+          "relative_path": "普通公子小丑02.png",
+          "filename": "普通公子小丑02.png",
+          "extension": ".png",
+          "file_size_bytes": 964516,
+          "modified_time": "2026-06-26T21:25:38.404544+08:00",
+          "parent_folder": ".",
+          "width": 1200,
+          "height": 896,
+          "color_mode": "RGB",
+          "has_alpha": false,
+          "file_sha256": "60dd450dde19d2a5822a9034b082924a74be423851984a9fada2b00304684560",
+          "metadata_available": [],
+          "decode_error": null,
+          "match_score": 10,
+          "match_basis": [
+            "filename_zh:公子小丑"
+          ],
+          "candidate_rank": 2,
+          "selected": false,
+          "rejection_reason": "",
+          "notes": ""
+        },
+        {
+          "absolute_path": "C:\\Users\\admin\\Desktop\\see dream4.5\\澳洲黑公子小丑.png",
+          "relative_path": "澳洲黑公子小丑.png",
+          "filename": "澳洲黑公子小丑.png",
+          "extension": ".png",
+          "file_size_bytes": 998829,
+          "modified_time": "2026-06-26T21:25:20.619159+08:00",
+          "parent_folder": ".",
+          "width": 1200,
+          "height": 896,
+          "color_mode": "RGB",
+          "has_alpha": false,
+          "file_sha256": "6498a0092856a17f0c8e15bb8dd129489a4aa1f6e2dcdc9bbdedadd7746d4334",
+          "metadata_available": [],
+          "decode_error": null,
+          "match_score": 10,
+          "match_basis": [
+            "filename_zh:公子小丑"
+          ],
+          "candidate_rank": 3,
+          "selected": false,
+          "rejection_reason": "",
+          "notes": ""
+        }
+      ]
+    },
+    {
+      "species_id": "rescue_cleaner_shrimp",
+      "zh_name": "受困清洁虾",
+      "role": "active",
+      "total_found": 0,
+      "best_score": 0,
+      "candidates": []
+    },
+    {
+      "species_id": "rescue_goby",
+      "zh_name": "虚弱虾虎",
+      "role": "active",
+      "total_found": 0,
+      "best_score": 0,
+      "candidates": []
+    },
+    {
+      "species_id": "rescue_seahorse",
+      "zh_name": "受困海马",
+      "role": "active",
+      "total_found": 0,
+      "best_score": 0,
+      "candidates": []
+    },
+    {
+      "species_id": "rescue_hermit_crab",
+      "zh_name": "寄居蟹",
+      "role": "active",
+      "total_found": 0,
+      "best_score": 0,
+      "candidates": []
+    },
+    {
+      "species_id": "rescue_brain_coral_frag",
+      "zh_name": "脑珊瑚碎片",
+      "role": "active",
+      "total_found": 1,
+      "best_score": 8,
+      "candidates": [
+        {
+          "absolute_path": "C:\\Users\\admin\\Desktop\\see dream4.5\\01_今日待生成\\010_sp_0353_fc1598_金菊脑\\PNG图像.png",
+          "relative_path": "01_今日待生成\\010_sp_0353_fc1598_金菊脑\\PNG图像.png",
+          "filename": "PNG图像.png",
+          "extension": ".png",
+          "file_size_bytes": 3063820,
+          "modified_time": "2026-06-26T23:22:04+08:00",
+          "parent_folder": "01_今日待生成\\010_sp_0353_fc1598_金菊脑",
+          "width": 1536,
+          "height": 1024,
+          "color_mode": "RGB",
+          "has_alpha": false,
+          "file_sha256": "b41ead6e8f376b33836eebab492fa05828ee79caca2ce6e199fcdb8a6421d08f",
+          "metadata_available": [
+            "01_今日待生成\\010_sp_0353_fc1598_金菊脑\\metadata.json",
+            "01_今日待生成\\010_sp_0353_fc1598_金菊脑\\prompt.md",
+            "01_今日待生成\\010_sp_0353_fc1598_金菊脑\\suggested_filename.txt",
+            "01_今日待生成\\010_sp_0353_fc1598_金菊脑\\prompt.md",
+            "01_今日待生成\\010_sp_0353_fc1598_金菊脑\\metadata.json",
+            "01_今日待生成\\010_sp_0353_fc1598_金菊脑\\suggested_filename.txt",
+            "01_今日待生成\\010_sp_0353_fc1598_金菊脑\\图片放这里.txt"
+          ],
+          "decode_error": null,
+          "match_score": 8,
+          "match_basis": [
+            "folder:金菊脑"
+          ],
+          "candidate_rank": 1,
+          "selected": false,
+          "rejection_reason": "",
+          "notes": "SELECTION_REVIEW_REQUIRED"
+        }
+      ]
+    },
+    {
+      "species_id": "rescue_mandarin_dragonet",
+      "zh_name": "花斑连鳍䲗",
+      "role": "reserved",
+      "total_found": 1,
+      "best_score": 10,
+      "candidates": [
+        {
+          "absolute_path": "C:\\Users\\admin\\Desktop\\see dream4.5\\五彩青蛙01.png",
+          "relative_path": "五彩青蛙01.png",
+          "filename": "五彩青蛙01.png",
+          "extension": ".png",
+          "file_size_bytes": 1729817,
+          "modified_time": "2026-06-26T21:26:02.858153+08:00",
+          "parent_folder": ".",
+          "width": 1024,
+          "height": 1024,
+          "color_mode": "RGB",
+          "has_alpha": false,
+          "file_sha256": "710c995414b116a0c296e164862441491310354576022792ccb702f60368abe9",
+          "metadata_available": [],
+          "decode_error": null,
+          "match_score": 10,
+          "match_basis": [
+            "filename_zh:五彩青蛙"
+          ],
+          "candidate_rank": 1,
+          "selected": true,
+          "rejection_reason": "",
+          "notes": "Auto-matched: strong keyword match"
+        }
+      ]
+    },
+    {
+      "species_id": "rescue_sea_star",
+      "zh_name": "海星",
+      "role": "reserved",
+      "total_found": 0,
+      "best_score": 0,
+      "candidates": []
+    },
+    {
+      "species_id": "rescue_anemone_tube",
+      "zh_name": "管海葵",
+      "role": "reserved",
+      "total_found": 1,
+      "best_score": 10,
+      "candidates": [
+        {
+          "absolute_path": "C:\\Users\\admin\\Desktop\\see dream4.5\\红奶嘴01.png",
+          "relative_path": "红奶嘴01.png",
+          "filename": "红奶嘴01.png",
+          "extension": ".png",
+          "file_size_bytes": 1883170,
+          "modified_time": "2026-06-26T21:27:01.385825+08:00",
+          "parent_folder": ".",
+          "width": 1024,
+          "height": 1024,
+          "color_mode": "RGB",
+          "has_alpha": false,
+          "file_sha256": "76e6253d71f0387d1bbdea329d15f207fab695827b564c002b3a270757cb8da3",
+          "metadata_available": [],
+          "decode_error": null,
+          "match_score": 10,
+          "match_basis": [
+            "filename_zh:奶嘴"
+          ],
+          "candidate_rank": 1,
+          "selected": true,
+          "rejection_reason": "",
+          "notes": "Auto-matched: strong keyword match"
+        }
+      ]
+    }
+  ]
+}
