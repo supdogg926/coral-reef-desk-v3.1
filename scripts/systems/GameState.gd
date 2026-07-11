@@ -1864,7 +1864,42 @@ func _perform_autosave() -> void:
 		"player": {
 			"reputation": int(rescue_system.get_debug_state().get("ecological_reputation", 0)) if rescue_system != null else 0,
 		},
+		"waves_balance": economy_system.reef_points if economy_system != null else 0.0,
+		"collection_unlocked_species_ids": _get_collection_unlocked_ids(),
+		"release_count_by_species": _get_release_count_by_species(),
+		"release_total_count": int(rescue_system.get_debug_state().get("completed_rescue_count", 0)) if rescue_system != null else 0,
+		"blue_guardian_state": _get_blue_guardian_state(),
+		"discovered_postcard_ids": [],
+		"recent_release_record_ids": _get_recent_release_record_ids(),
 	}
+
+
+func _get_collection_unlocked_ids() -> Array:
+	var result: Array[String] = []
+	if rescue_system != null:
+		var marks: Dictionary = rescue_system.get_debug_state().get("codex_rescue_marks", {})
+		for species_id in marks.keys():
+			result.append(String(species_id))
+	return result
+
+
+func _get_release_count_by_species() -> Dictionary:
+	var counts: Dictionary = {}
+	if rescue_system != null:
+		for item in rescue_system.get_debug_state().get("completed_rescues", []):
+			if item is Dictionary:
+				var sid: String = String(item.get("species_id", ""))
+				if sid != "":
+					counts[sid] = int(counts.get(sid, 0)) + 1
+	return counts
+
+
+func _get_blue_guardian_state() -> Dictionary:
+	return {"active": false, "active_dock_id": "", "last_rotation_at": 0, "last_action_at": 0, "next_available_at": 0, "pending_reward_or_rescue_id": ""}
+
+
+func _get_recent_release_record_ids() -> Array:
+	return []
 	print("[SAVE] calling save_game with keys=", save_dict.keys())
 	var ok: bool = save_system.save_game(save_dict)
 	print("[SAVE] save_game returned=", ok)

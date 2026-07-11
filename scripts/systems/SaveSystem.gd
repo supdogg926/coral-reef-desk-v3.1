@@ -2,7 +2,7 @@ class_name SaveSystem
 extends RefCounted
 
 const SAVE_PATH: String = "user://reef_idle_v3_save.json"
-const SAVE_VERSION: int = 3
+const SAVE_VERSION: int = 4
 const SAVE_SCHEMA_ID: String = "res://data/schemas/save_schema.json"
 const OFFLINE_CAP_SECONDS: float = 86400.0
 const CARE_NEEDS: Array[String] = ["weak", "stressed", "minor_injury"]
@@ -189,6 +189,40 @@ func migrate_save_data(raw_data: Dictionary) -> Dictionary:
 		rescue_data["event_log"] = []
 	data["rescue_data"] = rescue_data
 	data["dock_state"] = rescue_data["dock_state"]
+	# --- v4 migration (M19) ---
+	data["save_version"] = SAVE_VERSION
+	if not data.has("waves_balance") or not (data["waves_balance"] is float or data["waves_balance"] is int):
+		var rp: float = float(data.get("economy", {}).get("reef_points", 0.0))
+		data["waves_balance"] = rp
+	if not data.has("collection_unlocked_species_ids") or not data["collection_unlocked_species_ids"] is Array:
+		var codex: Dictionary = rescue_data.get("codex_rescue_marks", {})
+		var unlocked: Array[String] = []
+		for species_id in codex.keys():
+			unlocked.append(String(species_id))
+		data["collection_unlocked_species_ids"] = unlocked
+	if not data.has("release_count_by_species") or not data["release_count_by_species"] is Dictionary:
+		var counts: Dictionary = {}
+		for item in rescue_data.get("completed_rescues", []):
+			if item is Dictionary:
+				var sid: String = String(item.get("species_id", ""))
+				if sid != "":
+					counts[sid] = int(counts.get(sid, 0)) + 1
+		data["release_count_by_species"] = counts
+	if not data.has("release_total_count") or not (data["release_total_count"] is int):
+		data["release_total_count"] = int(rescue_data.get("completed_rescues", []).size())
+	if not data.has("blue_guardian_state") or not data["blue_guardian_state"] is Dictionary:
+		data["blue_guardian_state"] = {
+			"active": false,
+			"active_dock_id": "",
+			"last_rotation_at": 0,
+			"last_action_at": 0,
+			"next_available_at": 0,
+			"pending_reward_or_rescue_id": "",
+		}
+	if not data.has("discovered_postcard_ids") or not data["discovered_postcard_ids"] is Array:
+		data["discovered_postcard_ids"] = []
+	if not data.has("recent_release_record_ids") or not data["recent_release_record_ids"] is Array:
+		data["recent_release_record_ids"] = []
 	return data
 
 
