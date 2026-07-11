@@ -99,6 +99,17 @@ func get_tier_definition(equipment_id: String, target_tier: int) -> Dictionary:
 	if not equipment_records.has(equipment_id):
 		return {}
 	var record: Dictionary = _get_equipment_record(equipment_id)
+	# Check per-tier definitions first (M18-T3+ structure)
+	if record.has("tier_definitions"):
+		var tdefs: Dictionary = record["tier_definitions"]
+		var key: String = str(target_tier)
+		if tdefs.has(key):
+			var tdef: Dictionary = tdefs[key]
+			if String(tdef.get("runtime_status", "")) == "reserved":
+				return {}
+			return tdef.duplicate()
+		return {}
+	# Legacy: single-tier record
 	if int(record.get("tier", 0)) != target_tier:
 		return {}
 	if String(record.get("runtime_status", "")) == "reserved":
