@@ -118,8 +118,8 @@ func initialize() -> void:
 
 	rescue_system = load("res://scripts/systems/RescueSystem.gd").new()
 
-		event_system = DynamicEventSystem.new()
-		event_system.initialize(12345)
+	event_system = DynamicEventSystem.new()
+	event_system.initialize(12345)
 	rescue_system.initialize()
 
 	_try_load_game()
@@ -1890,6 +1890,11 @@ func _perform_autosave() -> void:
 	}
 
 
+
+	print("[SAVE] calling save_game with keys=" + str(save_dict.keys()))
+	var ok: bool = save_system.save_game(save_dict)
+	print("[SAVE] save_game returned=" + str(ok))
+	_save_in_progress = false
 func calculate_management_multiplier() -> float:
 	# v4: additive model, clamped 0.50-2.00
 	var mult: float = 1.0
@@ -1951,10 +1956,6 @@ func _get_blue_guardian_state() -> Dictionary:
 
 func _get_recent_release_record_ids() -> Array:
 	return []
-	print("[SAVE] calling save_game with keys=", save_dict.keys())
-	var ok: bool = save_system.save_game(save_dict)
-	print("[SAVE] save_game returned=", ok)
-	_save_in_progress = false
 
 
 func _process_event_tick(simulation_delta_seconds: float) -> void:
