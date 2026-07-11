@@ -16,7 +16,7 @@ func _draw() -> void:
 
 	draw_rect(tank_rect, Color(0.08, 0.11, 0.13), true)
 	draw_rect(tank_rect, Color(0.64, 0.78, 0.86), false, 3.0)
-	draw_string(font, tank_rect.position + Vector2(tank_rect.size.x - 480.0, 22.0), "CoralReefIdleV3 · M18 · v3.6-m18-equipment-events", HORIZONTAL_ALIGNMENT_RIGHT, 460.0, 12, Color(0.78, 0.84, 0.84))
+	draw_string(font, tank_rect.position + Vector2(tank_rect.size.x - 480.0, 22.0), "CoralReefIdleV3 · M19-T1 · v4.0-m19-t1-wave-economy · 6be0ec9", HORIZONTAL_ALIGNMENT_RIGHT, 460.0, 12, Color(0.78, 0.84, 0.84))
 	draw_rect(water_rect, Color(0.05, 0.28, 0.42), true)
 	draw_rect(Rect2(water_rect.position, Vector2(water_rect.size.x, 10)), Color(0.28, 0.63, 0.78), true)
 	draw_rect(sand_rect, Color(0.58, 0.49, 0.34), true)
