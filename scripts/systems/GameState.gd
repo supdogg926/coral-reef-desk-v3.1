@@ -68,11 +68,11 @@ var light_color_temp: int = 50
 var _last_logged_light_intensity: int = 100
 var _last_logged_light_color_temp: int = 50
 const MAINTENANCE_ACTION_RULES: Dictionary = {
-	"water_change_10": {"cost": 20.0, "cooldown_sec": 10.0, "risk_message": "无"},
-	"clean_filter": {"cost": 15.0, "cooldown_sec": 8.0, "risk_message": "无"},
-	"dose_buffer": {"cost": 12.0, "cooldown_sec": 12.0, "risk_message": "KH偏高请谨慎"},
-	"top_off": {"cost": 8.0, "cooldown_sec": 6.0, "risk_message": "无"},
-	"travel_prep": {"cost": 60.0, "cooldown_sec": 30.0, "risk_message": "无"},
+	"water_change_10": {"cost": 20.0, "cooldown_sec": 10.0, "risk_message": "无", "label": "换水 20浪花"},
+	"clean_filter": {"cost": 15.0, "cooldown_sec": 8.0, "risk_message": "无", "label": "清滤 15浪花"},
+	"dose_buffer": {"cost": 12.0, "cooldown_sec": 12.0, "risk_message": "KH偏高请谨慎", "label": "补KH 12浪花"},
+	"top_off": {"cost": 8.0, "cooldown_sec": 6.0, "risk_message": "无", "label": "补水 8浪花"},
+	"travel_prep": {"cost": 60.0, "cooldown_sec": 30.0, "risk_message": "无", "label": "更换滤材 60浪花"},
 }
 const FEEDING_ACTION_RULES: Dictionary = {
 	"coral_food": {"label": "喂珊瑚粮", "short_label": "喂珊瑚粮", "cooldown_sec": 8.0},

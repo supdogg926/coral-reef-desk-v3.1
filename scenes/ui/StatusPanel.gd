@@ -692,7 +692,8 @@ func configure_dock_controls(maintenance_actions: Array, feeding_actions: Array,
 			var action: Dictionary = raw_action
 			var action_id: String = String(action.get("id", ""))
 			var action_cost: float = float(action.get("cost", 0.0))
-			var base_text: String = "%s %.0fRP" % [String(action.get("short_label", action.get("label", action_id))), action_cost]
+			var action_label: String = String(action.get("label", action.get("short_label", action_id)))
+		var base_text: String = action_label if action_label != "" else ("%s %.0f浪花" % [String(action.get("short_label", action_id)), action_cost])
 			var button: Button = _make_dock_button(base_text, Vector2(74, 18))
 			button.tooltip_text = String(action.get("description", ""))
 			_connect_button(button, callbacks.get("maintenance", Callable()).bind(action_id))
