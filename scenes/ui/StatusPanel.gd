@@ -160,21 +160,18 @@ func update_rescue_debug(rescue_state: Dictionary) -> void:
 	if rescue_button != null:
 		match status_text:
 			"待救助":
-				rescue_button.text = "待放归"
-				rescue_button.tooltip_text = "有生物等待康复后放归"
 				rescue_button.add_theme_color_override("font_color", Color(0.96, 0.72, 0.36))
+				rescue_button.tooltip_text = "有生物等待康复后放归"
 			"救助中":
-				rescue_button.text = "康复中"
-				rescue_button.tooltip_text = "生物康复中，水质越好恢复越快"
 				rescue_button.add_theme_color_override("font_color", Color(0.70, 0.84, 0.92))
+				rescue_button.tooltip_text = "生物康复中，水质越好恢复越快"
 			"可放归":
-				rescue_button.text = "可放归!"
-				rescue_button.tooltip_text = "生物已康复，点击放归大海"
 				rescue_button.add_theme_color_override("font_color", STATUS_OK_COLOR)
+				rescue_button.tooltip_text = "生物已康复，点击放归大海"
 			_:
-				rescue_button.text = "放归"
-				rescue_button.tooltip_text = "康复生物放归大海"
 				rescue_button.add_theme_color_override("font_color", Color(0.80, 0.86, 0.84))
+				rescue_button.tooltip_text = "康复生物放归大海"
+		rescue_button.text = "放归"
 
 
 func update_unlock_debug(unlock_debug: Dictionary) -> void:
@@ -353,9 +350,9 @@ func update_stage_objectives(stage_obj_debug: Dictionary) -> void:
 	if all_done:
 		_set_line("status", "validation", "✓ 所有目标完成 %d/%d" % [completed, total])
 	elif not active_obj.is_empty():
-		_set_line("status", "validation", "目标 %d/%d: %s" % [completed + 1, total, String(active_obj.get("title", ""))])
+		_set_line("status", "validation", String(active_obj.get("title", "")))
 	else:
-		_set_line("status", "validation", "目标 %d/%d" % [completed, total])
+		_set_line("status", "validation", "全部完成 %d/%d" % [completed, total])
 
 func update_timeline(entries: Array) -> void:
 	var scroll_vbox: Control = dock_control_slots.get("timeline_scroll_vbox", null)
