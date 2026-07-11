@@ -12,6 +12,7 @@ var equipment_placement_system: EquipmentPlacementSystem = null
 var water_chemistry_system: WaterChemistrySystem = null
 var livestock_system: LivestockSystem = null
 var unlock_system: UnlockSystem = null
+var event_system: DynamicEventSystem = null
 var save_system: SaveSystem = null
 var action_timeline: ActionTimeline = null
 var stage_objective_system: RefCounted = null  # StageObjectiveSystem loaded via script
@@ -115,6 +116,9 @@ func initialize() -> void:
 	stage_objective_system.initialize()
 
 	rescue_system = load("res://scripts/systems/RescueSystem.gd").new()
+
+		event_system = DynamicEventSystem.new()
+		event_system.initialize(12345)
 	rescue_system.initialize()
 
 	_try_load_game()
@@ -151,6 +155,7 @@ func update(delta_seconds: float) -> void:
 	_update_player_progress(simulation_delta_seconds)
 	_update_unlocks()
 	_check_stage_objectives()
+	_process_event_tick(simulation_delta_seconds)
 	_autosave_timer += delta_seconds
 	if _autosave_timer >= AUTOSAVE_INTERVAL:
 		print("[SAVE] regular autosave firing")
@@ -1524,6 +1529,9 @@ func _apply_save_state(save_data: Dictionary) -> void:
 	var raw_rescue: Variant = save_data.get("rescue_data", save_data.get("rescue", {}))
 	if raw_rescue is Dictionary and rescue_system != null:
 		rescue_system.import_state(raw_rescue)
+	var raw_event: Variant = save_data.get("event_state", {})
+	if raw_event is Dictionary and event_system != null:
+		event_system.import_state(raw_event)
 	var raw_equipment: Variant = save_data.get("equipment", {})
 	if raw_equipment is Dictionary and equipment_system != null:
 		var saved_tiers: Variant = raw_equipment.get("device_tiers", {})
@@ -1850,6 +1858,7 @@ func _perform_autosave() -> void:
 		"equipment": equipment_state,
 		"stage_objective": stage_objective_system.export_state() if stage_objective_system != null else {},
 		"rescue_data": rescue_system.export_state() if rescue_system != null else {},
+		"event_state": event_system.export_state() if event_system != null else {},
 		"player": {
 			"reputation": int(rescue_system.get_debug_state().get("ecological_reputation", 0)) if rescue_system != null else 0,
 		},
@@ -1858,3 +1867,44 @@ func _perform_autosave() -> void:
 	var ok: bool = save_system.save_game(save_dict)
 	print("[SAVE] save_game returned=", ok)
 	_save_in_progress = false
+
+
+func _process_event_tick(simulation_delta_seconds: float) -> void:
+	if event_system == null: return
+	var days: float = simulation_delta_seconds / 86400.0
+	if days < 0.01: return
+
+	# Build current state for event trigger evaluation
+	var current_day: int = 1
+	if time_system != null:
+		var td: Dictionary = time_system.get_debug_state()
+		current_day = int(float(td.get("elapsed_game_minutes", 0.0)) / 1440.0) + 1
+	var no3: float = water_chemistry_system.get_debug_state().get("no3", 3.0) if water_chemistry_system != null else 3.0
+	var po4: float = water_chemistry_system.get_debug_state().get("po4", 0.04) if water_chemistry_system != null else 0.04
+	var comfort: float = livestock_system.get_debug_state().get("comfort_score", 75.0) if livestock_system != null else 75.0
+	var bio_load: float = livestock_system.get_debug_state().get("bio_load_ratio", 0.3) if livestock_system != null else 0.3
+
+	var state: Dictionary = {
+		"day": current_day, "no3": no3, "po4": po4, "comfort": comfort,
+		"stability": stability_score, "maintenance_pressure": int(maintenance_load),
+		"bio_load_ratio": bio_load, "last_event_category": "",
+	}
+	event_system.try_trigger_event(state)
+
+	# Advance event day
+	var result: Dictionary = event_system.advance_event_day()
+	if result.get("phase_transition", "") != "":
+		var event: Dictionary = event_system.get_current_event()
+		var templates: Dictionary = event.get("timeline_templates", {})
+		if result.get("phase_transition", "") == "WARNING->ACTIVE":
+			_timeline_log_player(str(templates.get("active", "Event active!")), ActionTimeline.COLOR_PLAYER)
+		elif result.get("phase_transition", "") == "RECOVERY->RESOLVED":
+			var resolution: Dictionary = result.get("resolution", {})
+			var res_str: String = str(resolution.get("result", "NEUTRAL"))
+			_timeline_log_player("Event resolved: " + res_str, ActionTimeline.COLOR_PLAYER)
+
+
+func get_event_debug_state() -> Dictionary:
+	if event_system == null: return {}
+	return event_system.get_debug_state()
+

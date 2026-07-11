@@ -1,0 +1,262 @@
+[
+  {
+    "event_id": "nutrient_surge",
+    "display_name": "营养盐上升",
+    "category": "water_quality",
+    "runtime_status": "active",
+    "enabled": true,
+    "eligible_from_day": 4,
+    "base_weight": 1.0,
+    "warning_days": 1,
+    "active_days": 2,
+    "recovery_days": 1,
+    "cooldown_days": 5,
+    "severity_min": 1,
+    "severity_max": 2,
+    "severity": 1,
+    "preconditions": {},
+    "base_effects": {
+      "no3_increase_per_day": 3.0,
+      "po4_increase_per_day": 0.04,
+      "stability_loss_per_day": 2.0,
+      "comfort_decay_per_day": 1.0,
+      "maintenance_pressure_increase": 1
+    },
+    "device_mitigations": {
+      "refugium_light": {"severity_reduction": 0.50, "tier1_multiplier": 0.70, "tier2_multiplier": 0.50},
+      "uv_sterilizer": {"severity_reduction": 0.20, "tier1_multiplier": 0.85, "tier2_multiplier": 0.80}
+    },
+    "player_responses": [
+      {"response_id": "emergency_maintenance", "display_name": "紧急维护", "rp_cost": 25, "effect_multiplier": 0.60, "cooldown_per_event": 1},
+      {"response_id": "reduce_feeding", "display_name": "暂停喂食", "rp_cost": 0, "effect_multiplier": 0.75, "income_penalty_days": 2}
+    ],
+    "recovery_rules": {
+      "good_threshold": 0.30,
+      "neutral_threshold": 0.60,
+      "good_reward_rp": 15,
+      "good_stability_recovery": 5.0,
+      "poor_extra_recovery_days": 1,
+      "poor_income_penalty": 10
+    },
+    "timeline_templates": {
+      "warning": "营养盐压力正在上升，预计1天后进入活跃阶段。建议开启藻缸灯或UV杀菌灯。",
+      "active": "营养盐上升活跃中！NO3每日+{no3_delta}，PO4每日+{po4_delta}。设备缓解中。",
+      "response": "已执行{response_name}，事件严重度降低{reduction_pct}%。",
+      "mitigation": "{device_name}正在缓解事件，严重度降低{mitigation_pct}%。",
+      "recovery_good": "营养盐事件处理良好，稳定度恢复+{stability}。",
+      "recovery_poor": "营养盐事件处理不佳，额外恢复1天，RP -{penalty}。"
+    },
+    "state_pressure_modifiers": {
+      "high_no3": 2.0,
+      "high_po4": 1.5,
+      "high_bio_load": 1.3
+    }
+  },
+  {
+    "event_id": "livestock_stress",
+    "display_name": "生物应激",
+    "category": "comfort",
+    "runtime_status": "active",
+    "enabled": true,
+    "eligible_from_day": 3,
+    "base_weight": 1.0,
+    "warning_days": 1,
+    "active_days": 2,
+    "recovery_days": 1,
+    "cooldown_days": 5,
+    "severity_min": 1,
+    "severity_max": 2,
+    "severity": 1,
+    "preconditions": {},
+    "base_effects": {
+      "comfort_decay_per_day": 4.0,
+      "income_multiplier_penalty": 0.25,
+      "stability_loss_per_day": 1.0
+    },
+    "device_mitigations": {
+      "wave_pump": {"severity_reduction": 0.50, "tier1_multiplier": 0.70, "tier2_multiplier": 0.50},
+      "chiller": {"severity_reduction": 0.25, "tier1_multiplier": 0.80, "tier2_multiplier": 0.75}
+    },
+    "player_responses": [
+      {"response_id": "soothe_environment", "display_name": "环境安抚", "rp_cost": 20, "effect_multiplier": 0.55, "cooldown_per_event": 1},
+      {"response_id": "reduce_light_intensity", "display_name": "降低光照", "rp_cost": 0, "effect_multiplier": 0.80, "income_penalty_days": 1}
+    ],
+    "recovery_rules": {
+      "good_threshold": 0.30,
+      "neutral_threshold": 0.60,
+      "good_reward_rp": 10,
+      "good_stability_recovery": 3.0,
+      "poor_extra_recovery_days": 1,
+      "poor_income_penalty": 8
+    },
+    "timeline_templates": {
+      "warning": "生物行为异常，舒适度正在下降。建议开启造浪泵增强水流。",
+      "active": "生物应激活跃中！舒适度每日-{comfort_delta}，收入效率-{income_pct}%。",
+      "response": "已执行{response_name}，事件严重度降低{reduction_pct}%。",
+      "mitigation": "{device_name}正在提供环境稳定，严重度降低{mitigation_pct}%。",
+      "recovery_good": "生物恢复良好，稳定度+{stability}。",
+      "recovery_poor": "生物恢复较慢，额外恢复1天，RP -{penalty}。"
+    },
+    "state_pressure_modifiers": {
+      "low_comfort": 2.0,
+      "device_off": 1.5,
+      "recent_water_deviation": 1.3
+    }
+  },
+  {
+    "event_id": "system_stress_spike",
+    "display_name": "系统压力峰值",
+    "category": "stability",
+    "runtime_status": "active",
+    "enabled": true,
+    "eligible_from_day": 5,
+    "base_weight": 1.0,
+    "warning_days": 1,
+    "active_days": 2,
+    "recovery_days": 1,
+    "cooldown_days": 6,
+    "severity_min": 1,
+    "severity_max": 2,
+    "severity": 1,
+    "preconditions": {},
+    "base_effects": {
+      "stability_loss_per_day": 4.0,
+      "comfort_decay_per_day": 2.0,
+      "operating_cost_increase": 5
+    },
+    "device_mitigations": {
+      "chiller": {"severity_reduction": 0.55, "tier1_multiplier": 0.65, "tier2_multiplier": 0.45},
+      "wave_pump": {"severity_reduction": 0.15, "tier1_multiplier": 0.90, "tier2_multiplier": 0.85}
+    },
+    "player_responses": [
+      {"response_id": "reduce_load", "display_name": "降低负载", "rp_cost": 30, "effect_multiplier": 0.50, "cooldown_per_event": 1},
+      {"response_id": "temporary_shutdown", "display_name": "临时关停非必要设备", "rp_cost": 0, "effect_multiplier": 0.70, "device_off_days": 1}
+    ],
+    "recovery_rules": {
+      "good_threshold": 0.30,
+      "neutral_threshold": 0.60,
+      "good_reward_rp": 20,
+      "good_stability_recovery": 6.0,
+      "poor_extra_recovery_days": 1,
+      "poor_income_penalty": 15
+    },
+    "timeline_templates": {
+      "warning": "系统负载过高，稳定性即将下降。建议开启冷水机缓冲。",
+      "active": "系统压力峰值活跃！稳定性每日-{stability_delta}，运营成本+{cost_delta}RP/日。",
+      "response": "已执行{response_name}，事件严重度降低{reduction_pct}%。",
+      "mitigation": "{device_name}正在吸收系统压力，严重度降低{mitigation_pct}%。",
+      "recovery_good": "系统压力释放，稳定度恢复+{stability}。",
+      "recovery_poor": "系统恢复缓慢，额外恢复1天，RP -{penalty}。"
+    },
+    "state_pressure_modifiers": {
+      "low_stability": 2.5,
+      "high_bio_load": 1.5,
+      "device_all_on": 1.3
+    }
+  },
+  {
+    "event_id": "waterborne_bloom",
+    "display_name": "水体浑浊",
+    "category": "bio_filtration",
+    "runtime_status": "active",
+    "enabled": true,
+    "eligible_from_day": 4,
+    "base_weight": 1.0,
+    "warning_days": 1,
+    "active_days": 2,
+    "recovery_days": 1,
+    "cooldown_days": 5,
+    "severity_min": 1,
+    "severity_max": 2,
+    "severity": 1,
+    "preconditions": {},
+    "base_effects": {
+      "stability_loss_per_day": 3.0,
+      "comfort_decay_per_day": 2.0,
+      "income_multiplier_penalty": 0.20,
+      "maintenance_pressure_increase": 1
+    },
+    "device_mitigations": {
+      "uv_sterilizer": {"severity_reduction": 0.55, "tier1_multiplier": 0.65, "tier2_multiplier": 0.45},
+      "refugium_light": {"severity_reduction": 0.15, "tier1_multiplier": 0.90, "tier2_multiplier": 0.85}
+    },
+    "player_responses": [
+      {"response_id": "emergency_maintenance", "display_name": "紧急维护", "rp_cost": 25, "effect_multiplier": 0.55, "cooldown_per_event": 1},
+      {"response_id": "increase_flow", "display_name": "增强水流", "rp_cost": 10, "effect_multiplier": 0.70, "cooldown_per_event": 1}
+    ],
+    "recovery_rules": {
+      "good_threshold": 0.30,
+      "neutral_threshold": 0.60,
+      "good_reward_rp": 12,
+      "good_stability_recovery": 4.0,
+      "poor_extra_recovery_days": 1,
+      "poor_income_penalty": 10
+    },
+    "timeline_templates": {
+      "warning": "水体透明度下降，微生物活跃。建议开启UV杀菌灯。",
+      "active": "水体浑浊活跃中！稳定度每日-{stability_delta}，收入效率-{income_pct}%。",
+      "response": "已执行{response_name}，事件严重度降低{reduction_pct}%。",
+      "mitigation": "{device_name}正在净化水质，严重度降低{mitigation_pct}%。",
+      "recovery_good": "水体恢复清澈，稳定度+{stability}。",
+      "recovery_poor": "水质恢复缓慢，额外恢复1天，RP -{penalty}。"
+    },
+    "state_pressure_modifiers": {
+      "high_no3": 1.5,
+      "low_stability": 1.5,
+      "recent_event": 0.7
+    }
+  },
+  {
+    "event_id": "equipment_efficiency_drop",
+    "display_name": "设备效率衰减",
+    "category": "equipment",
+    "runtime_status": "active",
+    "enabled": true,
+    "eligible_from_day": 6,
+    "base_weight": 0.8,
+    "warning_days": 1,
+    "active_days": 2,
+    "recovery_days": 1,
+    "cooldown_days": 7,
+    "severity_min": 1,
+    "severity_max": 1,
+    "severity": 1,
+    "preconditions": {},
+    "base_effects": {
+      "device_efficiency_multiplier": 0.50,
+      "maintenance_pressure_increase": 2,
+      "stability_loss_per_day": 2.0
+    },
+    "device_mitigations": {
+      "refugium_light": {"severity_reduction": 0.20, "tier1_multiplier": 0.85, "tier2_multiplier": 0.80},
+      "wave_pump": {"severity_reduction": 0.20, "tier1_multiplier": 0.85, "tier2_multiplier": 0.80},
+      "chiller": {"severity_reduction": 0.20, "tier1_multiplier": 0.85, "tier2_multiplier": 0.80},
+      "uv_sterilizer": {"severity_reduction": 0.20, "tier1_multiplier": 0.85, "tier2_multiplier": 0.80}
+    },
+    "player_responses": [
+      {"response_id": "perform_maintenance", "display_name": "设备维护", "rp_cost": 20, "effect_multiplier": 0.60, "cooldown_per_event": 1},
+      {"response_id": "reroute_workload", "display_name": "切换备用设备", "rp_cost": 15, "effect_multiplier": 0.75, "cooldown_per_event": 1}
+    ],
+    "recovery_rules": {
+      "good_threshold": 0.40,
+      "neutral_threshold": 0.70,
+      "good_reward_rp": 8,
+      "good_stability_recovery": 2.0,
+      "poor_extra_recovery_days": 1,
+      "poor_income_penalty": 8
+    },
+    "timeline_templates": {
+      "warning": "设备运行效率下降，预计1天后进入衰减期。建议执行维护。",
+      "active": "设备效率衰减中！所有设备正效果降至50%，维护压力+2。",
+      "response": "已执行{response_name}，衰减幅度降低{reduction_pct}%。",
+      "mitigation": "多台设备分担负载，衰减部分缓解。",
+      "recovery_good": "设备恢复额定效率，稳定度+{stability}。",
+      "recovery_poor": "设备恢复缓慢，额外恢复1天，RP -{penalty}。"
+    },
+    "state_pressure_modifiers": {
+      "high_maintenance_pressure": 2.0,
+      "device_all_on": 1.5,
+      "recent_event": 0.8
+    }
+  }
+]
