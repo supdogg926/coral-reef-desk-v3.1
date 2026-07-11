@@ -1890,6 +1890,41 @@ func _perform_autosave() -> void:
 	}
 
 
+func calculate_management_multiplier() -> float:
+	# v4: additive model, clamped 0.50-2.00
+	var mult: float = 1.0
+	# Water quality factor
+	if water_chemistry_system != null:
+		var wq: float = float(water_chemistry_system.get_debug_state().get("water_quality_score", 75.0))
+		if wq >= 80: mult += 0.20
+		elif wq >= 60: mult += 0.10
+		elif wq < 40: mult -= 0.20
+	# Comfort factor
+	if livestock_system != null:
+		var comfort: float = float(livestock_system.get_debug_state().get("comfort_score", 75.0))
+		if comfort >= 80: mult += 0.20
+		elif comfort >= 60: mult += 0.10
+		elif comfort < 20: mult -= 0.20
+		elif comfort < 40: mult -= 0.10
+	# Category richness
+		var cat_count: int = 0
+		if int(livestock_system.get_debug_state().get("fish_count", 0)) > 0: cat_count += 1
+		if int(livestock_system.get_debug_state().get("coral_count", 0)) > 0: cat_count += 1
+		var crust_count: int = int(livestock_system.get_debug_state().get("crustacean_count", 0))
+		if crust_count > 0: cat_count += 1
+		var other_count: int = int(livestock_system.get_debug_state().get("other_count", 0))
+		if other_count > 0: cat_count += 1
+		if cat_count >= 3: mult += 0.20
+		elif cat_count == 2: mult += 0.10
+		elif cat_count == 0: mult -= 0.20
+	# Capacity health
+		var used: float = float(livestock_system.get_debug_state().get("bio_load_ratio", 0.0))
+		if used <= 0.0: mult -= 0.10
+		elif used <= 0.80: mult += 0.10
+		elif used > 1.0: mult -= 0.20
+	return clamp(mult, 0.50, 2.00)
+
+
 func _get_collection_unlocked_ids() -> Array:
 	var result: Array[String] = []
 	if rescue_system != null:
