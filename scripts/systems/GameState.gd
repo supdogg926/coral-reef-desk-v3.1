@@ -82,6 +82,9 @@ const DEVICE_DEFINITIONS: Dictionary = {
 	"return_pump": {"display_name": "水泵", "default_enabled": true},
 	"wave_pump": {"display_name": "造浪", "default_enabled": true},
 	"main_light": {"display_name": "主灯", "default_enabled": true},
+	"refugium_light": {"display_name": "藻缸灯", "default_enabled": false},
+	"chiller": {"display_name": "冷水机", "default_enabled": false},
+	"uv_sterilizer": {"display_name": "UV杀菌", "default_enabled": false},
 	"reserve": {"display_name": "未来设备", "default_enabled": false},
 }
 
@@ -224,6 +227,8 @@ func get_water_maintenance_actions() -> Array:
 		var rule: Dictionary = _get_maintenance_rule(action_id)
 		action["cost"] = float(rule.get("cost", 0.0))
 		action["cooldown_sec"] = float(rule.get("cooldown_sec", 0.0))
+		if rule.has("label") and String(rule["label"]) != "":
+			action["label"] = String(rule["label"])
 		actions.append(action)
 	return actions
 
