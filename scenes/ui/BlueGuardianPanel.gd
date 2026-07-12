@@ -173,6 +173,11 @@ func _build_ui() -> void:
 	_catalog_list.name = "CatalogList"
 	_catalog_section.add_child(_catalog_list)
 
+	# Spacer to push bottom row down
+	var bottom_spacer := Control.new()
+	bottom_spacer.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	vbox.add_child(bottom_spacer)
+
 	# Bottom buttons
 	var bottom_row := HBoxContainer.new()
 	bottom_row.add_theme_constant_override("separation", 8)

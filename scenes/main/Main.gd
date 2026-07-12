@@ -111,7 +111,7 @@ func _setup_panels() -> void:
 	shop_panel.setup(game_state)
 	shop_panel.purchase_completed.connect(_on_shop_purchase)
 
-	livestock_panel = LivestockPanel.new()
+	livestock_panel = load("res://scenes/ui/LivestockPanel.gd").new()
 	livestock_panel.hide()
 	add_child(livestock_panel)
 	livestock_panel.setup(game_state)
