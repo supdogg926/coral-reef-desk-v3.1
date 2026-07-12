@@ -146,6 +146,8 @@ func _setup_bottom_dock_controls() -> void:
 
 	var callbacks: Dictionary = {
 		"blue_guardian": Callable(self, "_toggle_blue_guardian"),
+		"catalog": Callable(self, "_open_catalog_view"),
+		"release": Callable(self, "_open_release_management"),
 		"shop": Callable(self, "_toggle_shop"),
 		"livestock": Callable(self, "_toggle_livestock"),
 		"rescue": Callable(self, "_toggle_rescue"),
@@ -357,6 +359,42 @@ func _toggle_livestock() -> void:
 			livestock_panel.get_parent().move_child(livestock_panel, livestock_panel.get_parent().get_child_count() - 1)
 		if panel_status_label != null:
 			panel_status_label.text = "已打开：我的生物"
+
+
+func _open_catalog_view() -> void:
+	if blue_guardian_panel == null:
+		return
+	_hide_all_secondary_panels()
+	blue_guardian_panel.open_catalog_view()
+	blue_guardian_panel.anchor_left = 0.04
+	blue_guardian_panel.anchor_right = 0.96
+	blue_guardian_panel.anchor_top = 0.10
+	blue_guardian_panel.anchor_bottom = 0.92
+	blue_guardian_panel.show()
+	if panel_status_label != null:
+		panel_status_label.text = "已打开：救助图鉴"
+
+
+func _open_release_management() -> void:
+	if livestock_panel == null:
+		return
+	_hide_all_secondary_panels()
+	livestock_panel.open_release_mode()
+	livestock_panel.mouse_filter = Control.MOUSE_FILTER_STOP
+	livestock_panel.anchor_left = 0.04
+	livestock_panel.anchor_right = 0.96
+	livestock_panel.anchor_top = 0.10
+	livestock_panel.anchor_bottom = 0.92
+	livestock_panel.show()
+	if panel_status_label != null:
+		panel_status_label.text = "已打开：放归管理"
+
+
+func _hide_all_secondary_panels() -> void:
+	if shop_panel != null: shop_panel.hide()
+	if livestock_panel != null: livestock_panel.hide()
+	if rescue_panel != null: rescue_panel.hide()
+	if blue_guardian_panel != null: blue_guardian_panel.hide()
 
 
 func _toggle_blue_guardian() -> void:

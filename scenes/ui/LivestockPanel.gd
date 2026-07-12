@@ -27,6 +27,11 @@ func _ready() -> void:
 	add_theme_stylebox_override("panel", style)
 
 
+func open_release_mode() -> void:
+	name = "ReleaseManagementPanel"
+	show()
+
+
 func setup(gs: GameState) -> void:
 	game_state = gs
 	if card_library == null:

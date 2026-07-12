@@ -68,19 +68,46 @@ func _build_ui() -> void:
 	_ready_section = VBoxContainer.new()
 	_ready_section.add_theme_constant_override("separation", 6)
 	vbox.add_child(_ready_section)
+	# 2-column info grid
+	var info_grid := GridContainer.new()
+	info_grid.columns = 2
+	info_grid.add_theme_constant_override("h_separation", 12)
+	info_grid.add_theme_constant_override("v_separation", 4)
+	info_grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_ready_section.add_child(info_grid)
 
-	_dock_label = _lbl("", 13, MUTED_COLOR)
-	_ready_section.add_child(_dock_label)
-	_status_label = _lbl("守护艇：待命", 14, TEXT_COLOR)
-	_ready_section.add_child(_status_label)
+	var dock_title := _lbl("当前码头", 11, MUTED_COLOR)
+	dock_title.autowrap_mode = TextServer.AUTOWRAP_OFF
+	info_grid.add_child(dock_title)
+	var boat_title := _lbl("守护艇", 11, MUTED_COLOR)
+	boat_title.autowrap_mode = TextServer.AUTOWRAP_OFF
+	info_grid.add_child(boat_title)
 
-	var bal_row := HBoxContainer.new()
-	bal_row.add_theme_constant_override("separation", 16)
-	_ready_section.add_child(bal_row)
-	_balance_label = _lbl("", 13, TEXT_COLOR)
-	bal_row.add_child(_balance_label)
-	_cost_label = _lbl("", 13, MUTED_COLOR)
-	bal_row.add_child(_cost_label)
+	_dock_label = _lbl("", 14, TEXT_COLOR)
+	_dock_label.name = "CurrentDockLabel"
+	_dock_label.autowrap_mode = TextServer.AUTOWRAP_OFF
+	info_grid.add_child(_dock_label)
+	_status_label = _lbl("待命", 14, TEXT_COLOR)
+	_status_label.name = "BoatStatusLabel"
+	_status_label.autowrap_mode = TextServer.AUTOWRAP_OFF
+	info_grid.add_child(_status_label)
+
+	var bal_title := _lbl("浪花余额", 11, MUTED_COLOR)
+	bal_title.autowrap_mode = TextServer.AUTOWRAP_OFF
+	info_grid.add_child(bal_title)
+	var cost_title := _lbl("启航消耗", 11, MUTED_COLOR)
+	cost_title.autowrap_mode = TextServer.AUTOWRAP_OFF
+	info_grid.add_child(cost_title)
+
+	_balance_label = _lbl("", 16, TEXT_COLOR)
+	_balance_label.name = "WaveBalanceLabel"
+	_balance_label.autowrap_mode = TextServer.AUTOWRAP_OFF
+	info_grid.add_child(_balance_label)
+	_cost_label = _lbl("100朵", 16, MUTED_COLOR)
+	_cost_label.name = "VoyageCostLabel"
+	_cost_label.autowrap_mode = TextServer.AUTOWRAP_OFF
+	info_grid.add_child(_cost_label)
+
 
 	_action_btn = _btn("启航救助", ACCENT_COLOR)
 	_action_btn.pressed.connect(_on_action)
@@ -167,6 +194,35 @@ func _process(delta: float) -> void:
 			_refresh()
 
 
+func open_ready_view() -> void:
+	name = "BlueGuardianPanel"
+	_catalog_section.visible = false
+	_ready_section.visible = true
+	_voyaging_section.visible = false
+	_result_section.visible = false
+	_refresh()
+
+
+func open_catalog_view() -> void:
+	name = "BlueGuardianPanel"
+	_ready_section.visible = false
+	_voyaging_section.visible = false
+	_result_section.visible = false
+	_catalog_section.visible = true
+	if _service != null:
+		var ids: Array = _service.get_collection_ids()
+		var cat_text := "已发现：%d
+已放归：%d
+
+" % [ids.size(), ids.size()]
+		for sid in ids:
+			cat_text += "  %s
+" % sid
+		var list_node := _catalog_section.get_node_or_null("CatalogList")
+		if list_node is Label:
+			list_node.text = cat_text
+
+
 func _refresh() -> void:
 	if _service == null:
 		return
@@ -177,11 +233,11 @@ func _refresh() -> void:
 	_voyaging_section.visible = (state == BlueGuardianService.VoyageState.VOYAGING)
 	_result_section.visible = (state == BlueGuardianService.VoyageState.RESULT_PENDING)
 
-	_dock_label.text = "当前码头：" + _service.get_dock_display_name()
+	_dock_label.text = _service.get_dock_display_name()
 
 	if _economy() != null:
-		_balance_label.text = "浪花余额：%.0f朵" % _economy().get_waves_balance()
-	_cost_label.text = "启航消耗：%.0f朵" % BlueGuardianConfig.WAVE_COST
+		_balance_label.text = "%.0f朵" % _economy().get_waves_balance()
+	_cost_label.text = "%.0f朵" % BlueGuardianConfig.WAVE_COST
 
 	if state == BlueGuardianService.VoyageState.READY:
 		var deny := _service.get_launch_deny_reason()
@@ -311,7 +367,7 @@ func _lbl(text: String, size: int, color: Color) -> Label:
 	l.text = text
 	l.add_theme_font_size_override("font_size", size)
 	l.add_theme_color_override("font_color", color)
-	l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	l.autowrap_mode = TextServer.AUTOWRAP_OFF
 	return l
 
 
