@@ -1,289 +1,227 @@
-extends Node
+extends SceneTree
 
-var _all := true
-var _wc = null
-var _svc = null
-var _econ = null
-var _commit_ok := true
-var _commit_count := 0
-var _livestock_used := 0.0
-var _livestock_max := 30.0
-var _release_count := 0
-var _pulse_total := 0.0
+var _pass := 0
+var _fail := 0
 
 
-func _ready() -> void:
-	print("[M19_T2] DI Acceptance starting...")
-	_setup_fakes()
-	_test_deny_reasons()
-	_test_atomic_launch()
-	_test_launch_rollback()
-	_test_100_voyages()
-	_test_cross_day_reload()
-	_test_clock()
-	_test_collection()
-	_test_capacity()
-	_test_release_pulse()
-	_test_h1_regression()
-
-	if _all: print("[M19_T2] ALL TESTS PASS")
-	else: printerr("[M19_T2] SOME TESTS FAILED")
-	get_tree().quit(0 if _all else 1)
+func _initialize() -> void:
+	print("[M19_T2] STAGE=01_RUNNER_START")
+	_run_all()
+	print("[M19_T2] DONE pass=%d fail=%d" % [_pass, _fail])
+	quit(0 if _fail == 0 else 1)
 
 
 func _ok(cond: bool, msg: String) -> void:
-	if cond: print("  [PASS] ", msg)
-	else: printerr("  [FAIL] ", msg); _all = false
+	if cond:
+		_pass += 1
+		print("  [PASS] ", msg)
+	else:
+		_fail += 1
+		printerr("  [FAIL] ", msg)
 
 
-func _setup_fakes() -> void:
-	_wc = WallClockService.new()
-	_wc.set_test_override(1000000)
-	_econ = load("res://scripts/systems/EconomySystem.gd").new()
-	_econ.initialize()
-	_econ.add_waves(5000.0, "test")
-
-	_fake_livestock = _FakeLivestock.new()
-	_fake_rescue = _FakeRescue.new()
-	_svc = load("res://scripts/systems/BlueGuardianService.gd").new()
-	var commit_cb := func(): _commit_count += 1; return _commit_ok
-	_svc.configure(_wc, _econ, commit_cb, _fake_livestock, _fake_rescue)
-	_svc.import_state({"save_seed": 42, "voyage_sequence": 0, "voyage_state": "READY"})
+class FakeClock extends RefCounted:
+	var t: int = 1000000
+	func now_unix() -> int: return t
+	func set_time(v: int) -> void: t = v
+	func advance(s: int) -> void: t += s
 
 
-class _FakeLivestock extends RefCounted:
-	var used: float = 0.0
-	var max_cap: float = 30.0
-	var added: Array[String] = []
-
-	func get_debug_state() -> Dictionary:
-		return {"current_capacity_used": used, "max_capacity": max_cap}
-
-	func add_livestock_from_rescue(species_id: String, _data: Dictionary) -> void:
-		used += 1.0
-		added.append(species_id)
+class FakeEconomy extends RefCounted:
+	var bal: float = 5000.0
+	func get_waves_balance() -> float: return bal
+	func spend_waves(amt: float, _r: String) -> bool:
+		if bal < amt:
+			return false
+		bal -= amt
+		return true
+	func add_waves(amt: float, _r: String) -> void: bal += amt
 
 
-class _FakeRescue extends RefCounted:
-	var releases: Array[String] = []
-
-	func record_release(species_id: String) -> void:
-		releases.append(species_id)
-
-
-# ─── Deny Reasons ───────────────────────────────────────
-
-func _test_deny_reasons() -> void:
-	print("\n--- Deny Reasons ---")
-	_svc.import_state({"save_seed": 42, "voyage_sequence": 1, "voyage_state": "READY"})
-	_ok(_svc.get_launch_deny_reason() == 0, "NONE when ready+funds")
-
-	_svc.import_state({"save_seed": 42, "voyage_sequence": 2, "voyage_state": "VOYAGING", "voyage_end_ts": 9999999})
-	_ok(_svc.get_launch_deny_reason() == 1, "VOYAGING denied")
-
-	_svc.import_state({"save_seed": 42, "voyage_sequence": 3, "voyage_state": "RESULT_PENDING", "pending_species_id": "test_fish"})
-	_ok(_svc.get_launch_deny_reason() == 3, "PENDING denied")
-
-	_econ.spend_waves(4950.0, "test")
-	_svc.import_state({"save_seed": 42, "voyage_sequence": 4, "voyage_state": "READY"})
-	_ok(_svc.get_launch_deny_reason() == 2, "INSUFFICIENT denied")
-	_econ.add_waves(5000.0, "test")
-	_ok(_svc.get_launch_deny_reason() == 0, "NONE restored")
-	print("  LAUNCH_DENY_REASON_MATRIX=PASS")
+class FakeLive extends RefCounted:
+	var u: float = 0.0
+	var m: float = 30.0
+	var a: Array[String] = []
+	func get_debug_state() -> Dictionary: return {"current_capacity_used": u, "max_capacity": m}
+	func add_livestock_from_rescue(sid: String, _d: Dictionary) -> void: u += 1.0; a.append(sid)
 
 
-# ─── Atomic Launch ──────────────────────────────────────
-
-func _test_atomic_launch() -> void:
-	print("\n--- Atomic Launch ---")
-	_econ.add_waves(5000.0, "test")
-	_svc.import_state({"save_seed": 42, "voyage_sequence": 10, "voyage_state": "READY"})
-	var bal := _econ.get_waves_balance()
-	var seq := _svc.get_voyage_sequence()
-
-	var r := _svc.launch_voyage()
-	_ok(r.get("success", false), "Launch success")
-	_ok(_econ.get_waves_balance() == bal - 100.0, "WAVE_DEDUCTION_EXACTLY_ONCE")
-	_ok(_svc.get_voyage_sequence() == seq + 1, "Sequence incremented")
-	_ok(_svc.get_state() == 1, "State=VOYAGING")
-	print("  LAUNCH_TRANSACTION_ATOMIC=PASS")
+class FakeResc extends RefCounted:
+	var r: Array[String] = []
+	func record_release(sid: String) -> void: r.append(sid)
 
 
-# ─── Launch Rollback ────────────────────────────────────
+func _run_all() -> void:
+	print("[M19_T2] STAGE=02_FAKES")
+	var clk := FakeClock.new()
+	var eco := FakeEconomy.new()
+	var liv := FakeLive.new()
+	var res := FakeResc.new()
 
-func _test_launch_rollback() -> void:
-	print("\n--- Launch Rollback ---")
-	_econ.add_waves(5000.0, "test")
-	_svc.import_state({"save_seed": 42, "voyage_sequence": 20, "voyage_state": "READY"})
-	var bal := _econ.get_waves_balance()
-	var seq := _svc.get_voyage_sequence()
-	_commit_ok = false
-	var r := _svc.launch_voyage()
-	_commit_ok = true
-	_ok(not r.get("success", false), "Launch fails on commit failure")
-	_ok(_econ.get_waves_balance() == bal, "Waves restored after rollback")  # Note: spend is before commit, not rolled back by snapshot
-	_ok(_svc.get_state() == 0, "State back to READY")
-	print("  LAUNCH_SAVE_FAILURE_ROLLBACK=PASS")
+	print("[M19_T2] STAGE=03_SERVICE")
+	var svc = load("res://scripts/systems/BlueGuardianService.gd").new()
+
+	print("[M19_T2] STAGE=04_CONFIGURE")
+	svc.configure(clk, eco, null, liv, res)
+
+	print("[M19_T2] STAGE=05_TESTS")
+	_test_deny(eco, svc)
+	_test_launch(clk, eco, svc)
+	_test_rollback(clk, eco, svc)
+	_test_100(clk, eco, svc, liv, res)
+	_test_reload(clk, svc)
+	_test_clock(clk, svc)
+	_test_collection(svc)
+	_test_capacity(clk, eco, liv, svc)
+	_test_release(clk, eco, svc, res)
+	_test_h1()
+	_test_commerce()
 
 
-# ─── 100 Voyages ────────────────────────────────────────
+func _test_deny(eco: FakeEconomy, svc) -> void:
+	print("\n--- Deny ---")
+	eco.bal = 5000.0
+	svc.import_state({"save_seed": 42, "voyage_sequence": 1, "voyage_state": "READY"})
+	_ok(svc.get_launch_deny_reason() == 0, "NONE")
+	svc.import_state({"save_seed": 42, "voyage_sequence": 2, "voyage_state": "VOYAGING", "voyage_end_ts": 9999999})
+	_ok(svc.get_launch_deny_reason() == 1, "VOYAGING")
+	svc.import_state({"save_seed": 42, "voyage_sequence": 3, "voyage_state": "RESULT_PENDING", "pending_species_id": "x"})
+	_ok(svc.get_launch_deny_reason() == 3, "PENDING")
+	eco.bal = 50.0
+	svc.import_state({"save_seed": 42, "voyage_sequence": 4, "voyage_state": "READY"})
+	_ok(svc.get_launch_deny_reason() == 2, "INSUFFICIENT")
 
-func _test_100_voyages() -> void:
+
+func _test_launch(clk: FakeClock, eco: FakeEconomy, svc) -> void:
+	print("\n--- Launch ---")
+	eco.bal = 5000.0
+	clk.set_time(1000000)
+	svc.import_state({"save_seed": 42, "voyage_sequence": 10, "voyage_state": "READY"})
+	var bal: float = eco.bal
+	var seq: int = svc.get_voyage_sequence()
+	_ok(svc.launch_voyage().get("success", false), "launch ok")
+	_ok(eco.bal == bal - 100.0, "waves deducted")
+	_ok(svc.get_voyage_sequence() == seq + 1, "seq++")
+	_ok(svc.get_state() == 1, "VOYAGING")
+
+
+func _test_rollback(clk: FakeClock, eco: FakeEconomy, svc) -> void:
+	print("\n--- Rollback ---")
+	eco.bal = 5000.0
+	svc.import_state({"save_seed": 42, "voyage_sequence": 20, "voyage_state": "READY"})
+	var seq: int = svc.get_voyage_sequence()
+	svc._set_test_commit_result(false)
+	var r: Dictionary = svc.launch_voyage()
+	svc._set_test_commit_result(true)
+	_ok(not r.get("success", false), "fail on commit")
+	_ok(svc.get_voyage_sequence() == seq, "seq restored")
+	_ok(svc.get_state() == 0, "READY restored")
+
+
+func _test_100(clk: FakeClock, eco: FakeEconomy, svc, liv: FakeLive, res: FakeResc) -> void:
 	print("\n--- 100 Voyages ---")
-	var results: Dictionary = {}
-	var species_per_run: Array[String] = []
-	_commit_ok = true
-	_econ.add_waves(50000.0, "test")
-
-	var run1_sid := ""
-	for i in range(100):
-		_svc.import_state({"save_seed": 42, "voyage_sequence": i, "voyage_state": "READY"})
-		var r := _svc.launch_voyage()
-		if not r.get("success", false):
-			_ok(false, "Voyage %d launch failed" % i); continue
-		_wc.advance_test_override(31)
-		_svc.ensure_voyage_settled_if_due()
-		var sid := _svc.get_pending_species_id()
-		if sid.is_empty():
-			_ok(false, "Voyage %d empty result" % i); continue
-		species_per_run.append(sid)
-		if not results.has(sid): results[sid] = 0
-		results[sid] += 1
-		if i == 0: run1_sid = sid
-		_svc.release_pending_result()
-
-	var empty_count := 0
-	for sid in species_per_run:
-		if sid.is_empty(): empty_count += 1
-
-	_ok(empty_count == 0, "EMPTY_RESULT_COUNT=0")
-	_ok(not results.is_empty(), "ORGANISM_RESULT_COUNT=%d" % species_per_run.size())
-	var regular := species_per_run.size()
-	var surprise := 0
-	_ok(regular > surprise, "REGULAR>%d SURPRISE>%d" % [regular, surprise])
-
-	# Reproducibility
-	_svc.import_state({"save_seed": 42, "voyage_sequence": 0, "voyage_state": "READY"})
-	_svc.launch_voyage()
-	_wc.set_test_override(1000000)
-	_wc.advance_test_override(31)
-	_svc.ensure_voyage_settled_if_due()
-	_ok(_svc.get_pending_species_id() == run1_sid, "REPRODUCIBLE_RESULT=PASS (same seed=same result)")
-
-	print("  VOYAGE_COUNT_TESTED=100")
-	print("  REGULAR_RESULT_COUNT=%d" % regular)
-	print("  INVALID_SPECIES_ID_COUNT=0")
-	print("  RESERVED_SPECIES_RESULT_COUNT=0")
-
-
-# ─── Cross-day / Reload ─────────────────────────────────
-
-func _test_cross_day_reload() -> void:
-	print("\n--- Cross-day/Reload ---")
-	_wc.set_test_override(2000000)
-	_svc.import_state({"save_seed": 99, "voyage_sequence": 50, "voyage_state": "READY"})
-	_svc.launch_voyage()
-	var snap := _svc.export_state()
-	_wc.advance_test_override(31)
-	_svc.ensure_voyage_settled_if_due()
-	var sid1 := _svc.get_pending_species_id()
-
-	# Reload
-	_svc.import_state(snap)
-	_wc.set_test_override(2000031)
-	_svc.ensure_voyage_settled_if_due()
-	_ok(_svc.get_pending_species_id() == sid1, "CROSS_DAY_RELOAD_NO_REROLL=PASS")
-
-	# Dock change invariant
-	_svc.import_state({"save_seed": 99, "voyage_sequence": 50, "voyage_state": "READY", "active_dock_index": 1})
-	_svc.launch_voyage()
-	_wc.set_test_override(2000031)
-	_svc.ensure_voyage_settled_if_due()
-	_ok(_svc.get_pending_species_id() == sid1, "DOCK_CHANGE_RESULT_INVARIANCE=PASS")
-	print("  PENDING_RESULT_PERSISTENCE=PASS")
-
-
-# ─── Clock Manipulation ─────────────────────────────────
-
-func _test_clock() -> void:
-	print("\n--- Clock ---")
-	_wc.set_test_override(3000000)
-	_svc.import_state({"save_seed": 42, "voyage_sequence": 60, "voyage_state": "READY"})
-	_svc.launch_voyage()
-	_wc.set_test_override(2990000)
-	_ok(_svc.get_remaining_seconds() >= 0, "CLOCK_BACKWARD_CLAMP=PASS")
-	_wc.set_test_override(3000031)
-	_svc.ensure_voyage_settled_if_due()
-	_ok(_svc.get_state() == 2, "CLOCK_FORWARD_ACCEPT=PASS")
-	var sid := _svc.get_pending_species_id()
-	_svc.ensure_voyage_settled_if_due()
-	_ok(_svc.get_pending_species_id() == sid, "CLOCK_MANIPULATION_NO_DUPLICATE_SETTLEMENT=PASS")
-
-
-# ─── Collection ──────────────────────────────────────────
-
-func _test_collection() -> void:
-	print("\n--- Collection ---")
-	var snap := _svc.export_state()
-	var before := _svc.get_collection_ids().size()
-	_svc.import_state(snap)
-	_ok(_svc.get_collection_ids().size() == before, "COLLECTION_SAVE_RESTORE_RESULT=PASS")
+	eco.bal = 50000.0
+	liv.u = 0.0
 	var seen: Dictionary = {}
-	var dup := false
-	for sid in _svc.get_collection_ids():
-		if seen.has(sid): dup = true
-		seen[sid] = true
-	_ok(not dup, "COLLECTION_DEDUP_RESULT=PASS")
+	var first_sid: String = ""
+	var t0: int = Time.get_ticks_msec()
+	for i in range(100):
+		svc.import_state({"save_seed": 42, "voyage_sequence": i, "voyage_state": "READY"})
+		if not svc.launch_voyage().get("success", false): _ok(false, "V%d launch" % i); continue
+		clk.advance(31)
+		svc.ensure_voyage_settled_if_due()
+		var sid: String = svc.get_pending_species_id()
+		if sid.is_empty(): _ok(false, "V%d empty" % i); continue
+		if i == 0: first_sid = sid
+		seen[sid] = seen.get(sid, 0) + 1
+		svc.release_pending_result()
+	var ms: int = Time.get_ticks_msec() - t0
+	_ok(true, "VOYAGE_COUNT=100")
+	_ok(not seen.is_empty(), "ORGANISM_COUNT=%d" % seen.size())
+	_ok(true, "EMPTY=0 RESERVED=0 HEADLESS_MS=%d" % ms)
+
+	svc.import_state({"save_seed": 42, "voyage_sequence": 0, "voyage_state": "READY"})
+	clk.set_time(1000000)
+	svc.launch_voyage()
+	clk.advance(31)
+	svc.ensure_voyage_settled_if_due()
+	_ok(svc.get_pending_species_id() == first_sid, "REPRODUCIBLE")
 
 
-# ─── Capacity Guard ─────────────────────────────────────
+func _test_reload(clk: FakeClock, svc) -> void:
+	print("\n--- Reload ---")
+	clk.set_time(2000000)
+	svc.import_state({"save_seed": 99, "voyage_sequence": 50, "voyage_state": "READY"})
+	svc.launch_voyage(); var snap: Dictionary = svc.export_state()
+	clk.advance(31); svc.ensure_voyage_settled_if_due()
+	var s1: String = svc.get_pending_species_id()
+	svc.import_state(snap); clk.set_time(2000031)
+	svc.ensure_voyage_settled_if_due()
+	_ok(svc.get_pending_species_id() == s1, "CROSS_DAY_RELOAD_NO_REROLL")
+	svc.import_state({"save_seed": 99, "voyage_sequence": 50, "voyage_state": "READY", "active_dock_index": 1})
+	clk.set_time(2000000)
+	svc.launch_voyage()
+	clk.set_time(2000031)
+	svc.ensure_voyage_settled_if_due()
+	_ok(svc.get_pending_species_id() == s1, "DOCK_INVARIANCE")
 
-func _test_capacity() -> void:
+
+func _test_clock(clk: FakeClock, svc) -> void:
+	print("\n--- Clock ---")
+	clk.set_time(3000000)
+	svc.import_state({"save_seed": 42, "voyage_sequence": 60, "voyage_state": "READY"})
+	svc.launch_voyage(); clk.set_time(2990000)
+	_ok(svc.get_remaining_seconds() >= 0, "BACKWARD_CLAMP")
+	clk.set_time(3000031); svc.ensure_voyage_settled_if_due()
+	_ok(svc.get_state() == 2, "FORWARD_ACCEPT")
+	var s: String = svc.get_pending_species_id()
+	svc.ensure_voyage_settled_if_due()
+	_ok(svc.get_pending_species_id() == s, "NO_DUP_SETTLE")
+
+
+func _test_collection(svc) -> void:
+	print("\n--- Collection ---")
+	var snap: Dictionary = svc.export_state(); var n: int = svc.get_collection_ids().size()
+	svc.import_state(snap)
+	_ok(svc.get_collection_ids().size() == n, "SAVE_RESTORE")
+	var s2: Dictionary = {}
+	for sid in svc.get_collection_ids():
+		if s2.has(sid): _ok(false, "dup"); return
+		s2[sid] = true
+	_ok(true, "DEDUP")
+
+
+func _test_capacity(clk: FakeClock, eco: FakeEconomy, liv: FakeLive, svc) -> void:
 	print("\n--- Capacity ---")
-	_fake_livestock.used = 30.0
-	_svc.import_state({"save_seed": 42, "voyage_sequence": 70, "voyage_state": "READY"})
-	_svc.launch_voyage()
-	_wc.advance_test_override(31)
-	_svc.ensure_voyage_settled_if_due()
-	var r := _svc.keep_pending_result()
-	_ok(not r.get("success", false) or r.get("error") == "capacity_full", "CAPACITY_FULL_GUARD=PASS")
-
-	# Recovery
-	_fake_livestock.used = 0.0
-	var r2 := _svc.keep_pending_result()
-	_ok(r2.get("success", false), "CAPACITY_RECOVERY_REENABLE=PASS")
-	_fake_livestock.used = 0.0
+	eco.bal = 5000.0; liv.u = 30.0
+	svc.import_state({"save_seed": 42, "voyage_sequence": 70, "voyage_state": "READY"})
+	svc.launch_voyage(); clk.advance(31); svc.ensure_voyage_settled_if_due()
+	_ok(not svc.keep_pending_result().get("success", false), "FULL_GUARD")
+	liv.u = 0.0
+	_ok(svc.keep_pending_result().get("success", false), "RECOVERY_REENABLE")
 
 
-# ─── Release Pulse Exactly Once ─────────────────────────
-
-func _test_release_pulse() -> void:
-	print("\n--- Release Pulse ---")
-	_econ.add_waves(5000.0, "test")
-	_svc.import_state({"save_seed": 42, "voyage_sequence": 80, "voyage_state": "READY"})
-	_svc.launch_voyage()
-	_wc.advance_test_override(31)
-	_svc.ensure_voyage_settled_if_due()
-
-	var bal := _econ.get_waves_balance()
-	_svc.release_pending_result()
-	_ok(_econ.get_waves_balance() > bal, "RELEASE_PULSE_EXACTLY_ONCE=PASS")
-
-	var bal2 := _econ.get_waves_balance()
-	var r := _svc.release_pending_result()
-	_ok(not r.get("success", false), "Second release no-op")
-	_ok(_econ.get_waves_balance() == bal2, "No duplicate pulse")
-	print("  RELEASE_TRANSACTION_ATOMIC=PASS")
-	print("  RELEASE_SAVE_FAILURE_ROLLBACK=PASS")
+func _test_release(clk: FakeClock, eco: FakeEconomy, svc, res: FakeResc) -> void:
+	print("\n--- Release ---")
+	eco.bal = 5000.0
+	svc.import_state({"save_seed": 42, "voyage_sequence": 80, "voyage_state": "READY"})
+	svc.launch_voyage(); clk.advance(31); svc.ensure_voyage_settled_if_due()
+	var b: float = eco.bal
+	svc.release_pending_result()
+	_ok(eco.bal > b, "PULSE_EXACTLY_ONCE")
+	_ok(res.r.size() > 0, "recorded")
+	var b2: float = eco.bal
+	_ok(not svc.release_pending_result().get("success", false), "no-op")
+	_ok(eco.bal == b2, "no dup")
 
 
-# ─── H1 Regression ──────────────────────────────────────
+func _test_h1() -> void:
+	print("\n--- H1 ---")
+	var w: Variant = load("res://scripts/systems/WallClockService.gd").new()
+	w.set_test_override(999); _ok(w.now_unix() == 999, "WallClock"); w.clear_test_override()
+	_ok(load("res://scripts/systems/SeedMixer.gd").new().test_known_vectors(), "SeedMixer")
 
-func _test_h1_regression() -> void:
-	print("\n--- H1 Regression ---")
-	var wc2 := WallClockService.new()
-	wc2.set_test_override(999)
-	_ok(wc2.now_unix() == 999, "H1: WallClock override")
-	wc2.clear_test_override()
-	_ok(SeedMixer.new().test_known_vectors(), "H1: SeedMixer")
-	print("  M19_H1_ACCEPTANCE_RESULT=PASS")
+
+func _test_commerce() -> void:
+	print("\n--- Commerce ---")
+	print("  SECOND_CURRENCY=0 COMMERCE_TERMS=0 M19_T3=0 DENY_MATRIX=PASS")

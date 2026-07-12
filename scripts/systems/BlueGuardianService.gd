@@ -23,6 +23,7 @@ var _pending_result_data: Dictionary = {}
 var _voyage_sequence: int = 0
 var _collection_ids: Array[String] = []
 var _persistent_seed: int = 0
+var _test_commit_result: bool = true
 
 
 func configure(p_clock, p_economy, p_game_state, p_livestock_gw, p_rescue_gw) -> void:
@@ -223,9 +224,15 @@ func _restore(snap: Dictionary) -> void:
 
 
 func _commit_call() -> bool:
+	if not _test_commit_result:
+		return false
 	if game_state_ref != null and game_state_ref.has_method("commit_current_state"):
 		return game_state_ref.commit_current_state()
 	return true
+
+
+func _set_test_commit_result(ok: bool) -> void:
+	_test_commit_result = ok
 
 
 func get_debug_state() -> Dictionary:
