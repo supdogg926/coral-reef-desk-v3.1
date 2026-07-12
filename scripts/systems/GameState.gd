@@ -14,9 +14,11 @@ var livestock_system: LivestockSystem = null
 var unlock_system: UnlockSystem = null
 var event_system: DynamicEventSystem = null
 var save_system: SaveSystem = null
+var wall_clock_service: WallClockService = null
 var action_timeline: ActionTimeline = null
 var stage_objective_system: RefCounted = null  # StageObjectiveSystem loaded via script
 var rescue_system: RefCounted = null  # RescueSystem loaded via script; M14-T01 data/headless only
+var blue_guardian_state: Dictionary = {}
 var rescue_last_feedback: Dictionary = {}
 var stability_score: float = 50.0
 var carrying_capacity_score: float = 10.0
@@ -110,9 +112,10 @@ func initialize() -> void:
 
 	unlock_system = UnlockSystem.new()
 	unlock_system.initialize()
+	wall_clock_service = WallClockService.new()
 
 	save_system = SaveSystem.new()
-	save_system.initialize()
+	save_system.initialize(wall_clock_service)
 
 	action_timeline = ActionTimeline.new()
 
@@ -1390,7 +1393,7 @@ func buy_livestock_from_shop(shop_id: String) -> Dictionary:
 	if not economy_system.spend_reef_points(price):
 		return {"success": false, "error": "insufficient_rp", "price": price, "current_rp": economy_system.get_reef_points()}
 	var purchase_entry: Dictionary = {
-		"id": "%s_%d" % [shop_id, Time.get_unix_time_from_system()],
+		"id": "%s_%d" % [shop_id, wall_clock_service.now_unix()],
 		"species_name": String(shop_entry.get("species_name", "")),
 		"category": String(shop_entry.get("category", "")),
 		"purchase_price": price,
@@ -1520,7 +1523,7 @@ func _try_load_game() -> void:
 		return
 	save_loaded = true
 	_apply_save_state(save_data)
-	var current_time: int = int(Time.get_unix_time_from_system())
+	var current_time: int = wall_clock_service.now_unix()
 	var last_time: int = save_system.get_last_save_timestamp()
 	var offline_seconds: float = save_system.calculate_offline_seconds(current_time, last_time)
 	if offline_seconds > 1.0:
@@ -1561,6 +1564,9 @@ func _apply_save_state(save_data: Dictionary) -> void:
 			for device_id in saved_tiers.keys():
 				equipment_system.set_device_tier(device_id, int(saved_tiers[device_id]))
 	reef_points = economy_system.reef_points if economy_system != null else 0.0
+	var raw_bg: Variant = save_data.get("blue_guardian_state", {})
+	if raw_bg is Dictionary:
+			blue_guardian_state = raw_bg.duplicate(true)
 
 
 func _apply_offline_progression(offline_seconds: float) -> void:
@@ -1956,11 +1962,49 @@ func _get_release_count_by_species() -> Dictionary:
 
 
 func _get_blue_guardian_state() -> Dictionary:
-	return {"active": false, "active_dock_id": "", "last_rotation_at": 0, "last_action_at": 0, "next_available_at": 0, "pending_reward_or_rescue_id": ""}
+	if blue_guardian_state.is_empty():
+		blue_guardian_state = {
+			"schema_version": 1,
+			"save_seed": 0,
+			"voyage_sequence": 0,
+			"voyage_state": "READY",
+			"voyage_end_ts": 0,
+			"pending_result": {},
+			"active": false,
+			"active_dock_id": "",
+			"last_rotation_at": 0,
+			"last_action_at": 0,
+			"next_available_at": 0,
+			"pending_reward_or_rescue_id": "",
+		}
+	return blue_guardian_state
 
 
 func _get_recent_release_record_ids() -> Array:
 	return []
+
+
+func commit_current_state() -> bool:
+	print("[SAVE] commit_current_state called")
+	_perform_autosave()
+	return save_system.save_exists
+
+
+func restore_mutable_state(snapshot: Dictionary) -> void:
+	# Snapshot-based rollback for transactional saves (M19-H1 foundation)
+	if snapshot.is_empty():
+		return
+	if snapshot.has("waves_balance") and economy_system != null:
+		economy_system.reef_points = float(snapshot["waves_balance"])
+	if snapshot.has("blue_guardian_state"):
+		blue_guardian_state = snapshot["blue_guardian_state"].duplicate(true)
+
+
+func capture_mutable_state() -> Dictionary:
+	return {
+		"waves_balance": economy_system.reef_points if economy_system != null else 0.0,
+		"blue_guardian_state": _get_blue_guardian_state().duplicate(true),
+	}
 
 
 func _process_event_tick(simulation_delta_seconds: float) -> void:
