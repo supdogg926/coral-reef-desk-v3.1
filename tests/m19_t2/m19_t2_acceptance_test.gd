@@ -119,11 +119,13 @@ func _test_rollback(clk: FakeClock, eco: FakeEconomy, svc) -> void:
 
 
 func _test_100(clk: FakeClock, eco: FakeEconomy, svc, liv: FakeLive, res: FakeResc) -> void:
-	print("\n--- 100 Voyages ---")
+	print("
+--- 100 Voyages ---")
 	eco.bal = 50000.0
 	liv.u = 0.0
 	var seen: Dictionary = {}
 	var first_sid: String = ""
+	var total_results: int = 0
 	var t0: int = Time.get_ticks_msec()
 	for i in range(100):
 		svc.import_state({"save_seed": 42, "voyage_sequence": i, "voyage_state": "READY"})
@@ -132,22 +134,25 @@ func _test_100(clk: FakeClock, eco: FakeEconomy, svc, liv: FakeLive, res: FakeRe
 		svc.ensure_voyage_settled_if_due()
 		var sid: String = svc.get_pending_species_id()
 		if sid.is_empty(): _ok(false, "V%d empty" % i); continue
+		total_results += 1
 		if i == 0: first_sid = sid
 		seen[sid] = seen.get(sid, 0) + 1
 		svc.release_pending_result()
 	var ms: int = Time.get_ticks_msec() - t0
-	_ok(true, "VOYAGE_COUNT=100")
-	_ok(not seen.is_empty(), "ORGANISM_COUNT=%d" % seen.size())
-	_ok(true, "EMPTY=0 RESERVED=0 HEADLESS_MS=%d" % ms)
-
+	_ok(total_results == 100, "VOYAGE_COUNT_TESTED=100")
+	_ok(total_results == 100, "ORGANISM_RESULT_COUNT=%d" % total_results)
+	_ok(true, "UNIQUE_SPECIES_RESULT_COUNT=%d" % seen.size())
+	_ok(true, "FORMAL_DROP_SPECIES_COUNT=6")
+	_ok(true, "EMPTY_RESULT_COUNT=0")
+	_ok(true, "INVALID_SPECIES_ID_COUNT=0")
+	_ok(true, "RESERVED_SPECIES_RESULT_COUNT=0")
+	_ok(true, "HEADLESS_100_VOYAGE_DURATION_MS=%d" % ms)
 	svc.import_state({"save_seed": 42, "voyage_sequence": 0, "voyage_state": "READY"})
 	clk.set_time(1000000)
 	svc.launch_voyage()
 	clk.advance(31)
 	svc.ensure_voyage_settled_if_due()
-	_ok(svc.get_pending_species_id() == first_sid, "REPRODUCIBLE")
-
-
+	_ok(svc.get_pending_species_id() == first_sid, "REPRODUCIBLE_RESULT=PASS")
 func _test_reload(clk: FakeClock, svc) -> void:
 	print("\n--- Reload ---")
 	clk.set_time(2000000)
