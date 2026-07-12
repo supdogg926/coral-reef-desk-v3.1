@@ -1849,12 +1849,12 @@ func get_light_state() -> Dictionary:
 		"light_color_temp": light_color_temp,
 	}
 
-func _perform_autosave() -> void:
+func _perform_autosave() -> bool:
 	if save_system == null:
-		return
+		return false
 	if _save_in_progress:
 		print("[SAVE] skipped: already in progress")
-		return
+		return false
 	_save_in_progress = true
 	print("[SAVE] perform_autosave start")
 	var economy_state: Dictionary = economy_system.export_state() if economy_system != null else {}
@@ -1906,6 +1906,7 @@ func _perform_autosave() -> void:
 	var ok: bool = save_system.save_game(save_dict)
 	print("[SAVE] save_game returned=" + str(ok))
 	_save_in_progress = false
+	return ok
 func calculate_management_multiplier() -> float:
 	# v4: additive model, clamped 0.50-2.00
 	var mult: float = 1.0
@@ -1986,8 +1987,7 @@ func _get_recent_release_record_ids() -> Array:
 
 func commit_current_state() -> bool:
 	print("[SAVE] commit_current_state called")
-	_perform_autosave()
-	return save_system.save_exists
+	return _perform_autosave()
 
 
 func restore_mutable_state(snapshot: Dictionary) -> void:
