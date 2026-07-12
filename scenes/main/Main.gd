@@ -1,5 +1,7 @@
 extends Control
 
+signal runtime_ui_ready
+
 @onready var status_panel: StatusPanel = %StatusPanel
 
 var game_state: GameState = null
@@ -20,6 +22,7 @@ var device_buttons: Dictionary = {}
 var device_button_base_texts: Dictionary = {}
 var feeding_buttons: Dictionary = {}
 var feeding_button_base_texts: Dictionary = {}
+var _runtime_ui_ready_emitted: bool = false
 var _panels_setup_done: bool = false
 var _livestock_refresh_timer: float = 0.0
 var _maintenance_button_refresh_timer: float = 0.0
@@ -126,6 +129,7 @@ func _setup_panels() -> void:
 
 	_panels_setup_done = true
 	_update_maintenance_button_states()
+	_mark_runtime_ui_ready()
 	_update_device_button_states()
 	_update_feeding_button_states()
 
@@ -293,6 +297,20 @@ func _manual_save_test() -> void:
 			panel_status_label.text = "手动保存完成"
 		else:
 			panel_status_label.text = "保存失败！请重试"
+
+
+func is_runtime_ui_ready() -> bool:
+	return _runtime_ui_ready_emitted
+
+
+func _mark_runtime_ui_ready() -> void:
+	if _runtime_ui_ready_emitted:
+		return
+	if blue_guardian_panel == null or livestock_panel == null or status_panel == null:
+		return
+	_runtime_ui_ready_emitted = true
+	print("[UI_READY] runtime_ui_ready emitted")
+	runtime_ui_ready.emit()
 
 
 func _is_dev_debug_ui_enabled() -> bool:

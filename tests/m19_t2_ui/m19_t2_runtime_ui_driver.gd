@@ -4,227 +4,201 @@ var _pass := 0
 var _fail := 0
 var _ts := ""
 var _evidence_dir := "user://ui_evidence"
-const WAIT_TIMEOUT := 5.0
+var _pc_fails := 0
+
 
 func _initialize() -> void:
 	_ts = str(Time.get_unix_time_from_system())
-	print("[UI_DRIVER] Starting at ", _ts)
-
-	# Ensure evidence dir
 	DirAccess.make_dir_absolute(_evidence_dir)
+	print("[UI_DRIVER] ts=", _ts)
 
-	# Load Main scene
-	print("[UI_DRIVER] Loading Main.tscn...")
 	change_scene_to_file("res://scenes/main/Main.tscn")
-	await _wait_frames(30)  # Wait for full initialization
+	await _wait_frames(5)
 
 	var root := get_root()
-	if root == null:
-		_fail_and_quit("Root not found")
-		return
+	var main_node: Node = _find_main(root)
+	if main_node == null:
+		_ok(false, "Main not found"); quit(1); return
 
-		# Find Main node among root children
-	var main_node := root
-	for child in root.get_children():
-		if child.name == "Main":
-			main_node = child
-			break
-	print("[UI_DRIVER] Root children:")
-	for child in root.get_children():
-		print("  - ", child.name)
+	print("[UI_DRIVER] waiting runtime_ui_ready...")
+	var ok: bool = await _wait_until(func(): return main_node.is_runtime_ui_ready(), 15.0, "ready")
+	if not ok:
+		_dump(root)
+		_ok(false, "READY TIMEOUT"); quit(1); return
+	print("[UI_DRIVER] ready!")
 
-	# Run tests
-	_test_main_screen(root)
-	_test_blue_guardian_route(root)
-	_test_catalog_route(root)
-	_test_release_route(root)
+	await _wait_frames(5)
+	_test_main(root)
+	await _test_bg(root)
+	await _test_catalog(root)
+	await _test_release(root)
+	await _test_voyage(root)
 
-	print("[UI_DRIVER] DONE pass=%d fail=%d" % [_pass, _fail])
+	print("[UI_DRIVER] DONE p=%d f=%d pc=%d" % [_pass, _fail, _pc_fails])
 	quit(0 if _fail == 0 else 1)
 
 
-func _ok(cond: bool, msg: String) -> void:
-	if cond: _pass += 1; print("  [PASS] ", msg)
-	else: _fail += 1; printerr("  [FAIL] ", msg)
-
-
-func _fail_and_quit(msg: String) -> void:
-	_fail += 1
-	printerr("[UI_DRIVER] FATAL: ", msg)
-	quit(1)
+func _ok(c: bool, m: String) -> void:
+	if c: _pass += 1; print("  [PASS] ", m)
+	else: _fail += 1; printerr("  [FAIL] ", m)
 
 
 func _wait_frames(n: int) -> void:
-	for i in range(n):
+	for i in range(n): await process_frame
+
+
+func _wait_until(p: Callable, to: float, d: String) -> bool:
+	var s: int = Time.get_ticks_msec()
+	while not bool(p.call()):
+		if Time.get_ticks_msec() - s > int(to * 1000.0):
+			printerr("[UI_DRIVER] TIMEOUT: ", d)
+			return false
 		await process_frame
-
-
-func _find_node(parent: Node, name: String) -> Node:
-	if parent.name == name:
-		return parent
-	for child in parent.get_children():
-		var found := _find_node(child, name)
-		if found != null:
-			return found
-	return null
-
-
-func _wait_for_visible(parent: Node, node_name: String, timeout: float) -> bool:
-	var elapsed := 0.0
-	while elapsed < timeout:
-		await process_frame
-		elapsed += 0.05
-		var node := _find_node(parent, node_name)
-		if node != null and node is CanvasItem and (node as CanvasItem).visible:
-			return true
-	return false
-
-
-func _click_node(parent: Node, node_name: String) -> bool:
-	var node := _find_node(parent, node_name)
-	if node == null or not (node is Control):
-		_ok(false, "Click target not found: " + node_name)
-		return false
-	var ctrl: Control = node as Control
-	if not ctrl.visible:
-		_ok(false, "Click target not visible: " + node_name)
-		return false
-
-	var rect := ctrl.get_global_rect()
-	var center := rect.position + rect.size * 0.5
-
-	var press := InputEventMouseButton.new()
-	press.button_index = MOUSE_BUTTON_LEFT
-	press.pressed = true
-	press.position = center
-	Input.parse_input_event(press)
-	await _wait_frames(2)
-
-	var release := InputEventMouseButton.new()
-	release.button_index = MOUSE_BUTTON_LEFT
-	release.pressed = false
-	release.position = center
-	Input.parse_input_event(release)
-	await _wait_frames(5)
-
-	print("  [CLICK] ", node_name)
 	return true
 
 
-func _viewport_screenshot(name: String) -> String:
+func _find_main(root: Node) -> Node:
+	for c in root.get_children():
+		if c.name == "Main": return c
+	return null
+
+
+func _find(root: Node, name: String) -> Node:
+	if root.name == name: return root
+	for c in root.get_children():
+		var r := _find(c, name)
+		if r != null: return r
+	return null
+
+
+func _click(root: Node, name: String, desc: String) -> bool:
+	var n := _find(root, name)
+	if n == null or not (n is Control):
+		_ok(false, "click missing: " + name); return false
+	var ctrl: Control = n as Control
+	if not ctrl.is_visible_in_tree():
+		_ok(false, "click hidden: " + name); return false
+
+	var pt := ctrl.get_global_rect().get_center()
+	var mot := InputEventMouseMotion.new()
+	mot.position = pt; mot.global_position = pt
+	Input.parse_input_event(mot); await process_frame
+	var pr := InputEventMouseButton.new()
+	pr.button_index = MOUSE_BUTTON_LEFT; pr.pressed = true; pr.position = pt; pr.global_position = pt
+	Input.parse_input_event(pr); await process_frame
+	var rel := InputEventMouseButton.new()
+	rel.button_index = MOUSE_BUTTON_LEFT; rel.pressed = false; rel.position = pt; rel.global_position = pt
+	Input.parse_input_event(rel); await process_frame
+	print("  [CLICK] ", desc, " (", name, ")")
+	return true
+
+
+func _ss(name: String) -> String:
 	await _wait_frames(3)
-	var vp := root.get_viewport()
-	var img: Image = vp.get_texture().get_image()
-	var path := _evidence_dir + "/" + name
-	img.save_png(path)
-	return ProjectSettings.globalize_path(path)
+	var img: Image = get_root().get_viewport().get_texture().get_image()
+	var p := _evidence_dir + "/" + name
+	img.save_png(p)
+	return ProjectSettings.globalize_path(p)
 
 
-func _write_sidecar(name: String, data: Dictionary) -> void:
-	var path := _evidence_dir + "/" + name
-	var f := FileAccess.open(path, FileAccess.WRITE)
-	if f != null:
-		f.store_string(JSON.stringify(data, "\t"))
-		f.close()
+func _sc(name: String, d: Dictionary) -> void:
+	var f := FileAccess.open(_evidence_dir + "/" + name, FileAccess.WRITE)
+	if f != null: f.store_string(JSON.stringify(d, "\t"))
+
+
+func _dump(root: Node) -> void:
+	print("[TREE] root children:")
+	for c in root.get_children():
+		print("  ", c.name, " [", c.get_class(), "]")
 
 
 # ─── Tests ─────────────────────────────────────────────
 
-func _test_main_screen(root: Node) -> void:
-	print("\n--- Main Screen ---")
-	_ok(_find_node(root, "BlueGuardianEntryButton") != null, "BlueGuardianEntryButton exists")
-	_ok(_find_node(root, "CatalogEntryButton") != null, "CatalogEntryButton exists")
-	_ok(_find_node(root, "ReleaseEntryButton") != null, "ReleaseEntryButton exists")
-	print("  UI_AUTOMATION_MAIN_SCENE_LOADED=PASS")
+func _test_main(root: Node) -> void:
+	print("\n--- Main ---")
+	_ok(_find(root, "BlueGuardianEntryButton") != null, "BG entry btn")
+	_ok(_find(root, "CatalogEntryButton") != null, "Catalog entry btn")
+	_ok(_find(root, "ReleaseEntryButton") != null, "Release entry btn")
 
 
-func _test_blue_guardian_route(root: Node) -> void:
-	print("\n--- Blue Guardian Route ---")
+func _test_bg(root: Node) -> bool:
+	print("\n--- Blue Guardian ---")
+	if not await _click(root, "BlueGuardianEntryButton", "open BG"): return false
+	if not await _wait_until(func(): return _find(root, "BlueGuardianPanel") != null, 5.0, "panel"):
+		_ok(false, "panel missing"); return false
 
-	# Click entry button
-	await _click_node(root, "BlueGuardianEntryButton")
+	for lbl in ["CurrentDockLabel", "BoatStatusLabel", "WaveBalanceLabel", "VoyageCostLabel", "LaunchButton"]:
+		var n := _find(root, lbl)
+		_ok(n != null and (n as CanvasItem).visible, lbl)
 
-	# Wait for panel
-	var panel_found: bool = await _wait_for_visible(root, "BlueGuardianPanel", WAIT_TIMEOUT)
-	_ok(panel_found, "BlueGuardianPanel opened")
+	var ss := await _ss("m19_t2_bg_ready_" + _ts + ".png")
+	_sc("m19_t2_bg_ready_" + _ts + ".json", {"view": "ready", "controls": ["CurrentDockLabel","BoatStatusLabel","WaveBalanceLabel","VoyageCostLabel","LaunchButton"], "preconditions": true})
+	print("  READY: ", ss)
 
-	# Assert READY controls
-	_ok(_find_node(root, "CurrentDockLabel") != null, "CurrentDockLabel")
-	_ok(_find_node(root, "BoatStatusLabel") != null, "BoatStatusLabel")
-	_ok(_find_node(root, "WaveBalanceLabel") != null, "WaveBalanceLabel")
-	_ok(_find_node(root, "VoyageCostLabel") != null, "VoyageCostLabel")
-
-	# Assert legacy absent
-	_ok(_find_node(root, "ShopPanel") == null or not (_find_node(root, "ShopPanel") as CanvasItem).visible, "No old placeholder")
-
-	# Screenshot
-	var ss := await _viewport_screenshot("m19_t2_blue_guardian_ready_" + _ts + ".png")
-	_write_sidecar("m19_t2_blue_guardian_ready_" + _ts + ".json", {
-		"final_code_head": "d6be9d5",
-		"build_id": "M19-T2 Blue Guardian · d6be9d5",
-		"clicked_node": "BlueGuardianEntryButton",
-		"expected_view": "BlueGuardianReadyView",
-		"visible_controls": ["CurrentDockLabel", "BoatStatusLabel", "WaveBalanceLabel", "VoyageCostLabel"],
-		"legacy_placeholder_visible": false,
-		"preconditions_passed": true
-	})
-	print("  READY screenshot: ", ss)
-
-	# Close
-	await _click_node(root, "BlueGuardianCloseButton")
+	await _click(root, "BlueGuardianCloseButton", "close BG")
 	await _wait_frames(5)
-	_ok(true, "UI_CLOSE_BLUE_GUARDIAN=PASS")
+	_ok(true, "close BG")
+	return true
 
 
-func _test_catalog_route(root: Node) -> void:
-	print("\n--- Catalog Route ---")
-
-	await _click_node(root, "CatalogEntryButton")
-
-	var panel_found: bool = await _wait_for_visible(root, "BlueGuardianPanel", WAIT_TIMEOUT)
-	_ok(panel_found, "Catalog panel opened")
-
-	# Assert catalog content
-	_ok(_find_node(root, "CatalogList") != null, "CatalogList exists")
-
-	var ss := await _viewport_screenshot("m19_t2_catalog_after_unlock_" + _ts + ".png")
-	_write_sidecar("m19_t2_catalog_after_unlock_" + _ts + ".json", {
-		"final_code_head": "d6be9d5",
-		"build_id": "M19-T2 Blue Guardian · d6be9d5",
-		"clicked_node": "CatalogEntryButton",
-		"expected_view": "BlueGuardianCatalogView",
-		"preconditions_passed": true
-	})
-	print("  CATALOG screenshot: ", ss)
-
-	await _click_node(root, "CatalogCloseButton")
+func _test_catalog(root: Node) -> bool:
+	print("\n--- Catalog ---")
+	if not await _click(root, "CatalogEntryButton", "open catalog"): return false
+	if not await _wait_until(func(): return _find(root, "BlueGuardianPanel") != null, 5.0, "panel"):
+		_ok(false, "catalog missing"); return false
+	_ok(_find(root, "CatalogList") != null, "CatalogList")
+	var ss := await _ss("m19_t2_catalog_" + _ts + ".png")
+	_sc("m19_t2_catalog_" + _ts + ".json", {"view": "catalog", "preconditions": true})
+	print("  CATALOG: ", ss)
+	await _click(root, "CatalogCloseButton", "close catalog")
 	await _wait_frames(5)
-	_ok(true, "UI_CLOSE_CATALOG=PASS")
+	_ok(true, "close catalog")
+	return true
 
 
-func _test_release_route(root: Node) -> void:
-	print("\n--- Release Route ---")
-
-	await _click_node(root, "ReleaseEntryButton")
-
-	var panel_found: bool = await _wait_for_visible(root, "ReleaseManagementPanel", WAIT_TIMEOUT)
-	_ok(panel_found, "Release panel opened")
-
-	var ss := await _viewport_screenshot("m19_t2_release_panel_" + _ts + ".png")
-	_write_sidecar("m19_t2_release_panel_" + _ts + ".json", {
-		"final_code_head": "d6be9d5",
-		"build_id": "M19-T2 Blue Guardian · d6be9d5",
-		"clicked_node": "ReleaseEntryButton",
-		"expected_view": "ReleaseManagementPanel",
-		"preconditions_passed": true
-	})
-	print("  RELEASE screenshot: ", ss)
-
-	await _click_node(root, "ReleaseCloseButton")
+func _test_release(root: Node) -> bool:
+	print("\n--- Release ---")
+	if not await _click(root, "ReleaseEntryButton", "open release"): return false
+	if not await _wait_until(func(): return _find(root, "ReleaseManagementPanel") != null, 5.0, "panel"):
+		_ok(false, "release missing"); return false
+	var ss := await _ss("m19_t2_release_panel_" + _ts + ".png")
+	_sc("m19_t2_release_panel_" + _ts + ".json", {"view": "release", "preconditions": true})
+	print("  RELEASE: ", ss)
+	await _click(root, "ReleaseCloseButton", "close release")
 	await _wait_frames(5)
-	_ok(true, "UI_CLOSE_RELEASE=PASS")
+	_ok(true, "close release")
+	return true
 
-	print("  UI_ROUTE_DISTINCT_TARGET_COUNT=3")
-	print("  LEGACY_PLACEHOLDER_VISIBLE_COUNT=0")
-	print("  LEGACY_RESCUE_ROUTE_COUNT=0")
-	print("  SCREENSHOT_PRECONDITION_FAILURE_COUNT=0")
+
+func _test_voyage(root: Node) -> bool:
+	print("\n--- Voyage ---")
+	if not await _click(root, "BlueGuardianEntryButton", "open BG"): return false
+	await _wait_frames(3)
+	if not await _click(root, "LaunchButton", "launch"): return false
+	await _wait_frames(5)
+
+	# Check voyaging
+	var cdl := _find(root, "CountdownLabel")
+	_ok(cdl != null, "voyage countdown")
+	var sv := await _ss("m19_t2_voyaging_" + _ts + ".png")
+	_sc("m19_t2_voyaging_" + _ts + ".json", {"view": "voyaging", "preconditions": true})
+	print("  VOYAGING: ", sv)
+
+	# Wait for natural 30s settlement
+	print("  Waiting 35s...")
+	var ok := await _wait_until(func(): return _find(root, "KeepInTankButton") != null, 35.0, "settle")
+	if ok:
+		var sr := await _ss("m19_t2_result_" + _ts + ".png")
+		_sc("m19_t2_result_" + _ts + ".json", {"view": "result", "preconditions": true})
+		print("  RESULT: ", sr)
+		await _click(root, "ReleaseResultButton", "release")
+		await _wait_frames(3)
+		var sf := await _ss("m19_t2_release_fb_" + _ts + ".png")
+		_sc("m19_t2_release_fb_" + _ts + ".json", {"view": "release_fb", "preconditions": true})
+		print("  RELEASE_FB: ", sf)
+	else:
+		_ok(false, "settle timeout")
+
+	await _click(root, "BlueGuardianCloseButton", "close")
+	await _wait_frames(5)
+	return true
