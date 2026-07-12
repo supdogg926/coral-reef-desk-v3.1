@@ -110,6 +110,7 @@ func _build_ui() -> void:
 
 
 	_action_btn = _btn("启航救助", ACCENT_COLOR)
+	_action_btn.name = "LaunchButton"
 	_action_btn.pressed.connect(_on_action)
 	_ready_section.add_child(_action_btn)
 
@@ -133,6 +134,7 @@ func _build_ui() -> void:
 	vbox.add_child(_result_section)
 
 	_result_image = TextureRect.new()
+	_result_image.name = "ResultImage"
 	_result_image.custom_minimum_size = Vector2(200, 140)
 	_result_image.expand_mode = TextureRect.EXPAND_FIT_WIDTH_PROPORTIONAL
 	_result_section.add_child(_result_image)
@@ -140,6 +142,7 @@ func _build_ui() -> void:
 	_result_new_label = _lbl("", 12, Color(0.96, 0.72, 0.36))
 	_result_section.add_child(_result_new_label)
 	_result_name = _lbl("", 16, TEXT_COLOR)
+	_result_name.name = "ResultSpeciesName"
 	_result_section.add_child(_result_name)
 	_result_desc = _lbl("", 12, MUTED_COLOR)
 	_result_desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -150,9 +153,11 @@ func _build_ui() -> void:
 	result_btns.alignment = BoxContainer.ALIGNMENT_CENTER
 	_result_section.add_child(result_btns)
 	_keep_btn = _btn("留在海缸", Color(0.58, 0.82, 0.68))
+	_keep_btn.name = "KeepInTankButton"
 	_keep_btn.pressed.connect(_on_keep)
 	result_btns.add_child(_keep_btn)
 	_release_btn = _btn("放归", Color(0.88, 0.72, 0.52))
+	_release_btn.name = "ReleaseResultButton"
 	_release_btn.pressed.connect(_on_release)
 	result_btns.add_child(_release_btn)
 
@@ -174,9 +179,11 @@ func _build_ui() -> void:
 	bottom_row.alignment = BoxContainer.ALIGNMENT_CENTER
 	vbox.add_child(bottom_row)
 	var cat_btn := _btn("图鉴", MUTED_COLOR)
+	cat_btn.name = "CatalogCloseButton"
 	cat_btn.pressed.connect(_toggle_catalog)
 	bottom_row.add_child(cat_btn)
 	var close_btn := _btn("关闭", MUTED_COLOR)
+	close_btn.name = "BlueGuardianCloseButton"
 	close_btn.pressed.connect(func(): hide())
 	bottom_row.add_child(close_btn)
 
