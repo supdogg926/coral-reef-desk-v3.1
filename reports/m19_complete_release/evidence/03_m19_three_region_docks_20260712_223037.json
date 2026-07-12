@@ -1,0 +1,9 @@
+{
+  "regions": 3,
+  "docks": [
+    "近岸救助点",
+    "礁缘救助点",
+    "深礁救助站"
+  ],
+  "preconditions_passed": true
+}
