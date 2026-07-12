@@ -16,3 +16,5 @@ dist/
 Thumbs.db
 *.uid
 *.import
+.build_head
+.build_head

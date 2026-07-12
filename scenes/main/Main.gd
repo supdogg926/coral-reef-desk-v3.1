@@ -38,6 +38,16 @@ func _ready() -> void:
 	game_state.initialize()
 	_update_status_labels()
 	_setup_panels()
+	_update_window_title()
+
+
+func _update_window_title() -> void:
+	var head := "dev"
+	var f := FileAccess.open("res://.build_head", FileAccess.READ)
+	if f != null:
+		head = f.get_as_text().strip_edges()
+		f.close()
+	DisplayServer.window_set_title("M19-T2 Blue Guardian · " + head)
 
 
 func _process(delta: float) -> void:
