@@ -687,7 +687,7 @@ func configure_dock_controls(maintenance_actions: Array, feeding_actions: Array,
 		rescue_button = _make_dock_button("放归")
 		rescue_button.tooltip_text = "康复生物放归大海"
 		rescue_button.name = "ReleaseEntryButton"
-		_connect_button(rescue_button, callbacks.get("rescue", Callable()))
+		_connect_button(rescue_button, callbacks.get("release", Callable()))
 		entry_parent.add_child(rescue_button)
 		result["rescue_btn"] = rescue_button
 

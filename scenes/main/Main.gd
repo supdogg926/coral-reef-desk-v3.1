@@ -394,7 +394,9 @@ func _open_catalog_view() -> void:
 
 
 func _open_release_management() -> void:
+	printerr("[RELEASE_DEBUG] livestock_panel=", livestock_panel)
 	if livestock_panel == null:
+		printerr("[RELEASE_DEBUG] livestock_panel is NULL!")
 		return
 	_hide_all_secondary_panels()
 	livestock_panel.open_release_mode()
