@@ -14,7 +14,7 @@ compatibility/default_parent_skeleton_in_mesh_instance_3d=true
 
 [application]
 
-config/name="CoralReefIdleV3"
+config/name="M19 v4.0 Blue Guardian"
 run/main_scene="res://scenes/main/Main.tscn"
 config/features=PackedStringArray("4.7")
 

@@ -50,7 +50,7 @@ func _update_window_title() -> void:
 	if f != null:
 		head = f.get_as_text().strip_edges()
 		f.close()
-	var title := "M19-T2 Blue Guardian · " + head
+	var title := "M19 v4.0 Blue Guardian · " + head
 	print("[BUILD] window title: ", title)
 	DisplayServer.window_set_title(title)
 
