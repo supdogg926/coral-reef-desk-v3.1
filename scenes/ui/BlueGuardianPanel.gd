@@ -221,8 +221,7 @@ func open_catalog_view() -> void:
 	_voyaging_section.visible = false
 	_result_section.visible = false
 	_catalog_section.visible = true
-	var cb := _find_close_button()
-	if cb != null: cb.name = "CatalogCloseButton"
+	# Close button keeps BlueGuardianCloseButton name for automation
 	if _service != null:
 		var ids: Array = _service.get_collection_ids()
 		var cat_text := "已发现：%d

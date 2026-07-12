@@ -158,9 +158,9 @@ func _test_catalog(root: Node) -> bool:
 	var ss := await _ss("m19_t2_catalog_" + _ts + ".png")
 	_sc("m19_t2_catalog_" + _ts + ".json", {"view": "catalog", "preconditions": true})
 	print("  CATALOG: ", ss)
-	await _click(root, "BlueGuardianCloseButton", "close catalog")
+	var closed: bool = await _click(root, "BlueGuardianCloseButton", "close catalog")
 	await _wait_frames(5)
-	_ok(true, "close catalog")
+	if closed: _ok(true, "close catalog")
 	return true
 
 
@@ -172,9 +172,9 @@ func _test_release(root: Node) -> bool:
 	var ss := await _ss("m19_t2_release_panel_" + _ts + ".png")
 	_sc("m19_t2_release_panel_" + _ts + ".json", {"view": "release", "preconditions": true})
 	print("  RELEASE: ", ss)
-	await _click(root, "BlueGuardianCloseButton", "close release")
+	var closed2: bool = await _click(root, "BlueGuardianCloseButton", "close release")
 	await _wait_frames(5)
-	_ok(true, "close release")
+	if closed2: _ok(true, "close release")
 	return true
 
 
