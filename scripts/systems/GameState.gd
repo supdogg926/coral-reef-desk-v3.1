@@ -2,7 +2,7 @@ class_name GameState
 extends RefCounted
 
 var initialized: bool = false
-var milestone: String = "M11 prototype biomanage and water maintenance"
+var milestone: String = "M19-T2 Blue Guardian · f8f1fd6"
 var reef_points: float = 0.0
 var unlocked_tier: int = 1
 var time_system: TimeSystem = null

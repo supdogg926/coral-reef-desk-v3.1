@@ -671,8 +671,8 @@ func configure_dock_controls(maintenance_actions: Array, feeding_actions: Array,
 	if entry_parent != null:
 		_clear_container_children(entry_parent)
 		var shop_button: Button = _make_dock_button("蓝色守护")
-		shop_button.tooltip_text = "巡海救助系统将在下一阶段开放"
-		_connect_button(shop_button, callbacks.get("shop", Callable()))
+		shop_button.tooltip_text = "蓝色守护救助系统"
+		_connect_button(shop_button, callbacks.get("blue_guardian", Callable()))
 		entry_parent.add_child(shop_button)
 		result["shop_btn"] = shop_button
 
