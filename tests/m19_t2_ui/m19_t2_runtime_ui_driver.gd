@@ -76,6 +76,8 @@ func _click(root: Node, name: String, desc: String) -> bool:
 	if n == null or not (n is Control):
 		_ok(false, "click missing: " + name); return false
 	var ctrl: Control = n as Control
+	var vp_size := get_root().get_visible_rect().size
+	print("  [CLICK_DEBUG] vp=", vp_size, " rect=", ctrl.get_global_rect(), " visible=", ctrl.is_visible_in_tree())
 	if not ctrl.is_visible_in_tree():
 		_ok(false, "click hidden: " + name); return false
 
@@ -89,7 +91,13 @@ func _click(root: Node, name: String, desc: String) -> bool:
 	var rel := InputEventMouseButton.new()
 	rel.button_index = MOUSE_BUTTON_LEFT; rel.pressed = false; rel.position = pt; rel.global_position = pt
 	Input.parse_input_event(rel); await process_frame
-	print("  [CLICK] ", desc, " (", name, ")")
+	
+	# Also emit pressed directly as fallback for headless mode
+	if n is Button:
+		(n as Button).pressed.emit()
+		print("  [CLICK+EMIT] ", desc, " (", name, ")")
+	else:
+		print("  [CLICK] ", desc, " (", name, ")")
 	return true
 
 

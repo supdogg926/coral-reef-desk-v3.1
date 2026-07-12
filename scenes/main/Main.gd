@@ -421,13 +421,12 @@ func _toggle_blue_guardian() -> void:
 	if blue_guardian_panel.visible:
 		blue_guardian_panel.hide()
 	else:
-		if shop_panel != null: shop_panel.hide()
-		if livestock_panel != null: livestock_panel.hide()
-		if rescue_panel != null: rescue_panel.hide()
+		_hide_all_secondary_panels()
 		blue_guardian_panel.anchor_left = 0.04
-		blue_guardian_panel.anchor_right = 0.60
-		blue_guardian_panel.anchor_top = 0.12
-		blue_guardian_panel.anchor_bottom = 0.90
+		blue_guardian_panel.anchor_right = 0.96
+		blue_guardian_panel.anchor_top = 0.10
+		blue_guardian_panel.anchor_bottom = 0.92
+		blue_guardian_panel.open_ready_view()
 		blue_guardian_panel.show()
 		if panel_status_label != null:
 			panel_status_label.text = "已打开：蓝色守护"

@@ -672,18 +672,21 @@ func configure_dock_controls(maintenance_actions: Array, feeding_actions: Array,
 		_clear_container_children(entry_parent)
 		var shop_button: Button = _make_dock_button("蓝色守护")
 		shop_button.tooltip_text = "蓝色守护救助系统"
+		shop_button.name = "BlueGuardianEntryButton"
 		_connect_button(shop_button, callbacks.get("blue_guardian", Callable()))
 		entry_parent.add_child(shop_button)
 		result["shop_btn"] = shop_button
 
 		var livestock_button: Button = _make_dock_button("图鉴")
 		livestock_button.tooltip_text = "海洋生物图鉴与照护记录"
+		livestock_button.name = "CatalogEntryButton"
 		_connect_button(livestock_button, callbacks.get("livestock", Callable()))
 		entry_parent.add_child(livestock_button)
 		result["livestock_btn"] = livestock_button
 
 		rescue_button = _make_dock_button("放归")
 		rescue_button.tooltip_text = "康复生物放归大海"
+		rescue_button.name = "ReleaseEntryButton"
 		_connect_button(rescue_button, callbacks.get("rescue", Callable()))
 		entry_parent.add_child(rescue_button)
 		result["rescue_btn"] = rescue_button
