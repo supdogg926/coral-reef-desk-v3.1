@@ -1,0 +1,5 @@
+{
+  "view": "catalog_overview",
+  "distinct_from_release": true,
+  "preconditions_passed": true
+}
