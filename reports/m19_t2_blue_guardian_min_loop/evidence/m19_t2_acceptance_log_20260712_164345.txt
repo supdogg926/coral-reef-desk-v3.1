@@ -1,0 +1,68 @@
+Godot Engine v4.7.stable.official.5b4e0cb0f - https://godotengine.org
+
+[M19_T2] STAGE=01_RUNNER_START
+[M19_T2] STAGE=02_FAKES
+[M19_T2] STAGE=03_SERVICE
+[M19_T2] STAGE=04_CONFIGURE
+[M19_T2] STAGE=05_TESTS
+
+--- Deny ---
+  [PASS] NONE
+  [PASS] VOYAGING
+  [PASS] PENDING
+  [PASS] INSUFFICIENT
+
+--- Launch ---
+  [PASS] launch ok
+  [PASS] waves deducted
+  [PASS] seq++
+  [PASS] VOYAGING
+
+--- Rollback ---
+  [PASS] fail on commit
+  [PASS] seq restored
+  [PASS] READY restored
+
+--- 100 Voyages ---
+  [PASS] VOYAGE_COUNT_TESTED=100
+  [PASS] ORGANISM_RESULT_COUNT=100
+  [PASS] UNIQUE_SPECIES_RESULT_COUNT=6
+  [PASS] FORMAL_DROP_SPECIES_COUNT=6
+  [PASS] EMPTY_RESULT_COUNT=0
+  [PASS] INVALID_SPECIES_ID_COUNT=0
+  [PASS] RESERVED_SPECIES_RESULT_COUNT=0
+  [PASS] HEADLESS_100_VOYAGE_DURATION_MS=1
+  [PASS] REPRODUCIBLE_RESULT=PASS
+
+--- Reload ---
+  [PASS] CROSS_DAY_RELOAD_NO_REROLL
+  [PASS] DOCK_INVARIANCE
+
+--- Clock ---
+  [PASS] BACKWARD_CLAMP
+  [PASS] FORWARD_ACCEPT
+  [PASS] NO_DUP_SETTLE
+
+--- Collection ---
+  [PASS] SAVE_RESTORE
+  [PASS] DEDUP
+
+--- Capacity ---
+  [PASS] FULL_GUARD
+  [PASS] RECOVERY_REENABLE
+
+--- Release ---
+  [PASS] PULSE_EXACTLY_ONCE
+  [PASS] recorded
+  [PASS] no-op
+  [PASS] no dup
+
+--- H1 ---
+  [PASS] WallClock
+[SeedMixer] All known vectors PASS
+  [PASS] SeedMixer
+
+--- Commerce ---
+  SECOND_CURRENCY=0 COMMERCE_TERMS=0 M19_T3=0 DENY_MATRIX=PASS
+[M19_T2] DONE pass=35 fail=0
+
