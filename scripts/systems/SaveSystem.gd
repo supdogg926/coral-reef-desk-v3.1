@@ -21,13 +21,51 @@ var last_json_safety_ok: bool = true
 var last_json_safety_error_count: int = 0
 var _test_fault_points: Dictionary = {}
 var wall_clock: WallClockService = null
+var _test_save_root: String = ""
 
 
 func initialize(p_wall_clock: WallClockService = null) -> void:
 	save_errors.clear()
-	save_exists = FileAccess.file_exists(SAVE_PATH)
+	save_exists = FileAccess.file_exists(_final())
 	wall_clock = p_wall_clock
 	initialized = true
+
+
+func set_test_save_root(root: String) -> void:
+	_test_save_root = root
+
+func clear_test_save_root() -> void:
+	_test_save_root = ""
+
+func _final_filename() -> String:
+	if not _test_save_root.is_empty():
+		return "final.json"
+	return "reef_idle_v3_save.json"
+
+func _tmp_filename() -> String:
+	if not _test_save_root.is_empty():
+		return "tmp.json"
+	return "reef_idle_v3_save.json.tmp"
+
+func _bak_filename() -> String:
+	if not _test_save_root.is_empty():
+		return "bak.json"
+	return "reef_idle_v3_save.json.bak"
+
+func _final() -> String:
+	if not _test_save_root.is_empty():
+		return _test_save_root + "/final.json"
+	return SAVE_PATH
+
+func _tmp() -> String:
+	if not _test_save_root.is_empty():
+		return _test_save_root + "/tmp.json"
+	return SAVE_TEMP_PATH
+
+func _bak() -> String:
+	if not _test_save_root.is_empty():
+		return _test_save_root + "/bak.json"
+	return SAVE_BACKUP_PATH
 
 
 func save_game(game_state_dict: Dictionary) -> bool:
@@ -55,7 +93,7 @@ func save_game(game_state_dict: Dictionary) -> bool:
 	print("[SAVE] json serialized, length=", json_text.length())
 
 	# --- Step 1: Clean orphaned tmp ---
-	_remove_file_if_exists(SAVE_TEMP_PATH)
+	_remove_file_if_exists(_tmp())
 
 	# --- Step 2: Write to temp file ---
 	if not _atomic_write_temp_file(json_text):
@@ -63,21 +101,26 @@ func save_game(game_state_dict: Dictionary) -> bool:
 
 	# --- Step 3: Validate temp file ---
 	if not _atomic_validate_temp_file():
-		_remove_file_if_exists(SAVE_TEMP_PATH)
+		_remove_file_if_exists(_tmp())
 		return _finish_save_failure("Temporary save file validation failed")
 
 	# --- Step 4: Replace final with temp ---
 	if not _atomic_replace_final():
-		_remove_file_if_exists(SAVE_TEMP_PATH)
+		_remove_file_if_exists(_tmp())
 		return _finish_save_failure("Failed to replace final save file")
 
 	# --- Step 5: Validate final file ---
 	if not _atomic_validate_final_file():
+		# Restore from backup if possible
+		if FileAccess.file_exists(_bak()):
+			_remove_file_if_exists(_final())
+			_rename_file(_bak(), _final())
+			print("[SAVE] restored final from backup after validation failure")
 		return _finish_save_failure("Final save file validation failed after replacement")
 
 	# --- Step 6: Cleanup ---
-	_remove_file_if_exists(SAVE_TEMP_PATH)
-	_remove_file_if_exists(SAVE_BACKUP_PATH)
+	_remove_file_if_exists(_tmp())
+	_remove_file_if_exists(_bak())
 
 	# --- Success ---
 	last_save_unix_time = timestamp
@@ -116,9 +159,9 @@ func _atomic_write_temp_file(json_text: String) -> bool:
 	if _test_fault_points.get("TEMP_OPEN", false):
 		print("[SAVE] FAULT INJECT: TEMP_OPEN")
 		return false
-	var file: FileAccess = FileAccess.open(SAVE_TEMP_PATH, FileAccess.WRITE)
+	var file: FileAccess = FileAccess.open(_tmp(), FileAccess.WRITE)
 	if file == null:
-		print("[SAVE] temp file open FAILED: ", SAVE_TEMP_PATH)
+		print("[SAVE] temp file open FAILED: ", _tmp())
 		return false
 	if _test_fault_points.get("TEMP_WRITE", false):
 		print("[SAVE] FAULT INJECT: TEMP_WRITE")
@@ -127,7 +170,7 @@ func _atomic_write_temp_file(json_text: String) -> bool:
 	file.store_string(json_text)
 	file.flush()
 	file.close()
-	print("[SAVE] temp file written: ", SAVE_TEMP_PATH)
+	print("[SAVE] temp file written: ", _tmp())
 	return true
 
 
@@ -135,10 +178,10 @@ func _atomic_validate_temp_file() -> bool:
 	if _test_fault_points.get("TEMP_VALIDATE", false):
 		print("[SAVE] FAULT INJECT: TEMP_VALIDATE")
 		return false
-	if not FileAccess.file_exists(SAVE_TEMP_PATH):
+	if not FileAccess.file_exists(_tmp()):
 		print("[SAVE] temp file missing after write")
 		return false
-	var file: FileAccess = FileAccess.open(SAVE_TEMP_PATH, FileAccess.READ)
+	var file: FileAccess = FileAccess.open(_tmp(), FileAccess.READ)
 	if file == null:
 		print("[SAVE] cannot re-open temp file for validation")
 		return false
@@ -162,26 +205,19 @@ func _atomic_replace_final() -> bool:
 	if _test_fault_points.get("BACKUP_OR_REPLACE", false):
 		print("[SAVE] FAULT INJECT: BACKUP_OR_REPLACE")
 		return false
-	var dir: DirAccess = DirAccess.open("user://")
-	if dir == null:
-		print("[SAVE] cannot access user:// for rename")
-		return false
 	# Remove old backup if exists
-	_remove_file_if_exists(SAVE_BACKUP_PATH)
+	_remove_file_if_exists(_bak())
 	# If final exists, rename to backup first
-	if FileAccess.file_exists(SAVE_PATH):
-		var bak_err: Error = dir.rename("reef_idle_v3_save.json", "reef_idle_v3_save.json.bak")
-		if bak_err != OK:
-			print("[SAVE] failed to backup final, error=", bak_err)
-			# If we can't backup, the final is still intact; we fail
+	if FileAccess.file_exists(_final()):
+		if not _rename_file(_final(), _bak()):
+			print("[SAVE] failed to backup final")
 			return false
 	# Rename tmp to final
-	var final_err: Error = dir.rename("reef_idle_v3_save.json.tmp", "reef_idle_v3_save.json")
-	if final_err != OK:
-		print("[SAVE] failed to rename tmp to final, error=", final_err)
+	if not _rename_file(_tmp(), _final()):
+		print("[SAVE] failed to rename tmp to final")
 		# Attempt restore from backup
-		if FileAccess.file_exists(SAVE_BACKUP_PATH):
-			dir.rename("reef_idle_v3_save.json.bak", "reef_idle_v3_save.json")
+		if FileAccess.file_exists(_bak()):
+			_rename_file(_bak(), _final())
 		return false
 	print("[SAVE] tmp renamed to final")
 	return true
@@ -191,10 +227,10 @@ func _atomic_validate_final_file() -> bool:
 	if _test_fault_points.get("FINAL_VALIDATE", false):
 		print("[SAVE] FAULT INJECT: FINAL_VALIDATE")
 		return false
-	if not FileAccess.file_exists(SAVE_PATH):
+	if not FileAccess.file_exists(_final()):
 		print("[SAVE] final file missing after rename")
 		return false
-	var file: FileAccess = FileAccess.open(SAVE_PATH, FileAccess.READ)
+	var file: FileAccess = FileAccess.open(_final(), FileAccess.READ)
 	if file == null:
 		print("[SAVE] cannot open final file for validation")
 		return false
@@ -214,11 +250,30 @@ func _atomic_validate_final_file() -> bool:
 func _remove_file_if_exists(path: String) -> void:
 	if not FileAccess.file_exists(path):
 		return
-	var dir: DirAccess = DirAccess.open("user://")
+	var dir_path: String = path.get_base_dir()
+	var fname: String = path.get_file()
+	var dir: DirAccess = DirAccess.open(dir_path)
 	if dir == null:
 		return
-	var filename: String = path.trim_prefix("user://")
-	dir.remove(filename)
+	dir.remove(fname)
+
+
+func _rename_file(from_path: String, to_path: String) -> bool:
+	if not FileAccess.file_exists(from_path):
+		print("[SAVE] rename source missing: ", from_path)
+		return false
+	var dir_path: String = from_path.get_base_dir()
+	var from_name: String = from_path.get_file()
+	var to_name: String = to_path.get_file()
+	var dir: DirAccess = DirAccess.open(dir_path)
+	if dir == null:
+		print("[SAVE] cannot open dir for rename: ", dir_path)
+		return false
+	var err: Error = dir.rename(from_name, to_name)
+	if err != OK:
+		print("[SAVE] rename failed: ", from_name, " -> ", to_name, " error=", err)
+		return false
+	return true
 
 
 func _update_save_metadata(save_data: Dictionary) -> void:
@@ -240,15 +295,15 @@ func _update_save_metadata(save_data: Dictionary) -> void:
 
 func load_game() -> Dictionary:
 	save_errors.clear()
-	var data: Variant = _try_load_file(SAVE_PATH)
+	var data: Variant = _try_load_file(_final())
 	if data != null and data is Dictionary:
 		save_exists = true
 		_cleanup_orphaned_temp_files()
 		return _post_load(data)
 	# Final missing or corrupt — try backup
-	if FileAccess.file_exists(SAVE_BACKUP_PATH):
+	if FileAccess.file_exists(_bak()):
 		print("[SAVE] final missing/corrupt, attempting backup recovery")
-		data = _try_load_file(SAVE_BACKUP_PATH)
+		data = _try_load_file(_bak())
 		if data != null and data is Dictionary:
 			save_exists = true
 			_cleanup_orphaned_temp_files()
@@ -357,18 +412,14 @@ func migrate_save_data(raw_data: Dictionary) -> Dictionary:
 
 
 func has_save_file() -> bool:
-	return FileAccess.file_exists(SAVE_PATH)
+	return FileAccess.file_exists(_final())
 
 
 func clear_save() -> bool:
 	save_errors.clear()
-	var dir: DirAccess = DirAccess.open("user://")
-	if dir == null:
-		save_errors.append("Cannot access user:// directory")
-		return false
-	_remove_file_if_exists(SAVE_PATH)
-	_remove_file_if_exists(SAVE_TEMP_PATH)
-	_remove_file_if_exists(SAVE_BACKUP_PATH)
+	_remove_file_if_exists(_final())
+	_remove_file_if_exists(_tmp())
+	_remove_file_if_exists(_bak())
 	last_save_unix_time = 0
 	save_exists = false
 	return true
@@ -377,7 +428,7 @@ func clear_save() -> bool:
 
 
 func get_save_path() -> String:
-	return SAVE_PATH
+	return _final()
 
 
 func get_last_save_timestamp() -> int:
@@ -395,7 +446,7 @@ func get_debug_state() -> Dictionary:
 		"initialized": initialized,
 		"save_version": SAVE_VERSION,
 		"save_schema": SAVE_SCHEMA_ID,
-		"save_path": SAVE_PATH,
+		"save_path": _final(),
 		"save_exists": save_exists,
 		"last_save_unix_time": last_save_unix_time,
 		"offline_cap_seconds": OFFLINE_CAP_SECONDS,
@@ -501,17 +552,15 @@ func _post_load(raw_data: Variant) -> Dictionary:
 
 
 func _cleanup_orphaned_temp_files() -> void:
-	_remove_file_if_exists(SAVE_TEMP_PATH)
+	_remove_file_if_exists(_tmp())
 
 
 func _restore_backup_to_final() -> void:
-	if not FileAccess.file_exists(SAVE_BACKUP_PATH):
+	if not FileAccess.file_exists(_bak()):
 		return
-	_remove_file_if_exists(SAVE_PATH)
-	var dir: DirAccess = DirAccess.open("user://")
-	if dir != null:
-		dir.rename("reef_idle_v3_save.json.bak", "reef_idle_v3_save.json")
-		print("[SAVE] restored backup to final")
+	_remove_file_if_exists(_final())
+	_rename_file(_bak(), _final())
+	print("[SAVE] restored backup to final")
 
 
 # --- Fault Injection API (test-only) ---
@@ -526,11 +575,11 @@ func clear_test_fault_points() -> void:
 
 
 func get_save_temp_path() -> String:
-	return SAVE_TEMP_PATH
+	return _tmp()
 
 
 func get_save_backup_path() -> String:
-	return SAVE_BACKUP_PATH
+	return _bak()
 
 
 
@@ -561,7 +610,7 @@ func _migrate_blue_guardian_state(raw: Dictionary, seed_time: int) -> Dictionary
 	var bg: Dictionary = raw.duplicate(true)
 	if not bg.has("schema_version") or not (bg["schema_version"] is int):
 		bg["schema_version"] = 1
-	if not bg.has("save_seed") or not (bg["save_seed"] is int) or int(bg["save_seed"]) <= 0:
+	if not bg.has("save_seed") or not (bg["save_seed"] is int or bg["save_seed"] is float) or int(bg["save_seed"]) <= 0:
 		bg["save_seed"] = _make_blue_guardian_defaults(seed_time)["save_seed"]
 	if not bg.has("voyage_sequence") or not (bg["voyage_sequence"] is int):
 		bg["voyage_sequence"] = 0
