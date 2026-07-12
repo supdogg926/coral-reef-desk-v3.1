@@ -6,6 +6,7 @@ var game_state: GameState = null
 var shop_panel: ShopPanel = null
 var livestock_panel: LivestockPanel = null
 var rescue_panel: RescueDockPanel = null
+var blue_guardian_panel: BlueGuardianPanel = null
 var shop_btn: Button = null
 var livestock_btn: Button = null
 var rescue_btn: Button = null
@@ -53,6 +54,8 @@ func _process(delta: float) -> void:
 		# M12 fix: don't overwrite player-facing panel_status_label
 		if panel_status_label != null and panel_status_label.text.begins_with("tick="):
 			panel_status_label.text = "tick=%d" % _alive_tick
+	if blue_guardian_panel != null and blue_guardian_panel.visible:
+		blue_guardian_panel._process(delta)
 	if livestock_panel != null and livestock_panel.visible:
 		_livestock_refresh_timer += delta
 		if _livestock_refresh_timer >= LIVESTOCK_REFRESH_INTERVAL:
@@ -103,6 +106,12 @@ func _setup_panels() -> void:
 	add_child(rescue_panel)
 	rescue_panel.setup(game_state)
 
+	blue_guardian_panel = BlueGuardianPanel.new()
+	blue_guardian_panel.hide()
+	add_child(blue_guardian_panel)
+	if game_state.blue_guardian_service != null:
+		blue_guardian_panel.setup(game_state.blue_guardian_service)
+
 	_panels_setup_done = true
 	_update_maintenance_button_states()
 	_update_device_button_states()
@@ -124,6 +133,7 @@ func _setup_bottom_dock_controls() -> void:
 	panel_status_label = null
 
 	var callbacks: Dictionary = {
+		"blue_guardian": Callable(self, "_toggle_blue_guardian"),
 		"shop": Callable(self, "_toggle_shop"),
 		"livestock": Callable(self, "_toggle_livestock"),
 		"rescue": Callable(self, "_toggle_rescue"),
@@ -335,6 +345,24 @@ func _toggle_livestock() -> void:
 			livestock_panel.get_parent().move_child(livestock_panel, livestock_panel.get_parent().get_child_count() - 1)
 		if panel_status_label != null:
 			panel_status_label.text = "已打开：我的生物"
+
+
+func _toggle_blue_guardian() -> void:
+	if blue_guardian_panel == null:
+		return
+	if blue_guardian_panel.visible:
+		blue_guardian_panel.hide()
+	else:
+		if shop_panel != null: shop_panel.hide()
+		if livestock_panel != null: livestock_panel.hide()
+		if rescue_panel != null: rescue_panel.hide()
+		blue_guardian_panel.anchor_left = 0.04
+		blue_guardian_panel.anchor_right = 0.60
+		blue_guardian_panel.anchor_top = 0.12
+		blue_guardian_panel.anchor_bottom = 0.90
+		blue_guardian_panel.show()
+		if panel_status_label != null:
+			panel_status_label.text = "已打开：蓝色守护"
 
 
 func _toggle_rescue() -> void:

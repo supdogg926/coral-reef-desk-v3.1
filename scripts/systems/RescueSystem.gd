@@ -189,6 +189,22 @@ func import_state(state: Dictionary) -> void:
 	_bag.clear()
 
 
+func record_release(species_id: String) -> void:
+	if codex_rescue_marks.has(species_id):
+		codex_rescue_marks[species_id]["last_released_day"] = _current_day()
+	else:
+		codex_rescue_marks[species_id] = {"rescued": true, "last_released_day": _current_day()}
+	completed_rescues.append({
+		"species_id": species_id,
+		"completed_at": _current_day(),
+		"reward_rp": 15,
+		"reputation_gain": 1,
+	})
+
+
+func _current_day() -> int:
+	return 1
+
 func get_debug_state() -> Dictionary:
 	return {
 		"initialized": initialized,
