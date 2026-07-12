@@ -187,13 +187,21 @@ func _build_ui() -> void:
 	vbox.add_child(bottom_row)
 	var cat_btn := _btn("图鉴", MUTED_COLOR)
 	cat_btn.name = "CatalogCloseButton"
-	cat_btn.pressed.connect(_toggle_catalog)
+	cat_btn.pressed.connect(func(): hide())
 	bottom_row.add_child(cat_btn)
 	var close_btn := _btn("关闭", MUTED_COLOR)
 	close_btn.name = "BlueGuardianCloseButton"
 	close_btn.pressed.connect(func(): hide())
 	bottom_row.add_child(close_btn)
 
+
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_VISIBILITY_CHANGED and visible:
+		if _bottom_row != null:
+			_bottom_row.visible = true
+			for child in _bottom_row.get_children():
+				if child is Button:
+					(child as Button).visible = true
 
 func _process(delta: float) -> void:
 	if _service == null or not visible:
