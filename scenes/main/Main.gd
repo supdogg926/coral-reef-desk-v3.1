@@ -262,10 +262,13 @@ func _manual_save_test() -> void:
 	if game_state == null:
 		return
 	print("[MANUAL SAVE] calling _perform_autosave")
-	game_state._perform_autosave()
+	var ok: bool = game_state._perform_autosave()
 	print("[MANUAL SAVE] _perform_autosave returned")
 	if panel_status_label != null:
-		panel_status_label.text = "手动保存完成"
+		if ok:
+			panel_status_label.text = "手动保存完成"
+		else:
+			panel_status_label.text = "保存失败！请重试"
 
 
 func _is_dev_debug_ui_enabled() -> bool:

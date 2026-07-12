@@ -1,0 +1,229 @@
+{
+	"blue_guardian_state": {
+		"active": false,
+		"active_dock_id": "",
+		"last_action_at": 0,
+		"last_rotation_at": 0,
+		"next_available_at": 0,
+		"pending_result": {},
+		"pending_reward_or_rescue_id": "",
+		"save_seed": 691097191,
+		"schema_version": 1,
+		"voyage_end_ts": 0,
+		"voyage_sequence": 0,
+		"voyage_state": "READY"
+	},
+	"collection_unlocked_species_ids": [],
+	"discovered_postcard_ids": [],
+	"dock_state": {
+		"candidate": {
+			"care_action_taken": "",
+			"care_need": "minor_injury",
+			"care_score": 0.0,
+			"care_used": false,
+			"category": "coral",
+			"injury_type": "reserved",
+			"is_rescue": true,
+			"recovery_progress": 0.0,
+			"recovery_rate_base": 26.0,
+			"rescue_id": "rescue_1_1",
+			"rescue_status": "waiting",
+			"rescued_at_day": 0.0,
+			"reward_reputation": 7.0,
+			"reward_rp": 8.0,
+			"species_id": "rescue_pulsing_xenia",
+			"species_name": "闪千手",
+			"water_pressure": 0.05
+		},
+		"current_rescue_id": "rescue_1_1",
+		"next_arrival": 1.0,
+		"rng_seed": 1984128397
+	},
+	"economy": {
+		"income_rate_per_game_hour": 2.16736941498833,
+		"reef_points": 6004.85764574183,
+		"reef_value": 59.0,
+		"total_reef_points_earned": 6004.85764574183
+	},
+	"equipment": {
+		"device_tiers": {},
+		"tier1_installed": true,
+		"tier2_preview": true,
+		"tier3_locked": true,
+		"tier3_trigger_state": {}
+	},
+	"last_save_unix_time": 1783840760,
+	"livestock": {
+		"current_capacity_used": 18.0,
+		"maintenance_health": 15.0,
+		"max_capacity": 30.0,
+		"owned_livestock": [
+			{
+				"base_income_per_hour": 0.48,
+				"category": "fish",
+				"health_percent": 100.0,
+				"id": "clownfish_pair",
+				"is_rescue": false,
+				"locked": false,
+				"maturity_percent": 100.0,
+				"rarity": "普通",
+				"rescue_status": "none",
+				"size_cm": 3.0,
+				"species_name": "小丑鱼一对",
+				"tank_slot_cost": 4.0,
+				"water_sensitivity": 0.45
+			},
+			{
+				"base_income_per_hour": 0.64,
+				"category": "fish",
+				"health_percent": 100.0,
+				"id": "blue_tang",
+				"is_rescue": false,
+				"locked": false,
+				"maturity_percent": 100.0,
+				"rarity": "普通",
+				"rescue_status": "none",
+				"size_cm": 3.0,
+				"species_name": "蓝吊",
+				"tank_slot_cost": 5.0,
+				"water_sensitivity": 0.6
+			},
+			{
+				"base_income_per_hour": 0.4,
+				"category": "coral",
+				"health_percent": 100.0,
+				"id": "anemone",
+				"is_rescue": false,
+				"locked": false,
+				"maturity_percent": 100.0,
+				"rarity": "普通",
+				"rescue_status": "none",
+				"size_cm": 3.0,
+				"species_name": "海葵",
+				"tank_slot_cost": 3.0,
+				"water_sensitivity": 0.75
+			},
+			{
+				"base_income_per_hour": 0.32,
+				"category": "coral",
+				"health_percent": 100.0,
+				"id": "green_star_polyps",
+				"is_rescue": false,
+				"locked": false,
+				"maturity_percent": 100.0,
+				"rarity": "普通",
+				"rescue_status": "none",
+				"size_cm": 3.0,
+				"species_name": "草皮珊瑚",
+				"tank_slot_cost": 2.0,
+				"water_sensitivity": 0.35
+			},
+			{
+				"base_income_per_hour": 0.28,
+				"category": "coral",
+				"health_percent": 100.0,
+				"id": "zoanthids",
+				"is_rescue": false,
+				"locked": false,
+				"maturity_percent": 100.0,
+				"rarity": "普通",
+				"rescue_status": "none",
+				"size_cm": 3.0,
+				"species_name": "纽扣珊瑚",
+				"tank_slot_cost": 2.0,
+				"water_sensitivity": 0.4
+			},
+			{
+				"base_income_per_hour": 0.24,
+				"category": "coral",
+				"health_percent": 100.0,
+				"id": "soft_coral_frag",
+				"is_rescue": false,
+				"locked": false,
+				"maturity_percent": 100.0,
+				"rarity": "普通",
+				"rescue_status": "none",
+				"size_cm": 3.0,
+				"species_name": "软体珊瑚断枝",
+				"tank_slot_cost": 2.0,
+				"water_sensitivity": 0.3
+			}
+		],
+		"tank_level": 1
+	},
+	"player": {
+		"reputation": 0
+	},
+	"recent_release_record_ids": [],
+	"release_count_by_species": {},
+	"release_total_count": 0,
+	"rescue_data": {
+		"active_rescue": {},
+		"codex_rescue_marks": {},
+		"completed_rescues": [],
+		"dock_state": {
+			"candidate": {
+				"care_action_taken": "",
+				"care_need": "minor_injury",
+				"care_score": 0.0,
+				"care_used": false,
+				"category": "coral",
+				"injury_type": "reserved",
+				"is_rescue": true,
+				"recovery_progress": 0.0,
+				"recovery_rate_base": 26.0,
+				"rescue_id": "rescue_1_1",
+				"rescue_status": "waiting",
+				"rescued_at_day": 0.0,
+				"reward_reputation": 7.0,
+				"reward_rp": 8.0,
+				"species_id": "rescue_pulsing_xenia",
+				"species_name": "闪千手",
+				"water_pressure": 0.05
+			},
+			"current_rescue_id": "rescue_1_1",
+			"next_arrival": 1.0,
+			"rng_seed": 1984128397
+		},
+		"ecological_reputation": 0,
+		"event_log": [
+			{
+				"day": 1.0,
+				"rescue_id": "rescue_1_1",
+				"species_id": "rescue_pulsing_xenia",
+				"type": "dock_arrival"
+			}
+		],
+		"release_reward_sum_reputation": 0,
+		"rng_state": 1984128397,
+		"schema_version": 1,
+		"total_release_rp_reward": 0
+	},
+	"save_schema": "res://data/schemas/save_schema.json",
+	"save_version": 4,
+	"time": {
+		"elapsed_seconds": 4830103.90381296
+	},
+	"unlocks": {
+		"current_stage": "中级玩家预备",
+		"unlocked_states": {
+			"tier1_running": true,
+			"tier2_equipment_preview": true,
+			"tier2_sump_space_preview": true,
+			"tier3_advanced_system_preview": false
+		}
+	},
+	"water_chemistry": {
+		"accumulated_simulation_seconds": 4824415.90381288,
+		"alkalinity": 8.66088147069731,
+		"calcium": 421.256185311722,
+		"chemistry_tick_count": 1124910,
+		"nitrate": 80.0,
+		"ph": 8.63814602585836,
+		"phosphate": 1.0,
+		"salinity": 36.0350722043725,
+		"temperature": 25.1,
+		"water_quality_score": 60.3338217419249
+	},
+	"waves_balance": 6004.85764574183
+}
