@@ -1,0 +1,9 @@
+{
+    "completed_at":  "2026-07-12T21:24:34.1261338+08:00",
+    "exit_code":  -1,
+    "tested_head":  "c6287ec",
+    "attempt_count":  1,
+    "input_fp":  "c6287ec|EF0165B1DF69|C7AFA46370AB",
+    "status":  "FAIL",
+    "started_at":  "2026-07-12T21:24:19.1048261+08:00"
+}

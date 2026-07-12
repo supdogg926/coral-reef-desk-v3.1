@@ -1,6 +1,184 @@
 {
-    "01_env":  {
-                   "status":  "PASS",
-                   "exit_code":  0
-               }
+    "14_restart":  [
+                       "2026-07-12 21:24:34 STAGE_START: 14_restart Save restart restore",
+                       "2026-07-12 21:24:36 STAGE_END: 14_restart result=PASS exit=0 head=c6287ec",
+                       {
+                           "completed_at":  "2026-07-12T21:24:36.1773031+08:00",
+                           "exit_code":  0,
+                           "tested_head":  "c6287ec",
+                           "attempt_count":  1,
+                           "input_fp":  "c6287ec|EF0165B1DF69|C7AFA46370AB",
+                           "status":  "PASS",
+                           "started_at":  "2026-07-12T21:24:34.1646650+08:00"
+                       }
+                   ],
+    "09_sim30":  [
+                     "2026-07-12 21:24:12 STAGE_START: 09_sim30 30-day simulation",
+                     "2026-07-12 21:24:14 STAGE_END: 09_sim30 result=PASS exit=0 head=c6287ec",
+                     {
+                         "completed_at":  "2026-07-12T21:24:14.9136147+08:00",
+                         "exit_code":  0,
+                         "tested_head":  "c6287ec",
+                         "attempt_count":  1,
+                         "input_fp":  "c6287ec|EF0165B1DF69|C7AFA46370AB",
+                         "status":  "PASS",
+                         "started_at":  "2026-07-12T21:24:12.9047663+08:00"
+                     }
+                 ],
+    "11_sim100":  [
+                      "2026-07-12 21:24:15 STAGE_START: 11_sim100 100-day simulation",
+                      "2026-07-12 21:24:18 STAGE_END: 11_sim100 result=PASS exit=0 head=c6287ec",
+                      {
+                          "completed_at":  "2026-07-12T21:24:18.0115826+08:00",
+                          "exit_code":  0,
+                          "tested_head":  "c6287ec",
+                          "attempt_count":  1,
+                          "input_fp":  "c6287ec|EF0165B1DF69|C7AFA46370AB",
+                          "status":  "PASS",
+                          "started_at":  "2026-07-12T21:24:16.0032671+08:00"
+                      }
+                  ],
+    "07_economy":  [
+                       "2026-07-12 21:24:10 STAGE_START: 07_economy Economy acceptance",
+                       "2026-07-12 21:24:11 STAGE_END: 07_economy result=PASS exit=0 head=c6287ec",
+                       {
+                           "completed_at":  "2026-07-12T21:24:11.8148410+08:00",
+                           "exit_code":  0,
+                           "tested_head":  "c6287ec",
+                           "attempt_count":  1,
+                           "input_fp":  "c6287ec|EF0165B1DF69|C7AFA46370AB",
+                           "status":  "PASS",
+                           "started_at":  "2026-07-12T21:24:10.8109973+08:00"
+                       }
+                   ],
+    "13_f5":  [
+                  "2026-07-12 21:24:19 STAGE_START: 13_f5 F5 startup verify",
+                  "2026-07-12 21:24:34 STAGE_END: 13_f5 result=FAIL exit=-1 head=c6287ec",
+                  {
+                      "completed_at":  "2026-07-12T21:24:34.1261338+08:00",
+                      "exit_code":  -1,
+                      "tested_head":  "c6287ec",
+                      "attempt_count":  1,
+                      "input_fp":  "c6287ec|EF0165B1DF69|C7AFA46370AB",
+                      "status":  "FAIL",
+                      "started_at":  "2026-07-12T21:24:19.1048261+08:00"
+                  }
+              ],
+    "02_parse":  [
+                     "2026-07-12 21:24:03 STAGE_START: 02_parse Headless parse",
+                     "2026-07-12 21:24:04 STAGE_END: 02_parse result=PASS exit=0 head=c6287ec",
+                     {
+                         "completed_at":  "2026-07-12T21:24:04.5591297+08:00",
+                         "exit_code":  0,
+                         "tested_head":  "c6287ec",
+                         "attempt_count":  1,
+                         "input_fp":  "c6287ec|EF0165B1DF69|C7AFA46370AB",
+                         "status":  "PASS",
+                         "started_at":  "2026-07-12T21:24:03.5468700+08:00"
+                     }
+                 ],
+    "08_save":  [
+                    "2026-07-12 21:24:11 STAGE_START: 08_save Save migration",
+                    "2026-07-12 21:24:12 STAGE_END: 08_save result=PASS exit=0 head=c6287ec",
+                    {
+                        "completed_at":  "2026-07-12T21:24:12.8700175+08:00",
+                        "exit_code":  0,
+                        "tested_head":  "c6287ec",
+                        "attempt_count":  1,
+                        "input_fp":  "c6287ec|EF0165B1DF69|C7AFA46370AB",
+                        "status":  "PASS",
+                        "started_at":  "2026-07-12T21:24:11.8505321+08:00"
+                    }
+                ],
+    "01_env":  [
+                   "2026-07-12 21:24:02 STAGE_START: 01_env Environment check",
+                   "2026-07-12 21:24:03 STAGE_END: 01_env result=PASS exit=0 head=c6287ec",
+                   {
+                       "completed_at":  "2026-07-12T21:24:03.4725748+08:00",
+                       "exit_code":  0,
+                       "tested_head":  "c6287ec",
+                       "attempt_count":  1,
+                       "input_fp":  "c6287ec|EF0165B1DF69|C7AFA46370AB",
+                       "status":  "PASS",
+                       "started_at":  "2026-07-12T21:24:02.4652047+08:00"
+                   }
+               ],
+    "12_regr":  [
+                    "2026-07-12 21:24:18 STAGE_START: 12_regr M13-M18 regression",
+                    "2026-07-12 21:24:19 STAGE_END: 12_regr result=PASS exit=0 head=c6287ec",
+                    {
+                        "completed_at":  "2026-07-12T21:24:19.0682358+08:00",
+                        "exit_code":  0,
+                        "tested_head":  "c6287ec",
+                        "attempt_count":  1,
+                        "input_fp":  "c6287ec|EF0165B1DF69|C7AFA46370AB",
+                        "status":  "PASS",
+                        "started_at":  "2026-07-12T21:24:18.0486107+08:00"
+                    }
+                ],
+    "03_h1":  [
+                  "2026-07-12 21:24:04 STAGE_START: 03_h1 H1 acceptance",
+                  "2026-07-12 21:24:05 STAGE_END: 03_h1 result=PASS exit=0 head=c6287ec",
+                  {
+                      "completed_at":  "2026-07-12T21:24:05.6146076+08:00",
+                      "exit_code":  0,
+                      "tested_head":  "c6287ec",
+                      "attempt_count":  1,
+                      "input_fp":  "c6287ec|EF0165B1DF69|C7AFA46370AB",
+                      "status":  "PASS",
+                      "started_at":  "2026-07-12T21:24:04.5951784+08:00"
+                  }
+              ],
+    "10_sim60":  [
+                     "2026-07-12 21:24:14 STAGE_START: 10_sim60 60-day simulation",
+                     "2026-07-12 21:24:15 STAGE_END: 10_sim60 result=PASS exit=0 head=c6287ec",
+                     {
+                         "completed_at":  "2026-07-12T21:24:15.9671564+08:00",
+                         "exit_code":  0,
+                         "tested_head":  "c6287ec",
+                         "attempt_count":  1,
+                         "input_fp":  "c6287ec|EF0165B1DF69|C7AFA46370AB",
+                         "status":  "PASS",
+                         "started_at":  "2026-07-12T21:24:14.9506546+08:00"
+                     }
+                 ],
+    "06_content":  [
+                       "2026-07-12 21:24:09 STAGE_START: 06_content Content acceptance",
+                       "2026-07-12 21:24:10 STAGE_END: 06_content result=PASS exit=0 head=c6287ec",
+                       {
+                           "completed_at":  "2026-07-12T21:24:10.7761765+08:00",
+                           "exit_code":  0,
+                           "tested_head":  "c6287ec",
+                           "attempt_count":  1,
+                           "input_fp":  "c6287ec|EF0165B1DF69|C7AFA46370AB",
+                           "status":  "PASS",
+                           "started_at":  "2026-07-12T21:24:09.7705486+08:00"
+                       }
+                   ],
+    "04_service":  [
+                       "2026-07-12 21:24:05 STAGE_START: 04_service Service acceptance",
+                       "2026-07-12 21:24:06 STAGE_END: 04_service result=PASS exit=0 head=c6287ec",
+                       {
+                           "completed_at":  "2026-07-12T21:24:06.6685688+08:00",
+                           "exit_code":  0,
+                           "tested_head":  "c6287ec",
+                           "attempt_count":  1,
+                           "input_fp":  "c6287ec|EF0165B1DF69|C7AFA46370AB",
+                           "status":  "PASS",
+                           "started_at":  "2026-07-12T21:24:05.6628293+08:00"
+                       }
+                   ],
+    "05_ui":  [
+                  "2026-07-12 21:24:06 STAGE_START: 05_ui Runtime UI acceptance",
+                  "2026-07-12 21:24:09 STAGE_END: 05_ui result=PASS exit=0 head=c6287ec",
+                  {
+                      "completed_at":  "2026-07-12T21:24:09.7360130+08:00",
+                      "exit_code":  0,
+                      "tested_head":  "c6287ec",
+                      "attempt_count":  1,
+                      "input_fp":  "c6287ec|EF0165B1DF69|C7AFA46370AB",
+                      "status":  "PASS",
+                      "started_at":  "2026-07-12T21:24:06.7033665+08:00"
+                  }
+              ]
 }

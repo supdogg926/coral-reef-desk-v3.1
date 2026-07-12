@@ -1,0 +1,11 @@
+{
+  "view": "ready",
+  "controls": [
+    "CurrentDockLabel",
+    "BoatStatusLabel",
+    "WaveBalanceLabel",
+    "VoyageCostLabel",
+    "LaunchButton"
+  ],
+  "preconditions_passed": true
+}

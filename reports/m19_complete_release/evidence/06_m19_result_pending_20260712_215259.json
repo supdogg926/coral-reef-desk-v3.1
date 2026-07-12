@@ -1,0 +1,8 @@
+{
+  "voyage_state": "RESULT_PENDING",
+  "controls": [
+    "KeepInTankButton",
+    "ReleaseResultButton"
+  ],
+  "preconditions_passed": true
+}
