@@ -1,0 +1,115 @@
+{
+  "final_code_head": "5776e46",
+  "build_id": "M19 v4.0 Blue Guardian · 5776e46",
+  "screenshot_count": 18,
+  "screenshots": [
+    {
+      "file": "01_m19_main_build_id_20260712_222626.png",
+      "sha256_12": "b4b2355d6fed",
+      "sidecar": "01_m19_main_build_id_20260712_222626.json",
+      "preconditions_passed": true
+    },
+    {
+      "file": "02_m19_blue_guardian_ready_20260712_222626.png",
+      "sha256_12": "3e17ae05819b",
+      "sidecar": "02_m19_blue_guardian_ready_20260712_222626.json",
+      "preconditions_passed": true
+    },
+    {
+      "file": "03_m19_three_region_docks_20260712_223037.png",
+      "sha256_12": "c239a6fe93d2",
+      "sidecar": "03_m19_three_region_docks_20260712_223037.json",
+      "preconditions_passed": true
+    },
+    {
+      "file": "04_m19_voyaging_countdown_a_20260712_222626.png",
+      "sha256_12": "73b900d9f7ab",
+      "sidecar": "04_m19_voyaging_countdown_a_20260712_222626.json",
+      "preconditions_passed": true
+    },
+    {
+      "file": "05_m19_voyaging_countdown_b_20260712_222626.png",
+      "sha256_12": "9e2d30045a42",
+      "sidecar": "05_m19_voyaging_countdown_b_20260712_222626.json",
+      "preconditions_passed": true
+    },
+    {
+      "file": "06_m19_normal_species_result_20260712_222626.png",
+      "sha256_12": "45736ca89704",
+      "sidecar": "06_m19_normal_species_result_20260712_222626.json",
+      "preconditions_passed": true
+    },
+    {
+      "file": "07_m19_rare_species_result_20260712_223037.png",
+      "sha256_12": "d8d17bd7e584",
+      "sidecar": "07_m19_rare_species_result_20260712_223037.json",
+      "preconditions_passed": true
+    },
+    {
+      "file": "08_m19_duplicate_species_result_20260712_223037.png",
+      "sha256_12": "18c7aea330b5",
+      "sidecar": "08_m19_duplicate_species_result_20260712_223037.json",
+      "preconditions_passed": true
+    },
+    {
+      "file": "09_m19_catalog_overview_20260712_222626.png",
+      "sha256_12": "239482686a6b",
+      "sidecar": "09_m19_catalog_overview_20260712_222626.json",
+      "preconditions_passed": true
+    },
+    {
+      "file": "10_m19_catalog_species_detail_20260712_223037.png",
+      "sha256_12": "9b85738f1712",
+      "sidecar": "10_m19_catalog_species_detail_20260712_223037.json",
+      "preconditions_passed": true
+    },
+    {
+      "file": "11_m19_keep_in_tank_result_20260712_223037.png",
+      "sha256_12": "a428762c5f9e",
+      "sidecar": "11_m19_keep_in_tank_result_20260712_223037.json",
+      "preconditions_passed": true
+    },
+    {
+      "file": "12_m19_release_management_20260712_222626.png",
+      "sha256_12": "239482686a6b",
+      "sidecar": "12_m19_release_management_20260712_222626.json",
+      "preconditions_passed": true
+    },
+    {
+      "file": "13_m19_release_feedback_20260712_222626.png",
+      "sha256_12": "ab5390a6746b",
+      "sidecar": "13_m19_release_feedback_20260712_222626.json",
+      "preconditions_passed": true
+    },
+    {
+      "file": "14_m19_capacity_full_pending_20260712_223037.png",
+      "sha256_12": "1c652e2085d3",
+      "sidecar": "14_m19_capacity_full_pending_20260712_223037.json",
+      "preconditions_passed": true
+    },
+    {
+      "file": "15_m19_wave_economy_20260712_223037.png",
+      "sha256_12": "3cf159841a5e",
+      "sidecar": "15_m19_wave_economy_20260712_223037.json",
+      "preconditions_passed": true
+    },
+    {
+      "file": "16_m19_catalog_soft_cap_20260712_223037.png",
+      "sha256_12": "3cf159841a5e",
+      "sidecar": "16_m19_catalog_soft_cap_20260712_223037.json",
+      "preconditions_passed": true
+    },
+    {
+      "file": "17_m19_save_restart_restore_20260712_223037.png",
+      "sha256_12": "b2ed6bb7cdc7",
+      "sidecar": "17_m19_save_restart_restore_20260712_223037.json",
+      "preconditions_passed": true
+    },
+    {
+      "file": "18_m19_editor_zero_errors_20260712_222626.png",
+      "sha256_12": "d66ed9288dd9",
+      "sidecar": "18_m19_editor_zero_errors_20260712_222626.json",
+      "preconditions_passed": true
+    }
+  ]
+}
