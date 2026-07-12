@@ -186,18 +186,17 @@ func _stabilize_main_layout(layout: VBoxContainer) -> void:
 					title_label.add_theme_color_override("font_color", Color(0.84, 0.88, 0.88))
 		elif child.name == "DisplayTankView" and child is Control:
 			var display: Control = child
-			display.custom_minimum_size = Vector2(0, 360)
+			display.custom_minimum_size = Vector2(0, 240)
 			display.size_flags_vertical = Control.SIZE_EXPAND_FILL
 			display.size_flags_stretch_ratio = 5.60
 		elif child.name == "SumpView" and child is Control:
 			var sump: Control = child
-			sump.custom_minimum_size = Vector2(0, 142)
+			sump.custom_minimum_size = Vector2(0, 100)
 			sump.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 			sump.size_flags_stretch_ratio = 0.0
 		elif child == status_panel:
-			status_panel.custom_minimum_size = Vector2(0, 104)
-			status_panel.size_flags_vertical = Control.SIZE_SHRINK_END
-			status_panel.size_flags_stretch_ratio = 0.0
+			status_panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
+			status_panel.size_flags_stretch_ratio = 2.40
 
 
 func _make_toolbar_group(stretch_ratio: float) -> HBoxContainer:
@@ -617,4 +616,3 @@ func _on_light_intensity_changed(value: float) -> void:
 func _on_light_temp_changed(value: float) -> void:
 	if game_state != null:
 		game_state.set_light_color_temp(int(value))
-

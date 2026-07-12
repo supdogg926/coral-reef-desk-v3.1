@@ -16,7 +16,7 @@ const TITLE_FONT_SIZE: int = 10
 const BODY_FONT_SIZE: int = 8
 const KEY_FONT_SIZE: int = 10
 const PRIMARY_FONT_SIZE: int = 12
-const DOCK_HEIGHT: int = 104
+const DOCK_HEIGHT: int = 240
 const COLLAPSED_DOCK_HEIGHT: int = 26
 const PANEL_BG_COLOR: Color = Color(0.105, 0.115, 0.125)
 const PANEL_BORDER_COLOR: Color = Color(0.24, 0.28, 0.30)
@@ -44,7 +44,6 @@ const WATER_DEVIATION_TARGETS: Dictionary = {
 
 
 func _ready() -> void:
-	custom_minimum_size = Vector2(0, DOCK_HEIGHT)
 	size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	size_flags_vertical = Control.SIZE_EXPAND_FILL
 	var style: StyleBoxFlat = StyleBoxFlat.new()
@@ -105,6 +104,7 @@ func update_water_chemistry_debug(water_debug: Dictionary) -> void:
 	var maintenance_runtime_summary: String = String(water_debug.get("last_maintenance_runtime_summary", ""))
 
 	_set_status_line("water", "water_primary", "%.0f" % water_quality_score, _water_status_color(water_status, water_quality_score))
+	_set_status_line("status", "run_status", localized_status, _water_status_color(water_status, water_quality_score))
 	_set_water_delta_tag("water", "temperature", temperature, WATER_DEVIATION_TARGETS.get("temperature", 25.0), 1, "°", 0.5, 1.5)
 	_set_water_delta_tag("water", "ph", ph, WATER_DEVIATION_TARGETS.get("ph", 8.2), 2, "", 0.15, 0.35)
 	_set_water_delta_tag("water", "alkalinity", alkalinity, WATER_DEVIATION_TARGETS.get("alkalinity", 8.3), 1, "", 0.5, 1.0)
@@ -139,9 +139,10 @@ func update_livestock_economy_debug(livestock_debug: Dictionary, economy_debug: 
 	var income_rate: float = float(economy_debug.get("income_rate_per_game_hour", livestock_debug.get("income_rate_per_game_hour", 0.0)))
 
 	if rp_display_label != null:
-		rp_display_label.text = "%.0f朵  +%.2f/h" % [reef_points, income_rate]
+		rp_display_label.text = "%.0f朵  涌流 +%.2f/小时" % [reef_points, income_rate]
 		rp_display_label.add_theme_color_override("font_color", Color(0.82, 0.88, 0.86))
 	_set_status_line("livestock", "comfort_primary", "%.0f" % comfort_score, _score_color(comfort_score, 80.0, 55.0))
+	_set_status_line("status", "capacity", "%.0f/%.0f" % [capacity_used, max_capacity], _load_color(capacity_used, max_capacity))
 	_set_status_line("livestock", "load_primary", "%.1f/%.1f" % [bio_load, system_capacity], _load_color(bio_load, system_capacity))
 	_set_status_line("livestock", "revenue_primary", "%.2fx" % revenue_multiplier, _multiplier_color(revenue_multiplier))
 	_set_status_line("livestock", "fish_count", "%d" % fish_count, KEY_TEXT_COLOR)
@@ -341,18 +342,21 @@ func _create_timeline_section(parent: Control) -> void:
 
 
 func update_stage_objectives(stage_obj_debug: Dictionary) -> void:
-	if stage_obj_debug.is_empty():
-		return
-	var completed: int = int(stage_obj_debug.get("completed_count", 0))
-	var total: int = int(stage_obj_debug.get("total_count", 6))
-	var all_done: bool = bool(stage_obj_debug.get("all_completed", false))
-	var active_obj: Dictionary = stage_obj_debug.get("active_objective", {})
-	if all_done:
-		_set_line("status", "validation", "✓ 所有目标完成 %d/%d" % [completed, total])
-	elif not active_obj.is_empty():
-		_set_line("status", "validation", String(active_obj.get("title", "")))
-	else:
-		_set_line("status", "validation", "全部完成 %d/%d" % [completed, total])
+	var objective_text: String = "观察舒适度变化"
+	if not stage_obj_debug.is_empty():
+		var completed: int = int(stage_obj_debug.get("completed_count", 0))
+		var total: int = int(stage_obj_debug.get("total_count", 6))
+		var all_done: bool = bool(stage_obj_debug.get("all_completed", false))
+		var active_obj: Dictionary = stage_obj_debug.get("active_objective", {})
+		if all_done:
+			objective_text = "所有目标完成 %d/%d" % [completed, total]
+		elif not active_obj.is_empty():
+			objective_text = String(active_obj.get("title", "观察舒适度变化"))
+		else:
+			objective_text = "全部完成 %d/%d" % [completed, total]
+	var obj_label: Label = dock_control_slots.get("objective_label", null) as Label
+	if obj_label != null:
+		obj_label.text = objective_text
 
 func update_timeline(entries: Array) -> void:
 	var scroll_vbox: Control = dock_control_slots.get("timeline_scroll_vbox", null)
@@ -431,26 +435,26 @@ func _create_status_section(parent: Control) -> void:
 
 
 func _create_entry_system_section(parent: Control) -> void:
-	var box: VBoxContainer = _create_card(parent, "entry_system", "系统", 1.05)
+	var box: VBoxContainer = _create_card(parent, "entry_system", "系统", 1.80)
 	_add_title_label(box, "系统")
 
-	var entry_grid: GridContainer = GridContainer.new()
-	entry_grid.columns = 3
-	entry_grid.add_theme_constant_override("h_separation", 4)
-	entry_grid.add_theme_constant_override("v_separation", 3)
-	entry_grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	box.add_child(entry_grid)
-	dock_control_slots["entry"] = entry_grid
+	# Button row 1: 蓝色守护 | 图鉴 | 放归
+	var btn_row1: HBoxContainer = HBoxContainer.new()
+	btn_row1.add_theme_constant_override("separation", 4)
+	btn_row1.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	btn_row1.alignment = BoxContainer.ALIGNMENT_BEGIN
+	box.add_child(btn_row1)
+	dock_control_slots["entry"] = btn_row1
 
-	var system_grid: GridContainer = GridContainer.new()
-	system_grid.columns = 3
-	system_grid.add_theme_constant_override("h_separation", 4)
-	system_grid.add_theme_constant_override("v_separation", 3)
-	system_grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	box.add_child(system_grid)
-	dock_control_slots["system"] = system_grid
+	# Button row 2: 观赏 | 保存
+	var btn_row2: HBoxContainer = HBoxContainer.new()
+	btn_row2.add_theme_constant_override("separation", 4)
+	btn_row2.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	btn_row2.alignment = BoxContainer.ALIGNMENT_BEGIN
+	box.add_child(btn_row2)
+	dock_control_slots["system"] = btn_row2
 
-	var status_lines: Dictionary = {}
+	# Info grid: 2 columns (运行状态 | 等级, 任务 | 容量)
 	var info_grid: GridContainer = GridContainer.new()
 	info_grid.columns = 2
 	info_grid.add_theme_constant_override("h_separation", 4)
@@ -458,7 +462,38 @@ func _create_entry_system_section(parent: Control) -> void:
 	info_grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	box.add_child(info_grid)
 
-	# RP capsule - full card width
+	var status_lines: Dictionary = section_labels.get("status", {})
+	status_lines["run_status"] = _create_secondary_tile(info_grid, "运行状态")
+	status_lines["phase"] = _create_secondary_tile(info_grid, "等级")
+	status_lines["save_status"] = _create_secondary_tile(info_grid, "任务")
+	status_lines["capacity"] = _create_secondary_tile(info_grid, "容量")
+	section_labels["status"] = status_lines
+
+	# Full-width current objective
+	var obj_panel: PanelContainer = PanelContainer.new()
+	obj_panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	obj_panel.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	obj_panel.add_theme_stylebox_override("panel", _make_panel_style(Color(0.11, 0.123, 0.132), Color(0.18, 0.21, 0.22), 3))
+	box.add_child(obj_panel)
+	var obj_margin: MarginContainer = MarginContainer.new()
+	obj_margin.add_theme_constant_override("margin_left", 4)
+	obj_margin.add_theme_constant_override("margin_top", 2)
+	obj_margin.add_theme_constant_override("margin_right", 4)
+	obj_margin.add_theme_constant_override("margin_bottom", 2)
+	obj_panel.add_child(obj_margin)
+	var obj_vbox: VBoxContainer = VBoxContainer.new()
+	obj_vbox.add_theme_constant_override("separation", 0)
+	obj_margin.add_child(obj_vbox)
+	var obj_title: Label = _make_label("当前目标", 7, false)
+	obj_title.add_theme_color_override("font_color", MUTED_TEXT_COLOR)
+	obj_vbox.add_child(obj_title)
+	var obj_value: Label = _make_label("观察舒适度变化", KEY_FONT_SIZE, false, true)
+	obj_value.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	obj_value.clip_text = false
+	obj_vbox.add_child(obj_value)
+	dock_control_slots["objective_label"] = obj_value
+
+	# Full-width wave card
 	var rp_panel: PanelContainer = PanelContainer.new()
 	rp_panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	rp_panel.size_flags_vertical = Control.SIZE_SHRINK_CENTER
@@ -476,21 +511,22 @@ func _create_entry_system_section(parent: Control) -> void:
 	var rp_title: Label = _make_label("浪花", 7, false)
 	rp_title.add_theme_color_override("font_color", MUTED_TEXT_COLOR)
 	rp_box.add_child(rp_title)
-	rp_display_label = _make_label("0  +0.00/h", KEY_FONT_SIZE, false, true)
+	rp_display_label = _make_label("0朵  +0.00/h", KEY_FONT_SIZE, false, true)
 	rp_display_label.clip_text = false
 	rp_display_label.autowrap_mode = TextServer.AUTOWRAP_OFF
 	rp_display_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
 	rp_box.add_child(rp_display_label)
-	rescue_reputation_label = _make_label("生态声望 0", BODY_FONT_SIZE, false, true)
+	rescue_reputation_label = _make_label("", BODY_FONT_SIZE, false, true)
 	rescue_reputation_label.clip_text = false
 	rescue_reputation_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	rp_box.add_child(rescue_reputation_label)
 
-	status_lines["phase"] = _create_secondary_tile(info_grid, "等级")
-	status_lines["time_tick"] = _create_secondary_tile(info_grid, "时间")
-	status_lines["save_status"] = _create_secondary_tile(info_grid, "任务")
-	status_lines["validation"] = _create_secondary_tile(info_grid, "消息")
-	section_labels["status"] = status_lines
+	# Bottom spacer for safe visual margin
+	var bottom_spacer: Control = Control.new()
+	bottom_spacer.custom_minimum_size = Vector2(0, 8)
+	bottom_spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	bottom_spacer.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	box.add_child(bottom_spacer)
 
 
 func _create_core_status_section(parent: Control) -> void:
@@ -661,20 +697,22 @@ func configure_dock_controls(maintenance_actions: Array, feeding_actions: Array,
 		observe_button.pressed.connect(_set_observation_mode.bind(true))
 		system_parent.add_child(observe_button)
 
-		if show_debug_controls:
-			var save_button: Button = _make_dock_button("保存")
-			save_button.add_theme_color_override("font_color", Color(0.76, 0.80, 0.66))
-			_connect_button(save_button, callbacks.get("save", Callable()))
-			system_parent.add_child(save_button)
+		var save_button: Button = _make_dock_button("保存")
+		save_button.add_theme_color_override("font_color", Color(0.76, 0.80, 0.66))
+		_connect_button(save_button, callbacks.get("save", Callable()))
+		system_parent.add_child(save_button)
 
+		if show_debug_controls:
 			var reset_button: Button = _make_dock_button("重置")
 			reset_button.add_theme_color_override("font_color", Color(0.82, 0.70, 0.60))
 			_connect_button(reset_button, callbacks.get("reset", Callable()))
 			system_parent.add_child(reset_button)
 
-		var status_label: Label = _create_secondary_tile(system_parent, "运行状态")
-		status_label.text = "正常"
-		result["panel_status_label"] = status_label
+		# Panel status label wired to "运行状态" tile in info grid
+		var raw_run_status: Variant = section_labels.get("status", {}).get("run_status", null)
+		if raw_run_status is Label:
+			raw_run_status.text = "运行正常"
+		result["panel_status_label"] = raw_run_status
 
 
 	var maintenance_parent: Control = dock_control_slots.get("maintenance", null)
@@ -1010,6 +1048,8 @@ func _set_default_text() -> void:
 	_set_line("status", "data", "仓库 暂无｜锁定")
 	_set_line("status", "validation", "\u2014")
 	_set_line("status", "save_offline", "离线 无")
+	_set_line("status", "run_status", "运行正常")
+	_set_line("status", "capacity", "0/6")
 	_set_status_line("water", "water_primary", "100", STATUS_OK_COLOR)
 	_set_status_line("water", "temperature", "25.1° +0.1", STATUS_OK_COLOR)
 	_set_status_line("water", "ph", "8.20 OK", STATUS_OK_COLOR)
