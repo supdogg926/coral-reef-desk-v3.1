@@ -20,6 +20,7 @@ var _ready_section: Control = null
 var _voyaging_section: Control = null
 var _result_section: Control = null
 var _catalog_section: Control = null
+var _bottom_row: Control = null
 
 var _last_state: int = -1
 var _last_remaining: int = -1
@@ -179,7 +180,8 @@ func _build_ui() -> void:
 	vbox.add_child(bottom_spacer)
 
 	# Bottom buttons
-	var bottom_row := HBoxContainer.new()
+	_bottom_row = HBoxContainer.new()
+	var bottom_row := _bottom_row
 	bottom_row.add_theme_constant_override("separation", 8)
 	bottom_row.alignment = BoxContainer.ALIGNMENT_CENTER
 	vbox.add_child(bottom_row)
@@ -210,6 +212,7 @@ func open_ready_view() -> void:
 	name = "BlueGuardianPanel"
 	_catalog_section.visible = false
 	_ready_section.visible = true
+	if _bottom_row != null: _bottom_row.visible = true
 	_voyaging_section.visible = false
 	_result_section.visible = false
 	_refresh()
@@ -221,6 +224,7 @@ func open_catalog_view() -> void:
 	_voyaging_section.visible = false
 	_result_section.visible = false
 	_catalog_section.visible = true
+	if _bottom_row != null: _bottom_row.visible = true
 	# Close button keeps BlueGuardianCloseButton name for automation
 	if _service != null:
 		var ids: Array = _service.get_collection_ids()
