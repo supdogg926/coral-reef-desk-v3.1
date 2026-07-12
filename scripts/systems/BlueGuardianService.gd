@@ -85,7 +85,7 @@ func get_state() -> VoyageState:
 
 
 func get_dock_display_name() -> String:
-	var names := BlueGuardianConfig.get_dock_display_names()
+	var names: Array = BlueGuardianConfig.get_dock_display_names()
 	var idx := _dock_index % names.size()
 	return names[idx]
 
@@ -142,10 +142,10 @@ func _settle_voyage(now: int) -> void:
 
 
 func _draw_species(seed: int) -> String:
-	var pool := BlueGuardianConfig.get_active_species_pool()
+	var pool: Array = BlueGuardianConfig.get_active_species_pool()
 	if pool.is_empty():
 		return ""
-	var rng := _seeded_randi(seed)
+	var rng: int = _seeded_randi(seed)
 	var is_surprise: bool = (rng % 100) < BlueGuardianConfig.SURPRISE_WEIGHT
 	var idx: int
 	if is_surprise:
@@ -185,7 +185,7 @@ func _build_result_data(species_id: String) -> Dictionary:
 func _get_data_registry():
 	if _game_state != null and _game_state.has_method("_get_data_registry"):
 		return _game_state.call("_get_data_registry")
-	var node := Engine.get_main_loop()
+	var node: Variant = Engine.get_main_loop()
 	if node != null and node.has_method("get_node_or_null"):
 		return node.get_node_or_null("/root/DataRegistry")
 	return null
@@ -220,7 +220,7 @@ func launch_voyage() -> Dictionary:
 	_pending_species_id = ""
 	_pending_result_data = {}
 	_sync_to_game_state()
-	var ok: Dictionary = _do_commit()
+	var ok: bool = _do_commit()
 	if not ok:
 		_restore_mutable(snapshot)
 		return {"success": false, "deny_reason": LaunchDenyReason.NONE, "error": "save_failed"}
@@ -249,7 +249,7 @@ func keep_in_tank() -> Dictionary:
 	_pending_result_data = {}
 	_state = VoyageState.READY
 	_sync_to_game_state()
-	var ok: Dictionary = _do_commit()
+	var ok: bool = _do_commit()
 	if not ok:
 		_restore_mutable(snapshot)
 		return {"success": false, "error": "save_failed"}
@@ -274,7 +274,7 @@ func release_pending() -> Dictionary:
 	_pending_result_data = {}
 	_state = VoyageState.READY
 	_sync_to_game_state()
-	var ok: Dictionary = _do_commit()
+	var ok: bool = _do_commit()
 	if not ok:
 		_restore_mutable(snapshot)
 		return {"success": false, "error": "save_failed"}

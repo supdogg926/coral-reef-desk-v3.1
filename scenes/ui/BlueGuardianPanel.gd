@@ -204,7 +204,7 @@ func _refresh() -> void:
 		_timer_label.text = "%02d:%02d" % [mins, secs]
 
 	if state == BlueGuardianService.VoyageState.RESULT_PENDING:
-		var data := _service.get_pending_result_data()
+		var data: Dictionary = _service.get_pending_result_data()
 		_result_name.text = data.get("display_name", "")
 		_result_desc.text = data.get("description", "")
 		var sid: String = _service.get_pending_species_id()
@@ -257,10 +257,10 @@ func _on_release() -> void:
 func _toggle_catalog() -> void:
 	_catalog_section.visible = not _catalog_section.visible
 	if _catalog_section.visible and _service != null:
-		var ids := _service.get_collection_ids()
+		var ids: Array = _service.get_collection_ids()
 		var cat_text := "已救助：%d\n" % ids.size()
 		for sid in ids:
-			var name := sid.replace("_", " ").capitalize()
+			var name: String = str(sid).replace("_", " ").capitalize()
 			cat_text += "  " + name + "\n"
 		var list_node := _catalog_section.get_node_or_null("CatalogList")
 		if list_node is Label:
@@ -270,9 +270,9 @@ func _toggle_catalog() -> void:
 func _load_result_image(species_id: String) -> void:
 	if _result_image == null:
 		return
-	var lib: Dictionary = _get_card_library()
+	var lib = _get_card_library()
 	if lib != null and lib.has_method("get_card_texture"):
-		var tex_result := lib.call("get_card_texture", species_id)
+		var tex_result: Variant = lib.call("get_card_texture", species_id)
 		if tex_result is Dictionary and tex_result.get("success", false):
 			var tex = tex_result.get("texture", null)
 			if tex != null:

@@ -113,7 +113,7 @@ func initialize() -> void:
 
 	unlock_system = UnlockSystem.new()
 	unlock_system.initialize()
-	blue_guardian_service = BlueGuardianService.new()
+	blue_guardian_service = load("res://scripts/systems/BlueGuardianService.gd").new()
 	wall_clock_service = WallClockService.new()
 
 	save_system = SaveSystem.new()
@@ -1989,7 +1989,7 @@ func _get_recent_release_record_ids() -> Array:
 
 
 func _get_data_registry():
-	var node := Engine.get_main_loop()
+	var node: Variant = Engine.get_main_loop()
 	if node != null:
 		return node
 	return null

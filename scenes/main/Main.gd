@@ -106,7 +106,7 @@ func _setup_panels() -> void:
 	add_child(rescue_panel)
 	rescue_panel.setup(game_state)
 
-	blue_guardian_panel = BlueGuardianPanel.new()
+	blue_guardian_panel = load("res://scenes/ui/BlueGuardianPanel.gd").new()
 	blue_guardian_panel.hide()
 	add_child(blue_guardian_panel)
 	if game_state.blue_guardian_service != null:
