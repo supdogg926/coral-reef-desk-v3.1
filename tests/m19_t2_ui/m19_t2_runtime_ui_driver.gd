@@ -172,7 +172,7 @@ func _test_release(root: Node) -> bool:
 	var ss := await _ss("m19_t2_release_panel_" + _ts + ".png")
 	_sc("m19_t2_release_panel_" + _ts + ".json", {"view": "release", "preconditions": true})
 	print("  RELEASE: ", ss)
-	var closed2: bool = await _click(root, "BlueGuardianCloseButton", "close release")
+	var closed2: bool = await _click(root, "ReleaseCloseButton", "close release")
 	await _wait_frames(5)
 	if closed2: _ok(true, "close release")
 	return true

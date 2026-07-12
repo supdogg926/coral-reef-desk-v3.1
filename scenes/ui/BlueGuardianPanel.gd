@@ -212,7 +212,11 @@ func open_ready_view() -> void:
 	name = "BlueGuardianPanel"
 	_catalog_section.visible = false
 	_ready_section.visible = true
-	if _bottom_row != null: _bottom_row.visible = true
+	if _bottom_row != null:
+		_bottom_row.visible = true
+		for child in _bottom_row.get_children():
+			if child is Button:
+				(child as Button).visible = true
 	_voyaging_section.visible = false
 	_result_section.visible = false
 	_refresh()
@@ -224,7 +228,11 @@ func open_catalog_view() -> void:
 	_voyaging_section.visible = false
 	_result_section.visible = false
 	_catalog_section.visible = true
-	if _bottom_row != null: _bottom_row.visible = true
+	if _bottom_row != null:
+		_bottom_row.visible = true
+		for child in _bottom_row.get_children():
+			if child is Button:
+				(child as Button).visible = true
 	# Close button keeps BlueGuardianCloseButton name for automation
 	if _service != null:
 		var ids: Array = _service.get_collection_ids()
