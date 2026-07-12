@@ -35,7 +35,7 @@ function Invoke-Stage { param($stage, $desc, $cmd, $timeout=120)
     Write-Log "STAGE_START: $stage $desc"
     $head = Get-Head; $fp = Get-Fingerprint; $started = Get-Date -Format "o"
     try {
-        $proc = Start-Process -FilePath $godot -ArgumentList $cmd -NoNewWindow -PassThru -WorkingDirectory $repo; $proc | Wait-Process -Timeout 30 -ErrorAction SilentlyContinue; if (-not $proc.HasExited) { $proc.Kill(); $exit = 0 }
+        if ($stage -eq "13_f5") { $proc = Start-Process -FilePath $godot -ArgumentList $cmd -NoNewWindow -PassThru -WorkingDirectory $repo; $proc | Wait-Process -Timeout 15 -ErrorAction SilentlyContinue; if (-not $proc.HasExited) { $proc.Kill() } } else { $proc = Start-Process -FilePath $godot -ArgumentList $cmd -NoNewWindow -Wait -PassThru -WorkingDirectory $repo }
         $exit = $proc.ExitCode; $completed = Get-Date -Format "o"; $result = if ($exit -eq 0) { "PASS" } else { "FAIL" }
     } catch { $exit = -1; $completed = Get-Date -Format "o"; $result = "FAIL" }
     $r = @{status=$result; exit_code=$exit; tested_head=$head; input_fp=$fp; started_at=$started; completed_at=$completed; attempt_count=1}
