@@ -237,7 +237,7 @@ func _on_action() -> void:
 func _on_keep() -> void:
 	if _service == null:
 		return
-	var result := _service.keep_in_tank()
+	var result := _service.keep_pending_result()
 	if result.get("success", false):
 		_refresh()
 	else:
@@ -247,7 +247,7 @@ func _on_keep() -> void:
 func _on_release() -> void:
 	if _service == null:
 		return
-	var result := _service.release_pending()
+	var result := _service.release_pending_result()
 	if result.get("success", false):
 		_refresh()
 	else:
@@ -289,20 +289,20 @@ func _check_capacity_full() -> bool:
 
 
 func _economy() -> EconomySystem:
-	if _service != null and _service._economy_system != null:
-		return _service._economy_system
+	if _service != null and _service.economy != null:
+		return _service.economy
 	return null
 
 
 func _livestock_sys() -> RefCounted:
 	if _service != null:
-		return _service._livestock_system
+		return _service.livestock_gw
 	return null
 
 
 func _get_card_library() -> RefCounted:
 	if _service != null:
-		return _service._card_asset_library
+		return _service.card_lib
 	return null
 
 

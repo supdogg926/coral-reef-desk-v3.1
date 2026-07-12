@@ -15,7 +15,7 @@ var unlock_system: UnlockSystem = null
 var event_system: DynamicEventSystem = null
 var save_system: SaveSystem = null
 var wall_clock_service: WallClockService = null
-var blue_guardian_service: BlueGuardianService = null
+var blue_guardian_service = null
 var action_timeline: ActionTimeline = null
 var stage_objective_system: RefCounted = null  # StageObjectiveSystem loaded via script
 var rescue_system: RefCounted = null  # RescueSystem loaded via script; M14-T01 data/headless only
@@ -128,7 +128,7 @@ func initialize() -> void:
 
 	event_system = DynamicEventSystem.new()
 	event_system.initialize(12345)
-	blue_guardian_service.setup(self)
+	blue_guardian_service.configure(wall_clock_service, economy_system, self, livestock_system, rescue_system)
 	rescue_system.initialize()
 
 	_try_load_game()
