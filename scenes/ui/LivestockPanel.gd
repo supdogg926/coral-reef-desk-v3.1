@@ -29,7 +29,21 @@ func _ready() -> void:
 
 func open_release_mode() -> void:
 	name = "ReleaseManagementPanel"
-	show()
+	visible = true
+	var cb := _find_release_close()
+	if cb != null: cb.name = "ReleaseCloseButton"
+
+func _find_release_close() -> Control:
+	for child in get_children():
+		if child is MarginContainer:
+			for gc in child.get_children():
+				if gc is VBoxContainer:
+					for vc in gc.get_children():
+						if vc is HBoxContainer:
+							for hc in vc.get_children():
+								if hc is Button:
+									return hc
+	return null
 
 
 func setup(gs: GameState) -> void:

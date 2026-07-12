@@ -216,6 +216,8 @@ func open_catalog_view() -> void:
 	_voyaging_section.visible = false
 	_result_section.visible = false
 	_catalog_section.visible = true
+	var cb := _find_close_button()
+	if cb != null: cb.name = "CatalogCloseButton"
 	if _service != null:
 		var ids: Array = _service.get_collection_ids()
 		var cat_text := "已发现：%d
@@ -377,6 +379,21 @@ func _lbl(text: String, size: int, color: Color) -> Label:
 	l.autowrap_mode = TextServer.AUTOWRAP_OFF
 	return l
 
+
+func _find_close_button() -> Control:
+	for child in get_children():
+		if child is MarginContainer:
+			var mc := child as MarginContainer
+			for gc in mc.get_children():
+				if gc is VBoxContainer:
+					var vb := gc as VBoxContainer
+					for vc in vb.get_children():
+						if vc is HBoxContainer:
+							var hb := vc as HBoxContainer
+							for hc in hb.get_children():
+								if hc is Button and (hc as Button).text == "关闭":
+									return hc
+	return null
 
 func _btn(text: String, color: Color) -> Button:
 	var b := Button.new()
