@@ -181,33 +181,65 @@ func _test_release(root: Node) -> bool:
 
 
 func _test_voyage(root: Node) -> bool:
-	print("\n--- Voyage ---")
+	print("
+--- Voyage ---")
+	var main_node := _find_main(root)
+	var gs = main_node.get("game_state")
+	var wc = null
+	var bgs = null
+	if gs != null:
+		wc = gs.get("wall_clock_service")
+		bgs = gs.get("blue_guardian_service")
+		print("  Clock source: ", "OK" if wc != null else "NULL")
+		print("  Service source: ", "OK" if bgs != null else "NULL")
+
+	# Set test clock
+	if wc != null:
+		wc.set_test_override(1000000)
+
 	if not await _click(root, "BlueGuardianEntryButton", "open BG"): return false
 	await _wait_frames(3)
 	if not await _click(root, "LaunchButton", "launch"): return false
 	await _wait_frames(5)
 
-	# Check voyaging
-	var cdl := _find(root, "CountdownLabel")
-	_ok(cdl != null, "voyage countdown")
-	var sv := await _ss("m19_t2_voyaging_" + _ts + ".png")
-	_sc("m19_t2_voyaging_" + _ts + ".json", {"view": "voyaging", "preconditions": true})
-	print("  VOYAGING: ", sv)
+	# Verify journey started
+	if bgs != null:
+		_ok(bgs.get_state() == 1, "state=VOYAGING after launch")
+	var rem: int = bgs.get_remaining_seconds() if bgs != null else 0
+	_ok(rem > 0, "remaining_seconds=%d" % rem)
 
-	# Wait for natural 30s settlement
-	print("  Waiting 35s...")
-	var ok := await _wait_until(func(): return _find(root, "KeepInTankButton") != null, 35.0, "settle")
-	if ok:
-		var sr := await _ss("m19_t2_result_" + _ts + ".png")
-		_sc("m19_t2_result_" + _ts + ".json", {"view": "result", "preconditions": true})
-		print("  RESULT: ", sr)
+	# Check CountdownLabel exists and has text
+	var cdl := _find(root, "CountdownLabel")
+	_ok(cdl != null, "CountdownLabel exists")
+	if cdl is Label:
+		_ok((cdl as Label).text != "", "CountdownLabel text non-empty")
+		_ok((cdl as Label).text != "00:00", "CountdownLabel not 00:00")
+		print("  LABEL: ", (cdl as Label).text)
+
+	# Advance clock
+	if wc != null:
+		wc.advance_test_override(30)
+		print("  Clock +30s")
+	if bgs != null:
+		bgs.ensure_voyage_settled_if_due()
+		await _wait_frames(5)
+		_ok(bgs.get_state() == 2, "state=RESULT_PENDING after advance")
+
+	# Verify results
+	var keep := _find(root, "KeepInTankButton")
+	_ok(keep != null, "KeepInTankButton visible after settlement")
+	var rel := _find(root, "ReleaseResultButton")
+	_ok(rel != null, "ReleaseResultButton visible after settlement")
+
+	# Release
+	if rel != null and (rel is Control) and (rel as Control).visible:
 		await _click(root, "ReleaseResultButton", "release")
 		await _wait_frames(3)
-		var sf := await _ss("m19_t2_release_fb_" + _ts + ".png")
-		_sc("m19_t2_release_fb_" + _ts + ".json", {"view": "release_fb", "preconditions": true})
-		print("  RELEASE_FB: ", sf)
-	else:
-		_ok(false, "settle timeout")
+
+	# Clear override
+	if wc != null:
+		wc.clear_test_override()
+		_ok(true, "clock override cleared")
 
 	await _click(root, "BlueGuardianCloseButton", "close")
 	await _wait_frames(5)

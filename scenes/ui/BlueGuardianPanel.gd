@@ -122,6 +122,7 @@ func _build_ui() -> void:
 	vbox.add_child(_voyaging_section)
 
 	_timer_label = _lbl("", 24, ACCENT_COLOR)
+	_timer_label.name = "CountdownLabel"
 	_timer_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_voyaging_section.add_child(_timer_label)
 	var voyaging_status := _lbl("守护艇正在航行中", 14, TEXT_COLOR)
