@@ -250,6 +250,7 @@ func _build_ui() -> void:
 	root.add_child(status_label)
 
 	var close_btn: Button = Button.new()
+	close_btn.name = "ReleaseCloseButton"
 	close_btn.text = "关闭"
 	close_btn.custom_minimum_size = Vector2(0, 26)
 	close_btn.add_theme_font_size_override("font_size", 10)
