@@ -284,7 +284,7 @@ func _build_status_layout() -> void:
 	margin.add_theme_constant_override("margin_left", 6)
 	margin.add_theme_constant_override("margin_top", 4)
 	margin.add_theme_constant_override("margin_right", 6)
-	margin.add_theme_constant_override("margin_bottom", 4)
+	margin.add_theme_constant_override("margin_bottom", 16)
 	add_child(margin)
 
 	var stack: VBoxContainer = VBoxContainer.new()
