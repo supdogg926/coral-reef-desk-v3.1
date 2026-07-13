@@ -1,239 +1,444 @@
 {
+  "schema_version": "2.0",
+  "contract_id": "M19-CONTRACT-DRIVEN-V2",
+  "status_values": [
+    "OPEN",
+    "OPEN_ESCALATED",
+    "IN_PROGRESS",
+    "CLOSED_RATCHET",
+    "WAIVED_P2"
+  ],
+  "rule": "attempt_count >= 3 requires minimal reproduction and root-cause ruling before another implementation attempt",
   "defects": [
     {
       "id": "M19-D001",
-      "requirement_id": "R001",
+      "requirement_id": "M19-R001",
+      "title": "正式 F5 反复运行旧 Main/测试子场景，测试与生产入口脱节",
       "severity": "P0",
-      "wave_id": "W01",
-      "status": "CLOSED_RATCHET",
-      "attempt_count": 0,
-      "title": "Production F5 disconnected",
-      "pass_condition": "Runtime probe confirms production f5 disconnected",
+      "wave_id": "M19-W01-PRODUCTION-TAKEOVER",
+      "status": "OPEN_ESCALATED",
+      "attempt_count": 6,
+      "root_cause_required": true,
+      "root_cause": null,
+      "pass_condition": [
+        "所有验收入口来自 run/main_scene",
+        "Hybrid UI 实例恰好 1 个",
+        "禁止直接加载测试子场景冒充生产"
+      ],
       "required_evidence": [
         "production_entry_trace.json",
         "runtime_scene_tree.json",
         "production_main.png"
       ],
-      "ratchet_test_required": true
+      "ratchet_test_required": true,
+      "waiver_allowed": false,
+      "history_note": "Compiled from repeated user-visible M19 failures; close only with Git proof."
     },
     {
       "id": "M19-D002",
-      "requirement_id": "R002",
+      "requirement_id": "M19-R002",
+      "title": "01 使用区域裁片拼装，产生缝隙、双边框和错位",
       "severity": "P0",
-      "wave_id": "W01",
-      "status": "CLOSED_RATCHET",
-      "attempt_count": 0,
-      "title": "01 region crops cause seams",
-      "pass_condition": "Runtime probe confirms 01 region crops cause seams",
+      "wave_id": "M19-W01-PRODUCTION-TAKEOVER",
+      "status": "OPEN_ESCALATED",
+      "attempt_count": 3,
+      "root_cause_required": true,
+      "root_cause": null,
+      "pass_condition": [
+        "01_runtime_empty_master.png 恰好显示 1 次",
+        "区域 Chrome 裁片正式可见数为 0",
+        "无缝隙、双边框、缩放误差"
+      ],
       "required_evidence": [
         "01_main_production.png",
         "01_seam_audit.json",
         "plate_runtime_snapshot.json"
       ],
-      "ratchet_test_required": true
+      "ratchet_test_required": true,
+      "waiver_allowed": false,
+      "history_note": "Compiled from repeated user-visible M19 failures; close only with Git proof."
     },
     {
       "id": "M19-D003",
-      "requirement_id": "R003",
+      "requirement_id": "M19-R003",
+      "title": "02–06 冻结 Shell 多轮未全部进入正式版本，05/06 曾仍为旧面板",
       "severity": "P0",
-      "wave_id": "W01",
-      "status": "CLOSED_RATCHET",
-      "attempt_count": 0,
-      "title": "02-06 shells not all in production",
-      "pass_condition": "Runtime probe confirms 02-06 shells not all in production",
+      "wave_id": "M19-W01-PRODUCTION-TAKEOVER",
+      "status": "OPEN_ESCALATED",
+      "attempt_count": 5,
+      "root_cause_required": true,
+      "root_cause": null,
+      "pass_condition": [
+        "02/03/04=760x520@(260,100)",
+        "05/06=1040x580@(120,70)",
+        "路径和 SHA256 与 manifest 一致",
+        "无旧 StyleBox/重复 Plate"
+      ],
       "required_evidence": [
         "page_plate_runtime_snapshot.json",
-        "02_ready_plate.png",
-        "03_voyaging_plate.png",
-        "04_result_plate.png",
-        "05_codex_plate.png",
-        "06_release_plate.png"
+        "02_06_plate_contact_sheet.png"
       ],
-      "ratchet_test_required": true
+      "ratchet_test_required": true,
+      "waiver_allowed": false,
+      "history_note": "Compiled from repeated user-visible M19 failures; close only with Git proof."
     },
     {
       "id": "M19-D004",
-      "requirement_id": "R004",
+      "requirement_id": "M19-R004",
+      "title": "旧程序化 UI、StyleBox、绿色/灰色占位块覆盖正式 Chrome",
       "severity": "P0",
-      "wave_id": "W01",
-      "status": "CLOSED_RATCHET",
-      "attempt_count": 0,
-      "title": "Legacy UI covering Chrome",
-      "pass_condition": "Runtime probe confirms legacy ui covering chrome",
+      "wave_id": "M19-W01-PRODUCTION-TAKEOVER",
+      "status": "OPEN_ESCALATED",
+      "attempt_count": 5,
+      "root_cause_required": true,
+      "root_cause": null,
+      "pass_condition": [
+        "旧 procedural tank/sump/status 不可见",
+        "绿色/灰色 ColorRect、几何鱼/圆石/线珊瑚为 0",
+        "无素材实例隐藏并记录"
+      ],
       "required_evidence": [
         "legacy_visible_nodes.json",
         "world_asset_audit.json",
-        "01_clean_world_production.png"
+        "01_main_production.png"
       ],
-      "ratchet_test_required": true
+      "ratchet_test_required": true,
+      "waiver_allowed": false,
+      "history_note": "Compiled from repeated user-visible M19 failures; close only with Git proof."
     },
     {
       "id": "M19-D005",
-      "requirement_id": "R005",
+      "requirement_id": "M19-R005",
+      "title": "01 缺少正式文字、数值、日志和蓝色守护变量",
       "severity": "P1",
-      "wave_id": "W02",
-      "status": "OPEN",
-      "attempt_count": 0,
-      "title": "Fact slots empty",
-      "pass_condition": "Runtime probe confirms fact slots empty",
-      "required_evidence": [],
-      "ratchet_test_required": true
+      "wave_id": "M19-W02-FACT-DATA-LED",
+      "status": "OPEN_ESCALATED",
+      "attempt_count": 3,
+      "root_cause_required": true,
+      "root_cause": null,
+      "pass_condition": [
+        "右栏/日志/守护摘要/七仪表/四旋钮/16 键/导航文字完整",
+        "无空字段/占位值/幽灵数据",
+        "GameState 变化 2 帧内刷新"
+      ],
+      "required_evidence": [
+        "main_fact_slot_audit.json",
+        "main_data_binding.json",
+        "01_main_fact.png"
+      ],
+      "ratchet_test_required": true,
+      "waiver_allowed": false,
+      "history_note": "Compiled from repeated user-visible M19 failures; close only with Git proof."
     },
     {
       "id": "M19-D006",
-      "requirement_id": "R006",
+      "requirement_id": "M19-R006",
+      "title": "七仪表/四旋钮/16 键的值、指针、API 状态和 LED 未完整接入",
       "severity": "P1",
-      "wave_id": "W02",
+      "wave_id": "M19-W02-FACT-DATA-LED",
       "status": "OPEN",
-      "attempt_count": 0,
-      "title": "Gauge values hardcoded",
-      "pass_condition": "Runtime probe confirms gauge values hardcoded",
-      "required_evidence": [],
-      "ratchet_test_required": true
+      "attempt_count": 2,
+      "root_cause_required": false,
+      "root_cause": null,
+      "pass_condition": [
+        "七仪表全部绑定",
+        "四旋钮名称/值/指针/LED 全部绑定",
+        "16 键真实 API 或 disabled",
+        "20 个 LED 有可测 ON/OFF 视觉差"
+      ],
+      "required_evidence": [
+        "control_binding_audit.json",
+        "led_visual_delta.json",
+        "01_led_on_off_sheet.png"
+      ],
+      "ratchet_test_required": true,
+      "waiver_allowed": false,
+      "history_note": "Compiled from repeated user-visible M19 failures; close only with Git proof."
     },
     {
       "id": "M19-D007",
-      "requirement_id": "R007",
+      "requirement_id": "M19-R007",
+      "title": "02–04 打开后文字、图片、进度或按钮为空/错位",
       "severity": "P1",
-      "wave_id": "W02",
-      "status": "OPEN",
-      "attempt_count": 0,
-      "title": "Knob pointers not bound",
-      "pass_condition": "Runtime probe confirms knob pointers not bound",
-      "required_evidence": [],
-      "ratchet_test_required": true
+      "wave_id": "M19-W02-FACT-DATA-LED",
+      "status": "OPEN_ESCALATED",
+      "attempt_count": 4,
+      "root_cause_required": true,
+      "root_cause": null,
+      "pass_condition": [
+        "required 节点存在/可见/非空",
+        "文字图片进度按钮在槽位内",
+        "无旧 Fact 叠加/越界/裁切/乱码"
+      ],
+      "required_evidence": [
+        "02_04_fact_slot_audit.json",
+        "02_04_fact_alignment_sheet.png"
+      ],
+      "ratchet_test_required": true,
+      "waiver_allowed": false,
+      "history_note": "Compiled from repeated user-visible M19 failures; close only with Git proof."
     },
     {
       "id": "M19-D008",
-      "requirement_id": "R008",
+      "requirement_id": "M19-R008",
+      "title": "05/06 旧列表、标题、按钮叠在冻结 Shell 上",
       "severity": "P1",
-      "wave_id": "W02",
-      "status": "OPEN",
-      "attempt_count": 0,
-      "title": "Device buttons missing LEDs",
-      "pass_condition": "Runtime probe confirms device buttons missing leds",
-      "required_evidence": [],
-      "ratchet_test_required": true
+      "wave_id": "M19-W02-FACT-DATA-LED",
+      "status": "OPEN_ESCALATED",
+      "attempt_count": 5,
+      "root_cause_required": true,
+      "root_cause": null,
+      "pass_condition": [
+        "05 筛选/列表/主图/详情/进度/按钮完整",
+        "06 筛选/个体列表/主图/六项详情/说明/双按钮完整",
+        "旧列表/旧关闭按钮/旧 StyleBox 为 0"
+      ],
+      "required_evidence": [
+        "05_06_fact_slot_audit.json",
+        "05_codex.png",
+        "06_release.png"
+      ],
+      "ratchet_test_required": true,
+      "waiver_allowed": false,
+      "history_note": "Compiled from repeated user-visible M19 failures; close only with Git proof."
     },
     {
       "id": "M19-D009",
-      "requirement_id": "R009",
+      "requirement_id": "M19-R009",
+      "title": "部分字段无真实数据源、空值或条件字段处理不一致",
       "severity": "P1",
-      "wave_id": "W02",
+      "wave_id": "M19-W02-FACT-DATA-LED",
       "status": "OPEN",
-      "attempt_count": 0,
-      "title": "Sidebar stale/empty data",
-      "pass_condition": "Runtime probe confirms sidebar stale/empty data",
-      "required_evidence": [],
-      "ratchet_test_required": true
+      "attempt_count": 2,
+      "root_cause_required": false,
+      "root_cause": null,
+      "pass_condition": [
+        "UI_FIELD_WITHOUT_DATA_SOURCE_COUNT=0",
+        "SAVE_SCHEMA_CHANGE_COUNT=0",
+        "位图文字/乱码/重复中文事实源为 0",
+        "条件字段无数据时整行隐藏"
+      ],
+      "required_evidence": [
+        "ui_field_data_mapping.json",
+        "strings_audit.json",
+        "save_schema_diff.json"
+      ],
+      "ratchet_test_required": true,
+      "waiver_allowed": false,
+      "history_note": "Compiled from repeated user-visible M19 failures; close only with Git proof."
     },
     {
       "id": "M19-D010",
-      "requirement_id": "R010",
-      "severity": "P1",
-      "wave_id": "W02",
-      "status": "OPEN",
-      "attempt_count": 0,
-      "title": "LED no visual delta",
-      "pass_condition": "Runtime probe confirms led no visual delta",
-      "required_evidence": [],
-      "ratchet_test_required": true
+      "requirement_id": "M19-R010",
+      "title": "打开/关闭二级页面后系统卡死、输入丢失或透明拦截残留",
+      "severity": "P0",
+      "wave_id": "M19-W03-MODAL-BEHAVIOR",
+      "status": "OPEN_ESCALATED",
+      "attempt_count": 6,
+      "root_cause_required": true,
+      "root_cause": null,
+      "pass_condition": [
+        "02–06 唯一 Modal Manager",
+        "关闭后 Modal/Dimmer/Input Blocker 残留为 0",
+        "SceneTree 不暂停且心跳/输入继续",
+        "每页 50 次、总计 250 次零冻结"
+      ],
+      "required_evidence": [
+        "modal_lifecycle_trace.json",
+        "modal_stress_result.json",
+        "after_close_contact_sheet.png"
+      ],
+      "ratchet_test_required": true,
+      "waiver_allowed": false,
+      "history_note": "Compiled from repeated user-visible M19 failures; close only with Git proof."
     },
     {
       "id": "M19-D011",
-      "requirement_id": "R011",
+      "requirement_id": "M19-R011",
+      "title": "02/03 页面状态与航行状态耦合风险，关闭后计时/进度需回归",
       "severity": "P1",
-      "wave_id": "W03",
+      "wave_id": "M19-W03-MODAL-BEHAVIOR",
       "status": "OPEN",
-      "attempt_count": 0,
-      "title": "Modal close freezes",
-      "pass_condition": "Runtime probe confirms modal close freezes",
-      "required_evidence": [],
-      "ratchet_test_required": true
+      "attempt_count": 2,
+      "root_cause_required": false,
+      "root_cause": null,
+      "pass_condition": [
+        "READY 可启航且只扣费一次",
+        "VOYAGING 倒计时/进度动态更新",
+        "关闭 03 后航行继续"
+      ],
+      "required_evidence": [
+        "blue_guardian_behavior.json",
+        "02_ready.png",
+        "03_voyaging.png"
+      ],
+      "ratchet_test_required": true,
+      "waiver_allowed": false,
+      "history_note": "Compiled from repeated user-visible M19 failures; close only with Git proof."
     },
     {
       "id": "M19-D012",
-      "requirement_id": "R012",
-      "severity": "P1",
-      "wave_id": "W03",
-      "status": "OPEN",
-      "attempt_count": 0,
-      "title": "Open/close cycles fail",
-      "pass_condition": "Runtime probe confirms open/close cycles fail",
-      "required_evidence": [],
-      "ratchet_test_required": true
+      "requirement_id": "M19-R012",
+      "title": "04 Keep/Release/Close 幂等与副作用缺少可信生产证据",
+      "severity": "P0",
+      "wave_id": "M19-W03-MODAL-BEHAVIOR",
+      "status": "OPEN_ESCALATED",
+      "attempt_count": 3,
+      "root_cause_required": true,
+      "root_cause": null,
+      "pass_condition": [
+        "Keep 只增加一个实例并消费一次",
+        "Release 只发奖励一次且不加入 livestock",
+        "关闭不消费/不奖励/不改业务状态"
+      ],
+      "required_evidence": [
+        "04_behavior_assertions.json",
+        "04_keep.png",
+        "04_release.png"
+      ],
+      "ratchet_test_required": true,
+      "waiver_allowed": false,
+      "history_note": "Compiled from repeated user-visible M19 failures; close only with Git proof."
     },
     {
       "id": "M19-D013",
-      "requirement_id": "R013",
-      "severity": "P2",
-      "wave_id": "W03",
+      "requirement_id": "M19-R013",
+      "title": "05/06 列表、筛选、选择、滚动和放归资格缺少稳定棘轮测试",
+      "severity": "P1",
+      "wave_id": "M19-W03-MODAL-BEHAVIOR",
       "status": "OPEN",
-      "attempt_count": 0,
-      "title": "Text overflow/collision",
-      "pass_condition": "Runtime probe confirms text overflow/collision",
-      "required_evidence": [],
-      "ratchet_test_required": true
+      "attempt_count": 2,
+      "root_cause_required": false,
+      "root_cause": null,
+      "pass_condition": [
+        "图鉴筛选/列表/选择/滚动/详情正确",
+        "放归筛选/个体选择/资格/留养/放归正确",
+        "奖励无重复且观察期禁用正确"
+      ],
+      "required_evidence": [
+        "05_06_behavior_assertions.json",
+        "05_codex.png",
+        "06_release.png"
+      ],
+      "ratchet_test_required": true,
+      "waiver_allowed": false,
+      "history_note": "Compiled from repeated user-visible M19 failures; close only with Git proof."
     },
     {
       "id": "M19-D014",
-      "requirement_id": "R014",
-      "severity": "P2",
-      "wave_id": "W03",
-      "status": "OPEN",
-      "attempt_count": 0,
-      "title": "Evidence stale",
-      "pass_condition": "Runtime probe confirms evidence stale",
-      "required_evidence": [],
-      "ratchet_test_required": true
+      "requirement_id": "M19-R014",
+      "title": "执行层多次用截图数量/文件大小代替画面正确性",
+      "severity": "P1",
+      "wave_id": "M19-W04-EVIDENCE-FINAL",
+      "status": "OPEN_ESCALATED",
+      "attempt_count": 7,
+      "root_cause_required": true,
+      "root_cause": null,
+      "pass_condition": [
+        "六页全部来自正式 Main Scene",
+        "01–06 覆盖完整且 04 Keep/Release 分态存在",
+        "截图 1280x720/非空/非重复/无调试框"
+      ],
+      "required_evidence": [
+        "production_screenshot_audit.json",
+        "M19_FINAL_CONTACT_SHEET.png"
+      ],
+      "ratchet_test_required": true,
+      "waiver_allowed": false,
+      "history_note": "Compiled from repeated user-visible M19 failures; close only with Git proof."
     },
     {
       "id": "M19-D015",
-      "requirement_id": "R015",
+      "requirement_id": "M19-R015",
+      "title": "实现与审计同源自报，出现 false pass/测试场景冒充生产",
       "severity": "P1",
-      "wave_id": "W03",
-      "status": "OPEN",
-      "attempt_count": 0,
-      "title": "Keep action wrong",
-      "pass_condition": "Runtime probe confirms keep action wrong",
-      "required_evidence": [],
-      "ratchet_test_required": true
+      "wave_id": "M19-W04-EVIDENCE-FINAL",
+      "status": "OPEN_ESCALATED",
+      "attempt_count": 6,
+      "root_cause_required": true,
+      "root_cause": null,
+      "pass_condition": [
+        "审计只读冻结 manifests/生产截图/SceneTree/状态差异",
+        "验证器合同首次运行后不可修改",
+        "实现层自报不作为事实"
+      ],
+      "required_evidence": [
+        "M19_FINAL_VERIFY_CONTRACT.json",
+        "independent_audit.json"
+      ],
+      "ratchet_test_required": true,
+      "waiver_allowed": false,
+      "history_note": "Compiled from repeated user-visible M19 failures; close only with Git proof."
     },
     {
       "id": "M19-D016",
-      "requirement_id": "R016",
-      "severity": "P1",
-      "wave_id": "W03",
-      "status": "OPEN",
-      "attempt_count": 0,
-      "title": "Release duplicate reward",
-      "pass_condition": "Runtime probe confirms release duplicate reward",
-      "required_evidence": [],
-      "ratchet_test_required": true
+      "requirement_id": "M19-R016",
+      "title": "修复新问题时旧问题回归，缺少只增不减的自动棘轮",
+      "severity": "P0",
+      "wave_id": "M19-W04-EVIDENCE-FINAL",
+      "status": "OPEN_ESCALATED",
+      "attempt_count": 5,
+      "root_cause_required": true,
+      "root_cause": null,
+      "pass_condition": [
+        "每波运行所有 CLOSED_RATCHET 测试",
+        "Godot error/script/missing resource=0",
+        "Save schema/冻结资产/坐标未改",
+        "SubViewport/位图文字/旧 UI/占位块=0"
+      ],
+      "required_evidence": [
+        "full_regression_summary.json",
+        "git_diff_scope_audit.json"
+      ],
+      "ratchet_test_required": true,
+      "waiver_allowed": false,
+      "history_note": "Compiled from repeated user-visible M19 failures; close only with Git proof."
     },
     {
       "id": "M19-D017",
-      "requirement_id": "R017",
+      "requirement_id": "M19-R017",
+      "title": "候选未统一以远端 Git commit 和真实 CI 作为事实源",
       "severity": "P1",
-      "wave_id": "W04",
+      "wave_id": "M19-W04-EVIDENCE-FINAL",
       "status": "OPEN",
-      "attempt_count": 0,
-      "title": "Missing GPU screenshots",
-      "pass_condition": "Runtime probe confirms missing gpu screenshots",
-      "required_evidence": [],
-      "ratchet_test_required": true
+      "attempt_count": 1,
+      "root_cause_required": false,
+      "root_cause": null,
+      "pass_condition": [
+        "候选 commit 已 push 且 local=remote",
+        "外部 git clone/fetch 可获取",
+        "审查走真实 CI 页面"
+      ],
+      "required_evidence": [
+        "git_candidate_receipt.json",
+        "ci_run_receipt.json"
+      ],
+      "ratchet_test_required": true,
+      "waiver_allowed": false,
+      "history_note": "Compiled from repeated user-visible M19 failures; close only with Git proof."
     },
     {
       "id": "M19-D018",
-      "requirement_id": "R018",
+      "requirement_id": "M19-R018",
+      "title": "最终视觉冻结前执行层多次自行宣布 PASS",
       "severity": "P1",
-      "wave_id": "W04",
-      "status": "OPEN",
-      "attempt_count": 0,
-      "title": "Closed ratchet re-failed",
-      "pass_condition": "Runtime probe confirms closed ratchet re-failed",
-      "required_evidence": [],
-      "ratchet_test_required": true
+      "wave_id": "M19-W04-EVIDENCE-FINAL",
+      "status": "OPEN_ESCALATED",
+      "attempt_count": 6,
+      "root_cause_required": true,
+      "root_cause": null,
+      "pass_condition": [
+        "最终联系表含 01–06 全部正式画面",
+        "制作人只审查一次",
+        "制作人 PASS 前不得 tag/merge"
+      ],
+      "required_evidence": [
+        "M19_FINAL_CONTACT_SHEET.png",
+        "M19_FINAL_CANDIDATE_RECEIPT.json"
+      ],
+      "ratchet_test_required": true,
+      "waiver_allowed": false,
+      "history_note": "Compiled from repeated user-visible M19 failures; close only with Git proof."
     }
   ]
 }

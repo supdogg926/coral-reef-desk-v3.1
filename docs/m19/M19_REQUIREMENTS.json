@@ -1,150 +1,351 @@
 {
+  "schema_version": "2.0",
   "contract_id": "M19-CONTRACT-DRIVEN-V2",
-  "requirement_count": 18,
+  "status_values": [
+    "OPEN",
+    "IN_PROGRESS",
+    "CLOSED_RATCHET",
+    "WAIVED_P2"
+  ],
+  "severity_values": [
+    "P0",
+    "P1",
+    "P2"
+  ],
+  "waves": [
+    {
+      "wave_id": "M19-W01-PRODUCTION-TAKEOVER",
+      "goal": "正式 Main Scene 与六张冻结 Plate 完整接管，清除旧视觉、接缝和占位块",
+      "requirement_ids": [
+        "M19-R001",
+        "M19-R002",
+        "M19-R003",
+        "M19-R004"
+      ],
+      "max_defects": 4
+    },
+    {
+      "wave_id": "M19-W02-FACT-DATA-LED",
+      "goal": "01–06 必填文字、数据、图片、列表、LED 与真实数据源按合同槽位完整接入",
+      "requirement_ids": [
+        "M19-R005",
+        "M19-R006",
+        "M19-R007",
+        "M19-R008",
+        "M19-R009"
+      ],
+      "max_defects": 5
+    },
+    {
+      "wave_id": "M19-W03-MODAL-BEHAVIOR",
+      "goal": "统一 Modal 生命周期，修复进入退出冻结，并关闭蓝色守护、结果、图鉴、放归行为",
+      "requirement_ids": [
+        "M19-R010",
+        "M19-R011",
+        "M19-R012",
+        "M19-R013"
+      ],
+      "max_defects": 4
+    },
+    {
+      "wave_id": "M19-W04-EVIDENCE-FINAL",
+      "goal": "生产入口全量回归、棘轮测试、Git/CI 证据与最终联系表",
+      "requirement_ids": [
+        "M19-R014",
+        "M19-R015",
+        "M19-R016",
+        "M19-R017",
+        "M19-R018"
+      ],
+      "max_defects": 5
+    }
+  ],
   "requirements": [
     {
-      "id": "R001",
-      "description": "Production entry verified via run/main_scene",
-      "wave": "W01",
-      "status": "OPEN",
-      "evidence_required": [],
-      "acceptance_criteria": "Production entry verified via run/main_scene"
+      "id": "M19-R001",
+      "title": "生产入口唯一性",
+      "severity": "P0",
+      "wave_id": "M19-W01-PRODUCTION-TAKEOVER",
+      "acceptance": [
+        "所有验收入口来自 run/main_scene",
+        "Hybrid UI 实例恰好 1 个",
+        "禁止直接加载测试子场景冒充生产"
+      ],
+      "evidence": [
+        "production_entry_trace.json",
+        "runtime_scene_tree.json",
+        "production_main.png"
+      ]
     },
     {
-      "id": "R002",
-      "description": "01 uses single full runtime master",
-      "wave": "W01",
-      "status": "OPEN",
-      "evidence_required": [],
-      "acceptance_criteria": "01 uses single full runtime master"
+      "id": "M19-R002",
+      "title": "01 单张完整 Runtime Master 无缝显示",
+      "severity": "P0",
+      "wave_id": "M19-W01-PRODUCTION-TAKEOVER",
+      "acceptance": [
+        "01_runtime_empty_master.png 恰好显示 1 次",
+        "区域 Chrome 裁片正式可见数为 0",
+        "无缝隙、双边框、缩放误差"
+      ],
+      "evidence": [
+        "01_main_production.png",
+        "01_seam_audit.json",
+        "plate_runtime_snapshot.json"
+      ]
     },
     {
-      "id": "R003",
-      "description": "02-06 each use corresponding freeze shell",
-      "wave": "W01",
-      "status": "OPEN",
-      "evidence_required": [],
-      "acceptance_criteria": "02-06 each use corresponding freeze shell"
+      "id": "M19-R003",
+      "title": "02–06 冻结 Shell 精确接入",
+      "severity": "P0",
+      "wave_id": "M19-W01-PRODUCTION-TAKEOVER",
+      "acceptance": [
+        "02/03/04=760x520@(260,100)",
+        "05/06=1040x580@(120,70)",
+        "路径和 SHA256 与 manifest 一致",
+        "无旧 StyleBox/重复 Plate"
+      ],
+      "evidence": [
+        "page_plate_runtime_snapshot.json",
+        "02_06_plate_contact_sheet.png"
+      ]
     },
     {
-      "id": "R004",
-      "description": "Legacy visual nodes hidden, placeholders cleared",
-      "wave": "W01",
-      "status": "OPEN",
-      "evidence_required": [],
-      "acceptance_criteria": "Legacy visual nodes hidden, placeholders cleared"
+      "id": "M19-R004",
+      "title": "旧视觉与占位资产清零",
+      "severity": "P0",
+      "wave_id": "M19-W01-PRODUCTION-TAKEOVER",
+      "acceptance": [
+        "旧 procedural tank/sump/status 不可见",
+        "绿色/灰色 ColorRect、几何鱼/圆石/线珊瑚为 0",
+        "无素材实例隐藏并记录"
+      ],
+      "evidence": [
+        "legacy_visible_nodes.json",
+        "world_asset_audit.json",
+        "01_main_production.png"
+      ]
     },
     {
-      "id": "R005",
-      "description": "All Fact slots populated with dynamic text",
-      "wave": "W02",
-      "status": "OPEN",
-      "evidence_required": [],
-      "acceptance_criteria": "All Fact slots populated with dynamic text"
+      "id": "M19-R005",
+      "title": "01 全部动态文字与系统数据",
+      "severity": "P1",
+      "wave_id": "M19-W02-FACT-DATA-LED",
+      "acceptance": [
+        "右栏/日志/守护摘要/七仪表/四旋钮/16 键/导航文字完整",
+        "无空字段/占位值/幽灵数据",
+        "GameState 变化 2 帧内刷新"
+      ],
+      "evidence": [
+        "main_fact_slot_audit.json",
+        "main_data_binding.json",
+        "01_main_fact.png"
+      ]
     },
     {
-      "id": "R006",
-      "description": "Gauge values bound to real data sources",
-      "wave": "W02",
-      "status": "OPEN",
-      "evidence_required": [],
-      "acceptance_criteria": "Gauge values bound to real data sources"
+      "id": "M19-R006",
+      "title": "01 仪表、旋钮、16 键和 LED",
+      "severity": "P1",
+      "wave_id": "M19-W02-FACT-DATA-LED",
+      "acceptance": [
+        "七仪表全部绑定",
+        "四旋钮名称/值/指针/LED 全部绑定",
+        "16 键真实 API 或 disabled",
+        "20 个 LED 有可测 ON/OFF 视觉差"
+      ],
+      "evidence": [
+        "control_binding_audit.json",
+        "led_visual_delta.json",
+        "01_led_on_off_sheet.png"
+      ]
     },
     {
-      "id": "R007",
-      "description": "Knob pointers bound to real API",
-      "wave": "W02",
-      "status": "OPEN",
-      "evidence_required": [],
-      "acceptance_criteria": "Knob pointers bound to real API"
+      "id": "M19-R007",
+      "title": "02–04 Fact 槽完整准确",
+      "severity": "P1",
+      "wave_id": "M19-W02-FACT-DATA-LED",
+      "acceptance": [
+        "required 节点存在/可见/非空",
+        "文字图片进度按钮在槽位内",
+        "无旧 Fact 叠加/越界/裁切/乱码"
+      ],
+      "evidence": [
+        "02_04_fact_slot_audit.json",
+        "02_04_fact_alignment_sheet.png"
+      ]
     },
     {
-      "id": "R008",
-      "description": "Device buttons have labels and LED states",
-      "wave": "W02",
-      "status": "OPEN",
-      "evidence_required": [],
-      "acceptance_criteria": "Device buttons have labels and LED states"
+      "id": "M19-R008",
+      "title": "05 图鉴与 06 放归 Fact/列表精确接入",
+      "severity": "P1",
+      "wave_id": "M19-W02-FACT-DATA-LED",
+      "acceptance": [
+        "05 筛选/列表/主图/详情/进度/按钮完整",
+        "06 筛选/个体列表/主图/六项详情/说明/双按钮完整",
+        "旧列表/旧关闭按钮/旧 StyleBox 为 0"
+      ],
+      "evidence": [
+        "05_06_fact_slot_audit.json",
+        "05_codex.png",
+        "06_release.png"
+      ]
     },
     {
-      "id": "R009",
-      "description": "Sidebar displays real time, date, waves, temp",
-      "wave": "W02",
-      "status": "OPEN",
-      "evidence_required": [],
-      "acceptance_criteria": "Sidebar displays real time, date, waves, temp"
+      "id": "M19-R009",
+      "title": "字段数据源与中文字符串纪律",
+      "severity": "P1",
+      "wave_id": "M19-W02-FACT-DATA-LED",
+      "acceptance": [
+        "UI_FIELD_WITHOUT_DATA_SOURCE_COUNT=0",
+        "SAVE_SCHEMA_CHANGE_COUNT=0",
+        "位图文字/乱码/重复中文事实源为 0",
+        "条件字段无数据时整行隐藏"
+      ],
+      "evidence": [
+        "ui_field_data_mapping.json",
+        "strings_audit.json",
+        "save_schema_diff.json"
+      ]
     },
     {
-      "id": "R010",
-      "description": "LED states produce measurable visual delta",
-      "wave": "W02",
-      "status": "OPEN",
-      "evidence_required": [],
-      "acceptance_criteria": "LED states produce measurable visual delta"
+      "id": "M19-R010",
+      "title": "统一 Modal 生命周期与关闭稳定性",
+      "severity": "P0",
+      "wave_id": "M19-W03-MODAL-BEHAVIOR",
+      "acceptance": [
+        "02–06 唯一 Modal Manager",
+        "关闭后 Modal/Dimmer/Input Blocker 残留为 0",
+        "SceneTree 不暂停且心跳/输入继续",
+        "每页 50 次、总计 250 次零冻结"
+      ],
+      "evidence": [
+        "modal_lifecycle_trace.json",
+        "modal_stress_result.json",
+        "after_close_contact_sheet.png"
+      ]
     },
     {
-      "id": "R011",
-      "description": "Modal close does not freeze main interface",
-      "wave": "W03",
-      "status": "OPEN",
-      "evidence_required": [],
-      "acceptance_criteria": "Modal close does not freeze main interface"
+      "id": "M19-R011",
+      "title": "02/03 蓝色守护状态与航行行为",
+      "severity": "P1",
+      "wave_id": "M19-W03-MODAL-BEHAVIOR",
+      "acceptance": [
+        "READY 可启航且只扣费一次",
+        "VOYAGING 倒计时/进度动态更新",
+        "关闭 03 后航行继续"
+      ],
+      "evidence": [
+        "blue_guardian_behavior.json",
+        "02_ready.png",
+        "03_voyaging.png"
+      ]
     },
     {
-      "id": "R012",
-      "description": "250 open/close cycles with zero freezes",
-      "wave": "W03",
-      "status": "OPEN",
-      "evidence_required": [],
-      "acceptance_criteria": "250 open/close cycles with zero freezes"
+      "id": "M19-R012",
+      "title": "04 留养/放归幂等与关闭无副作用",
+      "severity": "P0",
+      "wave_id": "M19-W03-MODAL-BEHAVIOR",
+      "acceptance": [
+        "Keep 只增加一个实例并消费一次",
+        "Release 只发奖励一次且不加入 livestock",
+        "关闭不消费/不奖励/不改业务状态"
+      ],
+      "evidence": [
+        "04_behavior_assertions.json",
+        "04_keep.png",
+        "04_release.png"
+      ]
     },
     {
-      "id": "R013",
-      "description": "No text overflow, clip, or collision",
-      "wave": "W03",
-      "status": "OPEN",
-      "evidence_required": [],
-      "acceptance_criteria": "No text overflow, clip, or collision"
+      "id": "M19-R013",
+      "title": "05/06 列表筛选选择滚动与操作",
+      "severity": "P1",
+      "wave_id": "M19-W03-MODAL-BEHAVIOR",
+      "acceptance": [
+        "图鉴筛选/列表/选择/滚动/详情正确",
+        "放归筛选/个体选择/资格/留养/放归正确",
+        "奖励无重复且观察期禁用正确"
+      ],
+      "evidence": [
+        "05_06_behavior_assertions.json",
+        "05_codex.png",
+        "06_release.png"
+      ]
     },
     {
-      "id": "R014",
-      "description": "All evidence fresh from current HEAD",
-      "wave": "W03",
-      "status": "OPEN",
-      "evidence_required": [],
-      "acceptance_criteria": "All evidence fresh from current HEAD"
+      "id": "M19-R014",
+      "title": "真实生产 GPU 证据覆盖六页",
+      "severity": "P1",
+      "wave_id": "M19-W04-EVIDENCE-FINAL",
+      "acceptance": [
+        "六页全部来自正式 Main Scene",
+        "01–06 覆盖完整且 04 Keep/Release 分态存在",
+        "截图 1280x720/非空/非重复/无调试框"
+      ],
+      "evidence": [
+        "production_screenshot_audit.json",
+        "M19_FINAL_CONTACT_SHEET.png"
+      ]
     },
     {
-      "id": "R015",
-      "description": "Keep action: livestock +1, no duplicate",
-      "wave": "W03",
-      "status": "OPEN",
-      "evidence_required": [],
-      "acceptance_criteria": "Keep action: livestock +1, no duplicate"
+      "id": "M19-R015",
+      "title": "独立审计不信任实现自报",
+      "severity": "P1",
+      "wave_id": "M19-W04-EVIDENCE-FINAL",
+      "acceptance": [
+        "审计只读冻结 manifests/生产截图/SceneTree/状态差异",
+        "验证器合同首次运行后不可修改",
+        "实现层自报不作为事实"
+      ],
+      "evidence": [
+        "M19_FINAL_VERIFY_CONTRACT.json",
+        "independent_audit.json"
+      ]
     },
     {
-      "id": "R016",
-      "description": "Release action: reward once, no duplicate",
-      "wave": "W03",
-      "status": "OPEN",
-      "evidence_required": [],
-      "acceptance_criteria": "Release action: reward once, no duplicate"
+      "id": "M19-R016",
+      "title": "全量回归与不变量",
+      "severity": "P0",
+      "wave_id": "M19-W04-EVIDENCE-FINAL",
+      "acceptance": [
+        "每波运行所有 CLOSED_RATCHET 测试",
+        "Godot error/script/missing resource=0",
+        "Save schema/冻结资产/坐标未改",
+        "SubViewport/位图文字/旧 UI/占位块=0"
+      ],
+      "evidence": [
+        "full_regression_summary.json",
+        "git_diff_scope_audit.json"
+      ]
     },
     {
-      "id": "R017",
-      "description": "All 6 pages produce production GPU screenshots",
-      "wave": "W04",
-      "status": "OPEN",
-      "evidence_required": [],
-      "acceptance_criteria": "All 6 pages produce production GPU screenshots"
+      "id": "M19-R017",
+      "title": "Git 候选与真实 CI 审查",
+      "severity": "P1",
+      "wave_id": "M19-W04-EVIDENCE-FINAL",
+      "acceptance": [
+        "候选 commit 已 push 且 local=remote",
+        "外部 git clone/fetch 可获取",
+        "审查走真实 CI 页面"
+      ],
+      "evidence": [
+        "git_candidate_receipt.json",
+        "ci_run_receipt.json"
+      ]
     },
     {
-      "id": "R018",
-      "description": "Full regression: all closed ratchets still pass",
-      "wave": "W04",
-      "status": "OPEN",
-      "evidence_required": [],
-      "acceptance_criteria": "Full regression: all closed ratchets still pass"
+      "id": "M19-R018",
+      "title": "最终制作人视觉冻结",
+      "severity": "P1",
+      "wave_id": "M19-W04-EVIDENCE-FINAL",
+      "acceptance": [
+        "最终联系表含 01–06 全部正式画面",
+        "制作人只审查一次",
+        "制作人 PASS 前不得 tag/merge"
+      ],
+      "evidence": [
+        "M19_FINAL_CONTACT_SHEET.png",
+        "M19_FINAL_CANDIDATE_RECEIPT.json"
+      ]
     }
   ]
 }

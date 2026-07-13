@@ -1,14 +1,15 @@
 {
-  "wave_id": "M19-W01-PRODUCTION-TAKEOVER",
-  "run_id": "1783964265",
-  "commit_sha": "215b0d6e7953d2944e2cc2d62b22bbb28c104813",
-  "generated_at": "2026-07-14T01:37:45.695807",
+  "wave_id": "M19-W01-FROZEN-HARNESS-RECOVERY",
+  "run_id": "1783965746.002",
+  "commit_sha": "8ff97cb3587838c61842498ed1ec1494c559a464",
+  "generated_at": "2026-07-14T02:03:01.915934",
   "result": "CANDIDATE_READY",
-  "ratchets": {
-    "D001": true,
-    "D002": true,
-    "D003": true,
-    "D004": true
+  "page_results": {
+    "PAGE_02_VISIBLE_RESULT": "PASS",
+    "PAGE_03_VISIBLE_RESULT": "PASS",
+    "PAGE_04_VISIBLE_RESULT": "PASS",
+    "PAGE_05_VISIBLE_RESULT": "PASS",
+    "PAGE_06_VISIBLE_RESULT": "PASS"
   },
-  "probe_validated": true
+  "page_run_count": 5
 }

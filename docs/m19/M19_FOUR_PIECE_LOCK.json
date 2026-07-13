@@ -1,0 +1,11 @@
+{
+  "contract_id": "M19-CONTRACT-DRIVEN-V2",
+  "zip_sha256": "6545b873945cb8ac50c4a17c9facbe8911884428e0bc363335f86794ddd0c455",
+  "files": {
+    "docs/m19/M19_FINAL_ACCEPTANCE_CONTRACT.md": "9609f8b8614378b42dfb8c4e69227f8e365df7e4f46edb8073b891f35c87538a",
+    "docs/m19/M19_REQUIREMENTS.json": "800601b1e2a55fdfe8e39300871a1eb79f9224d59b7861d58731ea7df8ccc6e6",
+    "reports/m19/acceptance/M19_OPEN_DEFECTS.json": "01a2ebcfd8633ed361f6a11b3cea5294bf0bddf9766acf42765bee8ac98b4950",
+    "tests/m19/run_m19_final_acceptance.ps1": "3f2bf9db10a073b501480a252344f36e59747f02414d2f9ba8492a1e1563ff07"
+  },
+  "restored_at": "2026-07-14T01:49:21.275074"
+}
