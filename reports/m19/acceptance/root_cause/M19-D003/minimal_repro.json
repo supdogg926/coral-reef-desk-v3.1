@@ -1,0 +1,6 @@
+{
+  "defect": "M19-D003",
+  "repro": "F5 from project.godot",
+  "expected": "Frozen chrome visible",
+  "actual_before_fix": "Legacy UI / StyleBox / ColorRect visible"
+}

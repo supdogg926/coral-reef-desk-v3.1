@@ -1,0 +1,6 @@
+{
+  "id": "M19-D004",
+  "ruling": "Legacy visual nodes must be hidden. Missing asset instances must be hidden, never shown as ColorRect placeholders.",
+  "status": "FIXED",
+  "timestamp": "2026-07-14T01:17:33.624305"
+}

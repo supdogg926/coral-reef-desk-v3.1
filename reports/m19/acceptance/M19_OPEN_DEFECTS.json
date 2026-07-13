@@ -1,0 +1,60 @@
+{
+  "defects": [
+    {
+      "id": "M19-D001",
+      "severity": "P0",
+      "title": "Production F5 disconnected from real Main Scene",
+      "status": "OPEN",
+      "attempt_count": 4,
+      "required_evidence": [
+        "production_entry_trace.json",
+        "runtime_scene_tree.json",
+        "production_main.png"
+      ],
+      "wave": "W01"
+    },
+    {
+      "id": "M19-D002",
+      "severity": "P0",
+      "title": "01 uses region crop pieces causing seams",
+      "status": "OPEN",
+      "attempt_count": 3,
+      "required_evidence": [
+        "01_main_production.png",
+        "01_seam_audit.json",
+        "plate_runtime_snapshot.json"
+      ],
+      "wave": "W01"
+    },
+    {
+      "id": "M19-D003",
+      "severity": "P0",
+      "title": "02-06 freeze shells not all integrated",
+      "status": "OPEN",
+      "attempt_count": 3,
+      "required_evidence": [
+        "page_plate_runtime_snapshot.json",
+        "02_ready_plate.png",
+        "03_voyaging_plate.png",
+        "04_result_plate.png",
+        "05_codex_plate.png",
+        "06_release_plate.png",
+        "02_06_plate_contact_sheet.png"
+      ],
+      "wave": "W01"
+    },
+    {
+      "id": "M19-D004",
+      "severity": "P0",
+      "title": "Legacy UI and placeholders covering Chrome",
+      "status": "OPEN",
+      "attempt_count": 3,
+      "required_evidence": [
+        "legacy_visible_nodes.json",
+        "world_asset_audit.json",
+        "01_clean_world_production.png"
+      ],
+      "wave": "W01"
+    }
+  ]
+}

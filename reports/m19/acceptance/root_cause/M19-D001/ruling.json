@@ -1,0 +1,6 @@
+{
+  "id": "M19-D001",
+  "ruling": "Only project.godot run/main_scene is production entry. Hybrid must be instantiated in production Main scene.",
+  "status": "FIXED",
+  "timestamp": "2026-07-14T01:17:33.624305"
+}

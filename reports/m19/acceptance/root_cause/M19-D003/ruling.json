@@ -1,0 +1,6 @@
+{
+  "id": "M19-D003",
+  "ruling": "Each page must load its corresponding freeze shell PNG as a TextureRect plate.",
+  "status": "FIXED",
+  "timestamp": "2026-07-14T01:17:33.624305"
+}

@@ -11,6 +11,7 @@ var _refresh_timer: float = 0.0
 var _last_remaining: int = -1
 
 const SHELL := M19SharedTheme.SHELL_S
+const CHROME_SHELL := "res://assets/m19/ui/chrome/shell_03_voyaging_empty.png"
 
 
 func setup(service: BlueGuardianService) -> void:
@@ -24,7 +25,17 @@ func _build() -> void:
 	offset_left = -SHELL.size.x / 2.0; offset_top = -SHELL.size.y / 2.0
 	offset_right = SHELL.size.x / 2.0; offset_bottom = SHELL.size.y / 2.0
 
-	add_theme_stylebox_override("panel", M19SharedTheme.make_shell_style())
+	# Freeze shell plate
+	var shell_tr := TextureRect.new()
+	shell_tr.name = "ShellPlate"
+	shell_tr.position = Vector2.ZERO
+	shell_tr.size = SHELL.size
+	shell_tr.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	shell_tr.stretch_mode = TextureRect.STRETCH_KEEP
+	shell_tr.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	if ResourceLoader.exists(CHROME_SHELL):
+		shell_tr.texture = ResourceLoader.load(CHROME_SHELL, "Texture2D", ResourceLoader.CACHE_MODE_IGNORE)
+	add_child(shell_tr)
 
 	var vbox := VBoxContainer.new()
 	vbox.add_theme_constant_override("separation", 0)

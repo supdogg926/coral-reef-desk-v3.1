@@ -1,0 +1,23 @@
+{
+  "correct_worktree": {
+    "method": "git rev-parse",
+    "result": true
+  },
+  "git_push": {
+    "method": "git push origin",
+    "result": true
+  },
+  "godot_gui_capture": {
+    "method": "Start-Process Godot GUI",
+    "result": true
+  },
+  "asset_sha256": {
+    "method": "python hashlib",
+    "result": true
+  },
+  "ratchet_tests": {
+    "method": "powershell -File",
+    "result": true
+  },
+  "verified_at": "2026-07-14T01:17:33.624305"
+}
