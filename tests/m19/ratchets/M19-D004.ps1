@@ -1,24 +1,14 @@
-# D004: Legacy visual nodes and placeholder audit
+# D004: Reads probe — verifies zero legacy nodes, zero world ColorRects
+param([string]$EvidenceDir)
 $ProjectRoot = $PSScriptRoot | Split-Path -Parent | Split-Path -Parent | Split-Path -Parent
-Push-Location $ProjectRoot
-# Check Main.gd hides legacy nodes
-$mg = Get-Content "scenes/main/Main.gd" -Raw
-if ($mg -notmatch "visible = false") { Write-Error "D004 FAIL: No legacy node hiding in Main.gd"; Pop-Location; exit 1 }
-# Check world code has no ColorRect placeholders
-$worldFiles = @("M19MainInterfaceHybrid.gd")
-foreach ($wf in $worldFiles) {
-    $path = "scenes/ui/$wf"
-    if (Test-Path $path) {
-        $c = Get-Content $path -Raw
-        # Count only world/debug ColorRects, not style ones in SharedTheme
-        $lines = (Get-Content $path | Select-String "ColorRect.new()")
-        foreach ($l in $lines) {
-            if ($l -notmatch "SharedTheme|make_progress|style") {
-                Write-Error "D004 FAIL: ColorRect placeholder in $wf`: $($l.Line.Trim())"
-                Pop-Location; exit 1
-            }
-        }
-    }
+if (-not $EvidenceDir) {
+    $stagings = Get-ChildItem "$ProjectRoot\reports\m19\acceptance\staging" -Directory | Sort-Object LastWriteTime -Descending
+    if (-not $stagings) { Write-Error "D004 FAIL: No probe evidence"; exit 1 }
+    $EvidenceDir = $stagings[0].FullName
 }
-Write-Host "D004 PASS: Legacy nodes hidden, no world ColorRect placeholders"
-Pop-Location; exit 0
+$probe = Get-Content "$EvidenceDir\probe_output.json" -Raw | ConvertFrom-Json
+if ($probe.legacy_visible_nodes.Count -gt 0) { Write-Error "D004 FAIL: $($probe.legacy_visible_nodes.Count) legacy nodes visible"; exit 1 }
+if ($probe.world_nodes_without_texture.Count -gt 0) { Write-Error "D004 FAIL: $($probe.world_nodes_without_texture.Count) world placeholders"; exit 1 }
+if ($probe.color_rect_nodes.Count -gt 10) { Write-Error "D004 FAIL: $($probe.color_rect_nodes.Count) ColorRects (unusual count)"; exit 1 }
+Write-Host "D004 PASS: Legacy=0 World_placeholder=0"
+exit 0

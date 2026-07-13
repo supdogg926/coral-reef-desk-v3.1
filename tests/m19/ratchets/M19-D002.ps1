@@ -1,14 +1,15 @@
-# D002: 01 single full master verification
+# D002: Reads probe output — verifies single full master, zero region crops
+param([string]$EvidenceDir)
 $ProjectRoot = $PSScriptRoot | Split-Path -Parent | Split-Path -Parent | Split-Path -Parent
-Push-Location $ProjectRoot
-$hybrid = Get-Content "scenes/ui/M19MainInterfaceHybrid.gd" -Raw
-# Must reference full master, must NOT have region crop dict
-if ($hybrid -match "chrome_regions") { Write-Error "D002 FAIL: Region crop dict still in code"; Pop-Location; exit 1 }
-if ($hybrid -notmatch "01_runtime_empty_master") { Write-Error "D002 FAIL: Full master path not found"; Pop-Location; exit 1 }
-# Verify full master file exists
-if (-not (Test-Path "assets/m19/ui/chrome/01_runtime_empty_master.png")) { Write-Error "D002 FAIL: Full master PNG missing"; Pop-Location; exit 1 }
-# Verify NO region crops are individually referenced as production plates
-$regionRefs = ($hybrid | Select-String "01_main_tank.png|01_sump.png|01_gauge_belt.png|01_knob_panel.png|01_device_grid.png|01_sidebar.png" -AllMatches).Matches.Count
-if ($regionRefs -gt 0) { Write-Error "D002 FAIL: $regionRefs region crop references found"; Pop-Location; exit 1 }
-Write-Host "D002 PASS: Single full master, zero region crops"
-Pop-Location; exit 0
+if (-not $EvidenceDir) {
+    $stagings = Get-ChildItem "$ProjectRoot\reports\m19\acceptance\staging" -Directory | Sort-Object LastWriteTime -Descending
+    if (-not $stagings) { Write-Error "D002 FAIL: No probe evidence"; exit 1 }
+    $EvidenceDir = $stagings[0].FullName
+}
+$probe = Get-Content "$EvidenceDir\probe_output.json" -Raw | ConvertFrom-Json
+if ($probe.full_master_count -ne 1) { Write-Error "D002 FAIL: Full master count=$($probe.full_master_count), expected 1"; exit 1 }
+# Check no region crops visible
+$regionCrops = ($probe.all_texture_rects | Where-Object { $_.resource_path -match "01_main_tank|01_sump|01_gauge_belt|01_knob_panel|01_device_grid|01_sidebar" })
+if ($regionCrops) { Write-Error "D002 FAIL: $($regionCrops.Count) region crops visible in runtime"; exit 1 }
+Write-Host "D002 PASS: Full master=1, region crops=0"
+exit 0
