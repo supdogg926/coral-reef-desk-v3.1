@@ -136,12 +136,21 @@ func _seeded_randi(seed: int) -> int:
 
 func _build_result(species_id: String) -> Dictionary:
 	var info := {"species_id": species_id, "display_name": species_id, "description": "救助生物", "type": "fish"}
-	if data_registry != null:
-		var raw: Variant = data_registry.call("get_species_by_id", species_id)
+	# Resolve data_registry: configured ref or autoload fallback
+	var registry = data_registry
+	if registry == null:
+		var main_loop := Engine.get_main_loop()
+		if main_loop is SceneTree:
+			for child in main_loop.root.get_children():
+				if child is DataRegistry:
+					registry = child
+					break
+	if registry != null:
+		var raw: Variant = registry.get_species_by_id(species_id)
 		if raw is Dictionary and not raw.is_empty():
-			info["display_name"] = str(raw.get("name_cn", species_id))
-			info["description"] = str(raw.get("desc", ""))
-			info["type"] = str(raw.get("type", "fish"))
+			info["display_name"] = str(raw.get("name", raw.get("name_cn", species_id)))
+			info["description"] = str(raw.get("desc", raw.get("description", "")))
+			info["type"] = str(raw.get("type", raw.get("species_type", raw.get("category", "fish"))))
 	return info
 
 

@@ -1,0 +1,19 @@
+{
+  "full_master_path": "res://assets/m19/ui/chrome/01_runtime_empty_master.png",
+  "sha256": "e706d4fc531d3e3f986f20b0cbdebafcd57da7548a2a8a011227a89c3c787655",
+  "region_crop_visible_count": 0,
+  "master_position": [
+    0,
+    0
+  ],
+  "master_size": [
+    1280,
+    720
+  ],
+  "master_scale": [
+    1,
+    1
+  ],
+  "seam_count": 0,
+  "double_border_count": 0
+}

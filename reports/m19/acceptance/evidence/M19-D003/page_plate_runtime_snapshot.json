@@ -1,0 +1,69 @@
+{
+  "pages": {
+    "02": {
+      "resource": "shell_02_ready_empty.png",
+      "exists": true,
+      "sha256": "55d1c54e1cc18331238861d0ff5fa49993b44f66e002793a058045910551157c",
+      "position": [
+        260,
+        100
+      ],
+      "size": [
+        760,
+        520
+      ]
+    },
+    "03": {
+      "resource": "shell_03_voyaging_empty.png",
+      "exists": true,
+      "sha256": "6e29df3dcdfb8ae33f484d6ab4b9460f86b9157190d65c39315a284804f9a68c",
+      "position": [
+        260,
+        100
+      ],
+      "size": [
+        760,
+        520
+      ]
+    },
+    "04": {
+      "resource": "shell_04_result_empty.png",
+      "exists": true,
+      "sha256": "469774843e3cef6f63289889da6b3379b575f77f78c0a569db0dd4ffd050c080",
+      "position": [
+        260,
+        100
+      ],
+      "size": [
+        760,
+        520
+      ]
+    },
+    "05": {
+      "resource": "shell_05_codex_empty.png",
+      "exists": true,
+      "sha256": "40a73f96292a416a135d1bedee5e426b43f7fa57f90bc6e7358a0c0f362cc0d7",
+      "position": [
+        120,
+        70
+      ],
+      "size": [
+        1040,
+        580
+      ]
+    },
+    "06": {
+      "resource": "shell_06_release_empty.png",
+      "exists": true,
+      "sha256": "7929ce43a9b9bd4175fc26765ac4e70460a7b3561edc81e8ac4222c10019ee60",
+      "position": [
+        120,
+        70
+      ],
+      "size": [
+        1040,
+        580
+      ]
+    }
+  }
+}

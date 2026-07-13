@@ -1,4 +1,5 @@
 extends Control
+# M19 01 Sump View — glass chambers with equipment
 
 
 func _ready() -> void:
@@ -6,99 +7,180 @@ func _ready() -> void:
 
 
 func _draw() -> void:
-	var font: Font = get_theme_default_font()
-	var outer_rect: Rect2 = Rect2(Vector2(10, 8), size - Vector2(20, 14))
-	var title_pos: Vector2 = outer_rect.position + Vector2(16, 21)
-	var sump_rect: Rect2 = Rect2(outer_rect.position + Vector2(22, 34), outer_rect.size - Vector2(44, 44))
+	var font := get_theme_default_font()
+	var outer := Rect2(Vector2(8, 4), size - Vector2(16, 8))
+	var glass := outer.grow(-6)
 
-	draw_rect(outer_rect, Color(0.11, 0.10, 0.09), true)
-	draw_rect(outer_rect, Color(0.34, 0.32, 0.28), false, 2.0)
-	draw_string(font, title_pos, "底缸", HORIZONTAL_ALIGNMENT_LEFT, -1, 13, Color(0.86, 0.91, 0.92))
-	draw_rect(sump_rect, Color(0.04, 0.11, 0.15), true)
-	draw_rect(sump_rect, Color(0.55, 0.72, 0.78), false, 1.6)
+	# ── Outer frame ──
+	draw_rect(outer, Color(0.10, 0.09, 0.08), true)
+	draw_rect(outer, Color(0.40, 0.45, 0.42), false, 2.0)
 
-	var modules: Array[Dictionary] = [
-		{"name": "滤袋区", "sub": "入水过滤", "ratio": 0.10},
-		{"name": "滤材区", "sub": "Bio Media", "ratio": 0.16},
-		{"name": "藻缸区", "sub": "Refugium", "ratio": 0.15},
-		{"name": "活石区", "sub": "Live Rock", "ratio": 0.13},
-		{"name": "蛋分区", "sub": "Skimmer", "ratio": 0.16},
-		{"name": "设备预留", "sub": "Future Slot", "ratio": 0.16},
-		{"name": "ATO 补水仓", "sub": "储水 / 补水", "ratio": 0.14},
+	# ── Glass tank body (continuous, not separate boxes) ──
+	draw_rect(glass, Color(0.04, 0.14, 0.20, 0.7), true)
+	draw_rect(glass, Color(0.55, 0.72, 0.78, 0.8), false, 1.5)
+	# Glass reflection line
+	draw_line(Vector2(glass.position.x + 6, glass.position.y + 6), Vector2(glass.position.x + 6, glass.end.y - 6), Color(0.30, 0.50, 0.56, 0.3), 3.0)
+
+	# ── Chamber dividers (baffles) ──
+	var chambers := [
+		{"name": "回水泵", "ratio": 0.13, "equip": "pump"},
+		{"name": "蛋分", "ratio": 0.18, "equip": "skimmer"},
+		{"name": "藻缸", "ratio": 0.14, "equip": "refugium"},
+		{"name": "活石", "ratio": 0.12, "equip": "liverock"},
+		{"name": "滤材", "ratio": 0.12, "equip": "media"},
+		{"name": "设备仓", "ratio": 0.15, "equip": "equipment"},
+		{"name": "滤袋/滤棉", "ratio": 0.16, "equip": "sock"},
 	]
-	var x: float = sump_rect.position.x
-	for i in range(modules.size()):
-		var module: Dictionary = modules[i]
-		var width: float = sump_rect.size.x * float(module.get("ratio", 0.12))
-		if i == modules.size() - 1:
-			width = sump_rect.end.x - x
-		var chamber: Rect2 = Rect2(Vector2(x, sump_rect.position.y), Vector2(width, sump_rect.size.y))
-		_draw_chamber_outline(font, chamber, String(module.get("name", "")), String(module.get("sub", "")), i)
-		if i < modules.size() - 1:
-			draw_line(Vector2(chamber.end.x, chamber.position.y + 5.0), Vector2(chamber.end.x, chamber.end.y - 5.0), Color(0.50, 0.68, 0.72), 1.4)
-		x += width
+	var cx := glass.position.x
+	for i in range(chambers.size()):
+		var ch: Dictionary = chambers[i]
+		var cw := glass.size.x * float(ch["ratio"])
+		if i == chambers.size() - 1:
+			cw = glass.end.x - cx
+		var chamber := Rect2(Vector2(cx, glass.position.y), Vector2(cw, glass.size.y))
+		_draw_chamber(chamber, ch["name"], ch["equip"], font, i)
+		# Baffle
+		if i < chambers.size() - 1:
+			var bx := chamber.end.x
+			draw_line(Vector2(bx, chamber.position.y + 4), Vector2(bx, chamber.end.y - 4), Color(0.45, 0.65, 0.70), 1.5)
+		cx += cw
 
-	var flow_y: float = sump_rect.position.y + sump_rect.size.y - 12.0
-	draw_line(Vector2(sump_rect.position.x + 10.0, flow_y), Vector2(sump_rect.end.x - 10.0, flow_y), Color(0.35, 0.55, 0.62, 0.75), 1.2)
-	draw_string(font, Vector2(sump_rect.position.x + 12.0, flow_y - 4.0), "水流路径  →", HORIZONTAL_ALIGNMENT_LEFT, -1, 9, Color(0.62, 0.76, 0.78))
+	# ── Flow direction arrow ──
+	var flow_y := glass.end.y - 8.0
+	draw_line(Vector2(glass.position.x + 20, flow_y), Vector2(glass.end.x - 20, flow_y), Color(0.35, 0.58, 0.65, 0.6), 1.5)
+	draw_string(font, Vector2(glass.position.x + 28, flow_y - 4), "水流 →", HORIZONTAL_ALIGNMENT_LEFT, -1, 8, Color(0.55, 0.72, 0.76))
 
-
-func _draw_chamber_outline(font: Font, rect: Rect2, title: String, subtitle: String, index: int) -> void:
-	var inset: Rect2 = rect.grow(-5.0)
-	var fill_alpha: float = 0.18 + float(index % 2) * 0.06
-	draw_rect(inset, Color(0.08, 0.18, 0.22, fill_alpha), true)
-	draw_rect(inset, Color(0.40, 0.60, 0.64, 0.72), false, 1.0)
-	draw_string(font, inset.position + Vector2(7, 18), title, HORIZONTAL_ALIGNMENT_LEFT, -1, 11, Color(0.84, 0.93, 0.92))
-	draw_string(font, inset.position + Vector2(7, 34), subtitle, HORIZONTAL_ALIGNMENT_LEFT, -1, 8, Color(0.57, 0.70, 0.70))
-
-
-func _draw_slot_badges(font: Font, sump_rect: Rect2, chamber_width: float) -> void:
-	var badge_color: Color = Color(0.12, 0.22, 0.24, 0.88)
-	var border_color: Color = Color(0.44, 0.67, 0.70, 0.95)
-	_draw_badge(font, Rect2(sump_rect.position + Vector2(8, 7), Vector2(66, 17)), "滤袋｜已装", badge_color, border_color)
-	_draw_badge(font, Rect2(sump_rect.position + Vector2(78, 7), Vector2(66, 17)), "滤材｜已装", badge_color, border_color)
-	_draw_badge(font, Rect2(sump_rect.position + Vector2(chamber_width + 10, 7), Vector2(76, 17)), "蛋分｜已装", badge_color, border_color)
-	_draw_badge(font, Rect2(sump_rect.position + Vector2(chamber_width * 2.0 + 10, 7), Vector2(66, 17)), "藻缸｜已装", badge_color, border_color)
-	_draw_badge(font, Rect2(sump_rect.position + Vector2(chamber_width * 2.0 + 80, 7), Vector2(66, 17)), "活石｜已装", badge_color, border_color)
-	_draw_badge(font, Rect2(sump_rect.position + Vector2(chamber_width * 3.0 + 10, 7), Vector2(66, 17)), "回水｜已装", badge_color, border_color)
-	_draw_badge(font, Rect2(sump_rect.position + Vector2(chamber_width * 3.0 + 80, 7), Vector2(66, 17)), "加热｜已装", badge_color, border_color)
+	# ── Pipes (black, between chambers) ──
+	for i in range(chambers.size() - 1):
+		var px := glass.position.x
+		for j in range(i + 1):
+			px += glass.size.x * float(chambers[j]["ratio"])
+		draw_rect(Rect2(px - 12, glass.position.y - 8, 24, 8), Color(0.08, 0.10, 0.10), true)
 
 
-func _draw_badge(font: Font, rect: Rect2, text: String, fill: Color, border: Color) -> void:
-	draw_rect(rect, fill, true)
-	draw_rect(rect, border, false, 1.0)
-	draw_string(font, rect.position + Vector2(5, 12), text, HORIZONTAL_ALIGNMENT_LEFT, -1, 9, Color(0.88, 0.95, 0.92))
+func _draw_chamber(rect: Rect2, title: String, equip_type: String, font: Font, index: int) -> void:
+	var inset := rect.grow(-4)
+	var alpha := 0.10 + float(index % 2) * 0.06
+
+	# Chamber fill
+	draw_rect(inset, Color(0.06, 0.16, 0.22, alpha), true)
+	draw_rect(inset, Color(0.35, 0.52, 0.58, 0.5), false, 1.0)
+
+	# Label
+	draw_string(font, inset.position + Vector2(4, 14), title, HORIZONTAL_ALIGNMENT_LEFT, -1, 9, Color(0.78, 0.88, 0.90))
+
+	# Equipment icon
+	var center := inset.position + inset.size * 0.5
+	match equip_type:
+		"pump": _draw_return_pump(center + Vector2(0, 6))
+		"skimmer": _draw_skimmer(center + Vector2(0, 4))
+		"refugium": _draw_refugium(inset)
+		"liverock": _draw_live_rock(inset)
+		"media": _draw_bio_media(inset)
+		"equipment": _draw_equipment_cell(inset)
+		"sock": _draw_filter_socks(inset)
 
 
-func _draw_filter_sock(origin: Vector2) -> void:
-	var sock_rect: Rect2 = Rect2(origin + Vector2(-13, 0), Vector2(26, 42))
-	draw_rect(sock_rect, Color(0.86, 0.88, 0.82), true)
-	draw_rect(sock_rect, Color(0.42, 0.45, 0.42), false, 2.0)
-	draw_line(sock_rect.position + Vector2(4, 10), sock_rect.position + Vector2(sock_rect.size.x - 4, 10), Color(0.5, 0.52, 0.48), 2.0)
+func _draw_return_pump(pos: Vector2) -> void:
+	var pr := Rect2(pos - Vector2(20, 14), Vector2(40, 28))
+	draw_rect(pr, Color(0.14, 0.16, 0.18), true)
+	draw_rect(pr, Color(0.55, 0.62, 0.65), false, 2.0)
+	draw_circle(pos, 8.0, Color(0.22, 0.58, 0.72))
+	draw_circle(pos, 4.0, Color(0.12, 0.20, 0.24))
+	# Pipe out
+	draw_line(pos + Vector2(20, 0), pos + Vector2(36, -8), Color(0.10, 0.12, 0.12), 4.0)
 
 
-func _draw_skimmer(origin: Vector2) -> void:
-	draw_circle(origin + Vector2(0, 24), 16.0, Color(0.58, 0.68, 0.72))
-	draw_rect(Rect2(origin + Vector2(-12, -8), Vector2(24, 42)), Color(0.62, 0.74, 0.78), false, 2.0)
-	draw_rect(Rect2(origin + Vector2(-16, -25), Vector2(32, 16)), Color(0.42, 0.48, 0.5), true)
-	for i in range(4):
-		draw_circle(origin + Vector2(-9 + i * 6, 7 + i % 2 * 7), 2.2, Color(0.9, 0.96, 1.0, 0.75))
+func _draw_skimmer(pos: Vector2) -> void:
+	# Cup (top)
+	draw_rect(Rect2(pos + Vector2(-18, -30), Vector2(36, 18)), Color(0.35, 0.38, 0.40), true)
+	draw_rect(Rect2(pos + Vector2(-18, -30), Vector2(36, 18)), Color(0.50, 0.52, 0.55), false, 1.0)
+	# Body
+	draw_rect(Rect2(pos + Vector2(-14, -12), Vector2(28, 38)), Color(0.55, 0.58, 0.62), true)
+	draw_rect(Rect2(pos + Vector2(-14, -12), Vector2(28, 38)), Color(0.65, 0.68, 0.72), false, 1.5)
+	# Bubbles
+	for i in range(5):
+		var bx := pos.x - 8 + float(i) * 4.0
+		var by := pos.y - 18 + float(i % 3) * 5.0
+		draw_circle(Vector2(bx, by), 1.5 + float(i % 3), Color(0.95, 0.98, 1.0, 0.6))
+	# Neck
+	draw_line(pos + Vector2(0, -12), pos + Vector2(0, -30), Color(0.40, 0.43, 0.45), 4.0)
 
 
 func _draw_refugium(rect: Rect2) -> void:
-	draw_rect(rect, Color(0.08, 0.25, 0.12), true)
+	# Green algae background
+	var inner := rect.grow(-6)
+	draw_rect(inner, Color(0.06, 0.22, 0.10, 0.5), true)
+	# Algae strands
+	for i in range(8):
+		var ax := inner.position.x + 4.0 + float(i) * (inner.size.x - 8) / 7.0
+		var h := inner.size.y * (0.4 + (hash(str(i) + "ah") % 50) / 100.0)
+		draw_line(Vector2(ax, inner.end.y - 4), Vector2(ax - 3, inner.end.y - h), Color(0.20, 0.65, 0.22), 2.0)
+		draw_line(Vector2(ax, inner.end.y - 4), Vector2(ax + 3, inner.end.y - h + 8), Color(0.25, 0.70, 0.28), 1.5)
+
+
+func _draw_live_rock(rect: Rect2) -> void:
+	var inner := rect.grow(-6)
 	for i in range(5):
-		var x: float = rect.position.x + 8.0 + float(i) * 14.0
-		draw_line(Vector2(x, rect.position.y + rect.size.y - 5.0), Vector2(x + 6.0, rect.position.y + 8.0), Color(0.28, 0.72, 0.32), 2.0)
+		var rx := inner.position.x + inner.size.x * (0.15 + float(i) * 0.14)
+		var ry := inner.position.y + inner.size.y * (0.4 + (hash(str(i) + "rr") % 40) / 100.0)
+		var rr := 10.0 + (hash(str(i) + "rs") % 10)
+		draw_circle(Vector2(rx, ry), rr, Color(0.22, 0.20, 0.17))
+		draw_circle(Vector2(rx, ry), rr, Color(0.35, 0.33, 0.28), false, 1.0)
 
 
-func _draw_heater(origin: Vector2) -> void:
-	draw_line(origin, origin + Vector2(34, -24), Color(0.86, 0.36, 0.22), 4.0)
-	draw_circle(origin + Vector2(34, -24), 4.5, Color(0.95, 0.56, 0.36))
+func _draw_bio_media(rect: Rect2) -> void:
+	# Square ceramic media blocks (ordered)
+	var inner := rect.grow(-6)
+	for row in range(3):
+		for col in range(5):
+			var bx := inner.position.x + 6.0 + float(col) * (inner.size.x - 12) / 4.0
+			var by := inner.position.y + 8.0 + float(row) * (inner.size.y - 16) / 2.0
+			draw_rect(Rect2(Vector2(bx - 6, by - 6), Vector2(12, 12)), Color(0.75, 0.72, 0.65), true)
+			draw_rect(Rect2(Vector2(bx - 6, by - 6), Vector2(12, 12)), Color(0.55, 0.52, 0.45), false, 0.5)
+			# Pores
+			draw_circle(Vector2(bx, by), 2.0, Color(0.65, 0.62, 0.55))
 
 
-func _draw_return_pump(origin: Vector2) -> void:
-	var pump_rect: Rect2 = Rect2(origin, Vector2(42, 24))
-	draw_rect(pump_rect, Color(0.15, 0.17, 0.18), true)
-	draw_rect(pump_rect, Color(0.62, 0.72, 0.74), false, 2.0)
-	draw_circle(pump_rect.position + pump_rect.size * 0.5, 7.0, Color(0.24, 0.72, 0.88))
+func _draw_equipment_cell(rect: Rect2) -> void:
+	var inner := rect.grow(-6)
+	# UV sterilizer (left)
+	var uv_rect := Rect2(inner.position + Vector2(4, inner.size.y * 0.3), Vector2(14, inner.size.y * 0.4))
+	draw_rect(uv_rect, Color(0.50, 0.52, 0.55), true)
+	draw_rect(uv_rect, Color(0.60, 0.62, 0.65), false, 1.0)
+	draw_string(get_theme_default_font(), uv_rect.position + Vector2(1, -12), "杀菌灯", HORIZONTAL_ALIGNMENT_LEFT, -1, 7, Color(0.90, 0.88, 0.85))
+
+	# Heater (right)
+	var heater_pos := inner.position + Vector2(inner.size.x - 24, inner.size.y * 0.5)
+	draw_line(heater_pos, heater_pos + Vector2(22, -18), Color(0.85, 0.40, 0.25), 4.0)
+	draw_circle(heater_pos + Vector2(22, -18), 4.0, Color(0.95, 0.55, 0.30))
+	draw_string(get_theme_default_font(), heater_pos + Vector2(-10, -32), "加热棒", HORIZONTAL_ALIGNMENT_LEFT, -1, 7, Color(0.90, 0.88, 0.85))
+
+
+func _draw_filter_socks(rect: Rect2) -> void:
+	var inner := rect.grow(-6)
+	# Two filter socks (right side as per design)
+	var sock1 := Rect2(inner.position + Vector2(8, inner.size.y * 0.15), Vector2(28, inner.size.y * 0.7))
+	var sock2 := Rect2(inner.position + Vector2(inner.size.x - 36, inner.size.y * 0.15), Vector2(28, inner.size.y * 0.7))
+
+	_draw_single_sock(sock1, "滤袋")
+	_draw_single_sock(sock2, "滤棉")
+	# Bio filter baffle plate (replaces one sock)
+	var baffle := Rect2(inner.position + Vector2(inner.size.x * 0.4, inner.size.y * 0.2), Vector2(inner.size.x * 0.25, inner.size.y * 0.6))
+	draw_rect(baffle, Color(0.60, 0.65, 0.68), true)
+	draw_rect(baffle, Color(0.70, 0.75, 0.78), false, 1.0)
+	# Baffle holes
+	for i in range(8):
+		var hx := baffle.position.x + baffle.size.x * (0.15 + float(i % 4) * 0.2)
+		var hy := baffle.position.y + baffle.size.y * (0.15 + float(i / 4) * 0.35)
+		draw_circle(Vector2(hx, hy), 2.0, Color(0.15, 0.18, 0.20))
+	draw_string(get_theme_default_font(), baffle.position + Vector2(4, -12), "生化滤棉", HORIZONTAL_ALIGNMENT_LEFT, -1, 7, Color(0.85, 0.88, 0.90))
+
+
+func _draw_single_sock(sock: Rect2, label: String) -> void:
+	draw_rect(sock, Color(0.82, 0.84, 0.80), true)
+	draw_rect(sock, Color(0.45, 0.48, 0.44), false, 1.5)
+	# Ring
+	draw_rect(Rect2(sock.position + Vector2(2, 3), Vector2(sock.size.x - 4, 8)), Color(0.35, 0.38, 0.35), true)
+	# Label
+	draw_string(get_theme_default_font(), sock.position + Vector2(2, sock.size.y + 12), label, HORIZONTAL_ALIGNMENT_CENTER, sock.size.x, 7, Color(0.82, 0.88, 0.90))

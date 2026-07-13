@@ -5,6 +5,7 @@ const DATA_FILES := {
 	"fish": "res://data/species/fish_seed.json",
 	"legacy_species": "res://data/species/legacy_species_extracted.json",
 	"tool_creatures": "res://data/species/tool_creatures_seed.json",
+	"m19_species": "res://data/species/m19_species.json",
 	"equipment": "res://data/equipment/equipment_seed.json",
 	"tanks": "res://data/equipment/tanks_seed.json",
 	"tasks": "res://data/tasks/maintenance_tasks_seed.json",
@@ -34,7 +35,7 @@ func load_all() -> void:
 	for table_name in DATA_FILES.keys():
 		_tables[table_name] = _load_json(DATA_FILES[table_name])
 
-	_index_records(["corals", "fish", "legacy_species", "tool_creatures"], _species_by_id)
+	_index_records(["corals", "fish", "legacy_species", "tool_creatures", "m19_species"], _species_by_id)
 	_index_records(["equipment", "tanks"], _equipment_by_id)
 	_index_records(["tasks"], _tasks_by_id)
 
@@ -43,7 +44,7 @@ func load_all() -> void:
 
 func get_species_count() -> int:
 	var total = 0
-	for table_name in ["corals", "fish", "legacy_species", "tool_creatures"]:
+	for table_name in ["corals", "fish", "legacy_species", "tool_creatures", "m19_species"]:
 		total += _record_count(_tables.get(table_name, []))
 	return total
 

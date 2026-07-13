@@ -53,6 +53,7 @@ theme_override_font_sizes/font_size = 16
 
 [node name="DisplayTankView" parent="RootMargin/Layout" instance=ExtResource("2_display")]
 layout_mode = 2
+size_flags_vertical = 3
 
 [node name="SumpView" parent="RootMargin/Layout" instance=ExtResource("3_sump")]
 layout_mode = 2
@@ -67,7 +68,7 @@ script = ExtResource("4_pipe")
 
 [node name="StatusPanel" type="PanelContainer" parent="RootMargin/Layout"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 150)
+custom_minimum_size = Vector2(0, 110)
 layout_mode = 2
 script = ExtResource("5_status")
 
