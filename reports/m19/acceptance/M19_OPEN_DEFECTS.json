@@ -2,59 +2,238 @@
   "defects": [
     {
       "id": "M19-D001",
+      "requirement_id": "R001",
       "severity": "P0",
-      "title": "Production F5 disconnected from real Main Scene",
-      "status": "OPEN",
-      "attempt_count": 4,
+      "wave_id": "W01",
+      "status": "CLOSED_RATCHET",
+      "attempt_count": 0,
+      "title": "Production F5 disconnected",
+      "pass_condition": "Runtime probe confirms production f5 disconnected",
       "required_evidence": [
         "production_entry_trace.json",
         "runtime_scene_tree.json",
         "production_main.png"
       ],
-      "wave": "W01"
+      "ratchet_test_required": true
     },
     {
       "id": "M19-D002",
+      "requirement_id": "R002",
       "severity": "P0",
-      "title": "01 uses region crop pieces causing seams",
-      "status": "OPEN",
-      "attempt_count": 3,
+      "wave_id": "W01",
+      "status": "CLOSED_RATCHET",
+      "attempt_count": 0,
+      "title": "01 region crops cause seams",
+      "pass_condition": "Runtime probe confirms 01 region crops cause seams",
       "required_evidence": [
         "01_main_production.png",
         "01_seam_audit.json",
         "plate_runtime_snapshot.json"
       ],
-      "wave": "W01"
+      "ratchet_test_required": true
     },
     {
       "id": "M19-D003",
+      "requirement_id": "R003",
       "severity": "P0",
-      "title": "02-06 freeze shells not all integrated",
-      "status": "OPEN",
-      "attempt_count": 3,
+      "wave_id": "W01",
+      "status": "CLOSED_RATCHET",
+      "attempt_count": 0,
+      "title": "02-06 shells not all in production",
+      "pass_condition": "Runtime probe confirms 02-06 shells not all in production",
       "required_evidence": [
         "page_plate_runtime_snapshot.json",
         "02_ready_plate.png",
         "03_voyaging_plate.png",
         "04_result_plate.png",
         "05_codex_plate.png",
-        "06_release_plate.png",
-        "02_06_plate_contact_sheet.png"
+        "06_release_plate.png"
       ],
-      "wave": "W01"
+      "ratchet_test_required": true
     },
     {
       "id": "M19-D004",
+      "requirement_id": "R004",
       "severity": "P0",
-      "title": "Legacy UI and placeholders covering Chrome",
-      "status": "OPEN",
-      "attempt_count": 3,
+      "wave_id": "W01",
+      "status": "CLOSED_RATCHET",
+      "attempt_count": 0,
+      "title": "Legacy UI covering Chrome",
+      "pass_condition": "Runtime probe confirms legacy ui covering chrome",
       "required_evidence": [
         "legacy_visible_nodes.json",
         "world_asset_audit.json",
         "01_clean_world_production.png"
       ],
-      "wave": "W01"
+      "ratchet_test_required": true
+    },
+    {
+      "id": "M19-D005",
+      "requirement_id": "R005",
+      "severity": "P1",
+      "wave_id": "W02",
+      "status": "OPEN",
+      "attempt_count": 0,
+      "title": "Fact slots empty",
+      "pass_condition": "Runtime probe confirms fact slots empty",
+      "required_evidence": [],
+      "ratchet_test_required": true
+    },
+    {
+      "id": "M19-D006",
+      "requirement_id": "R006",
+      "severity": "P1",
+      "wave_id": "W02",
+      "status": "OPEN",
+      "attempt_count": 0,
+      "title": "Gauge values hardcoded",
+      "pass_condition": "Runtime probe confirms gauge values hardcoded",
+      "required_evidence": [],
+      "ratchet_test_required": true
+    },
+    {
+      "id": "M19-D007",
+      "requirement_id": "R007",
+      "severity": "P1",
+      "wave_id": "W02",
+      "status": "OPEN",
+      "attempt_count": 0,
+      "title": "Knob pointers not bound",
+      "pass_condition": "Runtime probe confirms knob pointers not bound",
+      "required_evidence": [],
+      "ratchet_test_required": true
+    },
+    {
+      "id": "M19-D008",
+      "requirement_id": "R008",
+      "severity": "P1",
+      "wave_id": "W02",
+      "status": "OPEN",
+      "attempt_count": 0,
+      "title": "Device buttons missing LEDs",
+      "pass_condition": "Runtime probe confirms device buttons missing leds",
+      "required_evidence": [],
+      "ratchet_test_required": true
+    },
+    {
+      "id": "M19-D009",
+      "requirement_id": "R009",
+      "severity": "P1",
+      "wave_id": "W02",
+      "status": "OPEN",
+      "attempt_count": 0,
+      "title": "Sidebar stale/empty data",
+      "pass_condition": "Runtime probe confirms sidebar stale/empty data",
+      "required_evidence": [],
+      "ratchet_test_required": true
+    },
+    {
+      "id": "M19-D010",
+      "requirement_id": "R010",
+      "severity": "P1",
+      "wave_id": "W02",
+      "status": "OPEN",
+      "attempt_count": 0,
+      "title": "LED no visual delta",
+      "pass_condition": "Runtime probe confirms led no visual delta",
+      "required_evidence": [],
+      "ratchet_test_required": true
+    },
+    {
+      "id": "M19-D011",
+      "requirement_id": "R011",
+      "severity": "P1",
+      "wave_id": "W03",
+      "status": "OPEN",
+      "attempt_count": 0,
+      "title": "Modal close freezes",
+      "pass_condition": "Runtime probe confirms modal close freezes",
+      "required_evidence": [],
+      "ratchet_test_required": true
+    },
+    {
+      "id": "M19-D012",
+      "requirement_id": "R012",
+      "severity": "P1",
+      "wave_id": "W03",
+      "status": "OPEN",
+      "attempt_count": 0,
+      "title": "Open/close cycles fail",
+      "pass_condition": "Runtime probe confirms open/close cycles fail",
+      "required_evidence": [],
+      "ratchet_test_required": true
+    },
+    {
+      "id": "M19-D013",
+      "requirement_id": "R013",
+      "severity": "P2",
+      "wave_id": "W03",
+      "status": "OPEN",
+      "attempt_count": 0,
+      "title": "Text overflow/collision",
+      "pass_condition": "Runtime probe confirms text overflow/collision",
+      "required_evidence": [],
+      "ratchet_test_required": true
+    },
+    {
+      "id": "M19-D014",
+      "requirement_id": "R014",
+      "severity": "P2",
+      "wave_id": "W03",
+      "status": "OPEN",
+      "attempt_count": 0,
+      "title": "Evidence stale",
+      "pass_condition": "Runtime probe confirms evidence stale",
+      "required_evidence": [],
+      "ratchet_test_required": true
+    },
+    {
+      "id": "M19-D015",
+      "requirement_id": "R015",
+      "severity": "P1",
+      "wave_id": "W03",
+      "status": "OPEN",
+      "attempt_count": 0,
+      "title": "Keep action wrong",
+      "pass_condition": "Runtime probe confirms keep action wrong",
+      "required_evidence": [],
+      "ratchet_test_required": true
+    },
+    {
+      "id": "M19-D016",
+      "requirement_id": "R016",
+      "severity": "P1",
+      "wave_id": "W03",
+      "status": "OPEN",
+      "attempt_count": 0,
+      "title": "Release duplicate reward",
+      "pass_condition": "Runtime probe confirms release duplicate reward",
+      "required_evidence": [],
+      "ratchet_test_required": true
+    },
+    {
+      "id": "M19-D017",
+      "requirement_id": "R017",
+      "severity": "P1",
+      "wave_id": "W04",
+      "status": "OPEN",
+      "attempt_count": 0,
+      "title": "Missing GPU screenshots",
+      "pass_condition": "Runtime probe confirms missing gpu screenshots",
+      "required_evidence": [],
+      "ratchet_test_required": true
+    },
+    {
+      "id": "M19-D018",
+      "requirement_id": "R018",
+      "severity": "P1",
+      "wave_id": "W04",
+      "status": "OPEN",
+      "attempt_count": 0,
+      "title": "Closed ratchet re-failed",
+      "pass_condition": "Runtime probe confirms closed ratchet re-failed",
+      "required_evidence": [],
+      "ratchet_test_required": true
     }
   ]
 }

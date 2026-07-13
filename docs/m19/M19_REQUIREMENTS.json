@@ -1,33 +1,150 @@
 {
-  "contract": "M19_FINAL_ACCEPTANCE_CONTRACT",
-  "version": "2.0",
-  "waves": {
-    "W01": {
-      "id": "M19-W01-PRODUCTION-TAKEOVER",
-      "defects": [
-        "M19-D001",
-        "M19-D002",
-        "M19-D003",
-        "M19-D004"
-      ],
-      "status": "IN_PROGRESS"
+  "contract_id": "M19-CONTRACT-DRIVEN-V2",
+  "requirement_count": 18,
+  "requirements": [
+    {
+      "id": "R001",
+      "description": "Production entry verified via run/main_scene",
+      "wave": "W01",
+      "status": "OPEN",
+      "evidence_required": [],
+      "acceptance_criteria": "Production entry verified via run/main_scene"
     },
-    "W02": {
-      "id": "M19-W02-FACT_INTEGRATION",
-      "defects": [],
-      "status": "PENDING"
+    {
+      "id": "R002",
+      "description": "01 uses single full runtime master",
+      "wave": "W01",
+      "status": "OPEN",
+      "evidence_required": [],
+      "acceptance_criteria": "01 uses single full runtime master"
     },
-    "W03": {
-      "id": "M19-W03-STABILITY",
-      "defects": [],
-      "status": "PENDING"
+    {
+      "id": "R003",
+      "description": "02-06 each use corresponding freeze shell",
+      "wave": "W01",
+      "status": "OPEN",
+      "evidence_required": [],
+      "acceptance_criteria": "02-06 each use corresponding freeze shell"
+    },
+    {
+      "id": "R004",
+      "description": "Legacy visual nodes hidden, placeholders cleared",
+      "wave": "W01",
+      "status": "OPEN",
+      "evidence_required": [],
+      "acceptance_criteria": "Legacy visual nodes hidden, placeholders cleared"
+    },
+    {
+      "id": "R005",
+      "description": "All Fact slots populated with dynamic text",
+      "wave": "W02",
+      "status": "OPEN",
+      "evidence_required": [],
+      "acceptance_criteria": "All Fact slots populated with dynamic text"
+    },
+    {
+      "id": "R006",
+      "description": "Gauge values bound to real data sources",
+      "wave": "W02",
+      "status": "OPEN",
+      "evidence_required": [],
+      "acceptance_criteria": "Gauge values bound to real data sources"
+    },
+    {
+      "id": "R007",
+      "description": "Knob pointers bound to real API",
+      "wave": "W02",
+      "status": "OPEN",
+      "evidence_required": [],
+      "acceptance_criteria": "Knob pointers bound to real API"
+    },
+    {
+      "id": "R008",
+      "description": "Device buttons have labels and LED states",
+      "wave": "W02",
+      "status": "OPEN",
+      "evidence_required": [],
+      "acceptance_criteria": "Device buttons have labels and LED states"
+    },
+    {
+      "id": "R009",
+      "description": "Sidebar displays real time, date, waves, temp",
+      "wave": "W02",
+      "status": "OPEN",
+      "evidence_required": [],
+      "acceptance_criteria": "Sidebar displays real time, date, waves, temp"
+    },
+    {
+      "id": "R010",
+      "description": "LED states produce measurable visual delta",
+      "wave": "W02",
+      "status": "OPEN",
+      "evidence_required": [],
+      "acceptance_criteria": "LED states produce measurable visual delta"
+    },
+    {
+      "id": "R011",
+      "description": "Modal close does not freeze main interface",
+      "wave": "W03",
+      "status": "OPEN",
+      "evidence_required": [],
+      "acceptance_criteria": "Modal close does not freeze main interface"
+    },
+    {
+      "id": "R012",
+      "description": "250 open/close cycles with zero freezes",
+      "wave": "W03",
+      "status": "OPEN",
+      "evidence_required": [],
+      "acceptance_criteria": "250 open/close cycles with zero freezes"
+    },
+    {
+      "id": "R013",
+      "description": "No text overflow, clip, or collision",
+      "wave": "W03",
+      "status": "OPEN",
+      "evidence_required": [],
+      "acceptance_criteria": "No text overflow, clip, or collision"
+    },
+    {
+      "id": "R014",
+      "description": "All evidence fresh from current HEAD",
+      "wave": "W03",
+      "status": "OPEN",
+      "evidence_required": [],
+      "acceptance_criteria": "All evidence fresh from current HEAD"
+    },
+    {
+      "id": "R015",
+      "description": "Keep action: livestock +1, no duplicate",
+      "wave": "W03",
+      "status": "OPEN",
+      "evidence_required": [],
+      "acceptance_criteria": "Keep action: livestock +1, no duplicate"
+    },
+    {
+      "id": "R016",
+      "description": "Release action: reward once, no duplicate",
+      "wave": "W03",
+      "status": "OPEN",
+      "evidence_required": [],
+      "acceptance_criteria": "Release action: reward once, no duplicate"
+    },
+    {
+      "id": "R017",
+      "description": "All 6 pages produce production GPU screenshots",
+      "wave": "W04",
+      "status": "OPEN",
+      "evidence_required": [],
+      "acceptance_criteria": "All 6 pages produce production GPU screenshots"
+    },
+    {
+      "id": "R018",
+      "description": "Full regression: all closed ratchets still pass",
+      "wave": "W04",
+      "status": "OPEN",
+      "evidence_required": [],
+      "acceptance_criteria": "Full regression: all closed ratchets still pass"
     }
-  },
-  "hard_gates": {
-    "GODOT_ERROR_COUNT": 0,
-    "SAVE_SCHEMA_CHANGE_COUNT": 0,
-    "SOURCE_ASSET_MODIFICATION_COUNT": 0,
-    "LEGACY_VISIBLE_COUNT": 0,
-    "FROZEN_PLATE_MATCH_COUNT": 6
-  }
+  ]
 }

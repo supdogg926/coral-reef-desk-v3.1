@@ -57,7 +57,11 @@ func _capture_all():
 
 
 func _read_git_head() -> String:
-	# Read HEAD from project directory (not res:// which excludes .git)
+	# Accept SHA from environment (set by acceptance script — works with worktrees)
+	var env_sha := OS.get_environment("M19_PROBE_COMMIT_SHA")
+	if env_sha != "" and env_sha.length() >= 40:
+		return env_sha
+	# Fallback: try reading .git/HEAD (may not work in worktrees)
 	var head_path := ProjectSettings.globalize_path("res://.git/HEAD")
 	var f = FileAccess.open(head_path, FileAccess.READ)
 	if f != null:

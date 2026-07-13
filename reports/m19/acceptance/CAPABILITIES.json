@@ -1,23 +1,48 @@
 {
-  "correct_worktree": {
-    "method": "git rev-parse",
-    "result": true
-  },
-  "git_push": {
-    "method": "git push origin",
-    "result": true
-  },
-  "godot_gui_capture": {
-    "method": "Start-Process Godot GUI",
-    "result": true
-  },
-  "asset_sha256": {
-    "method": "python hashlib",
-    "result": true
-  },
-  "ratchet_tests": {
-    "method": "powershell -File",
-    "result": true
-  },
-  "verified_at": "2026-07-14T01:17:33.624305"
+  "contract_id": "M19-CONTRACT-DRIVEN-V2",
+  "capabilities": [
+    {
+      "name": "correct_worktree",
+      "method": "git rev-parse --show-toplevel",
+      "command": "git rev-parse --show-toplevel",
+      "result": true,
+      "evidence_path": "git output"
+    },
+    {
+      "name": "git_push",
+      "method": "git push origin",
+      "command": "git push origin <branch>",
+      "result": true,
+      "evidence_path": "git ls-remote"
+    },
+    {
+      "name": "godot_gui_capture",
+      "method": "Start-Process Godot GUI + autoload capture",
+      "command": "Start-Process Godot_v4.7-stable_win64.exe",
+      "result": true,
+      "evidence_path": "reports/m19/final_deterministic/runtime/"
+    },
+    {
+      "name": "runtime_main_scene_capture",
+      "method": "GPU capture from run/main_scene",
+      "result": true
+    },
+    {
+      "name": "runtime_scene_tree_snapshot",
+      "method": "Probe autoload dumps scene tree",
+      "result": true
+    },
+    {
+      "name": "asset_sha256_validation",
+      "method": "python hashlib",
+      "result": true
+    },
+    {
+      "name": "powershell_acceptance",
+      "method": "powershell -ExecutionPolicy Bypass",
+      "result": true
+    }
+  ],
+  "verified_at": "2026-07-14T01:24:20.955623",
+  "commit_sha": "8c60e1eb845534ad7437a09ea686ab0aa02516ee"
 }

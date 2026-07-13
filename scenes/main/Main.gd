@@ -506,8 +506,9 @@ func _setup_m19_panels() -> void:
 		m19_voyaging_panel.setup(game_state.blue_guardian_service)
 
 	# 04 ResultPanel (ShellS)
-	m19_result_panel = M19ResultPanel.new()
-	m19_result_panel.name = "M19ResultPanel"
+	# Use Hybrid panel with freeze shell for 04
+	m19_result_panel = load("res://scenes/ui/M19ResultPanelHybrid.gd").new()
+	m19_result_panel.name = "M19ResultPanelHybrid"
 	m19_result_panel.hide()
 	add_child(m19_result_panel)
 	if game_state.blue_guardian_service != null:
