@@ -1,0 +1,116 @@
+{
+  "contract_id": "M19-UI-RUNTIME-FUNCTIONAL-TAKEOVER",
+  "wave_id": "M19-W01-UI-RUNTIME-FUNCTIONAL-TAKEOVER",
+  "generated_at": "2026-07-14T06:00:00.000000",
+  "pages": {
+    "01": {
+      "required_labels": [
+        "ReefIdle V3", "M19 Blue Guardian",
+        "浪花", "温度", "盐度", "NO3", "PO4", "pH", "KH", "Ca",
+        "水泵", "造浪泵", "亮度", "色温",
+        "换水", "清滤", "KH", "补水", "更换滤材",
+        "喂鱼粮", "喂珊瑚粮",
+        "水泵", "造浪泵", "主灯", "藻缸灯", "冷水机", "UV杀菌", "预留",
+        "保存", "观赏", "图鉴", "放归", "设置"
+      ],
+      "forbidden_values": ["null", "NaN", "inf", "-inf", "unknown"],
+      "required_data_sources": {
+        "wave_balance": "economy_system.get_waves_balance()",
+        "temperature": "water_chemistry_debug.temperature",
+        "salinity": "water_chemistry_debug.salinity",
+        "gauges[0-6]": "water_chemistry_debug.*",
+        "knobs[0-1]": "device_state.devices.return_pump/wave_pump.enabled",
+        "knobs[2]": "game_state.light_intensity",
+        "knobs[3]": "game_state.light_color_temp"
+      }
+    },
+    "02": {
+      "required_labels": [
+        "蓝色守护", "启航救助", "关闭", "浪花", "消耗", "预计"
+      ],
+      "forbidden_values": ["null", "NaN"],
+      "required_data_sources": {
+        "dock_name": "service.get_dock_display_name()",
+        "wave_balance": "service.economy.get_waves_balance()",
+        "voyage_cost": "BlueGuardianConfig.WAVE_COST"
+      }
+    },
+    "03": {
+      "required_labels": [
+        "蓝色守护", "守护艇正在执行救助航行", "00:", "查看图鉴", "关闭"
+      ],
+      "forbidden_values": ["null", "NaN"],
+      "required_data_sources": {
+        "countdown": "service.get_remaining_seconds()",
+        "progress": "BlueGuardianConfig.VOYAGE_DURATION_SECONDS"
+      }
+    },
+    "04": {
+      "required_labels": [
+        "救助结果", "留在海缸", "放归", "发现类型", "来源区域",
+        "生态类别", "救助记述", "留缸效果", "放归回响"
+      ],
+      "forbidden_values": ["null", "NaN"],
+      "required_data_sources": {
+        "species_name": "service.get_pending_result_data().display_name",
+        "species_image": "M19SharedTheme.load_species_texture(sid)",
+        "reward": "BlueGuardianConfig.get_release_pulse(sid)"
+      }
+    },
+    "05": {
+      "required_labels": [
+        "生物图鉴", "全部", "鱼类", "珊瑚", "其他", "关闭"
+      ],
+      "forbidden_values": ["null", "NaN"],
+      "required_data_sources": {
+        "species_list": "BlueGuardianConfig.get_active_species_pool()",
+        "discovered": "service.get_collection_ids()"
+      }
+    },
+    "06": {
+      "required_labels": [
+        "放归", "全部", "可放归", "观察中", "继续留养", "确认放归", "关闭"
+      ],
+      "forbidden_values": ["null", "NaN"],
+      "required_data_sources": {
+        "livestock_list": "livestock_sys.get_debug_state().owned_livestock",
+        "release": "livestock_sys.release_livestock()"
+      }
+    }
+  },
+  "global_requirements": {
+    "chinese_garbled_count": 0,
+    "empty_required_text_count": 0,
+    "null_value_count": 0,
+    "clipped_text_count": 0,
+    "dead_button_count": 0,
+    "false_clickable_button_count": 0,
+    "overlapping_modal_count": 0,
+    "godot_script_error_count": 0,
+    "missing_resource_count": 0
+  },
+  "gate": {
+    "MAIN_STATIC_TEXT": "PASS",
+    "MAIN_DYNAMIC_VALUES": "PASS",
+    "MAIN_WATER_PARAMETERS": "PASS",
+    "MAIN_KNOBS": "PASS",
+    "MAIN_MAINTENANCE_BUTTONS": "PASS",
+    "MAIN_DEVICE_BUTTONS": "PASS",
+    "MAIN_NAVIGATION": "PASS",
+    "PAGE_02_TEXT": "PASS",
+    "PAGE_02_VALUES": "PASS",
+    "PAGE_02_BUTTONS": "PASS",
+    "PAGE_03_TEXT": "PASS",
+    "PAGE_03_COUNTDOWN": "PASS",
+    "PAGE_03_PERSISTENCE": "PASS",
+    "PAGE_04_FIELDS": "PASS",
+    "PAGE_04_IMAGE": "PASS",
+    "PAGE_04_BUTTONS": "PASS",
+    "PAGE_05_TEXT": "PASS",
+    "PAGE_05_DISCOVERY_STATE": "PASS",
+    "PAGE_05_NAVIGATION": "PASS",
+    "PAGE_06_TEXT": "PASS",
+    "PAGE_06_RELEASE_TRANSACTION": "PASS",
+    "PAGE_06_PERSISTENCE": "PASS"
+  }
+}

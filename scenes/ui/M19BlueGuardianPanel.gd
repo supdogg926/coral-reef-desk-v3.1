@@ -264,6 +264,9 @@ func _on_state_changed() -> void:
 
 func _on_close() -> void:
 	hide()
+	var p = get_parent()
+	if p != null and p.has_method("_hide_all_secondary_panels"):
+		p._hide_all_secondary_panels()
 
 
 func _on_visibility_changed() -> void:
