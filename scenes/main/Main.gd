@@ -116,13 +116,15 @@ func _build_m19_main_ui() -> void:
 	m19_main_ui.name = "M19MainUI"
 	m19_main_ui.setup(game_state)
 	add_child(m19_main_ui)
-		# Hide ALL legacy procedural UI nodes
+		# Hide ALL legacy UI nodes — M19 UI replaces them
 	for child in get_children():
 		var ns: String = str(child.name)
-		if "Background" in ns or "RootMargin" in ns or "PipeNetworkView" in ns:
-			child.visible = false
-			child.set_process(false)
-			child.set_process_input(false)
+		if child != m19_main_ui and "M19" not in ns:
+			if child is Control:
+				child.visible = false
+				child.set_process(false)
+				child.set_process_input(false)
+				child.mouse_filter = Control.MOUSE_FILTER_IGNORE
 			print("[M19] Hidden legacy: ", ns)
 	# M19 Hybrid stays on top — old nodes hidden below
 

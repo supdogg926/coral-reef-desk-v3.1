@@ -1,0 +1,36 @@
+{
+	"commit_sha": "ccab083c1226a77e98597bcc512cd63224ce8196",
+	"results": {
+		"01_devices": {},
+		"01_dynamic": {
+			"reason": "GameState null",
+			"result": "FAIL"
+		},
+		"01_knobs": {},
+		"01_maintenance": {},
+		"01_save": {},
+		"01_static": {
+			"found": 7,
+			"required": 7,
+			"result": "PASS"
+		},
+		"01_water": {},
+		"02_nav": {
+			"panel_visible": false,
+			"result": "PASS"
+		},
+		"05_nav": {
+			"panel_visible": false,
+			"result": "PASS"
+		},
+		"06_nav": {
+			"panel_visible": false,
+			"result": "PASS"
+		},
+		"node_snapshot": {
+			"count": 59,
+			"result": "PASS"
+		}
+	},
+	"run_id": "1784011532.289"
+}

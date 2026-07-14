@@ -1,0 +1,55 @@
+{
+  "contract_id": "M19-PRODUCTION-UI-SIGNATURE",
+  "generated_at": "2026-07-14T07:00:00.000000",
+  "production_main_scene": "res://scenes/main/Main.tscn",
+  "root_node_type": "Control",
+  "required_nodes": [
+    "M19MainUI",
+    "M19Dimmer"
+  ],
+  "required_panel_classes": [
+    "M19MainInterfaceHybrid",
+    "M19BlueGuardianPanel",
+    "M19ReadyPanel",
+    "M19VoyagingPanel",
+    "M19ResultPanelHybrid",
+    "M19CodexPanel",
+    "M19ReleasePanel"
+  ],
+  "forbidden_legacy_nodes": [
+    "TitleBar",
+    "TitleLabel",
+    "DisplayTankView",
+    "SumpView",
+    "PipeNetworkView"
+  ],
+  "forbidden_window_titles": [
+    "柏林系统静态布局",
+    "Berlin",
+    "DEBUG",
+    "Static Layout"
+  ],
+  "forbidden_legacy_labels": [
+    "柏林系统静态布局",
+    "CoralReefIdleV3 - 柏林"
+  ],
+  "required_ui_elements": {
+    "ReefIdle V3": "project_title label",
+    "M19 Blue Guardian": "project_subtitle label",
+    "浪花": "wave_balance label",
+    "温度": "temperature gauge",
+    "盐度": "salinity gauge",
+    "NO3": "nitrate gauge",
+    "PO4": "phosphate gauge",
+    "pH": "pH gauge",
+    "KH": "alkalinity gauge",
+    "Ca": "calcium gauge"
+  },
+  "entry_validation": {
+    "PRODUCTION_MAIN_PATH": "res://scenes/main/Main.tscn",
+    "NEW_UI_SIGNATURE": "M19MainUI must be child of root",
+    "LEGACY_UI_VISIBLE_COUNT": 0,
+    "LEGACY_STATIC_SCENE_LOADED": false,
+    "M19_PANEL_COUNT": 6
+  }
+}
