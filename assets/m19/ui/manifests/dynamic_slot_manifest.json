@@ -1,0 +1,19 @@
+{
+  "contract_id": "M19-CONTRACT-DRIVEN-V2",
+  "generated_at": "2026-07-14T05:30:00.000000",
+  "pages": {
+    "02": {"slots": []},
+    "03": {"slots": []},
+    "04": {"slots": [
+      {"id": "title", "rect": [42, 25, 570, 48]},
+      {"id": "close_icon", "rect": [682, 24, 52, 52]},
+      {"id": "species_image", "rect": [42, 100, 320, 300]},
+      {"id": "species_name", "rect": [54, 405, 220, 38]},
+      {"id": "discovery_badge", "rect": [280, 406, 90, 34]},
+      {"id": "keep_button", "rect": [56, 451, 285, 54]},
+      {"id": "release_button", "rect": [419, 451, 285, 54]}
+    ]},
+    "05": {"slots": []},
+    "06": {"slots": []}
+  }
+}

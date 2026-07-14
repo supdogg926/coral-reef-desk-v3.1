@@ -1,0 +1,12 @@
+{
+  "contract_id": "M19-CONTRACT-DRIVEN-V2",
+  "generated_at": "2026-07-14T05:30:00.000000",
+  "shells": {
+    "02": {"path": "res://assets/m19/ui/chrome/shell_02_ready_empty.png", "rect": [260, 100, 760, 520]},
+    "03": {"path": "res://assets/m19/ui/chrome/shell_03_voyaging_empty.png", "rect": [260, 100, 760, 520]},
+    "04": {"path": "res://assets/m19/ui/chrome/shell_04_result_empty.png", "rect": [260, 100, 760, 520]},
+    "05": {"path": "res://assets/m19/ui/chrome/shell_05_codex_empty.png", "rect": [120, 70, 1040, 580]},
+    "06": {"path": "res://assets/m19/ui/chrome/shell_06_release_empty.png", "rect": [120, 70, 1040, 580]}
+  },
+  "master": {"path": "res://assets/m19/ui/chrome/01_runtime_empty_master.png", "rect": [0, 0, 1280, 720]}
+}

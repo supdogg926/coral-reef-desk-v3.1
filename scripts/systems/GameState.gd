@@ -2,7 +2,7 @@ class_name GameState
 extends RefCounted
 
 var initialized: bool = false
-var milestone: String = "M11 prototype biomanage and water maintenance"
+var milestone: String = "M19-T2 Blue Guardian · f8f1fd6"
 var reef_points: float = 0.0
 var unlocked_tier: int = 1
 var time_system: TimeSystem = null
@@ -14,9 +14,12 @@ var livestock_system: LivestockSystem = null
 var unlock_system: UnlockSystem = null
 var event_system: DynamicEventSystem = null
 var save_system: SaveSystem = null
+var wall_clock_service: WallClockService = null
+var blue_guardian_service = null
 var action_timeline: ActionTimeline = null
 var stage_objective_system: RefCounted = null  # StageObjectiveSystem loaded via script
 var rescue_system: RefCounted = null  # RescueSystem loaded via script; M14-T01 data/headless only
+var blue_guardian_state: Dictionary = {}
 var rescue_last_feedback: Dictionary = {}
 var stability_score: float = 50.0
 var carrying_capacity_score: float = 10.0
@@ -68,11 +71,11 @@ var light_color_temp: int = 50
 var _last_logged_light_intensity: int = 100
 var _last_logged_light_color_temp: int = 50
 const MAINTENANCE_ACTION_RULES: Dictionary = {
-	"water_change_10": {"cost": 20.0, "cooldown_sec": 10.0, "risk_message": "无"},
-	"clean_filter": {"cost": 15.0, "cooldown_sec": 8.0, "risk_message": "无"},
-	"dose_buffer": {"cost": 12.0, "cooldown_sec": 12.0, "risk_message": "KH偏高请谨慎"},
-	"top_off": {"cost": 8.0, "cooldown_sec": 6.0, "risk_message": "无"},
-	"travel_prep": {"cost": 60.0, "cooldown_sec": 30.0, "risk_message": "无"},
+	"water_change_10": {"cost": 20.0, "cooldown_sec": 10.0, "risk_message": "无", "label": "换水 20浪花"},
+	"clean_filter": {"cost": 15.0, "cooldown_sec": 8.0, "risk_message": "无", "label": "清滤 15浪花"},
+	"dose_buffer": {"cost": 12.0, "cooldown_sec": 12.0, "risk_message": "KH偏高请谨慎", "label": "补KH 12浪花"},
+	"top_off": {"cost": 8.0, "cooldown_sec": 6.0, "risk_message": "无", "label": "补水 8浪花"},
+	"travel_prep": {"cost": 60.0, "cooldown_sec": 30.0, "risk_message": "无", "label": "更换滤材 60浪花"},
 }
 const FEEDING_ACTION_RULES: Dictionary = {
 	"coral_food": {"label": "喂珊瑚粮", "short_label": "喂珊瑚粮", "cooldown_sec": 8.0},
@@ -82,6 +85,9 @@ const DEVICE_DEFINITIONS: Dictionary = {
 	"return_pump": {"display_name": "水泵", "default_enabled": true},
 	"wave_pump": {"display_name": "造浪", "default_enabled": true},
 	"main_light": {"display_name": "主灯", "default_enabled": true},
+	"refugium_light": {"display_name": "藻缸灯", "default_enabled": false},
+	"chiller": {"display_name": "冷水机", "default_enabled": false},
+	"uv_sterilizer": {"display_name": "UV杀菌", "default_enabled": false},
 	"reserve": {"display_name": "未来设备", "default_enabled": false},
 }
 
@@ -107,9 +113,11 @@ func initialize() -> void:
 
 	unlock_system = UnlockSystem.new()
 	unlock_system.initialize()
+	blue_guardian_service = load("res://scripts/systems/BlueGuardianService.gd").new()
+	wall_clock_service = WallClockService.new()
 
 	save_system = SaveSystem.new()
-	save_system.initialize()
+	save_system.initialize(wall_clock_service)
 
 	action_timeline = ActionTimeline.new()
 
@@ -120,6 +128,7 @@ func initialize() -> void:
 
 	event_system = DynamicEventSystem.new()
 	event_system.initialize(12345)
+	blue_guardian_service.configure(wall_clock_service, economy_system, self, livestock_system, rescue_system)
 	rescue_system.initialize()
 
 	_try_load_game()
@@ -224,6 +233,8 @@ func get_water_maintenance_actions() -> Array:
 		var rule: Dictionary = _get_maintenance_rule(action_id)
 		action["cost"] = float(rule.get("cost", 0.0))
 		action["cooldown_sec"] = float(rule.get("cooldown_sec", 0.0))
+		if rule.has("label") and String(rule["label"]) != "":
+			action["label"] = String(rule["label"])
 		actions.append(action)
 	return actions
 
@@ -1372,6 +1383,8 @@ func get_save_debug_state() -> Dictionary:
 
 
 func buy_livestock_from_shop(shop_id: String) -> Dictionary:
+	return {"success": false, "error": "shop_retired_v4", "message": "商店已退役，生物通过蓝色守护获得"}
+	# Legacy shop purchase path disabled per M19-T1 (store retirement)
 	print("[BUY] gs.buy start shop_id=", shop_id)
 	if livestock_system == null or economy_system == null:
 		print("[BUY] gs.buy system unavailable")
@@ -1383,7 +1396,7 @@ func buy_livestock_from_shop(shop_id: String) -> Dictionary:
 	if not economy_system.spend_reef_points(price):
 		return {"success": false, "error": "insufficient_rp", "price": price, "current_rp": economy_system.get_reef_points()}
 	var purchase_entry: Dictionary = {
-		"id": "%s_%d" % [shop_id, Time.get_unix_time_from_system()],
+		"id": "%s_%d" % [shop_id, wall_clock_service.now_unix()],
 		"species_name": String(shop_entry.get("species_name", "")),
 		"category": String(shop_entry.get("category", "")),
 		"purchase_price": price,
@@ -1464,6 +1477,20 @@ func release_owned_livestock(livestock_id: String) -> Dictionary:
 		economy_system.add_reef_points(release_rp)
 	reef_points = economy_system.get_reef_points() if economy_system != null else reef_points
 	result["release_rp"] = release_rp
+	# v4 wave pulse: base 15 + first-release bonus 10 + care completion up to 10
+	var wave_pulse: int = 15
+	var is_first_release: bool = false
+	if rescue_system != null:
+		var marks: Dictionary = rescue_system.get_debug_state().get("codex_rescue_marks", {})
+		var sid: String = String(result.get("species_id", ""))
+		if sid != "" and not marks.has(sid):
+			is_first_release = true
+			wave_pulse += 10
+	if economy_system != null:
+		economy_system.add_waves(float(wave_pulse), "release_pulse")
+	reef_points = economy_system.get_reef_points() if economy_system != null else reef_points
+	result["wave_pulse"] = wave_pulse
+	result["is_first_release"] = is_first_release
 
 	if action_timeline != null:
 		var rname: String = String(result.get("species_name", ""))
@@ -1499,7 +1526,7 @@ func _try_load_game() -> void:
 		return
 	save_loaded = true
 	_apply_save_state(save_data)
-	var current_time: int = int(Time.get_unix_time_from_system())
+	var current_time: int = wall_clock_service.now_unix()
 	var last_time: int = save_system.get_last_save_timestamp()
 	var offline_seconds: float = save_system.calculate_offline_seconds(current_time, last_time)
 	if offline_seconds > 1.0:
@@ -1540,6 +1567,9 @@ func _apply_save_state(save_data: Dictionary) -> void:
 			for device_id in saved_tiers.keys():
 				equipment_system.set_device_tier(device_id, int(saved_tiers[device_id]))
 	reef_points = economy_system.reef_points if economy_system != null else 0.0
+	var raw_bg: Variant = save_data.get("blue_guardian_state", {})
+	if raw_bg is Dictionary:
+			blue_guardian_state = raw_bg.duplicate(true)
 
 
 func _apply_offline_progression(offline_seconds: float) -> void:
@@ -1822,12 +1852,12 @@ func get_light_state() -> Dictionary:
 		"light_color_temp": light_color_temp,
 	}
 
-func _perform_autosave() -> void:
+func _perform_autosave() -> bool:
 	if save_system == null:
-		return
+		return false
 	if _save_in_progress:
 		print("[SAVE] skipped: already in progress")
-		return
+		return false
 	_save_in_progress = true
 	print("[SAVE] perform_autosave start")
 	var economy_state: Dictionary = economy_system.export_state() if economy_system != null else {}
@@ -1864,11 +1894,125 @@ func _perform_autosave() -> void:
 		"player": {
 			"reputation": int(rescue_system.get_debug_state().get("ecological_reputation", 0)) if rescue_system != null else 0,
 		},
+		"waves_balance": economy_system.reef_points if economy_system != null else 0.0,
+		"collection_unlocked_species_ids": _get_collection_unlocked_ids(),
+		"release_count_by_species": _get_release_count_by_species(),
+		"release_total_count": int(rescue_system.get_debug_state().get("completed_rescue_count", 0)) if rescue_system != null else 0,
+		"blue_guardian_state": _get_blue_guardian_state(),
+		"discovered_postcard_ids": [],
+		"recent_release_record_ids": _get_recent_release_record_ids(),
 	}
-	print("[SAVE] calling save_game with keys=", save_dict.keys())
+
+
+
+	print("[SAVE] calling save_game with keys=" + str(save_dict.keys()))
 	var ok: bool = save_system.save_game(save_dict)
-	print("[SAVE] save_game returned=", ok)
+	print("[SAVE] save_game returned=" + str(ok))
 	_save_in_progress = false
+	return ok
+func calculate_management_multiplier() -> float:
+	# v4: additive model, clamped 0.50-2.00
+	var mult: float = 1.0
+	# Water quality factor
+	if water_chemistry_system != null:
+		var wq: float = float(water_chemistry_system.get_debug_state().get("water_quality_score", 75.0))
+		if wq >= 80: mult += 0.20
+		elif wq >= 60: mult += 0.10
+		elif wq < 40: mult -= 0.20
+	# Comfort factor
+	if livestock_system != null:
+		var comfort: float = float(livestock_system.get_debug_state().get("comfort_score", 75.0))
+		if comfort >= 80: mult += 0.20
+		elif comfort >= 60: mult += 0.10
+		elif comfort < 20: mult -= 0.20
+		elif comfort < 40: mult -= 0.10
+	# Category richness
+		var cat_count: int = 0
+		if int(livestock_system.get_debug_state().get("fish_count", 0)) > 0: cat_count += 1
+		if int(livestock_system.get_debug_state().get("coral_count", 0)) > 0: cat_count += 1
+		var crust_count: int = int(livestock_system.get_debug_state().get("crustacean_count", 0))
+		if crust_count > 0: cat_count += 1
+		var other_count: int = int(livestock_system.get_debug_state().get("other_count", 0))
+		if other_count > 0: cat_count += 1
+		if cat_count >= 3: mult += 0.20
+		elif cat_count == 2: mult += 0.10
+		elif cat_count == 0: mult -= 0.20
+	# Capacity health
+		var used: float = float(livestock_system.get_debug_state().get("bio_load_ratio", 0.0))
+		if used <= 0.0: mult -= 0.10
+		elif used <= 0.80: mult += 0.10
+		elif used > 1.0: mult -= 0.20
+	return clamp(mult, 0.50, 2.00)
+
+
+func _get_collection_unlocked_ids() -> Array:
+	var result: Array[String] = []
+	if rescue_system != null:
+		var marks: Dictionary = rescue_system.get_debug_state().get("codex_rescue_marks", {})
+		for species_id in marks.keys():
+			result.append(String(species_id))
+	return result
+
+
+func _get_release_count_by_species() -> Dictionary:
+	var counts: Dictionary = {}
+	if rescue_system != null:
+		for item in rescue_system.get_debug_state().get("completed_rescues", []):
+			if item is Dictionary:
+				var sid: String = String(item.get("species_id", ""))
+				if sid != "":
+					counts[sid] = int(counts.get(sid, 0)) + 1
+	return counts
+
+
+func _get_blue_guardian_state() -> Dictionary:
+	if blue_guardian_state.is_empty():
+		blue_guardian_state = {
+			"schema_version": 1,
+			"save_seed": 0,
+			"voyage_sequence": 0,
+			"voyage_state": "READY",
+			"voyage_end_ts": 0,
+			"pending_result": {},
+			"active": false,
+			"active_dock_id": "",
+			"last_rotation_at": 0,
+			"last_action_at": 0,
+			"next_available_at": 0,
+			"pending_reward_or_rescue_id": "",
+		}
+	return blue_guardian_state
+
+
+func _get_recent_release_record_ids() -> Array:
+	return []
+
+
+func _get_data_registry():
+	var node: Variant = Engine.get_main_loop()
+	if node != null:
+		return node
+	return null
+func commit_current_state() -> bool:
+	print("[SAVE] commit_current_state called")
+	return _perform_autosave()
+
+
+func restore_mutable_state(snapshot: Dictionary) -> void:
+	# Snapshot-based rollback for transactional saves (M19-H1 foundation)
+	if snapshot.is_empty():
+		return
+	if snapshot.has("waves_balance") and economy_system != null:
+		economy_system.reef_points = float(snapshot["waves_balance"])
+	if snapshot.has("blue_guardian_state"):
+		blue_guardian_state = snapshot["blue_guardian_state"].duplicate(true)
+
+
+func capture_mutable_state() -> Dictionary:
+	return {
+		"waves_balance": economy_system.reef_points if economy_system != null else 0.0,
+		"blue_guardian_state": _get_blue_guardian_state().duplicate(true),
+	}
 
 
 func _process_event_tick(simulation_delta_seconds: float) -> void:

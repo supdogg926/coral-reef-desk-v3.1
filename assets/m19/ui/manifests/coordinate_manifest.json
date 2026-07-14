@@ -1,0 +1,11 @@
+{
+  "contract_id": "M19-CONTRACT-DRIVEN-V2",
+  "generated_at": "2026-07-14T05:30:00.000000",
+  "plates": {
+    "02": {"global_rect": [260, 100, 760, 520], "anchor": "absolute"},
+    "03": {"global_rect": [260, 100, 760, 520], "anchor": "absolute"},
+    "04": {"global_rect": [260, 100, 760, 520], "anchor": "absolute"},
+    "05": {"global_rect": [120, 70, 1040, 580], "anchor": "absolute"},
+    "06": {"global_rect": [120, 70, 1040, 580], "anchor": "absolute"}
+  }
+}

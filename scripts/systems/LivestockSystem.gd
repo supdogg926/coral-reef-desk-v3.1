@@ -405,6 +405,25 @@ func import_state(state: Dictionary) -> void:
 	_recalculate_capacity_and_income()
 
 
+func add_livestock_from_rescue(species_id: String, rescue_data: Dictionary) -> void:
+	var entry: Dictionary = {
+		"id": species_id + "_" + str(Time.get_unix_time_from_system()),
+		"species_name": rescue_data.get("display_name", species_id),
+		"category": rescue_data.get("type", "fish"),
+		"rarity": "common",
+		"size_cm": 5.0,
+		"maturity_percent": 10.0,
+		"health_percent": 80.0,
+		"base_income_per_hour": 2.0,
+		"tank_slot_cost": 1.0,
+		"locked": false,
+		"water_sensitivity": 0.5,
+		"purchase_price": 0.0,
+		"is_rescue": true,
+		"rescue_status": "healthy",
+	}
+	owned_livestock.append(entry)
+
 func get_debug_state() -> Dictionary:
 	return {
 		"system": "LivestockSystem",

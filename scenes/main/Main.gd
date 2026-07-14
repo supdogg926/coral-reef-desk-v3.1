@@ -1,11 +1,22 @@
 extends Control
 
+signal runtime_ui_ready
+
 @onready var status_panel: StatusPanel = %StatusPanel
 
 var game_state: GameState = null
 var shop_panel: ShopPanel = null
 var livestock_panel: LivestockPanel = null
 var rescue_panel: RescueDockPanel = null
+var blue_guardian_panel = null
+var m19_ready_panel = null
+var m19_voyaging_panel = null
+var m19_result_panel = null
+var m19_bg_panel = null
+var m19_codex_panel = null
+var m19_release_panel = null
+var m19_dimmer: ColorRect = null
+var m19_main_ui = null
 var shop_btn: Button = null
 var livestock_btn: Button = null
 var rescue_btn: Button = null
@@ -19,6 +30,7 @@ var device_buttons: Dictionary = {}
 var device_button_base_texts: Dictionary = {}
 var feeding_buttons: Dictionary = {}
 var feeding_button_base_texts: Dictionary = {}
+var _runtime_ui_ready_emitted: bool = false
 var _panels_setup_done: bool = false
 var _livestock_refresh_timer: float = 0.0
 var _maintenance_button_refresh_timer: float = 0.0
@@ -35,8 +47,21 @@ var _alive_timer: float = 0.0
 func _ready() -> void:
 	game_state = GameState.new()
 	game_state.initialize()
+	_build_m19_main_ui()
 	_update_status_labels()
 	_setup_panels()
+	_update_window_title()
+
+
+func _update_window_title() -> void:
+	var head := "dev"
+	var f := FileAccess.open("res://.build_head", FileAccess.READ)
+	if f != null:
+		head = f.get_as_text().strip_edges()
+		f.close()
+	var title := "CoralReefIdleV3 · M19-T2 · unified-ui-runtime-candidate · " + head
+	print("[BUILD] window title: ", title)
+	DisplayServer.window_set_title(title)
 
 
 func _process(delta: float) -> void:
@@ -53,6 +78,24 @@ func _process(delta: float) -> void:
 		# M12 fix: don't overwrite player-facing panel_status_label
 		if panel_status_label != null and panel_status_label.text.begins_with("tick="):
 			panel_status_label.text = "tick=%d" % _alive_tick
+	if blue_guardian_panel != null and blue_guardian_panel.visible:
+		blue_guardian_panel._process(delta)
+	if m19_bg_panel != null and m19_bg_panel.visible:
+		m19_bg_panel._process(delta)
+	if m19_main_ui != null:
+		m19_main_ui._process(delta)
+	# M19 auto-switch: VoyagingPanel/BGPanel -> ResultPanel on voyage complete
+	if game_state.blue_guardian_service != null:
+		game_state.blue_guardian_service.ensure_voyage_settled_if_due()
+	var _svc = game_state.blue_guardian_service
+	var _result_pending = _svc != null and _svc.get_state() == BlueGuardianService.VoyageState.RESULT_PENDING
+	if m19_voyaging_panel != null and m19_voyaging_panel.visible and _result_pending:
+		m19_voyaging_panel.hide()
+		m19_result_panel.show()
+	if m19_bg_panel != null and m19_bg_panel.visible and _result_pending:
+		m19_bg_panel.hide()
+		if m19_dimmer != null: m19_dimmer.show()
+		m19_result_panel.show()
 	if livestock_panel != null and livestock_panel.visible:
 		_livestock_refresh_timer += delta
 		if _livestock_refresh_timer >= LIVESTOCK_REFRESH_INTERVAL:
@@ -66,6 +109,44 @@ func _process(delta: float) -> void:
 		_update_maintenance_button_states()
 		_update_device_button_states()
 		_update_feeding_button_states()
+
+
+func _build_m19_main_ui() -> void:
+	m19_main_ui = load("res://scenes/ui/M19MainInterfaceHybrid.gd").new()
+	m19_main_ui.name = "M19MainUI"
+	m19_main_ui.setup(game_state)
+	add_child(m19_main_ui)
+		# Hide ALL legacy procedural UI nodes
+	for child in get_children():
+		var ns: String = str(child.name)
+		if "Background" in ns or "RootMargin" in ns or "PipeNetworkView" in ns:
+			child.visible = false
+			child.set_process(false)
+			child.set_process_input(false)
+			print("[M19] Hidden legacy: ", ns)
+	# M19 Hybrid stays on top — old nodes hidden below
+
+	# Wire entry buttons from nav panel
+	var nav: Dictionary = m19_main_ui.get("_nav_buttons")
+	if nav is Dictionary:
+		if nav.has("codex_button") and nav["codex_button"] is Button:
+			nav["codex_button"].pressed.connect(_open_catalog_view)
+		if nav.has("release_button") and nav["release_button"] is Button:
+			nav["release_button"].pressed.connect(_open_release_management)
+		if nav.has("save_button") and nav["save_button"] is Button:
+			nav["save_button"].pressed.connect(_manual_save_test)
+		if nav.has("observe_button") and nav["observe_button"] is Button:
+			nav["observe_button"].pressed.connect(_on_observe_pressed)
+
+	# Also wire legacy sidebar if present
+	var sidebar: Dictionary = m19_main_ui.get("_sidebar_labels")
+	if sidebar is Dictionary:
+		if sidebar.has("codex_button") and sidebar["codex_button"] is Button:
+			sidebar["codex_button"].pressed.connect(_open_catalog_view)
+		if sidebar.has("release_button") and sidebar["release_button"] is Button:
+			sidebar["release_button"].pressed.connect(_open_release_management)
+
+	print("[M19] Main UI built and entry buttons wired")
 
 
 func _setup_panels() -> void:
@@ -93,7 +174,7 @@ func _setup_panels() -> void:
 	shop_panel.setup(game_state)
 	shop_panel.purchase_completed.connect(_on_shop_purchase)
 
-	livestock_panel = LivestockPanel.new()
+	livestock_panel = load("res://scenes/ui/LivestockPanel.gd").new()
 	livestock_panel.hide()
 	add_child(livestock_panel)
 	livestock_panel.setup(game_state)
@@ -103,8 +184,18 @@ func _setup_panels() -> void:
 	add_child(rescue_panel)
 	rescue_panel.setup(game_state)
 
+	blue_guardian_panel = load("res://scenes/ui/BlueGuardianPanel.gd").new()
+	blue_guardian_panel.hide()
+	add_child(blue_guardian_panel)
+	if game_state.blue_guardian_service != null:
+		blue_guardian_panel.setup(game_state.blue_guardian_service)
+
+	# M19 new secondary panels
+	_setup_m19_panels()
+
 	_panels_setup_done = true
 	_update_maintenance_button_states()
+	_mark_runtime_ui_ready()
 	_update_device_button_states()
 	_update_feeding_button_states()
 
@@ -124,6 +215,9 @@ func _setup_bottom_dock_controls() -> void:
 	panel_status_label = null
 
 	var callbacks: Dictionary = {
+		"blue_guardian": Callable(self, "_toggle_blue_guardian"),
+		"catalog": Callable(self, "_open_catalog_view"),
+		"release": Callable(self, "_open_release_management"),
 		"shop": Callable(self, "_toggle_shop"),
 		"livestock": Callable(self, "_toggle_livestock"),
 		"rescue": Callable(self, "_toggle_rescue"),
@@ -186,18 +280,17 @@ func _stabilize_main_layout(layout: VBoxContainer) -> void:
 					title_label.add_theme_color_override("font_color", Color(0.84, 0.88, 0.88))
 		elif child.name == "DisplayTankView" and child is Control:
 			var display: Control = child
-			display.custom_minimum_size = Vector2(0, 360)
+			display.custom_minimum_size = Vector2(0, 240)
 			display.size_flags_vertical = Control.SIZE_EXPAND_FILL
 			display.size_flags_stretch_ratio = 5.60
 		elif child.name == "SumpView" and child is Control:
 			var sump: Control = child
-			sump.custom_minimum_size = Vector2(0, 142)
+			sump.custom_minimum_size = Vector2(0, 100)
 			sump.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 			sump.size_flags_stretch_ratio = 0.0
 		elif child == status_panel:
-			status_panel.custom_minimum_size = Vector2(0, 104)
-			status_panel.size_flags_vertical = Control.SIZE_SHRINK_END
-			status_panel.size_flags_stretch_ratio = 0.0
+			status_panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
+			status_panel.size_flags_stretch_ratio = 2.40
 
 
 func _make_toolbar_group(stretch_ratio: float) -> HBoxContainer:
@@ -263,10 +356,27 @@ func _manual_save_test() -> void:
 	if game_state == null:
 		return
 	print("[MANUAL SAVE] calling _perform_autosave")
-	game_state._perform_autosave()
+	var ok: bool = game_state._perform_autosave()
 	print("[MANUAL SAVE] _perform_autosave returned")
 	if panel_status_label != null:
-		panel_status_label.text = "手动保存完成"
+		if ok:
+			panel_status_label.text = "手动保存完成"
+		else:
+			panel_status_label.text = "保存失败！请重试"
+
+
+func is_runtime_ui_ready() -> bool:
+	return _runtime_ui_ready_emitted
+
+
+func _mark_runtime_ui_ready() -> void:
+	if _runtime_ui_ready_emitted:
+		return
+	if blue_guardian_panel == null or livestock_panel == null or status_panel == null:
+		return
+	_runtime_ui_ready_emitted = true
+	print("[UI_READY] runtime_ui_ready emitted")
+	runtime_ui_ready.emit()
 
 
 func _is_dev_debug_ui_enabled() -> bool:
@@ -333,6 +443,194 @@ func _toggle_livestock() -> void:
 			livestock_panel.get_parent().move_child(livestock_panel, livestock_panel.get_parent().get_child_count() - 1)
 		if panel_status_label != null:
 			panel_status_label.text = "已打开：我的生物"
+
+
+func _open_catalog_view() -> void:
+	# Use new CodexPanel if available
+	if m19_codex_panel != null:
+		_hide_all_secondary_panels()
+		m19_dimmer.show()
+		m19_codex_panel.show()
+		if panel_status_label != null:
+			panel_status_label.text = "已打开：生物图鉴"
+		return
+	# Fallback to legacy
+	if blue_guardian_panel == null:
+		return
+	_hide_all_secondary_panels()
+	blue_guardian_panel.open_catalog_view()
+	blue_guardian_panel.anchor_left = 0.04
+	blue_guardian_panel.anchor_right = 0.96
+	blue_guardian_panel.anchor_top = 0.10
+	blue_guardian_panel.anchor_bottom = 0.92
+	blue_guardian_panel.show()
+	if panel_status_label != null:
+		panel_status_label.text = "已打开：救助图鉴"
+
+
+func _open_release_management() -> void:
+	# Use new ReleasePanel if available
+	if m19_release_panel != null:
+		_hide_all_secondary_panels()
+		m19_dimmer.show()
+		m19_release_panel.show()
+		if panel_status_label != null:
+			panel_status_label.text = "已打开：放归"
+		return
+	# Fallback to legacy
+	printerr("[RELEASE_DEBUG] livestock_panel=", livestock_panel)
+	if livestock_panel == null:
+		printerr("[RELEASE_DEBUG] livestock_panel is NULL!")
+		return
+	_hide_all_secondary_panels()
+	livestock_panel.open_release_mode()
+	livestock_panel.mouse_filter = Control.MOUSE_FILTER_STOP
+	livestock_panel.anchor_left = 0.04
+	livestock_panel.anchor_right = 0.96
+	livestock_panel.anchor_top = 0.10
+	livestock_panel.anchor_bottom = 0.92
+	livestock_panel.show()
+	if panel_status_label != null:
+		panel_status_label.text = "已打开：放归管理"
+
+
+func _setup_m19_panels() -> void:
+	print("[M19] _setup_m19_panels() START")
+	# Dimmer overlay
+	m19_dimmer = ColorRect.new()
+	m19_dimmer.name = "M19Dimmer"
+	m19_dimmer.color = Color(0.0, 0.0, 0.0, 0.55)
+	m19_dimmer.anchor_left = 0.0; m19_dimmer.anchor_right = 1.0
+	m19_dimmer.anchor_top = 0.0; m19_dimmer.anchor_bottom = 1.0
+	m19_dimmer.mouse_filter = Control.MOUSE_FILTER_STOP
+	m19_dimmer.hide()
+	add_child(m19_dimmer)
+
+	# 02 ReadyPanel (ShellS)
+	m19_ready_panel = M19ReadyPanel.new()
+	m19_ready_panel.name = "M19ReadyPanel"
+	m19_ready_panel.hide()
+	add_child(m19_ready_panel)
+	if game_state.blue_guardian_service != null:
+		m19_ready_panel.setup(game_state.blue_guardian_service)
+
+	# 03 VoyagingPanel (ShellS)
+	m19_voyaging_panel = M19VoyagingPanel.new()
+	m19_voyaging_panel.name = "M19VoyagingPanel"
+	m19_voyaging_panel.hide()
+	add_child(m19_voyaging_panel)
+	if game_state.blue_guardian_service != null:
+		m19_voyaging_panel.setup(game_state.blue_guardian_service)
+
+	# 04 ResultPanel (ShellS)
+	# Use Hybrid panel with freeze shell for 04
+	m19_result_panel = load("res://scenes/ui/M19ResultPanelHybrid.gd").new()
+	m19_result_panel.name = "M19ResultPanelHybrid"
+	m19_result_panel.hide()
+	add_child(m19_result_panel)
+	if game_state.blue_guardian_service != null:
+		m19_result_panel.setup(game_state.blue_guardian_service)
+
+	# 02/03 Shared BlueGuardianPanel
+	m19_bg_panel = load("res://scenes/ui/M19BlueGuardianPanel.gd").new()
+	m19_bg_panel.name = "M19BlueGuardianPanel"
+	m19_bg_panel.hide()
+	add_child(m19_bg_panel)
+	if game_state.blue_guardian_service != null:
+		m19_bg_panel.setup(game_state.blue_guardian_service)
+
+	# 05 CodexPanel (ShellL)
+	m19_codex_panel = M19CodexPanel.new()
+	m19_codex_panel.name = "M19CodexPanel"
+	m19_codex_panel.hide()
+	add_child(m19_codex_panel)
+	if game_state.blue_guardian_service != null:
+		m19_codex_panel.setup(game_state.blue_guardian_service)
+
+	# 06 ReleasePanel (ShellL)
+	m19_release_panel = M19ReleasePanel.new()
+	m19_release_panel.name = "M19ReleasePanel"
+	m19_release_panel.hide()
+	add_child(m19_release_panel)
+	if game_state.livestock_system != null:
+		m19_release_panel.setup(game_state.livestock_system, game_state.economy_system)
+
+	print("[M19] Panels created: ready=%s voyaging=%s result=%s codex=%s release=%s dimmer=%s" % [
+		str(m19_ready_panel != null), str(m19_voyaging_panel != null),
+		str(m19_result_panel != null), str(m19_codex_panel != null),
+		str(m19_release_panel != null), str(m19_dimmer != null)])
+
+
+func _hide_all_secondary_panels() -> void:
+	if shop_panel != null: shop_panel.hide()
+	if livestock_panel != null: livestock_panel.hide()
+	if rescue_panel != null: rescue_panel.hide()
+	if blue_guardian_panel != null: blue_guardian_panel.hide()
+	if m19_ready_panel != null: m19_ready_panel.hide()
+	if m19_voyaging_panel != null: m19_voyaging_panel.hide()
+	if m19_result_panel != null: m19_result_panel.hide()
+	if m19_bg_panel != null: m19_bg_panel.hide()
+	if m19_codex_panel != null: m19_codex_panel.hide()
+	if m19_release_panel != null: m19_release_panel.hide()
+	if m19_dimmer != null: m19_dimmer.hide()
+
+
+func _toggle_blue_guardian() -> void:
+	print("[M19] _toggle_blue_guardian called, m19_ready_panel=%s, svc=%s" % [str(m19_ready_panel != null), str(game_state.blue_guardian_service != null)])
+	# Fallback to legacy panel if new panels not ready
+	if m19_ready_panel == null or game_state.blue_guardian_service == null:
+		print("[M19] FALLBACK to legacy BlueGuardianPanel")
+		if blue_guardian_panel != null:
+			if blue_guardian_panel.visible: blue_guardian_panel.hide()
+			else:
+				_hide_all_secondary_panels()
+				blue_guardian_panel.anchor_left = 0.04; blue_guardian_panel.anchor_right = 0.96
+				blue_guardian_panel.anchor_top = 0.10; blue_guardian_panel.anchor_bottom = 0.92
+				blue_guardian_panel.open_ready_view()
+				blue_guardian_panel.show()
+		return
+
+	# If any M19 panel is visible, close them
+	if m19_bg_panel != null and m19_bg_panel.visible:
+		_hide_all_secondary_panels()
+		return
+	if m19_ready_panel.visible or m19_voyaging_panel.visible or m19_result_panel.visible:
+		_hide_all_secondary_panels()
+		return
+
+	# Show the correct panel based on service state
+	var svc = game_state.blue_guardian_service
+	svc.ensure_voyage_settled_if_due()
+	var state: int = svc.get_state()
+	_hide_all_secondary_panels()
+	m19_dimmer.show()
+	# RESULT_PENDING → show result panel directly
+	if state == BlueGuardianService.VoyageState.RESULT_PENDING:
+		m19_result_panel.show()
+		return
+	# READY or VOYAGING → show shared BG panel
+	if m19_bg_panel != null:
+		m19_bg_panel.show()
+		return
+	print("[M19] Opening panel for state=%d (0=READY 1=VOYAGING 2=RESULT)" % state)
+
+	match state:
+		BlueGuardianService.VoyageState.READY:
+			m19_ready_panel.show()
+		BlueGuardianService.VoyageState.VOYAGING:
+			m19_voyaging_panel.show()
+		BlueGuardianService.VoyageState.RESULT_PENDING:
+			m19_result_panel.show()
+
+	if panel_status_label != null:
+		panel_status_label.text = "已打开：蓝色守护"
+
+
+func _on_observe_pressed() -> void:
+	_hide_all_secondary_panels()
+	if m19_dimmer != null: m19_dimmer.hide()
+	if panel_status_label != null:
+		panel_status_label.text = "观赏模式"
 
 
 func _toggle_rescue() -> void:
@@ -617,4 +915,3 @@ func _on_light_intensity_changed(value: float) -> void:
 func _on_light_temp_changed(value: float) -> void:
 	if game_state != null:
 		game_state.set_light_color_temp(int(value))
-
