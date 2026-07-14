@@ -118,8 +118,8 @@ func initialize() -> void:
 
 	rescue_system = load("res://scripts/systems/RescueSystem.gd").new()
 
-		event_system = DynamicEventSystem.new()
-		event_system.initialize(12345)
+	event_system = DynamicEventSystem.new()
+	event_system.initialize(12345)
 	rescue_system.initialize()
 
 	_try_load_game()
