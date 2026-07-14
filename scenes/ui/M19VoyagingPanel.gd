@@ -115,6 +115,7 @@ func _build() -> void:
 	# Action bar
 	var action := M19SharedTheme.make_action_bar(inner)
 	var codex_btn := M19SharedTheme.make_text_button("查看图鉴")
+	codex_btn.pressed.connect(_on_codex)
 	action.add_child(codex_btn)
 
 	var close_btn := M19SharedTheme.make_secondary_button("关闭")
@@ -156,6 +157,12 @@ func _on_close() -> void:
 	var p = get_parent()
 	if p != null and p.has_method("_hide_all_secondary_panels"):
 		p._hide_all_secondary_panels()
+
+
+func _on_codex() -> void:
+	var p = get_parent()
+	if p != null and p.has_method("_open_catalog_view"):
+		p._open_catalog_view()
 
 
 func _on_visibility_changed() -> void:

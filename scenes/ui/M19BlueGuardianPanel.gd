@@ -183,6 +183,7 @@ func _build() -> void:
 	_codex_btn.size = Vector2(240, 52)
 	_codex_btn.visible = false
 	fl.add_child(_codex_btn)
+	_codex_btn.pressed.connect(_on_codex)
 
 	_load_chrome(BlueGuardianService.VoyageState.READY)
 	_refresh()
@@ -260,6 +261,12 @@ func _on_launch() -> void:
 
 func _on_state_changed() -> void:
 	_refresh()
+
+
+func _on_codex() -> void:
+	var p = get_parent()
+	if p != null and p.has_method("_open_catalog_view"):
+		p._open_catalog_view()
 
 
 func _on_close() -> void:
