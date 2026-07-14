@@ -88,7 +88,7 @@ func _process(delta: float) -> void:
 	if game_state.blue_guardian_service != null:
 		game_state.blue_guardian_service.ensure_voyage_settled_if_due()
 	var _svc = game_state.blue_guardian_service
-	var _result_pending := _svc != null and _svc.get_state() == BlueGuardianService.VoyageState.RESULT_PENDING
+	var _result_pending = _svc != null and _svc.get_state() == BlueGuardianService.VoyageState.RESULT_PENDING
 	if m19_voyaging_panel != null and m19_voyaging_panel.visible and _result_pending:
 		m19_voyaging_panel.hide()
 		m19_result_panel.show()
