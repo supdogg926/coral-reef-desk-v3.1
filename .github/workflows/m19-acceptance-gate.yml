@@ -1,0 +1,75 @@
+# M19 CI — Acceptance Gate
+# Runs on every push to fix/m19-* branches
+# Executes formal acceptance script; produces PASS/FAIL check on commit
+
+name: M19 Acceptance Gate
+
+on:
+  push:
+    branches:
+      - 'fix/m19-**'
+      - 'prototype/m19-**'
+  workflow_dispatch:
+
+jobs:
+  acceptance:
+    runs-on: windows-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Godot
+        uses: bruvzg/godot-setup@v1
+        with:
+          version: '4.7-stable'
+
+      - name: M19 Acceptance Preflight
+        shell: pwsh
+        run: |
+          powershell -NoProfile -ExecutionPolicy Bypass -File scripts/m19/run_capability_preflight.ps1
+
+      - name: M19 Production GPU Capture
+        shell: pwsh
+        run: |
+          godot --headless --script tests/m19/M19W01AllPageDriver.gd 2>&1
+          powershell -NoProfile -ExecutionPolicy Bypass -File scripts/m19/run_production_gpu_capture.ps1 -WaveId M19-W01-PRODUCTION-TAKEOVER
+
+      - name: M19 Scene Tree Audit
+        shell: pwsh
+        run: |
+          godot --headless --script tests/m19/M19FinalRuntimeProbe.gd 2>&1
+          powershell -NoProfile -ExecutionPolicy Bypass -File scripts/m19/run_runtime_scene_tree_audit.ps1 -WaveId M19-W01-PRODUCTION-TAKEOVER
+
+      - name: M19 Fact Slot Audit
+        shell: pwsh
+        run: |
+          powershell -NoProfile -ExecutionPolicy Bypass -File scripts/m19/run_fact_slot_audit.ps1 -WaveId M19-W01-PRODUCTION-TAKEOVER
+
+      - name: M19 Modal Stress
+        shell: pwsh
+        run: |
+          powershell -NoProfile -ExecutionPolicy Bypass -File scripts/m19/run_modal_stress.ps1 -WaveId M19-W01-PRODUCTION-TAKEOVER
+
+      - name: M19 Full Regression
+        shell: pwsh
+        run: |
+          powershell -NoProfile -ExecutionPolicy Bypass -File scripts/m19/run_m19_full_regression.ps1
+
+      - name: M19 Final Acceptance
+        shell: pwsh
+        run: |
+          powershell -NoProfile -ExecutionPolicy Bypass -File tests/m19/run_m19_final_acceptance.ps1 -WaveId M19-W01-PRODUCTION-TAKEOVER
+
+      - name: Upload Evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: m19-acceptance-evidence
+          path: |
+            reports/m19/acceptance/latest/
+            reports/m19/acceptance/staging/
+            reports/m19/final_deterministic/

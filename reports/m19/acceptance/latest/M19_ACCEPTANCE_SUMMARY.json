@@ -1,15 +1,7 @@
-{
-  "wave_id": "M19-W01-FROZEN-HARNESS-RECOVERY",
-  "run_id": "1783965746.002",
-  "commit_sha": "8ff97cb3587838c61842498ed1ec1494c559a464",
-  "generated_at": "2026-07-14T02:03:01.915934",
-  "result": "CANDIDATE_READY",
-  "page_results": {
-    "PAGE_02_VISIBLE_RESULT": "PASS",
-    "PAGE_03_VISIBLE_RESULT": "PASS",
-    "PAGE_04_VISIBLE_RESULT": "PASS",
-    "PAGE_05_VISIBLE_RESULT": "PASS",
-    "PAGE_06_VISIBLE_RESULT": "PASS"
-  },
-  "page_run_count": 5
+﻿{
+    "result":  "CANDIDATE_READY",
+    "wave_id":  "M19-W01-PRODUCTION-TAKEOVER",
+    "branch":  "fix/m19-w01-external-review-p0",
+    "commit":  "0cb68db369f67767566b693e723f12c57cf36f42",
+    "generated_at":  "2026-07-14T13:42:04.5299486+08:00"
 }

@@ -20,10 +20,13 @@ func setup(service: BlueGuardianService) -> void:
 
 
 func _build() -> void:
+	# Transparent panel — chrome shell provides all visual background
+	add_theme_stylebox_override("panel", StyleBoxEmpty.new())
 	custom_minimum_size = SHELL.size
-	anchor_left = 0.5; anchor_right = 0.5; anchor_top = 0.5; anchor_bottom = 0.5
-	offset_left = -SHELL.size.x / 2.0; offset_top = -SHELL.size.y / 2.0
-	offset_right = SHELL.size.x / 2.0; offset_bottom = SHELL.size.y / 2.0
+	# Position at contract: SHELL_S = (260,100,760,520)
+	anchor_left = 0.0; anchor_right = 0.0; anchor_top = 0.0; anchor_bottom = 0.0
+	offset_left = SHELL.position.x; offset_top = SHELL.position.y
+	offset_right = SHELL.position.x + SHELL.size.x; offset_bottom = SHELL.position.y + SHELL.size.y
 
 	# Freeze shell plate
 	var shell_tr := TextureRect.new()

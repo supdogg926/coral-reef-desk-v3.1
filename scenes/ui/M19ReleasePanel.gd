@@ -30,10 +30,13 @@ func setup(livestock_sys, economy_sys) -> void:
 
 
 func _build() -> void:
+	# Transparent panel — chrome shell provides all visual background
+	add_theme_stylebox_override("panel", StyleBoxEmpty.new())
 	custom_minimum_size = SHELL.size
-	anchor_left = 0.5; anchor_right = 0.5; anchor_top = 0.5; anchor_bottom = 0.5
-	offset_left = -SHELL.size.x / 2.0; offset_top = -SHELL.size.y / 2.0
-	offset_right = SHELL.size.x / 2.0; offset_bottom = SHELL.size.y / 2.0
+	# Position at contract: SHELL_L = (120,70,1040,580)
+	anchor_left = 0.0; anchor_right = 0.0; anchor_top = 0.0; anchor_bottom = 0.0
+	offset_left = SHELL.position.x; offset_top = SHELL.position.y
+	offset_right = SHELL.position.x + SHELL.size.x; offset_bottom = SHELL.position.y + SHELL.size.y
 
 	# Freeze shell plate
 	var shell_tr := TextureRect.new()
@@ -154,14 +157,6 @@ func _build() -> void:
 	action.add_child(close_btn)
 
 	_refresh_list()
-
-	
-	# Hide ALL old visual containers — only freeze shell + its children should be visible
-	for child in get_children():
-		if child is VBoxContainer or child is MarginContainer or child is HBoxContainer:
-			if child.name != "FactLayer" and child.name != "HitLayer":
-				child.visible = false
-				child.mouse_filter = Control.MOUSE_FILTER_IGNORE
 
 func _refresh_list() -> void:
 	_livestock_list.clear()

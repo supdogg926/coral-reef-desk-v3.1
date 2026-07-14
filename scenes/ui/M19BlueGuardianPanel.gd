@@ -47,6 +47,8 @@ func setup(service: BlueGuardianService) -> void:
 
 func _build() -> void:
 	anchor_left = 0.0; anchor_right = 0.0; anchor_top = 0.0; anchor_bottom = 0.0
+	# Transparent panel — chrome shell provides all visual background
+	add_theme_stylebox_override("panel", StyleBoxEmpty.new())
 	offset_left = 260; offset_top = 100
 	offset_right = 260 + SHELL_S.x; offset_bottom = 100 + SHELL_S.y
 	mouse_filter = Control.MOUSE_FILTER_STOP

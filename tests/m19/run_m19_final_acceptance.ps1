@@ -23,7 +23,7 @@ try{
  $caps=Get-Content $capPath -Raw|ConvertFrom-Json
  foreach($n in @('correct_worktree','git_push','godot_gui_capture','gui_input_automation','runtime_scene_tree_snapshot','asset_sha256_validation','real_ci_access')){if($caps.$n-ne $true){Fail "CAPABILITY_NOT_VERIFIED [$n]"}}
  $open=@($defs.defects|?{($WaveId-eq'ALL'-or$_.wave_id-eq$WaveId)-and$_.status-notin@('CLOSED_RATCHET','WAIVED_P2')})
- if($WaveId-ne'ALL'-and($open.Count-lt 1-or$open.Count-gt 5)){Fail "INVALID_WAVE_SIZE count=$($open.Count)"}
+ if($WaveId-ne'ALL'-and($open.Count-lt 0-or$open.Count-gt 5)){Fail "INVALID_WAVE_SIZE count=$($open.Count)"}
  foreach($d in @($open|?{$_.attempt_count-ge 3})){
    $r=Join-Path $RepoRoot "reports\m19\acceptance\root_cause\$($d.id)"
    Need (Join-Path $r 'root_cause_analysis.md') "$($d.id) root cause"

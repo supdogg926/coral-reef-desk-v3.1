@@ -51,7 +51,9 @@ func setup(service: BlueGuardianService) -> void:
 
 
 func _build() -> void:
-	# Position at manifest: 260,100 within 1280x720
+	# Transparent panel — chrome shell provides all visual background
+	add_theme_stylebox_override("panel", StyleBoxEmpty.new())
+	# Position at contract: 260,100 within 1280x720
 	anchor_left = 0.0; anchor_right = 0.0; anchor_top = 0.0; anchor_bottom = 0.0
 	offset_left = 260; offset_top = 100
 	offset_right = 260 + SHELL_S.x; offset_bottom = 100 + SHELL_S.y
@@ -182,8 +184,7 @@ func _load_chrome_plate() -> void:
 	else:
 		_chrome_loaded = false
 		print("[M19 HYBRID] CHROME PLATE MISSING: ", CHROME_PATH)
-		# Use dark placeholder
-		_chrome_plate.self_modulate = Color(0.08, 0.12, 0.16, 0.95)
+		# Transparent — no dark placeholder. Panel background already StyleBoxEmpty.
 
 
 func _refresh() -> void:
