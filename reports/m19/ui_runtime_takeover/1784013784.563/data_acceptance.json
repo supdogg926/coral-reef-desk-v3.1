@@ -1,0 +1,14 @@
+{
+	"commit_sha": "6ac3d9c82c95b71dd7ceab644813491a9baf5b20",
+	"results": {
+		"entry_validation": {
+			"ACTUAL": "no M19 node",
+			"EXPECTED": "M19_NEW_UI",
+			"LEGACY_UI_VISIBLE_COUNT": 1,
+			"WRONG_UI_ENTRY_DETECTED": true,
+			"reason": "no M19 UI found",
+			"result": "FAIL"
+		}
+	},
+	"run_id": "1784013784.563"
+}
