@@ -58,23 +58,26 @@ const KNOB_CONFIG := [
 	["色温", "reserve", "colortemp"],
 ]
 
-# Maintenance action IDs (match game_state.get_water_maintenance_actions)
-const MAINTENANCE_ORDER := ["water_change", "filter_clean", "kh_buffer", "top_off", "algae_clean", "media_replace"]
-const MAINTENANCE_NAMES := {
-	"water_change":"换水","filter_clean":"清滤","kh_buffer":"KH",
-	"top_off":"补水","algae_clean":"清藻","media_replace":"更换滤材"
+# Maintenance action IDs (match GameState.MAINTENANCE_ACTION_RULES keys)
+const MAINTENANCE_ORDER := ["water_change_10", "clean_filter", "dose_buffer", "top_off", "travel_prep"]
+const MAINTENANCE_LABELS := {
+	"water_change_10":"换水","clean_filter":"清滤","dose_buffer":"KH",
+	"top_off":"补水","travel_prep":"更换滤材"
 }
 
-# Feeding action IDs
+# Feeding action IDs (match GameState.FEEDING_ACTION_RULES keys)
 const FEEDING_ORDER := ["fish_food", "coral_food"]
-const FEEDING_NAMES := {"fish_food":"喂鱼粮", "coral_food":"喂珊瑚粮"}
+const FEEDING_LABELS := {"fish_food":"喂鱼粮", "coral_food":"喂珊瑚粮"}
 
-# Device IDs
-const DEVICE_ORDER := ["skimmer","uv_sterilizer","heater","chiller","biopellet","ca_reactor","roller_mat","kha"]
-const DEVICE_NAMES := {
-	"skimmer":"蛋分","uv_sterilizer":"杀菌灯","heater":"加热棒","chiller":"冷水机",
-	"biopellet":"煮豆机","ca_reactor":"钙反","roller_mat":"卷纸机","kha":"KHA"
+# Device IDs (match GameState.DEVICE_DEFINITIONS keys)
+const DEVICE_ORDER := ["return_pump", "wave_pump", "main_light", "refugium_light", "chiller", "uv_sterilizer", "reserve"]
+const DEVICE_LABELS := {
+	"return_pump":"水泵","wave_pump":"造浪泵","main_light":"主灯",
+	"refugium_light":"藻缸灯","chiller":"冷水机","uv_sterilizer":"UV杀菌",
+	"reserve":"预留"
 }
+# Old UI device names that don't exist in current backend — shown as disabled
+const LEGACY_DEVICE_NAMES := ["蛋分","加热棒","煮豆机","钙反","卷纸机","KHA"]
 
 
 func setup(gs: GameState) -> void:
@@ -250,19 +253,54 @@ func _build_knob_facts() -> void:
 		add_child(val_lbl)
 		_knob_value_labels.append(val_lbl)
 
-		# Clickable area for toggle knobs
-		if cfg[2] == "toggle":
-			var click_area = Button.new()
-			click_area.position = Vector2(kx, 532); click_area.size = Vector2(64, 30)
-			click_area.flat = true
-			click_area.name = "knob_" + cfg[1]
-			click_area.pressed.connect(_on_knob_toggle.bind(cfg[1]))
-			add_child(click_area)
+		# Clickable area for all knobs
+		var click_area = Button.new()
+		click_area.position = Vector2(kx, 532); click_area.size = Vector2(64, 30)
+		click_area.flat = true
+		click_area.name = "knob_" + cfg[1]
+		match cfg[2]:
+			"toggle":
+				click_area.pressed.connect(_on_knob_toggle.bind(cfg[1]))
+			"intensity":
+				click_area.pressed.connect(_on_knob_intensity)
+			"colortemp":
+				click_area.pressed.connect(_on_knob_colortemp)
+		add_child(click_area)
 
 
 func _on_knob_toggle(device_id: String) -> void:
 	if game_state == null: return
 	game_state.toggle_device(device_id)
+	_update_dynamic_data()
+
+
+func _on_knob_intensity() -> void:
+	if game_state == null: return
+	# Cycle: 100 → 75 → 50 → 25 → 0 → 100
+	var current := game_state.light_intensity
+	var next_val := 0
+	if current >= 100: next_val = 75
+	elif current >= 75: next_val = 50
+	elif current >= 50: next_val = 25
+	elif current >= 25: next_val = 0
+	else: next_val = 100
+	game_state.light_intensity = next_val
+	game_state.set_light_intensity(next_val)
+	_update_dynamic_data()
+
+
+func _on_knob_colortemp() -> void:
+	if game_state == null: return
+	# Cycle: 6500 → 10000 → 14000 → 20000 → 6500
+	var current := game_state.light_color_temp
+	var next_val := 6500
+	if current >= 20000: next_val = 6500
+	elif current >= 14000: next_val = 20000
+	elif current >= 10000: next_val = 14000
+	elif current >= 6500: next_val = 10000
+	else: next_val = 6500
+	game_state.light_color_temp = next_val
+	game_state.set_light_color_temp(next_val)
 	_update_dynamic_data()
 
 
@@ -275,50 +313,65 @@ func _build_device_facts() -> void:
 	_maintenance_buttons.clear()
 	_feeding_buttons.clear()
 
-	# Row 0: Maintenance (6 buttons)
-	var maint_names = ["换水","清滤","KH","补水","清藻","更换滤材"]
-	for col in range(6):
+	# Row 0: Maintenance (5 buttons based on real GameState actions)
+	for col in range(MAINTENANCE_ORDER.size()):
 		var dx: int = 715 + col * 85
 		var dy: int = 540
+		var action_id: String = MAINTENANCE_ORDER[col]
+		var label: String = MAINTENANCE_LABELS.get(action_id, action_id)
 		var btn = Button.new()
 		btn.position = Vector2(dx, dy); btn.size = Vector2(78, 36)
-		btn.text = maint_names[col]
+		btn.text = label
 		btn.add_theme_font_size_override("font_size", 9)
 		btn.add_theme_color_override("font_color", Color(0.50,0.78,0.86))
-		btn.flat = true; btn.name = "maint_" + MAINTENANCE_ORDER[col]
-		btn.pressed.connect(_on_maintenance_pressed.bind(MAINTENANCE_ORDER[col]))
+		btn.flat = true; btn.name = "maint_" + action_id
+		btn.pressed.connect(_on_maintenance_pressed.bind(action_id))
 		add_child(btn)
 		_maintenance_buttons.append(btn)
 
-	# Row 1: Feeding (2 buttons first, then devices)
-	var feed_names = ["喂鱼粮","喂珊瑚粮"]
-	for col in range(2):
+	# Row 1: Feeding (2 buttons) + first real devices
+	for col in range(FEEDING_ORDER.size()):
 		var dx: int = 715 + col * 85
 		var dy: int = 578
+		var feed_id: String = FEEDING_ORDER[col]
+		var label: String = FEEDING_LABELS.get(feed_id, feed_id)
 		var btn = Button.new()
 		btn.position = Vector2(dx, dy); btn.size = Vector2(78, 36)
-		btn.text = feed_names[col]
+		btn.text = label
 		btn.add_theme_font_size_override("font_size", 9)
 		btn.add_theme_color_override("font_color", Color(0.60,0.88,0.72))
-		btn.flat = true; btn.name = "feed_" + FEEDING_ORDER[col]
-		btn.pressed.connect(_on_feeding_pressed.bind(FEEDING_ORDER[col]))
+		btn.flat = true; btn.name = "feed_" + feed_id
+		btn.pressed.connect(_on_feeding_pressed.bind(feed_id))
 		add_child(btn)
 		_feeding_buttons.append(btn)
 
-	# Rows 2-3: Device toggles (8 devices, 4 per row)
-	var dev_display_names = ["蛋分","杀菌灯","加热棒","冷水机","煮豆机","钙反","卷纸机","KHA"]
-	for idx in range(DEVICE_ORDER.size()):
-		var row: int = idx / 4
+	# Rows 2-3: Real device toggles + legacy disabled placeholders
+	var all_devices: Array = []
+	# Real devices first
+	for dev_id in DEVICE_ORDER:
+		all_devices.append({"id": dev_id, "label": DEVICE_LABELS.get(dev_id, dev_id), "real": true})
+	# Legacy device placeholders (disabled, no backend)
+	for legacy_name in LEGACY_DEVICE_NAMES:
+		all_devices.append({"id": "legacy_" + legacy_name, "label": legacy_name, "real": false})
+
+	for idx in range(all_devices.size()):
+		var entry: Dictionary = all_devices[idx]
+		var row: int = 2 + idx / 4
 		var col: int = idx % 4
 		var dx: int = 715 + col * 85
-		var dy: int = 616 + row * 38
+		var dy: int = 540 + row * 40
 		var btn = Button.new()
 		btn.position = Vector2(dx, dy); btn.size = Vector2(78, 34)
-		btn.text = dev_display_names[idx]
+		btn.text = entry["label"]
 		btn.add_theme_font_size_override("font_size", 9)
-		btn.add_theme_color_override("font_color", Color(0.50,0.78,0.86))
-		btn.flat = true; btn.name = "dev_" + DEVICE_ORDER[idx]
-		btn.pressed.connect(_on_device_pressed.bind(DEVICE_ORDER[idx]))
+		btn.flat = true; btn.name = "dev_" + entry["id"]
+		if entry["real"]:
+			btn.add_theme_color_override("font_color", Color(0.50,0.78,0.86))
+			btn.pressed.connect(_on_device_pressed.bind(entry["id"]))
+		else:
+			btn.disabled = true
+			btn.add_theme_color_override("font_color", Color(0.30, 0.32, 0.32))
+			btn.tooltip_text = "设备未实现"
 		add_child(btn)
 		_device_buttons.append(btn)
 
@@ -469,23 +522,21 @@ func _update_dynamic_data() -> void:
 		var dev_id: String = cfg[1]
 		var dev_type: String = cfg[2]
 		var val_lbl: Label = _knob_value_labels[i]
-		var dev_info: Dictionary = devices.get(dev_id, {}) if devices is Dictionary else {}
 		if dev_type == "toggle":
+			var dev_info: Dictionary = devices.get(dev_id, {}) if devices is Dictionary else {}
 			var enabled: bool = bool(dev_info.get("enabled", false))
 			val_lbl.text = "ON" if enabled else "OFF"
 		elif dev_type == "intensity":
-			var intensity: int = int(dev_info.get("intensity", game_state.get_light_intensity() if game_state.has_method("get_light_intensity") else 50))
-			val_lbl.text = "%d%%" % intensity
+			val_lbl.text = "%d%%" % game_state.light_intensity
 		elif dev_type == "colortemp":
-			var temp_val: int = int(dev_info.get("color_temp", game_state.get_light_color_temp() if game_state.has_method("get_light_color_temp") else 6500))
-			val_lbl.text = "%dK" % temp_val
+			val_lbl.text = "%dK" % game_state.light_color_temp
 
-	# ── Device buttons: on/off state ──
-	for i in range(DEVICE_ORDER.size()):
-		if i >= _device_buttons.size(): break
-		var dev_id: String = DEVICE_ORDER[i]
+	# ── Device buttons: on/off state (real devices only, legacy already disabled) ──
+	for i in range(_device_buttons.size()):
 		var btn: Button = _device_buttons[i]
-		var dev_info: Dictionary = devices.get(dev_id, {}) if devices is Dictionary else {}
+		var dev_name: String = btn.name.replace("dev_", "")
+		if dev_name.begins_with("legacy_"): continue  # already disabled
+		var dev_info: Dictionary = devices.get(dev_name, {}) if devices is Dictionary else {}
 		if dev_info.is_empty():
 			btn.disabled = true
 			btn.tooltip_text = "设备未实现"
@@ -494,7 +545,7 @@ func _update_dynamic_data() -> void:
 			var enabled: bool = bool(dev_info.get("enabled", false))
 			btn.disabled = false
 			btn.add_theme_color_override("font_color", Color(0.50,0.88,0.68) if enabled else Color(0.50,0.78,0.86))
-			btn.tooltip_text = ("%s: ON" if enabled else "%s: OFF") % dev_id
+			btn.tooltip_text = ("%s: ON" if enabled else "%s: OFF") % DEVICE_LABELS.get(dev_name, dev_name)
 
 	# ── Maintenance buttons: cooldown + cost ──
 	for i in range(MAINTENANCE_ORDER.size()):
