@@ -1,0 +1,31 @@
+{
+	"commit_sha": "7f712f1de5bc9bc0dc6b584526ed3028829030c2",
+	"frames": 3750,
+	"results": {
+		"dynamic": "PASS",
+		"screenshots": [
+			"01_main_runtime",
+			"01_knob_pump",
+			"01_knob_wave",
+			"01_after_knobs",
+			"01_after_ops",
+			"02_ready_runtime",
+			"03_voyaging_runtime",
+			"04_result_runtime",
+			"05_codex_runtime",
+			"06_release_runtime",
+			"01_observe_mode",
+			"01_after_save"
+		],
+		"static": {
+			"found": 16,
+			"missing": [],
+			"result": "PASS"
+		},
+		"water": {
+			"issues": []
+		},
+		"wave": 496.682637367395
+	},
+	"run_id": "1784017866.56245"
+}

@@ -21,6 +21,7 @@ config/features=PackedStringArray("4.7")
 [autoload]
 
 DataRegistry="*res://scripts/autoload/DataRegistry.gd"
+M19GUI="*res://tests/m19/M19RuntimeDataAcceptance.gd"
 
 [display]
 
