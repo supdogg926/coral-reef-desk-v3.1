@@ -2,7 +2,9 @@
 
 ```text
 CONTRACT_ID=M19-CONTRACT-DRIVEN-V2
-STATUS=FROZEN_INITIAL
+CONTRACT_VERSION=v2.2
+STATUS=ACTIVE
+SUPERSEDES=v2.1
 FACT_SOURCE=Git repository four-piece package
 CHAT_HISTORY_IS_FACT_SOURCE=NO
 EXECUTION_LAYER_PASS_AUTHORITY=NONE
@@ -53,32 +55,52 @@ REPEAT_FULL_REQUIREMENTS_TEXT=FORBIDDEN
 
 波内 P0/P1 必须 100% 关闭；P2 仅可带明示 `QUALITY_WAIVER`。每波都必须跑全量回归。
 
-## 5. 棘轮
+## 5. 三层门禁制 (v2.2)
 
-每个缺陷关闭时必须同时提交修复、最小自动化测试、生产证据，并标记 `CLOSED_RATCHET`。回归套件只增不减；任何已关闭缺陷回归，本波候选整体 FAIL。
+### 5.1 FAST_GATE
+每次普通代码迭代执行。目标耗时 ≤3 分钟。
+执行项：全部 GDScript 解析 / production purity 扫描 / 受影响核心服务单测 / 关键 UI 节点存在 / 一次真实点击 smoke / 一次保存写入 smoke / 本次变更对应的单个缺陷测试。
+禁止项：250 次 Modal / 17 张截图 / 10 分钟 F5 / 三轮跨进程重启 / 全历史回归 / 完整 GPU 证据包。
 
-永久不变量：
-- 验收入口必须是 `project.godot -> run/main_scene`；
-- 六张冻结 Plate 资源与 SHA256 正确；
-- 01 只显示完整 Runtime Master，不用区域裁片拼底板；
-- 旧程序化 UI、旧 StyleBox、调试色块不可见；
-- 必填 Fact 槽有真实数据源和可见内容；
-- 02–06 可进入退出，无 Dimmer/Input/Focus/Pause 残留；
-- Save schema 不变；
-- 不使用 SubViewport、位图文字、幽灵数值；
-- GPU 证据来自正式 Main Scene。
+### 5.2 WAVE_GATE
+每个 Wave 报告 CANDIDATE_READY 前执行一次。
+执行项：本波所有缺陷测试 / 所有现存 ratchet / 本波真实业务路径 / 本波最终证据 / production purity / save schema diff / worktree clean / local/remote match。
 
-## 6. 根因升级线
+### 5.3 MILESTONE_GATE
+整个里程碑封口时只运行一次。
+执行项：02–06 各 50 次 Modal (共 250 次) / 三轮跨进程保存-退出-重启 / ≥17 张最终截图 / 正常 F5 10 分钟 / 完整历史回归 / Windows GPU 正式证据 / 最终联系表 / 最终 evidence commit。
 
-同一缺陷 `attempt_count >= 3` 时，禁止继续补丁，必须先提交最小复现、根因分析、运行时 SceneTree、已尝试路径和外部裁决，状态设为 `OPEN_ESCALATED`。禁止用延时、重复 hide、降低阈值或新增临时状态字段绕过架构问题。
+## 6. 棘轮 (v2.2 修订)
 
-## 7. 分级
+每个缺陷关闭时必须同时提交修复、最小自动化测试、生产证据，标记 `CLOSED_RATCHET`。
 
-- P0：生产入口错误、无法进入退出、冻结/输入丢失、旧 UI/占位块覆盖、六页未真实显示、正式存档风险。
-- P1：必填文字/变量缺失、Fact 错位/乱码、LED/列表/按钮/业务行为错误、生产证据缺失。
-- P2：不影响可用性和合同结构的轻微视觉项，可明示延期；P0/P1 不允许 WAIVER。
+棘轮成本约束：
+- 单个运行时间 ≤10 秒 / 无 GUI / 无截图 / 无长时间 sleep / 无完整进程重启
+- 只验证对应缺陷的确定性不变量
 
-## 8. 能力预检
+禁止进入棘轮：Modal 压力测试 / GPU 截图 / F5 10 分钟 / 三轮跨进程存档 / 全量历史回归（属于 MILESTONE_GATE）。
+
+回归套件只增不减；任何已关闭缺陷回归，本波候选整体 FAIL。
+
+永久不变量（同 v2.1 §5）。
+
+## 7. 脚手架单例约束
+
+仓库只允许四个 active 入口：GUI Runner / Data Runner / Cross-process Orchestrator / Ratchet Aggregate Runner。每个类别唯一 canonical path。新增第二个同类实现=P0 缺陷。
+
+## 8. 证据纪律
+
+普通迭代：截图/JSON/日志进 CI artifacts 或临时目录，不进 Git。Wave 候选：Git 只保留该 Wave 一份最终证据包。Milestone：Git 只保留一份最终证据包。
+
+## 9. 根因升级线
+
+同 v2.1 §6。
+
+## 10. 分级
+
+同 v2.1 §7。
+
+## 11. 能力预检
 
 每波读取/生成 `reports/m19/acceptance/CAPABILITIES.json`，至少验证正确工作树、git push、Godot GUI 捕获、GUI 输入自动化、SceneTree 快照、资产 SHA256、真实 CI 访问。未验证能力不得进入关键路径。
 
