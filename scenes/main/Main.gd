@@ -80,16 +80,22 @@ func _process(delta: float) -> void:
 			panel_status_label.text = "tick=%d" % _alive_tick
 	if blue_guardian_panel != null and blue_guardian_panel.visible:
 		blue_guardian_panel._process(delta)
+	if m19_bg_panel != null and m19_bg_panel.visible:
+		m19_bg_panel._process(delta)
 	if m19_main_ui != null:
 		m19_main_ui._process(delta)
-	# M19 auto-switch: VoyagingPanel -> ResultPanel on voyage complete
+	# M19 auto-switch: VoyagingPanel/BGPanel -> ResultPanel on voyage complete
 	if game_state.blue_guardian_service != null:
 		game_state.blue_guardian_service.ensure_voyage_settled_if_due()
-	if m19_voyaging_panel != null and m19_voyaging_panel.visible:
-		var svc = game_state.blue_guardian_service
-		if svc != null and svc.get_state() == BlueGuardianService.VoyageState.RESULT_PENDING:
-			m19_voyaging_panel.hide()
-			m19_result_panel.show()
+	var _svc = game_state.blue_guardian_service
+	var _result_pending := _svc != null and _svc.get_state() == BlueGuardianService.VoyageState.RESULT_PENDING
+	if m19_voyaging_panel != null and m19_voyaging_panel.visible and _result_pending:
+		m19_voyaging_panel.hide()
+		m19_result_panel.show()
+	if m19_bg_panel != null and m19_bg_panel.visible and _result_pending:
+		m19_bg_panel.hide()
+		if m19_dimmer != null: m19_dimmer.show()
+		m19_result_panel.show()
 	if livestock_panel != null and livestock_panel.visible:
 		_livestock_refresh_timer += delta
 		if _livestock_refresh_timer >= LIVESTOCK_REFRESH_INTERVAL:
@@ -120,14 +126,25 @@ func _build_m19_main_ui() -> void:
 			print("[M19] Hidden legacy: ", ns)
 	# M19 Hybrid stays on top — old nodes hidden below
 
-	# Wire entry buttons in right panel
-	var sidebar: Dictionary = m19_main_ui._sidebar_labels
-	if sidebar.has("codex_button"):
-		sidebar["codex_button"].pressed.connect(_open_catalog_view)
-	if sidebar.has("release_button"):
-		sidebar["release_button"].pressed.connect(_open_release_management)
-	for btn in m19_main_ui._device_buttons:
-		btn.pressed.connect(func(): print("[DEVICE] ", btn.text, " pressed"))
+	# Wire entry buttons from nav panel
+	var nav: Dictionary = m19_main_ui.get("_nav_buttons")
+	if nav is Dictionary:
+		if nav.has("codex_button") and nav["codex_button"] is Button:
+			nav["codex_button"].pressed.connect(_open_catalog_view)
+		if nav.has("release_button") and nav["release_button"] is Button:
+			nav["release_button"].pressed.connect(_open_release_management)
+		if nav.has("save_button") and nav["save_button"] is Button:
+			nav["save_button"].pressed.connect(_manual_save_test)
+		if nav.has("observe_button") and nav["observe_button"] is Button:
+			nav["observe_button"].pressed.connect(_on_observe_pressed)
+
+	# Also wire legacy sidebar if present
+	var sidebar: Dictionary = m19_main_ui.get("_sidebar_labels")
+	if sidebar is Dictionary:
+		if sidebar.has("codex_button") and sidebar["codex_button"] is Button:
+			sidebar["codex_button"].pressed.connect(_open_catalog_view)
+		if sidebar.has("release_button") and sidebar["release_button"] is Button:
+			sidebar["release_button"].pressed.connect(_open_release_management)
 
 	print("[M19] Main UI built and entry buttons wired")
 
@@ -587,6 +604,11 @@ func _toggle_blue_guardian() -> void:
 	var state: int = svc.get_state()
 	_hide_all_secondary_panels()
 	m19_dimmer.show()
+	# RESULT_PENDING → show result panel directly
+	if state == BlueGuardianService.VoyageState.RESULT_PENDING:
+		m19_result_panel.show()
+		return
+	# READY or VOYAGING → show shared BG panel
 	if m19_bg_panel != null:
 		m19_bg_panel.show()
 		return
@@ -602,6 +624,13 @@ func _toggle_blue_guardian() -> void:
 
 	if panel_status_label != null:
 		panel_status_label.text = "已打开：蓝色守护"
+
+
+func _on_observe_pressed() -> void:
+	_hide_all_secondary_panels()
+	if m19_dimmer != null: m19_dimmer.hide()
+	if panel_status_label != null:
+		panel_status_label.text = "观赏模式"
 
 
 func _toggle_rescue() -> void:
