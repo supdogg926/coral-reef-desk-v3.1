@@ -81,39 +81,82 @@ func _click_button(text_match: String) -> Dictionary:
 
 
 func _modal_stress_250() -> Dictionary:
-	var pages := {"02_bg": 50, "05_codex": 50, "06_release": 50}
 	var total := 0; var passed := 0; var failures := []
-	for tag in pages:
-		for i in range(pages[tag]):
-			var btn_text := ""
-			match tag:
-				"02_bg": btn_text = "蓝色守护"
-				"05_codex": btn_text = "图鉴"
-				"06_release": btn_text = "放归"
 
-			var r = await _click_button(btn_text)
-			await _w(0.3)
-			if r["result"] == "PASS":
-				# Close: click again or close button
-				if tag == "02_bg":
-					await _click_button("蓝色守护")
-				else:
-					var close_btn = _find_visible_button(_main_node, "关闭")
-					if close_btn == null:
-						var hide_btn = _find_visible_button(_main_node, "X")
-						close_btn = hide_btn
-					if close_btn != null:
-						var gp2 := (close_btn as Control).global_position
-						var sz2 := (close_btn as Control).size
-						var mp2 = InputEventMouseButton.new()
-						mp2.position = Vector2(gp2.x + sz2.x/2.0, gp2.y + sz2.y/2.0)
-						mp2.button_index = MOUSE_BUTTON_LEFT; mp2.pressed = true
-						Input.parse_input_event(mp2)
-						await _w(0.05); mp2.pressed = false; Input.parse_input_event(mp2)
-				await _w(0.2)
-			total += 1
-			if r["result"] == "PASS": passed += 1
-			else: failures.append({"tag": tag, "cycle": i, "reason": r.get("reason","")})
+	# 02 ready: 50 cycles
+	for i in range(50):
+		var r = await _click_button("蓝色守护")
+		await _w(0.3)
+		if r["result"] == "PASS":
+			await _click_button("蓝色守护"); await _w(0.2)
+		total += 1
+		if r["result"] == "PASS": passed += 1
+		else: failures.append({"page":"02","cycle":i,"reason":r.get("reason","")})
+
+	# Launch voyage for 03 voyaging state
+	if _gs != null:
+		var svc = _gs.get("blue_guardian_service")
+		if svc != null:
+			var get_state = svc.get("get_state")
+			if get_state is Callable and get_state.call() == 0:
+				svc.call("launch_voyage")
+	await _w(1.0)
+
+	# 03 voyaging: 50 cycles
+	for i in range(50):
+		var r = await _click_button("蓝色守护")
+		await _w(0.3)
+		if r["result"] == "PASS":
+			await _click_button("蓝色守护"); await _w(0.2)
+		total += 1
+		if r["result"] == "PASS": passed += 1
+		else: failures.append({"page":"03","cycle":i,"reason":r.get("reason","")})
+
+	# Wait for voyage to complete for 04 result
+	if _gs != null:
+		var svc = _gs.get("blue_guardian_service")
+		if svc != null:
+			var get_state = svc.get("get_state")
+			if get_state is Callable:
+				var waited = 0
+				while waited < 600:
+					await _w(0.1)
+					svc.call("ensure_voyage_settled_if_due")
+					if get_state.call() == 2: break
+					waited += 1
+
+	# 04 result: 50 cycles
+	for i in range(50):
+		var r = await _click_button("蓝色守护")
+		await _w(0.3)
+		if r["result"] == "PASS":
+			await _click_button("蓝色守护"); await _w(0.2)
+		total += 1
+		if r["result"] == "PASS": passed += 1
+		else: failures.append({"page":"04","cycle":i,"reason":r.get("reason","")})
+
+	# 05 codex: 50 cycles
+	for i in range(50):
+		var r = await _click_button("图鉴")
+		await _w(0.3)
+		if r["result"] == "PASS":
+			var cb = _find_visible_button(_main_node, "关闭")
+			if cb != null: await _click_button("关闭"); await _w(0.2)
+		total += 1
+		if r["result"] == "PASS": passed += 1
+		else: failures.append({"page":"05","cycle":i,"reason":r.get("reason","")})
+
+	# 06 release: 50 cycles
+	for i in range(50):
+		var r = await _click_button("放归")
+		await _w(0.3)
+		if r["result"] == "PASS":
+			var cb = _find_visible_button(_main_node, "关闭")
+			if cb != null: await _click_button("关闭"); await _w(0.2)
+		total += 1
+		if r["result"] == "PASS": passed += 1
+		else: failures.append({"page":"06","cycle":i,"reason":r.get("reason","")})
+
 	return {"total": total, "passed": passed, "failed": failures.size(), "result": "PASS" if passed == total else "FAIL"}
 
 

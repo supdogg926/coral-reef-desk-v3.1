@@ -1,0 +1,43 @@
+{
+	"results": {
+		"control_matrix": {
+			"dev_found": 8,
+			"maint_found": 8,
+			"result": "PASS"
+		},
+		"entry": {
+			"legacy": 0,
+			"m19_ui": true,
+			"result": "PASS"
+		},
+		"modal_stress": {
+			"failed": 0,
+			"passed": 150,
+			"result": "PASS",
+			"total": 150
+		},
+		"nav_02": {
+			"PRIVATE_NAV": 0,
+			"button": "蓝色守护",
+			"clicked": true,
+			"disabled": false,
+			"position": [
+				1116.0,
+				616.0
+			],
+			"result": "PASS"
+		},
+		"static_text": {
+			"found": 20,
+			"missing": [],
+			"result": "PASS"
+		},
+		"water_params": {
+			"issues": [],
+			"result": "PASS"
+		},
+		"wave_balance": 37739.0339079897
+	},
+	"run_id": "1784029079.408",
+	"subject_sha": "2285a71252915e9cba79b1c82507c2b9eefa31a0"
+}
