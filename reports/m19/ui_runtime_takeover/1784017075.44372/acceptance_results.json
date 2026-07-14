@@ -1,0 +1,42 @@
+{
+	"commit_sha": "7f712f1de5bc9bc0dc6b584526ed3028829030c2",
+	"generated_at": "2026-07-14T16:18:00",
+	"results": {
+		"dynamic": {
+			"result": "PASS",
+			"wave_balance": 207.443285385863
+		},
+		"entry": {
+			"result": "PASS"
+		},
+		"node_count": 284,
+		"save": true,
+		"screenshots": [
+			"01_main_runtime",
+			"02_ready_runtime",
+			"03_voyaging_runtime",
+			"04_result_runtime",
+			"05_codex_runtime",
+			"06_release_runtime"
+		],
+		"ss_01_main_runtime": "01_main_runtime.png",
+		"ss_02_ready_runtime": "02_ready_runtime.png",
+		"ss_03_voyaging_runtime": "03_voyaging_runtime.png",
+		"ss_04_result_runtime": "04_result_runtime.png",
+		"ss_05_codex_runtime": "05_codex_runtime.png",
+		"ss_06_release_runtime": "06_release_runtime.png",
+		"static_text": {
+			"found": 16,
+			"missing": [],
+			"result": "PASS"
+		},
+		"water": {
+			"issues": [],
+			"result": "PASS"
+		},
+		"wave_balance": 207.443285385863
+	},
+	"run_id": "1784017075.44372",
+	"total_frames": 3100,
+	"wave_id": "M19-W01-UI-RUNTIME-FUNCTIONAL-TAKEOVER"
+}
