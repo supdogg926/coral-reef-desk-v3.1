@@ -97,8 +97,7 @@ func _modal_stress_250() -> Dictionary:
 	if _gs != null:
 		var svc = _gs.get("blue_guardian_service")
 		if svc != null:
-			var get_state = svc.get("get_state")
-			if get_state is Callable and get_state.call() == 0:
+			if svc.has_method("get_state") and svc.call("get_state") == 0:
 				svc.call("launch_voyage")
 	await _w(1.0)
 
@@ -116,14 +115,13 @@ func _modal_stress_250() -> Dictionary:
 	if _gs != null:
 		var svc = _gs.get("blue_guardian_service")
 		if svc != null:
-			var get_state = svc.get("get_state")
-			if get_state is Callable:
-				var waited = 0
-				while waited < 600:
-					await _w(0.1)
-					svc.call("ensure_voyage_settled_if_due")
-					if get_state.call() == 2: break
-					waited += 1
+			if svc.has_method("get_state"):
+			var waited = 0
+			while waited < 600:
+				await _w(0.1)
+				svc.call("ensure_voyage_settled_if_due")
+				if svc.call("get_state") == 2: break
+				waited += 1
 
 	# 04 result: 50 cycles
 	for i in range(50):
