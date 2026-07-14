@@ -60,24 +60,20 @@ const KNOB_CONFIG := [
 
 # Maintenance action IDs (match GameState.MAINTENANCE_ACTION_RULES keys)
 const MAINTENANCE_ORDER := ["water_change_10", "clean_filter", "dose_buffer", "top_off", "travel_prep"]
-const MAINTENANCE_LABELS := {
-	"water_change_10":"换水","clean_filter":"清滤","dose_buffer":"KH",
-	"top_off":"补水","travel_prep":"更换滤材"
-}
 
 # Feeding action IDs (match GameState.FEEDING_ACTION_RULES keys)
 const FEEDING_ORDER := ["fish_food", "coral_food"]
-const FEEDING_LABELS := {"fish_food":"喂鱼粮", "coral_food":"喂珊瑚粮"}
 
-# Device IDs (match GameState.DEVICE_DEFINITIONS keys)
-const DEVICE_ORDER := ["return_pump", "wave_pump", "main_light", "refugium_light", "chiller", "uv_sterilizer", "reserve"]
-const DEVICE_LABELS := {
-	"return_pump":"水泵","wave_pump":"造浪泵","main_light":"主灯",
-	"refugium_light":"藻缸灯","chiller":"冷水机","uv_sterilizer":"UV杀菌",
-	"reserve":"预留"
+# Frozen 8 maintenance key labels (contract order)
+const MAINT_8_LABELS := ["换水","清滤","KH","补水","清藻","更换滤材","喂鱼粮","喂珊瑚粮"]
+
+# Frozen 8 device key labels (contract order)
+const DEVICE_8_LABELS := ["蛋分","杀菌灯","加热棒","冷水机","KHA","钙反","卷纸机","煮豆机"]
+
+# Backend device mappings for keys that have real implementations
+const DEVICE_BACKEND_MAP := {
+	"杀菌灯":"uv_sterilizer", "冷水机":"chiller"
 }
-# Old UI device names that don't exist in current backend — shown as disabled
-const LEGACY_DEVICE_NAMES := ["蛋分","加热棒","煮豆机","钙反","卷纸机","KHA"]
 
 
 func setup(gs: GameState) -> void:
@@ -313,61 +309,60 @@ func _build_device_facts() -> void:
 	_maintenance_buttons.clear()
 	_feeding_buttons.clear()
 
-	# Row 0: Maintenance (5 buttons based on real GameState actions)
-	for col in range(MAINTENANCE_ORDER.size()):
-		var dx: int = 715 + col * 85
+	# Row 0: Frozen 8 maintenance keys
+	for col in range(8):
+		var dx: int = 715 + col * 72
 		var dy: int = 540
-		var action_id: String = MAINTENANCE_ORDER[col]
-		var label: String = MAINTENANCE_LABELS.get(action_id, action_id)
+		var label: String = MAINT_8_LABELS[col]
+		var action_id := ""
+		match col:
+			0: action_id = "water_change_10"
+			1: action_id = "clean_filter"
+			2: action_id = "dose_buffer"
+			3: action_id = "top_off"
+			4: action_id = "algae_clean"
+			5: action_id = "media_replace"
+			6: action_id = "fish_food"
+			7: action_id = "coral_food"
+
 		var btn = Button.new()
-		btn.position = Vector2(dx, dy); btn.size = Vector2(78, 36)
+		btn.position = Vector2(dx, dy); btn.size = Vector2(68, 36)
 		btn.text = label
 		btn.add_theme_font_size_override("font_size", 9)
 		btn.add_theme_color_override("font_color", Color(0.50,0.78,0.86))
-		btn.flat = true; btn.name = "maint_" + action_id
-		btn.pressed.connect(_on_maintenance_pressed.bind(action_id))
+		btn.flat = true; btn.name = "key_" + label
+
+		# Wire to backend where real action exists
+		if action_id in ["water_change_10","clean_filter","dose_buffer","top_off"]:
+			btn.pressed.connect(_on_maintenance_pressed.bind(action_id))
+		elif action_id in ["fish_food","coral_food"]:
+			btn.pressed.connect(_on_feeding_pressed.bind(action_id))
+		else:
+			# 清藻 and 更换滤材: no backend yet — disable with reason
+			btn.disabled = true
+			btn.add_theme_color_override("font_color", Color(0.30, 0.32, 0.32))
+			btn.tooltip_text = "维护功能开发中"
 		add_child(btn)
 		_maintenance_buttons.append(btn)
 
-	# Row 1: Feeding (2 buttons) + first real devices
-	for col in range(FEEDING_ORDER.size()):
-		var dx: int = 715 + col * 85
-		var dy: int = 578
-		var feed_id: String = FEEDING_ORDER[col]
-		var label: String = FEEDING_LABELS.get(feed_id, feed_id)
+	# Row 1-2: Frozen 8 device keys (4 per row)
+	for idx in range(8):
+		var row: int = idx / 4
+		var col: int = idx % 4
+		var dx: int = 715 + col * 72
+		var dy: int = 580 + row * 38
+		var label: String = DEVICE_8_LABELS[idx]
+		var backend_id: String = DEVICE_BACKEND_MAP.get(label, "")
+
 		var btn = Button.new()
-		btn.position = Vector2(dx, dy); btn.size = Vector2(78, 36)
+		btn.position = Vector2(dx, dy); btn.size = Vector2(68, 34)
 		btn.text = label
 		btn.add_theme_font_size_override("font_size", 9)
-		btn.add_theme_color_override("font_color", Color(0.60,0.88,0.72))
-		btn.flat = true; btn.name = "feed_" + feed_id
-		btn.pressed.connect(_on_feeding_pressed.bind(feed_id))
-		add_child(btn)
-		_feeding_buttons.append(btn)
+		btn.flat = true; btn.name = "dev_" + label
 
-	# Rows 2-3: Real device toggles + legacy disabled placeholders
-	var all_devices: Array = []
-	# Real devices first
-	for dev_id in DEVICE_ORDER:
-		all_devices.append({"id": dev_id, "label": DEVICE_LABELS.get(dev_id, dev_id), "real": true})
-	# Legacy device placeholders (disabled, no backend)
-	for legacy_name in LEGACY_DEVICE_NAMES:
-		all_devices.append({"id": "legacy_" + legacy_name, "label": legacy_name, "real": false})
-
-	for idx in range(all_devices.size()):
-		var entry: Dictionary = all_devices[idx]
-		var row: int = 2 + idx / 4
-		var col: int = idx % 4
-		var dx: int = 715 + col * 85
-		var dy: int = 540 + row * 40
-		var btn = Button.new()
-		btn.position = Vector2(dx, dy); btn.size = Vector2(78, 34)
-		btn.text = entry["label"]
-		btn.add_theme_font_size_override("font_size", 9)
-		btn.flat = true; btn.name = "dev_" + entry["id"]
-		if entry["real"]:
+		if backend_id != "":
 			btn.add_theme_color_override("font_color", Color(0.50,0.78,0.86))
-			btn.pressed.connect(_on_device_pressed.bind(entry["id"]))
+			btn.pressed.connect(_on_device_pressed.bind(backend_id))
 		else:
 			btn.disabled = true
 			btn.add_theme_color_override("font_color", Color(0.30, 0.32, 0.32))
@@ -531,21 +526,21 @@ func _update_dynamic_data() -> void:
 		elif dev_type == "colortemp":
 			val_lbl.text = "%dK" % game_state.light_color_temp
 
-	# ── Device buttons: on/off state (real devices only, legacy already disabled) ──
+	# ── Device buttons: on/off state (only for devices with backend) ──
 	for i in range(_device_buttons.size()):
 		var btn: Button = _device_buttons[i]
-		var dev_name: String = btn.name.replace("dev_", "")
-		if dev_name.begins_with("legacy_"): continue  # already disabled
-		var dev_info: Dictionary = devices.get(dev_name, {}) if devices is Dictionary else {}
+		var label: String = DEVICE_8_LABELS[i] if i < DEVICE_8_LABELS.size() else ""
+		var backend_id: String = DEVICE_BACKEND_MAP.get(label, "")
+		if backend_id == "": continue  # no backend, already disabled
+		var dev_info: Dictionary = devices.get(backend_id, {}) if devices is Dictionary else {}
 		if dev_info.is_empty():
 			btn.disabled = true
-			btn.tooltip_text = "设备未实现"
-			btn.add_theme_color_override("font_color", Color(0.35, 0.38, 0.38))
+			btn.tooltip_text = label + ": 未实现"
 		else:
 			var enabled: bool = bool(dev_info.get("enabled", false))
 			btn.disabled = false
 			btn.add_theme_color_override("font_color", Color(0.50,0.88,0.68) if enabled else Color(0.50,0.78,0.86))
-			btn.tooltip_text = ("%s: ON" if enabled else "%s: OFF") % DEVICE_LABELS.get(dev_name, dev_name)
+			btn.tooltip_text = label + (": ON" if enabled else ": OFF")
 
 	# ── Maintenance buttons: cooldown + cost ──
 	for i in range(MAINTENANCE_ORDER.size()):
