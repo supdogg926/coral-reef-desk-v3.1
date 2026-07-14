@@ -1,0 +1,59 @@
+{
+  "run_id": "ma1-w02-windows-prod",
+  "platform": "Windows",
+  "godot": "4.7.stable.official.5b4e0cb0f",
+  "renderer": "opengl3",
+  "commit": "e08403f",
+  "entry": "PASS",
+  "m19_ui": true,
+  "legacy_visible": 0,
+  "auto_navigation": 0,
+  "auto_exit": 0,
+  "wave_balance": "confirmed_dynamic",
+  "water_params": {
+    "temperature": "confirmed",
+    "salinity": "confirmed",
+    "nitrate": "confirmed",
+    "phosphate": "confirmed",
+    "ph": "confirmed",
+    "alkalinity": "confirmed",
+    "calcium": "confirmed"
+  },
+  "knobs": {
+    "return_pump": "wired",
+    "wave_pump": "wired",
+    "light_intensity": "wired",
+    "light_color_temp": "wired"
+  },
+  "maintenance_actions": {
+    "water_change_10": "wired",
+    "clean_filter": "wired",
+    "dose_buffer": "wired",
+    "top_off": "wired",
+    "travel_prep": "wired"
+  },
+  "feeding_actions": {
+    "fish_food": "wired",
+    "coral_food": "wired"
+  },
+  "device_ids": [
+    "return_pump",
+    "wave_pump",
+    "main_light",
+    "refugium_light",
+    "chiller",
+    "uv_sterilizer",
+    "reserve"
+  ],
+  "static_text": {
+    "found": 16,
+    "required": 16
+  },
+  "garbled_count": 0,
+  "null_count": 0,
+  "nan_count": 0,
+  "clipped_count": 0,
+  "dead_button_count": 0,
+  "false_clickable_count": 0,
+  "godot_errors": 0
+}
