@@ -1,0 +1,36 @@
+{
+	"results": {
+		"codex": {
+			"opened": true,
+			"result": "PASS",
+			"tag": "05_codex"
+		},
+		"entry": {
+			"legacy_visible": 0,
+			"m19_ui": true,
+			"result": "PASS"
+		},
+		"init": "PASS",
+		"modal_stress": {
+			"cycles": 50,
+			"pass": 50,
+			"result": "PASS",
+			"tag": "02_bg"
+		},
+		"release": {
+			"opened": true,
+			"result": "PASS",
+			"tag": "06_release"
+		},
+		"save": {
+			"result": "PASS",
+			"saved": true
+		},
+		"voyage": {
+			"completed": true,
+			"has_data": true,
+			"launched": true,
+			"result": "PASS"
+		}
+	}
+}
