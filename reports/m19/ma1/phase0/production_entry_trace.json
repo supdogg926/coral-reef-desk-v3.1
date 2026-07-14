@@ -1,0 +1,22 @@
+{
+  "run_main_scene": "res://scenes/main/Main.tscn",
+  "forbidden_scan": {
+    "project.godot": {
+      "found": [],
+      "count": 0
+    },
+    "scenes/main/Main.tscn": {
+      "found": [],
+      "count": 0
+    },
+    "scenes/main/Main.gd": {
+      "found": [],
+      "count": 0
+    }
+  },
+  "total_forbidden": 0,
+  "GAMESTATE_PARSE": "PASS",
+  "PRODUCTION_FIRST_FRAME": "PASS",
+  "PRODUCTION_RUN_120S": "PASS",
+  "GODOT_SCRIPT_ERROR_COUNT": 0
+}

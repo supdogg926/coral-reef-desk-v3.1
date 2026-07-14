@@ -1,0 +1,21 @@
+{
+  "timestamp": "2026-07-14T17:16:50.927189",
+  "hostname": "CyberDogStar",
+  "os": "Windows-10-10.0.26200-SP0",
+  "godot_version": "4.7.stable.official.5b4e0cb0f",
+  "godot_path": "C:/Users/admin/Desktop/Godot_v4.7-stable_win64_console.exe",
+  "tested_branches": [
+    "main",
+    "fix/m19-ui-runtime-functional-takeover"
+  ],
+  "opengl3_fresh_clone": "CLASS_RESOLUTION_FAILURE",
+  "opengl3_cached": "GPU_HANG_DURING_FIRST_FRAME",
+  "d3d12": "CLASS_RESOLUTION_FAILURE",
+  "headless": "CLASS_RESOLUTION_FAILURE",
+  "dummy_renderer": "CLASS_RESOLUTION_FAILURE",
+  "mac_metal": "FULLY_FUNCTIONAL",
+  "gpu_info": "Dual NVIDIA RTX 5060 Ti",
+  "block_reason": "GODOT_WINDOWS_GPU_INIT_FAILURE",
+  "note": "All rendering drivers on Windows either fail class resolution (no .godot cache) or hang during GPU initialization (dual RTX 5060 Ti). Mac Studio M3 Ultra with Metal works but is DEVELOPMENT_DIAGNOSTIC_ONLY per contract.",
+  "recommended_next_action": "Resolve Windows dual-GPU Godot 4.7 rendering initialization, or provision Windows single-GPU machine for production evidence"
+}

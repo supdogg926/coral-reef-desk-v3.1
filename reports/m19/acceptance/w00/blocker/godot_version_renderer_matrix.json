@@ -1,0 +1,25 @@
+{
+  "timestamp": "2026-07-14T17:30:00",
+  "godot_versions": {
+    "4.7.stable": {
+      "blank_opengl3": "HANG",
+      "blank_vulkan_gpu0": "HANG",
+      "blank_vulkan_gpu1": "HANG",
+      "blank_d3d12": "HANG"
+    },
+    "4.6.3.stable": {
+      "blank_opengl3": "HANG",
+      "blank_vulkan_gpu0": "HANG",
+      "blank_vulkan_gpu1": "HANG",
+      "blank_d3d12": "HANG"
+    }
+  },
+  "findings": {
+    "REEFIDLE_PROJECT_LEVEL_FAILURE": false,
+    "BLANK_PROJECT_REPRODUCTION": true,
+    "GODOT_4_7_REGRESSION": false,
+    "ROOT_CAUSE_CATEGORY": "WINDOWS_NVIDIA_DRIVER_OR_GRAPHICS_STACK",
+    "DUAL_GPU_CAUSALITY": "NOT_PROVEN",
+    "ENGINE_VERSION_SPECIFIC_REGRESSION": false
+  }
+}
