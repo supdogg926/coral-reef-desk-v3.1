@@ -170,6 +170,7 @@ func _build_sidebar_facts() -> void:
 
 	# Navigation buttons with signals
 	var nav_btns = [
+		["blue_guardian_button", 1064, 600, 104, 32, "蓝色守护"],
 		["save_button",   1064, 640, 64, 28, "保存"],
 		["observe_button",1132, 640, 64, 28, "观赏"],
 		["codex_button",  1064, 674, 64, 32, "图鉴"],

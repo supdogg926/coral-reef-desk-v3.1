@@ -1,0 +1,37 @@
+{
+	"results": {
+		"control_matrix": {
+			"dev_found": 8,
+			"maint_found": 8,
+			"result": "PASS"
+		},
+		"entry": {
+			"legacy": 0,
+			"m19_ui": true,
+			"result": "PASS"
+		},
+		"modal_stress": {
+			"failed": 50,
+			"passed": 100,
+			"result": "FAIL",
+			"total": 150
+		},
+		"nav_02": {
+			"PRIVATE_NAV": 0,
+			"reason": "button not found: 蓝色守护",
+			"result": "FAIL"
+		},
+		"static_text": {
+			"found": 20,
+			"missing": [],
+			"result": "PASS"
+		},
+		"water_params": {
+			"issues": [],
+			"result": "PASS"
+		},
+		"wave_balance": 37389.3319234624
+	},
+	"run_id": "1784026323.682",
+	"subject_sha": "3d62ab97bd975baeb82cf881ecc4b733a5dfacd3"
+}

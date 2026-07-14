@@ -137,6 +137,8 @@ func _build_m19_main_ui() -> void:
 			nav["save_button"].pressed.connect(_manual_save_test)
 		if nav.has("observe_button") and nav["observe_button"] is Button:
 			nav["observe_button"].pressed.connect(_on_observe_pressed)
+			if nav.has("blue_guardian_button") and nav["blue_guardian_button"] is Button:
+				nav["blue_guardian_button"].pressed.connect(_toggle_blue_guardian)
 
 	# Also wire legacy sidebar if present
 	var sidebar: Dictionary = m19_main_ui.get("_sidebar_labels")
