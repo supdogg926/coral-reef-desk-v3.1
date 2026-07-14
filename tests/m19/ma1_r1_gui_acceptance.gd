@@ -115,7 +115,6 @@ func _modal_stress_250() -> Dictionary:
 	if _gs != null:
 		var svc = _gs.get("blue_guardian_service")
 		if svc != null:
-			if svc.has_method("get_state"):
 			var waited = 0
 			while waited < 600:
 				await _w(0.1)
