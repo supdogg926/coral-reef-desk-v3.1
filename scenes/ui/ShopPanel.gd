@@ -29,9 +29,44 @@ func _ready() -> void:
 func setup(gs: GameState) -> void:
 	game_state = gs
 	if not _built:
-		_build_ui()
+		_build_blue_guardian_placeholder()
 		_built = true
 		set_process(true)
+
+
+func _build_blue_guardian_placeholder() -> void:
+	var scroll: ScrollContainer = ScrollContainer.new()
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	scroll.custom_minimum_size = Vector2(300, 200)
+	var vbox: VBoxContainer = VBoxContainer.new()
+	vbox.add_theme_constant_override("separation", 12)
+	var title: Label = Label.new()
+	title.text = "蓝色守护"
+	title.add_theme_font_size_override("font_size", 16)
+	title.add_theme_color_override("font_color", Color(0.50, 0.78, 0.86))
+	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	vbox.add_child(title)
+	var status_label: Label = Label.new()
+	status_label.text = "当前状态：筹备中"
+	status_label.add_theme_font_size_override("font_size", 12)
+	status_label.add_theme_color_override("font_color", Color(0.82, 0.72, 0.36))
+	status_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	vbox.add_child(status_label)
+	var desc: Label = Label.new()
+	desc.text = "巡海救助系统将在下一阶段开放。\n积累浪花，守护海洋生灵。"
+	desc.add_theme_font_size_override("font_size", 11)
+	desc.add_theme_color_override("font_color", Color(0.64, 0.72, 0.76))
+	desc.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	vbox.add_child(desc)
+	var close_btn: Button = Button.new()
+	close_btn.text = "关闭"
+	close_btn.custom_minimum_size = Vector2(80, 28)
+	close_btn.add_theme_font_size_override("font_size", 10)
+	close_btn.pressed.connect(_on_close)
+	vbox.add_child(close_btn)
+	scroll.add_child(vbox)
+	add_child(scroll)
 
 var _shop_refresh_timer: float = 0.0
 const SHOP_REFRESH_INTERVAL: float = 1.0

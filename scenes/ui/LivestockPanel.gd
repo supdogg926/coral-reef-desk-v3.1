@@ -27,6 +27,25 @@ func _ready() -> void:
 	add_theme_stylebox_override("panel", style)
 
 
+func open_release_mode() -> void:
+	name = "ReleaseManagementPanel"
+	visible = true
+	var cb := _find_release_close()
+	if cb != null: cb.name = "ReleaseCloseButton"
+
+func _find_release_close() -> Control:
+	for child in get_children():
+		if child is MarginContainer:
+			for gc in child.get_children():
+				if gc is VBoxContainer:
+					for vc in gc.get_children():
+						if vc is HBoxContainer:
+							for hc in vc.get_children():
+								if hc is Button:
+									return hc
+	return null
+
+
 func setup(gs: GameState) -> void:
 	game_state = gs
 	if card_library == null:
@@ -231,6 +250,7 @@ func _build_ui() -> void:
 	root.add_child(status_label)
 
 	var close_btn: Button = Button.new()
+	close_btn.name = "ReleaseCloseButton"
 	close_btn.text = "关闭"
 	close_btn.custom_minimum_size = Vector2(0, 26)
 	close_btn.add_theme_font_size_override("font_size", 10)
